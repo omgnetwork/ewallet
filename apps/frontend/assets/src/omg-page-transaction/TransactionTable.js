@@ -58,7 +58,7 @@ const TableContainer = styled.div`
 function TransactionTable (props) {
   const searchObject = queryString.parse(props.location.search)
 
-  const onClickRow = (data, index) => e => {
+  const onClickRow = data => () => {
     props.history.push({
       search: queryString.stringify({
         ...searchObject,

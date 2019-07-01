@@ -47,8 +47,7 @@ class TransactionPage extends Component {
   renderTransactionPage = ({
     data: transactions,
     individualLoadingStatus,
-    pagination,
-    fetch
+    pagination
   }) => {
     return (
       <TransactionPageContainer>

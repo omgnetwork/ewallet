@@ -1,6 +1,16 @@
 import * as transactionRequestService from '../services/transactionRequestService'
-import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const getTransactionRequests = ({ page, perPage, search, cacheKey, matchAll, matchAny }) =>
+import {
+  createActionCreator,
+  createPaginationActionCreator
+} from '../utils/createActionCreator'
+export const getTransactionRequests = ({
+  page,
+  perPage,
+  search,
+  cacheKey,
+  matchAll,
+  matchAny
+}) =>
   createPaginationActionCreator({
     actionName: 'TRANSACTION_REQUESTS',
     action: 'REQUEST',
@@ -21,6 +31,13 @@ export const getTransactionRequestById = id =>
     actionName: 'TRANSACTION_REQUEST',
     action: 'REQUEST',
     service: () => transactionRequestService.getTransactionRequestById(id)
+  })
+
+export const cancelTransactionRequestById = id =>
+  createActionCreator({
+    actionName: 'TRANSACTION_REQUEST',
+    action: 'CANCEL',
+    service: () => transactionRequestService.cancelTransactionRequestById(id)
   })
 
 export const consumeTransactionRequest = ({

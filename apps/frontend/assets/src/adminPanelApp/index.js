@@ -6,7 +6,6 @@ import Modal from 'react-modal'
 import PropTypes from 'prop-types'
 import 'reset-css'
 
-import Alert from '../omg-alert'
 import theme from './theme'
 import Routes from './routes'
 import './fonts.css'
@@ -26,7 +25,6 @@ class App extends Component {
       <Provider store={this.props.store}>
         <ThemeProvider theme={theme}>
           <>
-            <Alert />
             <Routes />
           </>
         </ThemeProvider>

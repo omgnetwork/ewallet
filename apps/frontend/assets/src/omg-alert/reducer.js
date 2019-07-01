@@ -127,7 +127,10 @@ export const alertsReducer = createReducer([], {
     return [
       ...state,
       createAlertState(
-        <div>Updated user <b>{data.email || data.dataname || data.id}</b> successfully.</div>,
+        <div>
+          Updated user <b>{data.email || data.dataname || data.id}</b>{' '}
+          successfully.
+        </div>,
         'success'
       )
     ]
@@ -202,6 +205,21 @@ export const alertsReducer = createReducer([], {
         )
       ]
     }
+    if (data.status === 'cancelled') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Cancelled consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>
+              {data.id}
+            </Link>{' '}
+            successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
     return state
   },
   'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
@@ -226,6 +244,15 @@ export const alertsReducer = createReducer([], {
       ...state,
       createAlertState(
         'Updated configuration successfully, reloading application...',
+        'success'
+      )
+    ]
+  },
+  'TRANSACTION_REQUEST/CANCEL/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState(
+        'Transaction request was successfully canceled.',
         'success'
       )
     ]
@@ -258,5 +285,6 @@ export const alertsReducer = createReducer([], {
   '2FA/LOGIN/FAILED': errorStateHandler,
   'TOKEN_EXPIRE': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
-  'ADMIN/UPDATE/FAILED': errorStateHandler
+  'ADMIN/UPDATE/FAILED': errorStateHandler,
+  'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler
 })

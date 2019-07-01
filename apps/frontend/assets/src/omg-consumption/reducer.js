@@ -24,6 +24,24 @@ export const consumptionsReducer = createReducer(
     'CONSUMPTION/APPROVE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     },
+    'CONSUMPTION/APPROVE/FAILED': (state, action) => {
+      return {
+        ...state,
+        ...{
+          [action.data.id]: {
+            ...action.data,
+            status: 'falied',
+            transaction: {
+              ...action.data.transaction,
+              error_description: action.error.description
+            }
+          }
+        }
+      }
+    },
+    'CONSUMPTION/CANCEL/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.id]: action.data } }
+    },
     'CONSUMPTION/REJECT/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     }
@@ -31,7 +49,7 @@ export const consumptionsReducer = createReducer(
 )
 
 export const consumptionsLoadingStatusReducer = createReducer('DEFAULT', {
-  'CONSUMPTION/REQUEST/INITIATED': (state, action) => 'INITIATED',
-  'CONSUMPTION/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
-  'CONSUMPTION/REQUEST/FAILED': (state, action) => 'FAILED'
+  'CONSUMPTION/REQUEST/INITIATED': () => 'INITIATED',
+  'CONSUMPTION/REQUEST/SUCCESS': () => 'SUCCESS',
+  'CONSUMPTION/REQUEST/FAILED': () => 'FAILED'
 })
