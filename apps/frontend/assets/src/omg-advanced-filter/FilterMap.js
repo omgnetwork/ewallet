@@ -315,7 +315,7 @@ export const FILTER_MAP = [
   },
   // TRANSACTION CONSUMPTIONS PAGE --------------
   {
-    title: 'Consumed Date',
+    title: 'Consumption Date',
     key: 'transaction-consumptions-consumed-date',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
@@ -405,7 +405,7 @@ export const FILTER_MAP = [
     ]
   },
   {
-    title: 'Consumer',
+    title: 'Consumption Wallet',
     key: 'transaction-consumptions-consumer',
     icon: 'Option-Horizontal',
     page: 'transaction-consumptions',
