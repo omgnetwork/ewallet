@@ -274,7 +274,9 @@ class ConsumeBox extends Component {
       case 'max_consumptions_reached':
         return 'Max consumptions reached.'
       case 'expired_transaction_request':
-        return 'Transaction Expired.'
+        return 'Expired.'
+      case 'cancelled_transaction_request':
+        return 'Canceled.'
       default:
         return 'Expired.'
     }
