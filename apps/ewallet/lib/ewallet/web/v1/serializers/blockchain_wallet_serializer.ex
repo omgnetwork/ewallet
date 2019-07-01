@@ -17,12 +17,9 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
   Serializes address data into V1 JSON response format.
   """
   alias EWallet.Web.Paginator
+  alias Ecto.Association.NotLoaded
 
-  alias EWallet.Web.V1.{
-    BalanceSerializer,
-    ListSerializer,
-    PaginatorSerializer
-  }
+  alias EWallet.Web.V1.{ListSerializer, PaginatorSerializer}
 
   alias EWalletDB.BlockchainWallet
   alias Utils.Helpers.DateFormatter
@@ -37,6 +34,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
     |> ListSerializer.serialize()
   end
 
+  def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 
   def serialize(%BlockchainWallet{} = wallet) do
@@ -44,17 +42,8 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
       object: "blockchain_wallet",
       address: wallet.address,
       name: wallet.name,
-      balances: serialize_balances(wallet),
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
   end
-
-  defp serialize_balances(%{balances: nil}), do: []
-
-  defp serialize_balances(%{balances: balances}) do
-    Enum.map(balances, &BalanceSerializer.serialize/1)
-  end
-
-  defp serialize_balances(_), do: []
 end

@@ -16,18 +16,11 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.DateFormatter
-  alias EWallet.Web.V1.TokenSerializer
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
-
-      token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-
-      token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
       response =
         request("/blockchain_wallet.get", %{
@@ -42,31 +35,13 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                  "name" => blockchain_wallet.name,
                  "object" => "blockchain_wallet",
                  "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
-                 "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at),
-                 "balances" => [
-                   %{
-                     "object" => "balance",
-                     "amount" => 123,
-                     "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
-                   },
-                   %{
-                     "object" => "balance",
-                     "amount" => 123,
-                     "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
-                   }
-                 ]
+                 "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at)
                }
              }
     end
 
     test_with_auths "returns error when given non-existing wallet address" do
       insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
-
-      _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-
-      _token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
       response = request("/blockchain_wallet.get", %{"address" => "0x0"})
 
@@ -105,12 +80,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet_2 =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
 
-      token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
-
-      token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-
       attrs = %{
         "sort_by" => "inserted_at",
         "sort_dir" => "asc",
@@ -128,38 +97,14 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "name" => blockchain_wallet_1.name,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_1.inserted_at),
-                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at),
-                     "balances" => [
-                       %{
-                         "object" => "balance",
-                         "amount" => 123,
-                         "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
-                       },
-                       %{
-                         "object" => "balance",
-                         "amount" => 123,
-                         "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
-                       }
-                     ]
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at)
                    },
                    %{
                      "address" => "0x0000000000000000000000000000000000000456",
                      "name" => blockchain_wallet_2.name,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
-                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
-                     "balances" => [
-                       %{
-                         "object" => "balance",
-                         "amount" => 123,
-                         "token" => token_1 |> TokenSerializer.serialize() |> stringify_keys()
-                       },
-                       %{
-                         "object" => "balance",
-                         "amount" => 123,
-                         "token" => token_2 |> TokenSerializer.serialize() |> stringify_keys()
-                       }
-                     ]
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
                    }
                  ],
                  "pagination" => %{
@@ -184,8 +129,6 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet_2 =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
 
-      token = insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
-
       attrs = %{
         "sort_by" => "inserted_at",
         "sort_dir" => "asc",
@@ -203,14 +146,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "name" => blockchain_wallet_2.name,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
-                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at),
-                     "balances" => [
-                       %{
-                         "object" => "balance",
-                         "amount" => 123,
-                         "token" => token |> TokenSerializer.serialize() |> stringify_keys()
-                       }
-                     ]
+                     "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
                    }
                  ],
                  "pagination" => %{
