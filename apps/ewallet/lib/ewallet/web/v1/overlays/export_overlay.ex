@@ -51,19 +51,19 @@ defmodule EWallet.Web.V1.ExportOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :schema,
-      :status,
-      :completion,
-      :url,
-      :filename,
-      :path,
-      :failure_reason,
-      :estimated_size,
-      :total_count,
-      :adapter,
-      :inserted_at,
-      :updated_at
+      id: nil,
+      schema: nil,
+      status: nil,
+      completion: nil,
+      url: nil,
+      filename: nil,
+      path: nil,
+      failure_reason: nil,
+      estimated_size: nil,
+      total_count: nil,
+      adapter: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime
     ]
 
   def filter_fields,
@@ -79,8 +79,8 @@ defmodule EWallet.Web.V1.ExportOverlay do
       estimated_size: nil,
       total_count: nil,
       adapter: nil,
-      inserted_at: nil,
-      updated_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
       user: UserOverlay.self_filter_fields(),
       key: KeyOverlay.self_filter_fields()
     ]

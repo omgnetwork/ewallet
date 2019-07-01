@@ -53,12 +53,12 @@ defmodule EWallet.Web.V1.WalletOverlay do
 
   def self_filter_fields,
     do: [
-      :address,
-      :name,
-      :identifier,
-      :enabled,
-      :inserted_at,
-      :created_at
+      address: nil,
+      name: nil,
+      identifier: nil,
+      enabled: nil,
+      inserted_at: :datetime,
+      created_at: :datetime
     ]
 
   def filter_fields,
@@ -67,8 +67,8 @@ defmodule EWallet.Web.V1.WalletOverlay do
       name: nil,
       identifier: nil,
       enabled: nil,
-      inserted_at: nil,
-      created_at: nil,
+      inserted_at: :datetime,
+      created_at: :datetime,
       user: UserOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields()
     ]

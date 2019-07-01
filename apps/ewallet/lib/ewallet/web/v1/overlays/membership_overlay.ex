@@ -48,15 +48,15 @@ defmodule EWallet.Web.V1.MembershipOverlay do
 
   def self_filter_fields,
     do: [
-      :inserted_at,
-      :updated_at
+      inserted_at: :datetime,
+      updated_at: :datetime
     ]
 
   def filter_fields,
     do: [
       id: nil,
-      inserted_at: nil,
-      updated_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
       user: UserOverlay.self_filter_fields(),
       key: KeyOverlay.self_filter_fields(),
       account: AccountOverlay.self_filter_fields(),
