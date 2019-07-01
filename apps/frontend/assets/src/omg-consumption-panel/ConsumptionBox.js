@@ -54,7 +54,6 @@ function ConsumptionBox ({
 }) {
   const searchObject = queryString.parse(location.search)
   const tq = _.get(consumption, 'transaction_request', {})
-  console.log(consumption)
   return (
     <ActionContainer>
       <InformationItem>
