@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:get, conn.assigns, wallet),
          {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
-      respond_single(conn, wallet)
+      respond_single(wallet, conn)
     else
       {:error, error} -> handle_error(conn, error)
       {:error, error, description} -> handle_error(conn, error, description)
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  defp respond_single(conn, blockchain_wallet) do
+  defp respond_single(blockchain_wallet, conn) do
     render(conn, :blockchain_wallet, %{blockchain_wallet: blockchain_wallet})
   end
 
