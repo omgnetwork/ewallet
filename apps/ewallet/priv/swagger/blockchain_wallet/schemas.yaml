@@ -8,15 +8,21 @@ BlockchainWalletSchema:
       type: string
     name:
       type: string
-    balances:
-      type: array
-      items:
-        $ref: '#/BalanceSchema'
+    type:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
   required:
     - object
     - address
     - name
-    - balances
+    - type
+    - created_at
+    - updated_at
 
 BalanceSchema:
   description: The object schema for a balance
