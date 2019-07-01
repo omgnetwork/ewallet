@@ -108,6 +108,109 @@ defmodule EWallet.Web.MatchAnyQueryTest do
     end
   end
 
+  describe "do_filter/5 with datetime field type" do
+    test "supports 'eq' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "eq", user_2.inserted_at)
+        |> on_all(User)
+
+      refute contains?(result, user_1)
+      assert contains?(result, user_2)
+      refute contains?(result, user_3)
+    end
+
+    test "supports 'neq' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "neq", user_2.inserted_at)
+        |> on_all(User)
+
+      assert contains?(result, user_1)
+      refute contains?(result, user_2)
+      assert contains?(result, user_3)
+    end
+
+    test "supports 'gt' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "gt", user_2.inserted_at)
+        |> on_all(User)
+
+      refute contains?(result, user_1)
+      refute contains?(result, user_2)
+      assert contains?(result, user_3)
+    end
+
+    test "supports 'gte' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "gte", user_2.inserted_at)
+        |> on_all(User)
+
+      refute contains?(result, user_1)
+      assert contains?(result, user_2)
+      assert contains?(result, user_3)
+    end
+
+    test "supports 'lt' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "lt", user_2.inserted_at)
+        |> on_all(User)
+
+      assert contains?(result, user_1)
+      refute contains?(result, user_2)
+      refute contains?(result, user_3)
+    end
+
+    test "supports 'lte' comparator" do
+      user_1 = insert(:user)
+      user_2 = insert(:user)
+      user_3 = insert(:user)
+
+      result =
+        false
+        |> MatchAnyQuery.do_filter(:inserted_at, :datetime, "lte", user_2.inserted_at)
+        |> on_all(User)
+
+      assert contains?(result, user_1)
+      assert contains?(result, user_2)
+      refute contains?(result, user_3)
+    end
+
+    test "returnns :invalid_value error if the value cannot be converted to datetime" do
+      result =
+        MatchAnyQuery.do_filter(false, :inserted_at, :datetime, "eq", "I'm not your date")
+
+      assert result == {
+        :error,
+        :invalid_filter_value,
+        [field: "inserted_at", comparator: "eq", value: "I'm not your date"]
+      }
+    end
+  end
+
   describe "do_filter/5 with 'eq' comparator" do
     test "matches a boolean field with a boolean value" do
       user_1 = insert(:user, is_admin: false)
