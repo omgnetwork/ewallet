@@ -33,6 +33,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                "data" => %{
                  "address" => "0x0000000000000000000000000000000000000123",
                  "name" => blockchain_wallet.name,
+                 "type" => blockchain_wallet.type,
                  "object" => "blockchain_wallet",
                  "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at)
@@ -95,6 +96,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                    %{
                      "address" => "0x0000000000000000000000000000000000000123",
                      "name" => blockchain_wallet_1.name,
+                     "type" => blockchain_wallet_1.type,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_1.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at)
@@ -102,6 +104,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                    %{
                      "address" => "0x0000000000000000000000000000000000000456",
                      "name" => blockchain_wallet_2.name,
+                     "type" => blockchain_wallet_2.type,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
@@ -144,6 +147,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                    %{
                      "address" => "0x0000000000000000000000000000000000000456",
                      "name" => blockchain_wallet_2.name,
+                     "type" => blockchain_wallet_2.type,
                      "object" => "blockchain_wallet",
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
