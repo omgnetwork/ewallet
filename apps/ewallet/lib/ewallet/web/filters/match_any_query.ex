@@ -119,7 +119,7 @@ defmodule EWallet.Web.MatchAnyQuery do
   # Allowed comparators for uuid field type within an association
   #
 
-  def do_filter(dynamic, position, field, :uuid, comparator, value) do
+  def do_filter_assoc(dynamic, position, field, :uuid, comparator, value) do
     case comparator do
       "eq" ->
         dynamic([{a, position}], fragment("?::text", field(a, ^field)) == ^value or ^dynamic)
@@ -128,14 +128,19 @@ defmodule EWallet.Web.MatchAnyQuery do
         dynamic([{a, position}], fragment("?::text", field(a, ^field)) != ^value or ^dynamic)
 
       "contains" ->
-        dynamic([{a, position}], ilike(fragment("?::text", field(a, ^field)), ^"%#{value}%") or ^dynamic)
+        dynamic(
+          [{a, position}],
+          ilike(fragment("?::text", field(a, ^field)), ^"%#{value}%") or ^dynamic
+        )
 
       "starts_with" ->
-        dynamic([{a, position}], ilike(fragment("?::text", field(a, ^field)), ^"#{value}%") or ^dynamic)
+        dynamic(
+          [{a, position}],
+          ilike(fragment("?::text", field(a, ^field)), ^"#{value}%") or ^dynamic
+        )
 
       _ ->
         not_supported(field, comparator, value)
-
     end
   end
 
@@ -143,7 +148,7 @@ defmodule EWallet.Web.MatchAnyQuery do
   # Allowed comparators for datetime field type within an association
   #
 
-  def do_filter(dynamic, position, field, :datetime, comparator, %NaiveDateTime{} = value) do
+  def do_filter_assoc(dynamic, position, field, :datetime, comparator, %NaiveDateTime{} = value) do
     case comparator do
       "eq" -> dynamic([{a, position}], field(a, ^field) == ^value or ^dynamic)
       "neq" -> dynamic([{a, position}], field(a, ^field) != ^value or ^dynamic)
@@ -155,10 +160,13 @@ defmodule EWallet.Web.MatchAnyQuery do
     end
   end
 
-  def do_filter(dynamic, position, field, :datetime, comparator, value) do
+  def do_filter_assoc(dynamic, position, field, :datetime, comparator, value) do
     case NaiveDateTime.from_iso8601(value) do
-      {:ok, datetime} -> do_filter(dynamic, position, field, :datetime, comparator, datetime)
-      {:error, :invalid_format} -> invalid_value(field, comparator, value)
+      {:ok, datetime} ->
+        do_filter_assoc(dynamic, position, field, :datetime, comparator, datetime)
+
+      {:error, :invalid_format} ->
+        invalid_value(field, comparator, value)
     end
   end
 

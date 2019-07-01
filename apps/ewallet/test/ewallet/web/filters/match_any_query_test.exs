@@ -200,14 +200,13 @@ defmodule EWallet.Web.MatchAnyQueryTest do
     end
 
     test "returnns :invalid_value error if the value cannot be converted to datetime" do
-      result =
-        MatchAnyQuery.do_filter(false, :inserted_at, :datetime, "eq", "I'm not your date")
+      result = MatchAnyQuery.do_filter(false, :inserted_at, :datetime, "eq", "I'm not your date")
 
       assert result == {
-        :error,
-        :invalid_filter_value,
-        [field: "inserted_at", comparator: "eq", value: "I'm not your date"]
-      }
+               :error,
+               :invalid_filter_value,
+               [field: "inserted_at", comparator: "eq", value: "I'm not your date"]
+             }
     end
   end
 
