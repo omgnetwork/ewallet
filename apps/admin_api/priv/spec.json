@@ -32523,20 +32523,10 @@
                       "example": {
                         "data": {
                           "object": "blockchain_wallet",
-                          "address": 4.845583031631242e+47,
+                          "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                           "name": "blockchain_wallet_01",
-                          "balances": [
-                            {
-                              "amount": 0,
-                              "token": {
-                                "object": "token",
-                                "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                "symbol": "BTC",
-                                "name": "Bitcoin",
-                                "subunit_to_unit": 100000000000000000
-                              }
-                            }
-                          ]
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
                         }
                       }
                     }
@@ -32984,22 +32974,8 @@
                               "object": "blockchain_wallet",
                               "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                               "name": "blockchain_wallet_01",
-                              "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                              "user": {},
-                              "account_id": null,
-                              "account": null,
-                              "balances": [
-                                {
-                                  "amount": 0,
-                                  "token": {
-                                    "object": "token",
-                                    "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                                    "symbol": "BTC",
-                                    "name": "Bitcoin",
-                                    "subunit_to_unit": 100000000000000000
-                                  }
-                                }
-                              ]
+                              "created_at": "2018-01-01T00:00:00Z",
+                              "updated_at": "2018-01-01T10:00:00Z"
                             }
                           ]
                         }
