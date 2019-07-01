@@ -42,12 +42,12 @@ defmodule EWallet.Web.V1.MintOverlay do
 
   def sort_fields,
     do: [
-      id: nil,
-      description: nil,
-      amount: nil,
-      confirmed: nil,
-      inserted_at: :datetime,
-      updated_at: :datetime
+      :id,
+      :description,
+      :amount,
+      :confirmed,
+      :inserted_at,
+      :updated_at
     ]
 
   def self_filter_fields,
