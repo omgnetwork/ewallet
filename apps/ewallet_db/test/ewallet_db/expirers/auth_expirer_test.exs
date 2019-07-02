@@ -53,7 +53,7 @@ defmodule EWalletDB.Expirers.AuthExpirerTest do
       expired_at = AuthExpirer.get_advanced_datetime(lifetime)
       expected_expired_at = NaiveDateTime.add(NaiveDateTime.utc_now(), lifetime, :second)
 
-      assert NaiveDateTime.diff(expired_at, expected_expired_at, :second) == 0
+      assert NaiveDateTime.diff(expired_at, expected_expired_at, :second) in -3..3
     end
   end
 

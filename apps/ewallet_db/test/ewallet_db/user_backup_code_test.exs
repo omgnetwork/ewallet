@@ -16,22 +16,24 @@ defmodule EWalletDB.UserBackupCodeTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias EWalletDB.{UserBackupCode}
+  alias Utils.Helpers.Crypto
 
   describe "insert/1" do
     test "returns :ok when given hashed_backup_codes and user_uuid" do
       user = insert(:user)
-      hashed_backup_codes = ["1234", "5678"]
+      backup_codes = ["1234", "5678"]
+      expected_hashed_backup_codes = Enum.map(backup_codes, &Crypto.hash_secret/1)
 
       assert {:ok, user_backup_codes} =
                UserBackupCode.insert_multiple(%{
-                 hashed_backup_codes: hashed_backup_codes,
+                 backup_codes: backup_codes,
                  user_uuid: user.uuid
                })
 
-      # Verify all inserted hashed_backup_codes are matched with the given hashed_backup_codes
+      # Verify all inserted hashed_backup_codes are matched with the given backup_codes
       assert Enum.map(user_backup_codes, fn {_, user_backup_code} ->
                user_backup_code.hashed_backup_code
-             end) == hashed_backup_codes
+             end) == expected_hashed_backup_codes
 
       # Verify all user_backup_codes are belong to given user.
       # Verify all user_backup_codes.used_at are nil
@@ -42,7 +44,7 @@ defmodule EWalletDB.UserBackupCodeTest do
 
     test "returns {:error, :invalid_parameter} when the user_uuid is nil or missing" do
       attrs = %{
-        hashed_backup_codes: ["1234"],
+        backup_codes: ["1234"],
         user_uuid: nil
       }
 
@@ -54,25 +56,16 @@ defmodule EWalletDB.UserBackupCodeTest do
     test "returns all user_backup_codes belong to the user when given a valid uuid" do
       %{uuid: user_uuid} = insert(:user)
 
-      hashed_backup_codes = ["1234", "5678"]
+      backup_codes = ["1234", "5678"]
 
       UserBackupCode.insert_multiple(%{
-        hashed_backup_codes: hashed_backup_codes,
+        backup_codes: backup_codes,
         user_uuid: user_uuid
       })
 
-      assert [
-               %UserBackupCode{
-                 hashed_backup_code: "1234",
-                 used_at: nil,
-                 user_uuid: user_uuid
-               },
-               %UserBackupCode{
-                 hashed_backup_code: "5678",
-                 used_at: nil,
-                 user_uuid: user_uuid
-               }
-             ] = UserBackupCode.all_for_user(user_uuid)
+      assert [user_backup_code_1, user_backup_code_2] = UserBackupCode.all_for_user(user_uuid)
+      assert user_backup_code_1.user_uuid == user_uuid
+      assert user_backup_code_2.user_uuid == user_uuid
     end
 
     test "return empty list when the user_backup_codes are not found for given user" do
@@ -84,10 +77,10 @@ defmodule EWalletDB.UserBackupCodeTest do
   describe "delete_for_user/1" do
     test "returns :ok when delete all user_backup_codes belong to the given user_uuid" do
       user = insert(:user)
-      hashed_backup_codes = ["1234", "5678"]
+      backup_codes = ["1234", "5678"]
 
       UserBackupCode.insert_multiple(%{
-        hashed_backup_codes: hashed_backup_codes,
+        backup_codes: backup_codes,
         user_uuid: user.uuid
       })
 
@@ -99,18 +92,22 @@ defmodule EWalletDB.UserBackupCodeTest do
   describe "invalidate/1" do
     test "return {:ok, updated_user_backup_code} and set given user_backup_code.used_at to now when specify a valid user_backup_code" do
       user = insert(:user)
-      hashed_backup_codes = ["1234", "5678"]
+      backup_codes = ["1234", "5678"]
+
+      expected_hashed_backup_code_1 = Crypto.hash_secret(hd(backup_codes))
 
       {:ok, attrs} =
         UserBackupCode.insert_multiple(%{
-          hashed_backup_codes: hashed_backup_codes,
+          backup_codes: backup_codes,
           user_uuid: user.uuid
         })
 
+      # Invalidate the first backup code
       assert {:ok, updated_user_backup_code} =
                UserBackupCode.invalidate(attrs.insert_user_backup_code_0)
 
-      assert updated_user_backup_code.hashed_backup_code == "1234"
+      # Assert the first backup code has non-nil `used_at`, so we can't use later.
+      assert updated_user_backup_code.hashed_backup_code == expected_hashed_backup_code_1
       assert updated_user_backup_code.used_at != nil
     end
   end

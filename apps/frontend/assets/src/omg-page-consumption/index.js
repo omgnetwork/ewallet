@@ -18,7 +18,7 @@ const ConsumptionPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:first-child{
+  td:first-child {
     border: none;
     position: relative;
     :before {
@@ -64,9 +64,7 @@ const SortableTableContainer = styled.div`
 `
 const StyledIcon = styled.span`
   i {
-    margin-top: -3px;
     margin-right: 10px;
-    margin-top
     font-size: 14px;
     font-weight: 400;
   }
@@ -119,7 +117,8 @@ class ConsumptionPage extends Component {
   renderCreateAccountButton = () => {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /><span>Create Account</span>
+        <Icon name='Plus' />
+        <span>Create Account</span>
       </Button>
     )
   }
@@ -135,25 +134,30 @@ class ConsumptionPage extends Component {
   renderCreator = consumption => {
     return (
       <span>
-        {consumption.account &&
+        {consumption.account && (
           <span>
-            <StyledIcon><Icon name='Merchant' /></StyledIcon>
+            <StyledIcon>
+              <Icon name='Merchant' />
+            </StyledIcon>
             {consumption.account.name}
           </span>
-
-        }
-        {consumption.user && consumption.user.email &&
+        )}
+        {consumption.user && consumption.user.email && (
           <span>
-            <StyledIcon><Icon name='People' /></StyledIcon>
+            <StyledIcon>
+              <Icon name='People' />
+            </StyledIcon>
             {consumption.user.email}
           </span>
-        }
-        {consumption.user && consumption.user.provider_user_id &&
+        )}
+        {consumption.user && consumption.user.provider_user_id && (
           <span>
-            <StyledIcon><Icon name='People' /></StyledIcon>
+            <StyledIcon>
+              <Icon name='People' />
+            </StyledIcon>
             {consumption.user.provider_user_id}
           </span>
-        }
+        )}
       </span>
     )
   }
@@ -164,7 +168,10 @@ class ConsumptionPage extends Component {
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Consumption' /><Id>{data}</Id>
+          <StyledIcon>
+            <Icon name='Consumption' />
+          </StyledIcon>
+          <Id>{data}</Id>
         </NameColumn>
       )
     }
@@ -175,7 +182,9 @@ class ConsumptionPage extends Component {
       return _.upperFirst(data)
     }
     if (key === 'estimated_consumption_amount') {
-      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${
+        rows.token.symbol
+      }`
     }
     if (key === 'created_by') {
       return this.renderCreator(rows)
@@ -200,8 +209,16 @@ class ConsumptionPage extends Component {
       </Button>
     )
   }
-  renderConsumptionPage = ({ data: consumptions, individualLoadingStatus, pagination, fetch }) => {
-    const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
+  renderConsumptionPage = ({
+    data: consumptions,
+    individualLoadingStatus,
+    pagination,
+    fetch
+  }) => {
+    const {
+      location: { search }
+    } = this.props
+    const activeIndexKey = queryString.parse(search)['show-consumption-tab']
     return (
       <ConsumptionPageContainer>
         <TopNavigation
@@ -246,9 +263,11 @@ class ConsumptionPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
-          searchTerms: { id: queryString.parse(this.props.location.search).search },
           matchAll: this.state.matchAll,
           matchAny: this.state.matchAny,
+          searchTerms: {
+            id: queryString.parse(this.props.location.search).search
+          },
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
