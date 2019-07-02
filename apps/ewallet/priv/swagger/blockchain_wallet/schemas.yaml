@@ -1,0 +1,41 @@
+BlockchainWalletSchema:
+  description: The object schema for a blockchain wallet
+  type: object
+  properties:
+    object:
+      type: string
+    address:
+      type: string
+    name:
+      type: string
+    type:
+      type: string
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - object
+    - address
+    - name
+    - type
+    - created_at
+    - updated_at
+
+BalanceSchema:
+  description: The object schema for a balance
+  type: object
+  properties:
+    object:
+      type: string
+    token:
+      type: object
+      $ref: '../token/schemas.yaml#/TokenSchema'
+    amount:
+      type: number
+  required:
+    - object
+    - token
+    - amount

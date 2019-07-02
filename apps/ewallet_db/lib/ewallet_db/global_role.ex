@@ -94,7 +94,9 @@ defmodule EWalletDB.GlobalRole do
         create: :global,
         update: :global
       },
-      blockchain_wallets: %{},
+      blockchain_wallets: %{
+        view_balance: :global
+      },
       account_transactions: %{
         all: :global,
         get: :global,
@@ -185,6 +187,9 @@ defmodule EWalletDB.GlobalRole do
         view_balance: :global,
         create: :none,
         update: :none
+      },
+      blockchain_wallets: %{
+        view_balance: :global
       },
       account_transactions: %{all: :global, listen: :global, get: :global, create: :none},
       end_user_transactions: %{all: :global, listen: :global, get: :global, create: :none},

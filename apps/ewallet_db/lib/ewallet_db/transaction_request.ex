@@ -197,9 +197,12 @@ defmodule EWalletDB.TransactionRequest do
     )
   end
 
-  def get_expiration_reason(%TransactionRequest{} = transaction_request) do
-    transaction_request.expiration_reason &&
-      String.to_existing_atom(transaction_request.expiration_reason)
+  @spec get_expiration_reason(%TransactionRequest{}) :: atom() | nil
+  def get_expiration_reason(request) do
+    case request.expiration_reason do
+      nil -> nil
+      reason -> String.to_existing_atom(reason)
+    end
   end
 
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
@@ -426,14 +429,6 @@ defmodule EWalletDB.TransactionRequest do
     case max_consumptions_reached?(request, consumptions) do
       true -> expire(request, originator, @max_consumptions_reached)
       false -> touch(request, originator)
-    end
-  end
-
-  @spec get_expiration_reason(%TransactionRequest{}) :: atom() | nil
-  def get_expiration_reason(request) do
-    case request.expiration_reason do
-      nil -> nil
-      reason -> String.to_existing_atom(reason)
     end
   end
 

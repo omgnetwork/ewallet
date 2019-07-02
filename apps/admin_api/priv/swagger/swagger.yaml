@@ -276,6 +276,10 @@ paths:
   # BLOCKCHAIN WALLET
   /blockchain_wallet.get_balances:
     $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.get_balances'
+  /blockchain_wallet.get:
+    $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.get'
+  /blockchain_wallet.all:
+    $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.all'
 
   # TRANSACTION
   /transaction.all:

@@ -89,7 +89,9 @@ defmodule EWalletDB.Role do
         create: :accounts,
         update: :accounts
       },
-      blockchain_wallets: %{},
+      blockchain_wallets: %{
+        view_balance: :accounts
+      },
       account_transactions: %{
         all: :accounts,
         get: :accounts,

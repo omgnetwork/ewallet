@@ -1,0 +1,43 @@
+BlockchainWalletResponseSchema:
+  description: The response schema for a blockchain wallet
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        $ref: '../../../../ewallet/priv/swagger/blockchain_wallet/schemas.yaml#/BlockchainWalletSchema'
+    example:
+      data:
+        object: blockchain_wallet
+        address: "0x54e0588607dcec6c0b36fca1154a57814a913591"
+        name: blockchain_wallet_01
+        type: hot
+        created_at: '2018-01-01T00:00:00Z'
+        updated_at: '2018-01-01T10:00:00Z'
+
+BlockchainWalletsResponseSchema:
+  description: The response schema for a list of blockchain wallets
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BasePaginatedResponseSchema'
+  - type: object
+    properties:
+      data:
+        type: object
+        allOf:
+          - type: object
+            properties:
+              data:
+                type: array
+                items:
+                  $ref: '../../../../ewallet/priv/swagger/blockchain_wallet/schemas.yaml#/BlockchainWalletSchema'
+    example:
+      data:
+        object: list
+        data:
+          - object: blockchain_wallet
+            address: "0x54e0588607dcec6c0b36fca1154a57814a913591"
+            name: blockchain_wallet_01
+            type: hot
+            created_at: '2018-01-01T00:00:00Z'
+            updated_at: '2018-01-01T10:00:00Z'

@@ -1399,7 +1399,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_53
+                                items: &ref_55
                                   description: The object schema for an exchange pair
                                   type: object
                                   properties: &ref_20
@@ -2530,7 +2530,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_33
       responses:
-        '200': &ref_54
+        '200': &ref_56
           description: Returns a list of transaction requests
           content:
             application/vnd.omisego.v1+json:
@@ -2552,7 +2552,7 @@ paths:
                                     The response schema for a transaction
                                     request
                                   type: object
-                                  properties: &ref_55
+                                  properties: &ref_57
                                     object:
                                       type: string
                                     id:
@@ -2617,7 +2617,7 @@ paths:
                                       type: string
                                     updated_at:
                                       type: string
-                                  required: &ref_56
+                                  required: &ref_58
                                     - object
                                     - id
                                     - formatted_id
@@ -4369,7 +4369,9 @@ paths:
     post:
       tags:
         - Blockchain wallet
-      summary: Get the list of balances on blockchain for the specified wallet address.
+      summary: >-
+        Get the list of balances on blockchain for the specified blockchain
+        wallet address.
       operationId: blockchain_wallet_get_balances
       security:
         - ProviderAuth: []
@@ -4377,7 +4379,8 @@ paths:
       requestBody:
         description: >-
           The parameters to use for listing the blockchain balances for a
-          wallet. Note that the pagination parameters are based on token.
+          blockchain wallet. Note that the pagination parameters are based on
+          token.
         required: true
         content:
           application/vnd.omisego.v1+json:
@@ -4416,6 +4419,133 @@ paths:
                   - '0xb76fe945f8672b57cc151448e2f52b0f88891c34'
       responses:
         '200': *ref_51
+        '500': *ref_7
+  /blockchain_wallet.get:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: >-
+        Get a blockchain wallet on blockchain for the specified blockchain
+        wallet address.
+      operationId: blockchain_wallet_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: >-
+          The parameters to use for retrieving a blockchain wallet by its
+          address
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
+      responses:
+        '200':
+          description: Returns a blockchain wallet
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a blockchain wallet
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        description: The object schema for a blockchain wallet
+                        properties: &ref_52
+                          object:
+                            type: string
+                          address:
+                            type: string
+                          name:
+                            type: string
+                          type:
+                            type: string
+                          created_at:
+                            type: string
+                            format: date-time
+                          updated_at:
+                            type: string
+                            format: date-time
+                        required: &ref_53
+                          - object
+                          - address
+                          - name
+                          - type
+                          - created_at
+                          - updated_at
+                    example:
+                      data:
+                        object: blockchain_wallet
+                        address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
+                        name: blockchain_wallet_01
+                        type: hot
+                        created_at: '2018-01-01T00:00:00Z'
+                        updated_at: '2018-01-01T10:00:00Z'
+        '500': *ref_7
+  /blockchain_wallet.all:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: Get a list of blockchain wallets on blockchain.
+      operationId: blockchain_wallet_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for listing the blockchain wallets
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              allOf:
+                - *ref_16
+              properties:
+                start_by:
+                  type: string
+              example:
+                start_by: address
+      responses:
+        '200':
+          description: Returns a list of blockchain wallets
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for a list of blockchain wallets
+                allOf:
+                  - *ref_17
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        allOf:
+                          - type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  description: The object schema for a blockchain wallet
+                                  type: object
+                                  properties: *ref_52
+                                  required: *ref_53
+                    example:
+                      data:
+                        object: list
+                        data:
+                          - object: blockchain_wallet
+                            address: '0x54e0588607dcec6c0b36fca1154a57814a913591'
+                            name: blockchain_wallet_01
+                            type: hot
+                            created_at: '2018-01-01T00:00:00Z'
+                            updated_at: '2018-01-01T10:00:00Z'
         '500': *ref_7
   /transaction.all:
     post:
@@ -4464,7 +4594,7 @@ paths:
                     sort_by: created_at
                     sort_dir: desc
       responses:
-        '200': &ref_66
+        '200': &ref_68
           description: Returns a single export
           content:
             application/vnd.omisego.v1+json:
@@ -4477,7 +4607,7 @@ paths:
                       data:
                         type: object
                         description: The object schema for an export
-                        properties: &ref_64
+                        properties: &ref_66
                           object:
                             type: string
                           id:
@@ -4508,7 +4638,7 @@ paths:
                           updated_at:
                             type: string
                             format: date-time
-                        required: &ref_65
+                        required: &ref_67
                           - object
                           - id
                           - filename
@@ -4558,7 +4688,7 @@ paths:
               example:
                 id: txn_01ce83x8w4db56f3fcjy4n4qpc
       responses:
-        '200': &ref_52
+        '200': &ref_54
           description: Returns a single transaction
           content:
             application/vnd.omisego.v1+json:
@@ -4688,7 +4818,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': *ref_52
+        '200': *ref_54
         '500': *ref_7
   /transaction.calculate:
     post:
@@ -4746,7 +4876,7 @@ paths:
                             type: integer
                           to_token_id:
                             type: string
-                          exchange_pair: *ref_53
+                          exchange_pair: *ref_55
                           calculated_at:
                             type: string
                             format: date-time
@@ -4803,7 +4933,7 @@ paths:
         - AdminAuth: []
       requestBody: *ref_18
       responses:
-        '200': *ref_54
+        '200': *ref_56
         '500': *ref_7
   /transaction_request.create:
     post:
@@ -4931,7 +5061,7 @@ paths:
                 correlation_id: some correlation id
                 address: 2ae52683-68d8-4af6-94d7-5ed4c34ecf1a
       responses:
-        '200': &ref_57
+        '200': &ref_59
           description: Transaction request response
           content:
             application/vnd.omisego.v1+json:
@@ -4944,8 +5074,8 @@ paths:
                       data:
                         type: object
                         description: The response schema for a transaction request
-                        properties: *ref_55
-                        required: *ref_56
+                        properties: *ref_57
+                        required: *ref_58
                     example:
                       data:
                         object: transaction_request
@@ -4996,7 +5126,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_57
+        '200': *ref_59
         '500': *ref_7
   /transaction_request.get:
     post:
@@ -5020,7 +5150,7 @@ paths:
               example:
                 formatted_id: data|txr_01cbfgc8cmmyzy1cfzpqwme3ey
       responses:
-        '200': *ref_57
+        '200': *ref_59
         '500': *ref_7
   /transaction_request.consume:
     post:
@@ -5081,7 +5211,7 @@ paths:
                 metadata: {}
                 encrypted_metadata: {}
       responses:
-        '200': &ref_58
+        '200': &ref_60
           description: Transaction request consumption response
           content:
             application/vnd.omisego.v1+json:
@@ -5280,7 +5410,7 @@ paths:
               example:
                 id: txc_01abfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_58
+        '200': *ref_60
         '500': *ref_7
   /transaction_consumption.approve:
     post:
@@ -5292,7 +5422,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_59
+      requestBody: &ref_61
         description: Approve or reject a consumption using the specified ID.
         required: true
         content:
@@ -5306,7 +5436,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_58
+        '200': *ref_60
         '500': *ref_7
   /transaction_consumption.reject:
     post:
@@ -5318,9 +5448,9 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_59
+      requestBody: *ref_61
       responses:
-        '200': *ref_58
+        '200': *ref_60
         '500': *ref_7
   /transaction_consumption.cancel:
     post:
@@ -5346,7 +5476,7 @@ paths:
               example:
                 id: txc_01cbfg5m2ee06kzm8tbysfmmw5
       responses:
-        '200': *ref_58
+        '200': *ref_60
         '500': *ref_7
   /access_key.all:
     post:
@@ -5376,7 +5506,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_60
+                                items: &ref_62
                                   description: The object schema for an access key
                                   type: object
                                   properties:
@@ -5453,7 +5583,7 @@ paths:
               example:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
       responses:
-        '200': &ref_61
+        '200': &ref_63
           description: Returns a single access key
           content:
             application/vnd.omisego.v1+json:
@@ -5463,7 +5593,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_60
+                      data: *ref_62
                     example:
                       data:
                         object: key
@@ -5505,7 +5635,7 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_61
+        '200': *ref_63
         '500': *ref_7
   /access_key.update:
     post:
@@ -5536,7 +5666,7 @@ paths:
                 name: my_key
                 global_role: none
       responses:
-        '200': *ref_61
+        '200': *ref_63
         '500': *ref_7
   /access_key.enable_or_disable:
     post:
@@ -5567,7 +5697,7 @@ paths:
                 id: key_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_61
+        '200': *ref_63
         '500': *ref_7
   /access_key.delete:
     post:
@@ -5713,7 +5843,7 @@ paths:
                             properties:
                               data:
                                 type: array
-                                items: &ref_62
+                                items: &ref_64
                                   description: The object schema for an API key
                                   type: object
                                   properties:
@@ -5789,7 +5919,7 @@ paths:
               example:
                 name: my_api_key
       responses:
-        '200': &ref_63
+        '200': &ref_65
           description: Returns a single API key
           content:
             application/vnd.omisego.v1+json:
@@ -5799,7 +5929,7 @@ paths:
                   - *ref_1
                   - type: object
                     properties:
-                      data: *ref_62
+                      data: *ref_64
                     example:
                       data:
                         object: api_key
@@ -5836,7 +5966,7 @@ paths:
               example:
                 id: api_01d744xm9cy3qx8hdwv4ax3k1h
       responses:
-        '200': *ref_63
+        '200': *ref_65
         '500': *ref_7
   /api_key.update:
     post:
@@ -5864,7 +5994,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 name: my_api_key
       responses:
-        '200': *ref_63
+        '200': *ref_65
         '500': *ref_7
   /api_key.enable_or_disable:
     post:
@@ -5895,7 +6025,7 @@ paths:
                 id: api_01ce83yphmq6vt4qnmn3ykwcw6
                 enabled: false
       responses:
-        '200': *ref_63
+        '200': *ref_65
         '500': *ref_7
   /api_key.delete:
     post:
@@ -5953,8 +6083,8 @@ paths:
                                 items:
                                   description: The object schema for an export
                                   type: object
-                                  properties: *ref_64
-                                  required: *ref_65
+                                  properties: *ref_66
+                                  required: *ref_67
                     example:
                       data:
                         data:
@@ -5982,7 +6112,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: &ref_67
+      requestBody: &ref_69
         description: The parameters to use for retrieving a specific export by its id
         required: true
         content:
@@ -5996,7 +6126,7 @@ paths:
               example:
                 id: exp_01ca2p8jqans5aty5gj5etmjcf
       responses:
-        '200': *ref_66
+        '200': *ref_68
         '500': *ref_7
   /export.download:
     post:
@@ -6007,7 +6137,7 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody: *ref_67
+      requestBody: *ref_69
       responses:
         '200':
           description: A CSV file
@@ -6302,7 +6432,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': &ref_68
+        '200': &ref_70
           description: Returns unauthorized error
           content:
             application/vnd.omisego.v1+json:
@@ -6339,7 +6469,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_68
+        '200': *ref_70
         '500': *ref_7
   /role.create:
     post:
@@ -6352,7 +6482,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_68
+        '200': *ref_70
         '500': *ref_7
   /role.update:
     post:
@@ -6365,7 +6495,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_68
+        '200': *ref_70
         '500': *ref_7
   /role.delete:
     post:
@@ -6378,7 +6508,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       responses:
-        '200': *ref_68
+        '200': *ref_70
         '500': *ref_7
   /permission.all:
     post:

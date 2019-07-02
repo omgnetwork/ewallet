@@ -40,6 +40,54 @@ defmodule EWallet.BlockchainBalanceFetcherTest do
       assert balance_token_2 == %{token: token_2, amount: 123}
     end
 
+    test "returns multiple list of balances when given multiple wallet" do
+      blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+
+      blockchain_wallet_2 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000456"})
+
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      wallet_addresses = [blockchain_wallet_1.address, blockchain_wallet_2.address]
+      tokens = [token_1, token_2]
+
+      assert {:ok, balances} = BlockchainBalanceFetcher.all(wallet_addresses, tokens)
+
+      assert [balances_for_blockchain_wallet_1, balances_for_blockchain_wallet_2] = balances
+
+      assert balances_for_blockchain_wallet_1 == [
+               %{token: token_1, amount: 123},
+               %{token: token_2, amount: 123}
+             ]
+
+      assert balances_for_blockchain_wallet_2 == [
+               %{token: token_1, amount: 123},
+               %{token: token_2, amount: 123}
+             ]
+    end
+
+    test "returns error when one of multiple wallet_addresses has an invalid address" do
+      blockchain_wallet_1 =
+        insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+
+      token_1 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+
+      token_2 =
+        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+
+      wallet_addresses = [blockchain_wallet_1.address, nil]
+      tokens = [token_1, token_2]
+
+      assert BlockchainBalanceFetcher.all(wallet_addresses, tokens) ==
+               {:error, :blockchain_adapter_error, [error: inspect(:invalid_address)]}
+    end
+
     test "returns an empty list when given wallet and empty tokens" do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})

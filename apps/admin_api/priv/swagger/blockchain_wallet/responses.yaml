@@ -1,0 +1,13 @@
+BlockchainWalletResponse:
+  description: Returns a blockchain wallet
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/BlockchainWalletResponseSchema'
+
+BlockchainWalletsResponse:
+  description: Returns a list of blockchain wallets
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/BlockchainWalletsResponseSchema'

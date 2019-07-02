@@ -38,6 +38,7 @@ defmodule EWalletDB.BlockchainWallet do
     field(:name, :string)
     field(:public_key, :string)
     field(:type, :string)
+
     activity_logging()
     timestamps()
   end
