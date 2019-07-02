@@ -188,7 +188,7 @@ defmodule AdminAPI.V1.TokenController do
 
   def set_contract_address(
         conn,
-        %{"id" => id, "contract_address" => "0x" <> address = contract_address} = attrs
+        %{"id" => id, "contract_address" => "0x" <> _ = contract_address} = attrs
       ) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:set_contract_address, conn.assigns, token),
