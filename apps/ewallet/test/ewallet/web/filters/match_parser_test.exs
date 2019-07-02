@@ -234,7 +234,7 @@ defmodule EWallet.Web.MatchParserTest do
     end
   end
 
-  describe "build_query/3 one after another" do
+  describe "build_query/3 with multiple match parsers" do
     test "does not throw an error about 'only distinct expression is allowed'" do
       txn_1 = insert(:transaction, status: "pending", type: "internal")
       txn_2 = insert(:transaction, status: "confirmed", type: "internal")
@@ -263,6 +263,45 @@ defmodule EWallet.Web.MatchParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_4.id end)
+    end
+
+    # Regression for https://github.com/omisego/ewallet/issues/1079
+    test "supports nested fields" do
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+      txn_4 = insert(:transaction)
+
+      all_attrs = [
+        %{
+          "field" => "from_wallet.address",
+          "comparator" => "contains",
+          "value" => txn_3.from_wallet.address
+        }
+      ]
+
+      all_fields_whitelist = [from_wallet: [:address]]
+
+      any_attrs = [
+        %{
+          "field" => "from_user.id",
+          "comparator" => "eq",
+          "value" => Repo.preload(txn_3, :from_user).from_user.id
+        }
+      ]
+
+      any_fields_whitelist = [from_user: [:id]]
+
+      result =
+        Transaction
+        |> MatchParser.build_query(all_attrs, all_fields_whitelist, true, MatchAllQuery)
+        |> MatchParser.build_query(any_attrs, any_fields_whitelist, false, MatchAnyQuery)
+        |> Repo.all()
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_4.id end)
     end
   end

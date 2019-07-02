@@ -46,24 +46,24 @@ defmodule EWallet.Web.V1.ActivityLogOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :action,
-      :target_identifier,
-      :target_type,
-      :originator_identifier,
-      :originator_type,
-      :inserted_at
+      id: nil,
+      action: nil,
+      target_identifier: nil,
+      target_type: nil,
+      originator_identifier: nil,
+      originator_type: nil,
+      inserted_at: :datetime
     ]
 
   def filter_fields,
     do: [
-      :id,
-      :action,
-      :target_identifier,
-      :target_type,
-      :originator_identifier,
-      :originator_type,
-      :inserted_at
+      id: nil,
+      action: nil,
+      target_identifier: nil,
+      target_type: nil,
+      originator_identifier: nil,
+      originator_type: nil,
+      inserted_at: :datetime
     ]
 
   def pagination_fields,

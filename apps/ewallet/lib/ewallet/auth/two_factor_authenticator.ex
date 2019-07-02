@@ -137,7 +137,7 @@ defmodule EWallet.TwoFactorAuthenticator do
 
   def create_and_update(%User{} = user, :backup_codes) do
     with number_of_backup_code <- get_number_of_backup_codes(),
-         {:ok, backup_codes, hashed_backup_codes} <-
+         {:ok, backup_codes} <-
            BackupCodeAuthenticator.create(number_of_backup_code),
          :ok <-
            UserBackupCode.delete_for_user(user.uuid),
@@ -146,7 +146,7 @@ defmodule EWallet.TwoFactorAuthenticator do
          {:ok, _} <-
            UserBackupCode.insert_multiple(%{
              user_uuid: user.uuid,
-             hashed_backup_codes: hashed_backup_codes
+             backup_codes: backup_codes
            }) do
       {:ok, %{backup_codes: backup_codes}}
     else

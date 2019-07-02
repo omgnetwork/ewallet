@@ -42,12 +42,12 @@ defmodule EWallet.Web.V1.InviteOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :token,
-      :success_url,
-      :verified_at,
-      :inserted_at,
-      :updated_at
+      id: nil,
+      token: nil,
+      success_url: nil,
+      verified_at: :datetime,
+      inserted_at: :datetime,
+      updated_at: :datetime
     ]
 
   def filter_fields,
@@ -55,10 +55,10 @@ defmodule EWallet.Web.V1.InviteOverlay do
       id: nil,
       token: nil,
       success_url: nil,
-      verified_at: nil,
-      inserted_at: nil,
-      updated_at: nil,
-      user: UserOverlay.default_preload_assocs()
+      verified_at: :datetime,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      user: UserOverlay.self_filter_fields()
     ]
 
   def pagination_fields,

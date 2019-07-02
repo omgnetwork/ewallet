@@ -40,13 +40,13 @@ defmodule EWallet.Web.V1.KeyOverlay do
 
   def self_filter_fields,
     do: [
-      :name,
-      :access_key,
-      :expired,
-      :global_role,
-      :inserted_at,
-      :updated_at,
-      :deleted_at
+      name: nil,
+      access_key: nil,
+      expired: nil,
+      global_role: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime
     ]
 
   def filter_fields,
@@ -55,9 +55,9 @@ defmodule EWallet.Web.V1.KeyOverlay do
       access_key: nil,
       expired: nil,
       global_role: nil,
-      inserted_at: nil,
-      updated_at: nil,
-      deleted_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime,
       account: AccountOverlay.self_filter_fields()
     ]
 

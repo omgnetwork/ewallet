@@ -23,8 +23,9 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
     test "respond :ok when the given backup_code matches with hashed_backup_codes" do
       number_of_backup_codes = 10
 
-      assert {:ok, backup_codes, hashed_backup_codes} =
-               BackupCodeAuthenticator.create(number_of_backup_codes)
+      assert {:ok, backup_codes} = BackupCodeAuthenticator.create(number_of_backup_codes)
+
+      hashed_backup_codes = Enum.map(backup_codes, &Crypto.hash_secret/1)
 
       assert Enum.all?(backup_codes, &BackupCodeAuthenticator.verify(hashed_backup_codes, [], &1))
     end
@@ -44,14 +45,13 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
 
     test "respond {:error, :invalid_backup_code} when given the backup_code that is invalid" do
       backup_code = "12345678"
-      hashed_backup_code = Crypto.hash_password(backup_code)
       backup_code_created_date = NaiveDateTime.utc_now()
 
       user = insert(:user)
 
       assert {:ok, %{insert_user_backup_code_0: user_backup_code}} =
                UserBackupCode.insert_multiple(%{
-                 hashed_backup_codes: [hashed_backup_code],
+                 backup_codes: [backup_code],
                  user_uuid: user.uuid
                })
 
@@ -77,11 +77,9 @@ defmodule EWallet.BackupCodeAuthenticatorTest do
     test "respond {:ok, backup_codes, hashed_backup_codes}" do
       number_of_backup_codes = 10
 
-      assert {:ok, backup_codes, hashed_backup_codes} =
-               BackupCodeAuthenticator.create(number_of_backup_codes)
+      assert {:ok, backup_codes} = BackupCodeAuthenticator.create(number_of_backup_codes)
 
       assert length(backup_codes) == number_of_backup_codes
-      assert length(hashed_backup_codes) == number_of_backup_codes
     end
 
     test "respond {:error, :invalid_parameter} when given invalid parameters" do

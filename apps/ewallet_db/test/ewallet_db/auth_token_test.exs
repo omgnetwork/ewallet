@@ -58,9 +58,12 @@ defmodule EWalletDB.AuthTokenTest do
       assert {:ok, auth_token} = AuthToken.generate(user, @owner_app, %System{})
 
       # Expect expired_at is next 60 minutes from now, with the precision down to a second.
-      assert context.second
-             |> from_now_by_seconds()
-             |> NaiveDateTime.diff(auth_token.expired_at, :second) == 0
+      expire_at_diff =
+        context.second
+        |> from_now_by_seconds()
+        |> NaiveDateTime.diff(auth_token.expired_at, :second)
+
+      assert expire_at_diff in -3..3
     end
 
     test "generates an auth token with expired_at nil when set zero to auth_token_lifetime" do
@@ -126,9 +129,12 @@ defmodule EWalletDB.AuthTokenTest do
       updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
 
       # Expect expired_at is next 1 hour from now
-      assert context.second
-             |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_auth_token.expired_at, :second) == 0
+      expire_at_diff =
+        context.second
+        |> from_now_by_seconds()
+        |> NaiveDateTime.diff(updated_auth_token.expired_at, :second)
+
+      assert expire_at_diff in -3..3
     end
 
     test "returns a user if the expired_at is nil" do
@@ -219,9 +225,12 @@ defmodule EWalletDB.AuthTokenTest do
       updated_auth_token = AuthToken.get_by_token(auth_token.token, @owner_app)
 
       # Expect an expired_at is refreshed (expired_at is set to the next hour).
-      assert context.second
-             |> from_now_by_seconds()
-             |> NaiveDateTime.diff(updated_auth_token.expired_at, :second) == 0
+      expire_at_diff =
+        context.second
+        |> from_now_by_seconds()
+        |> NaiveDateTime.diff(updated_auth_token.expired_at, :second)
+
+      assert expire_at_diff in -3..3
     end
 
     test "returns a user if the expired_at is nil" do
