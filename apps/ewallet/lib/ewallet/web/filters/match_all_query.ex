@@ -20,6 +20,10 @@ defmodule EWallet.Web.MatchAllQuery do
   """
   import Ecto.Query
 
+  #
+  # Allowed comparators for uuid field type
+  #
+
   def do_filter(dynamic, field, :uuid, comparator, value) do
     case comparator do
       "eq" ->
@@ -38,6 +42,33 @@ defmodule EWallet.Web.MatchAllQuery do
         not_supported(field, comparator, value)
     end
   end
+
+  #
+  # Allowed comparators for datetime field type
+  #
+
+  def do_filter(dynamic, field, :datetime, comparator, %NaiveDateTime{} = value) do
+    case comparator do
+      "eq" -> dynamic([q], field(q, ^field) == ^value and ^dynamic)
+      "neq" -> dynamic([q], field(q, ^field) != ^value and ^dynamic)
+      "gt" -> dynamic([q], field(q, ^field) > ^value and ^dynamic)
+      "gte" -> dynamic([q], field(q, ^field) >= ^value and ^dynamic)
+      "lt" -> dynamic([q], field(q, ^field) < ^value and ^dynamic)
+      "lte" -> dynamic([q], field(q, ^field) <= ^value and ^dynamic)
+      _ -> not_supported(field, comparator, value)
+    end
+  end
+
+  def do_filter(dynamic, field, :datetime, comparator, value) do
+    case NaiveDateTime.from_iso8601(value) do
+      {:ok, datetime} -> do_filter(dynamic, field, :datetime, comparator, datetime)
+      {:error, :invalid_format} -> invalid_value(field, comparator, value)
+    end
+  end
+
+  #
+  # Allowed filters for arbitary field types
+  #
 
   def do_filter(dynamic, field, nil, comparator, nil = value) do
     case comparator do
@@ -84,6 +115,66 @@ defmodule EWallet.Web.MatchAllQuery do
   # This was implemented for issue 783: https://github.com/omisego/ewallet/issues/783
   # Related PR: https://github.com/omisego/ewallet/pull/834
   #
+
+  #
+  # Allowed comparators for uuid field type within an association
+  #
+
+  def do_filter_assoc(dynamic, position, field, :uuid, comparator, value) do
+    case comparator do
+      "eq" ->
+        dynamic([{a, position}], fragment("?::text", field(a, ^field)) == ^value and ^dynamic)
+
+      "neq" ->
+        dynamic([{a, position}], fragment("?::text", field(a, ^field)) != ^value and ^dynamic)
+
+      "contains" ->
+        dynamic(
+          [{a, position}],
+          ilike(fragment("?::text", field(a, ^field)), ^"%#{value}%") and ^dynamic
+        )
+
+      "starts_with" ->
+        dynamic(
+          [{a, position}],
+          ilike(fragment("?::text", field(a, ^field)), ^"#{value}%") and ^dynamic
+        )
+
+      _ ->
+        not_supported(field, comparator, value)
+    end
+  end
+
+  #
+  # Allowed comparators for datetime field type within an association
+  #
+
+  def do_filter_assoc(dynamic, position, field, :datetime, comparator, %NaiveDateTime{} = value) do
+    case comparator do
+      "eq" -> dynamic([{a, position}], field(a, ^field) == ^value and ^dynamic)
+      "neq" -> dynamic([{a, position}], field(a, ^field) != ^value and ^dynamic)
+      "gt" -> dynamic([{a, position}], field(a, ^field) > ^value and ^dynamic)
+      "lte" -> dynamic([{a, position}], field(a, ^field) >= ^value and ^dynamic)
+      "lt" -> dynamic([{a, position}], field(a, ^field) < ^value and ^dynamic)
+      "gte" -> dynamic([{a, position}], field(a, ^field) >= ^value and ^dynamic)
+      _ -> not_supported(field, comparator, value)
+    end
+  end
+
+  def do_filter_assoc(dynamic, position, field, :datetime, comparator, value) do
+    case NaiveDateTime.from_iso8601(value) do
+      {:ok, datetime} ->
+        do_filter_assoc(dynamic, position, field, :datetime, comparator, datetime)
+
+      {:error, :invalid_format} ->
+        invalid_value(field, comparator, value)
+    end
+  end
+
+  #
+  # Allowed filters for arbitary field types within an association
+  #
+
   def do_filter_assoc(dynamic, position, field, nil, comparator, nil = value) do
     case comparator do
       "eq" -> dynamic([{a, position}], is_nil(field(a, ^field)) and ^dynamic)
@@ -123,8 +214,17 @@ defmodule EWallet.Web.MatchAllQuery do
     end
   end
 
+  #
+  # Resolutions for unhappy paths
+  #
+
   defp not_supported(field, comparator, value) do
     {:error, :comparator_not_supported,
+     field: Atom.to_string(field), comparator: comparator, value: value}
+  end
+
+  defp invalid_value(field, comparator, value) do
+    {:error, :invalid_filter_value,
      field: Atom.to_string(field), comparator: comparator, value: value}
   end
 end

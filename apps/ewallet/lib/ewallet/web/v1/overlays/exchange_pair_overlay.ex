@@ -48,20 +48,20 @@ defmodule EWallet.Web.V1.ExchangePairOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :rate,
-      :inserted_at,
-      :updated_at,
-      :deleted_at
+      id: nil,
+      rate: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime
     ]
 
   def filter_fields,
     do: [
       id: nil,
       rate: nil,
-      inserted_at: nil,
-      updated_at: nil,
-      deleted_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
+      deleted_at: :datetime,
       from_token: TokenOverlay.self_filter_fields(),
       to_token: TokenOverlay.self_filter_fields()
     ]

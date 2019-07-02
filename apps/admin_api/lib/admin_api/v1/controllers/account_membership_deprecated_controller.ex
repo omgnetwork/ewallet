@@ -60,7 +60,7 @@ defmodule AdminAPI.V1.AccountMembershipDeprecatedController do
     user_filterables =
       MembershipOverlay.filter_fields()
       |> Keyword.get(:user)
-      |> Enum.map(fn field -> Atom.to_string(field) end)
+      |> Enum.map(fn {field, _type} -> Atom.to_string(field) end)
 
     attrs
     |> transform_user_filter_attrs("match_any", user_filterables)

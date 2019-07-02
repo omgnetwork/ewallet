@@ -47,12 +47,12 @@ defmodule EWallet.Web.V1.RoleOverlay do
 
   def self_filter_fields,
     do: [
-      :id,
-      :name,
-      :display_name,
-      :priority,
-      :inserted_at,
-      :updated_at
+      id: nil,
+      name: nil,
+      display_name: nil,
+      priority: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime
     ]
 
   def filter_fields,
@@ -61,8 +61,8 @@ defmodule EWallet.Web.V1.RoleOverlay do
       name: nil,
       display_name: nil,
       priority: nil,
-      inserted_at: nil,
-      updated_at: nil,
+      inserted_at: :datetime,
+      updated_at: :datetime,
       users: UserOverlay.self_filter_fields()
     ]
 

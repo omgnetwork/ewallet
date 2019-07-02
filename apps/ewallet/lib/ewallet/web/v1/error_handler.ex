@@ -435,6 +435,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
       template:
         "Invalid parameter provided. Querying for '%{field}' '%{comparator}' '%{value}' is not supported."
     },
+    invalid_filter_value: %{
+      code: "client:invalid_parameter",
+      template:
+        "Invalid parameter provided. Invalid value for filter: '%{field}' '%{comparator}' '%{value}'."
+    },
     adapter_server_not_running: %{
       code: "adapter:server_not_running",
       description:
