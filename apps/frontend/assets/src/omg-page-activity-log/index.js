@@ -9,7 +9,8 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import ActivityLogFetcher from '../omg-activity-log/ActivityLogFetcher'
 import { createSearchActivityLogQuery } from './searchField'
-import { Icon } from '../omg-uikit'
+import { Icon, Button } from '../omg-uikit'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const ActivityLogPageContainer = styled.div`
   position: relative;
@@ -62,6 +63,7 @@ const OriginatorDetailContianer = styled.div`
 class ActivityLogPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     history: PropTypes.object,
     query: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
     location: PropTypes.object,
@@ -70,7 +72,27 @@ class ActivityLogPage extends Component {
   }
 
   static defaultProps = {
-    topNavigation: true
+    topNavigation: true,
+    showFilter: true
+  }
+
+  state = {
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
+  }
+
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
   }
 
   onClickRow = (data, index) => e => {
@@ -238,10 +260,17 @@ class ActivityLogPage extends Component {
           <TopNavigation
             divider={this.props.divider}
             title={'Activity Logs'}
-            buttons={[]}
+            buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
             normalPlaceholder='originator id, action'
           />
         )}
+        <AdvancedFilter
+          title='Filter Activity Log'
+          page='activitylogs'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
         <SortableTableContainer
           ref={table => (this.table = table)}
           loadingStatus={individualLoadingStatus}
@@ -273,7 +302,11 @@ class ActivityLogPage extends Component {
         {...this.props}
         query={{
           page: Number(queryString.parse(this.props.location.search).page),
-          ...createSearchActivityLogQuery(search),
+          matchAll: this.state.matchAll,
+          matchAny: [
+            ...createSearchActivityLogQuery(search).matchAny,
+            ...this.state.matchAny
+          ],
           ...query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

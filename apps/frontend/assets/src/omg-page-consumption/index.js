@@ -10,6 +10,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Id } from '../omg-uikit'
 import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const ConsumptionPageContainer = styled.div`
   position: relative;
@@ -71,10 +72,21 @@ const StyledIcon = styled.span`
 export const NameColumn = styled.div`
   display: flex;
   flex-direction: row;
+  > span {
+    margin-left: 10px;
+  }
+  i[name='Consumption'] {
+    margin-right: 15px;
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
+  }
 `
 class ConsumptionPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
@@ -83,6 +95,7 @@ class ConsumptionPage extends Component {
   }
   static defaultProps = {
     query: {},
+    showFilter: true,
     fetcher: ConsumptionFetcher
   }
   constructor (props) {
@@ -95,6 +108,11 @@ class ConsumptionPage extends Component {
       { key: 'created_by', title: 'CONSUMER' },
       { key: 'created_at', title: 'CREATED AT', sort: true }
     ]
+  }
+  state = {
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
   }
   renderCreateAccountButton = () => {
     return (
@@ -179,6 +197,18 @@ class ConsumptionPage extends Component {
     }
     return data
   }
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
+  }
   renderConsumptionPage = ({
     data: consumptions,
     individualLoadingStatus,
@@ -194,7 +224,14 @@ class ConsumptionPage extends Component {
         <TopNavigation
           divider={this.props.divider}
           title={'Transaction Consumptions'}
-          buttons={[]}
+          buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
+        />
+        <AdvancedFilter
+          title='Filter Transaction Consumption'
+          page='transaction-consumptions'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
         />
         <SortableTableContainer
           ref={table => (this.table = table)}
@@ -226,6 +263,8 @@ class ConsumptionPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           searchTerms: {
             id: queryString.parse(this.props.location.search).search
           },

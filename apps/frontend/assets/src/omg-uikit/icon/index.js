@@ -22,11 +22,11 @@ export default class Icon extends Component {
     const { name, button, onClick, className, ...restProps } = this.props
     return (
       <IconComponent
-        {...restProps}
-        className={`icon-omisego_${name} ${className}`}
         button={button}
         onClick={onClick}
         name={name}
+        className={`icon-omisego_${name} ${className}`}
+        {...restProps}
       />
     )
   }

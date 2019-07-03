@@ -6,6 +6,7 @@ import TransactionsPage from '../omg-page-transaction'
 function AccountTransactionSubPage (props) {
   return (
     <TransactionsPage
+      showFilter={false}
       transferButton
       divider={false}
       query={{

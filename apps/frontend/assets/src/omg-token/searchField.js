@@ -1,5 +1,11 @@
 export function createSearchTokenQuery (value = '') {
-  const matchValue = value.trim()
+  const matchValue = value && value.trim()
+  if (!matchValue) {
+    return {
+      matchAny: []
+    }
+  }
+
   return {
     matchAny: [
       {

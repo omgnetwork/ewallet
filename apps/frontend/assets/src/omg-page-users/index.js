@@ -11,6 +11,7 @@ import { Button, Icon, Id } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
 import UsersFetcher from '../omg-users/usersFetcher'
 import { createSearchUsersQuery } from '../omg-users/searchField'
+import AdvancedFilter from '../omg-advanced-filter'
 
 const UserPageContainer = styled.div`
   position: relative;
@@ -66,6 +67,7 @@ class UsersPage extends Component {
     location: PropTypes.object,
     history: PropTypes.object,
     divider: PropTypes.bool,
+    showFilter: PropTypes.bool,
     scrollTopContentContainer: PropTypes.func,
     query: PropTypes.object,
     fetcher: PropTypes.func,
@@ -74,13 +76,17 @@ class UsersPage extends Component {
 
   static defaultProps = {
     query: {},
+    showFilter: true,
     fetcher: UsersFetcher
   }
   constructor (props) {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      advancedFilterModalOpen: false,
+      matchAll: [],
+      matchAny: []
     }
   }
   onClickRow = (data, index) => e => {
@@ -97,6 +103,18 @@ class UsersPage extends Component {
     return (
       <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
         <Icon name='Plus' /><span>Create Account</span>
+      </Button>
+    )
+  }
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
       </Button>
     )
   }
@@ -145,7 +163,18 @@ class UsersPage extends Component {
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation divider={this.props.divider} title={'Users'} />
+        <TopNavigation
+          divider={this.props.divider}
+          title={'Users'}
+          buttons={[this.props.showFilter && this.renderAdvancedFilterButton()]}
+        />
+        <AdvancedFilter
+          title='Filter Users'
+          page='users'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
         <SortableTableContainer ref={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
@@ -168,13 +197,17 @@ class UsersPage extends Component {
     const Fetcher = this.props.fetcher
     return (
       <Fetcher
+        render={this.renderUserPage}
         {...this.state}
         {...this.props}
-        render={this.renderUserPage}
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search),
+          matchAll: this.state.matchAll,
+          matchAny: [
+            ...createSearchUsersQuery(queryString.parse(this.props.location.search).search).matchAny,
+            ...this.state.matchAny
+          ],
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
