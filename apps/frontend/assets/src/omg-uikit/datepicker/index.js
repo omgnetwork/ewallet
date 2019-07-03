@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import DateTime from 'react-datetime'
 
-import { Input } from '..'
+import Input from '../input'
 
 const StyledDateTime = styled(DateTime)`
   flex: 1 0 0;
