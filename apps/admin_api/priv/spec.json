@@ -3652,6 +3652,12 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -3696,6 +3702,8 @@
                                 "original": "file_url"
                               },
                               "enabled": true,
+                              "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                              "blockchain_status": "confirmed",
                               "metadata": {},
                               "encrypted_metadata": {}
                             }
@@ -3901,6 +3909,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -3937,6 +3951,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4187,6 +4203,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4223,6 +4245,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4457,6 +4481,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4493,6 +4523,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4702,6 +4734,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4738,6 +4776,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4946,6 +4986,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4982,6 +5028,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -5163,6 +5211,12 @@
                         "updated_at": {
                           "type": "string",
                           "format": "date-time"
+                        },
+                        "blockchain_address": {
+                          "type": "string"
+                        },
+                        "blockchain_status": {
+                          "type": "string"
                         },
                         "metadata": {
                           "type": "object"
@@ -5607,6 +5661,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -5911,6 +5971,12 @@
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -5976,6 +6042,12 @@
                                                   "updated_at": {
                                                     "type": "string",
                                                     "format": "date-time"
+                                                  },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
                                                   },
                                                   "metadata": {
                                                     "type": "object"
@@ -6303,6 +6375,12 @@
                             "updated_at": {
                               "type": "string",
                               "format": "date-time"
+                            },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
                             },
                             "metadata": {
                               "type": "object"
@@ -6749,6 +6827,12 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -6785,6 +6869,8 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -7165,6 +7251,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7219,6 +7311,12 @@
                                           "updated_at": {
                                             "type": "string",
                                             "format": "date-time"
+                                          },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
                                           },
                                           "metadata": {
                                             "type": "object"
@@ -7537,6 +7635,12 @@
                                   "type": "string",
                                   "format": "date-time"
                                 },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7591,6 +7695,12 @@
                                 "updated_at": {
                                   "type": "string",
                                   "format": "date-time"
+                                },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
                                 },
                                 "metadata": {
                                   "type": "object"
@@ -8018,6 +8128,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8072,6 +8188,12 @@
                                           "updated_at": {
                                             "type": "string",
                                             "format": "date-time"
+                                          },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
                                           },
                                           "metadata": {
                                             "type": "object"
@@ -8499,6 +8621,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8553,6 +8681,12 @@
                                           "updated_at": {
                                             "type": "string",
                                             "format": "date-time"
+                                          },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
                                           },
                                           "metadata": {
                                             "type": "object"
@@ -8963,6 +9097,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -9017,6 +9157,12 @@
                                           "updated_at": {
                                             "type": "string",
                                             "format": "date-time"
+                                          },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
                                           },
                                           "metadata": {
                                             "type": "object"
@@ -15589,6 +15735,12 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -16379,6 +16531,12 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -16866,6 +17024,12 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -16931,6 +17095,12 @@
                                               "updated_at": {
                                                 "type": "string",
                                                 "format": "date-time"
+                                              },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
                                               },
                                               "metadata": {
                                                 "type": "object"
@@ -27159,6 +27329,12 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -27654,6 +27830,12 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -27719,6 +27901,12 @@
                                               "updated_at": {
                                                 "type": "string",
                                                 "format": "date-time"
+                                              },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
                                               },
                                               "metadata": {
                                                 "type": "object"
@@ -29332,6 +29520,12 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -30003,6 +30197,12 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -30601,6 +30801,12 @@
                                       "updated_at": {
                                         "type": "string",
                                         "format": "date-time"
+                                      },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
                                       },
                                       "metadata": {
                                         "type": "object"
@@ -31571,6 +31777,12 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -32150,6 +32362,12 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -32647,6 +32865,12 @@
                                           "updated_at": {
                                             "type": "string",
                                             "format": "date-time"
+                                          },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
                                           },
                                           "metadata": {
                                             "type": "object"
@@ -33691,6 +33915,12 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -33756,6 +33986,12 @@
                                               "updated_at": {
                                                 "type": "string",
                                                 "format": "date-time"
+                                              },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
                                               },
                                               "metadata": {
                                                 "type": "object"
@@ -34415,6 +34651,12 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34480,6 +34722,12 @@
                                     "updated_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
                                     },
                                     "metadata": {
                                       "type": "object"
@@ -34889,6 +35137,12 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34954,6 +35208,12 @@
                                     "updated_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
                                     },
                                     "metadata": {
                                       "type": "object"
@@ -35322,6 +35582,12 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -35376,6 +35642,12 @@
                                     "updated_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
                                     },
                                     "metadata": {
                                       "type": "object"

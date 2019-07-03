@@ -20,6 +20,10 @@ TokenSchema:
     updated_at:
       type: string
       format: date-time
+    blockchain_address: 
+      type: string
+    blockchain_status: 
+      type: string
     metadata:
       type: object
     encrypted_metadata:

@@ -68,10 +68,11 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
           Token #{data.name} (#{token.symbol}) already exists in the database!!!
 
           Info:
-          ID              : #{token.id}
-          Subunit to unit : #{token.subunit_to_unit}
-          Account Name    : #{token.account.name}
-          Account ID      : #{token.account.id}
+          ID                 : #{token.id}
+          Subunit to unit    : #{token.subunit_to_unit}
+          Account Name       : #{token.account.name}
+          Account ID         : #{token.account.id}
+          Blockchain address : #{token.blockchain_address}
         """)
     end
   end
