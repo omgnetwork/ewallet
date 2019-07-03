@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Block do
-  @moduledoc false
+defmodule EthBlockchain.TransactionListenerTest do
+  use EthBlockchain.EthBlockchainCase, async: true
 
-  import Utils.Helpers.Encoding
-  alias Ethereumex.HttpClient, as: Client
+  alias EthBlockchain.TransactionListener
 
-  def get_number do
-    parse(Client.eth_block_number())
-  end
-
-  defp parse({:ok, number}), do: int_from_hex(number)
+  describe "start_link/1"
+  describe "init/1"
+  describe "handle_info/:tick"
+  describe "subscribe/2"
+  describe "unsubscribe/2"
+  describe "run/1"
 end

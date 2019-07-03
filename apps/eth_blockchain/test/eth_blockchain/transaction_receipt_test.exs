@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Block do
-  @moduledoc false
+defmodule EthBlockchain.TransactionReceiptTest do
+  use EthBlockchain.EthBlockchainCase, async: true
 
-  import Utils.Helpers.Encoding
-  alias Ethereumex.HttpClient, as: Client
+  alias EthBlockchain.TransactionReceipt
 
-  def get_number do
-    parse(Client.eth_block_number())
+  describe "get/3" do
+    test "gets a transaction receipt", state do
+      receipt = TransactionReceipt.get(%{tx_hash: "fu"}, :dumb, state[:pid])
+      assert {:ok, :success, _} = receipt
+    end
   end
-
-  defp parse({:ok, number}), do: int_from_hex(number)
 end

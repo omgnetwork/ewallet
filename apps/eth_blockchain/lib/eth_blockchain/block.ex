@@ -14,7 +14,6 @@
 
 defmodule EthBlockchain.Block do
   @moduledoc false
-  import Utils.Helpers.Encoding
 
   alias EthBlockchain.Adapter
 

@@ -37,7 +37,7 @@ defmodule EthBlockchain.Adapter do
     Helper,
     Transaction,
     TransactionListener,
-    BlockchainTransactionRegistry
+    BlockchainRegistry
   }
 
   def helper, do: Helper
@@ -218,7 +218,7 @@ defmodule EthBlockchain.Adapter do
         blockchain_adapter_pid \\ nil
       ) do
     :ok =
-      BlockchainTransactionRegistry.start_listener(TransactionListener, %{
+      BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
         # TODO pull from config
         interval: 500,
@@ -226,14 +226,14 @@ defmodule EthBlockchain.Adapter do
         node_adapter: node_adapter
       })
 
-    BlockchainTransactionRegistry.subscribe(tx_hash, subscriber_pid)
+    BlockchainRegistry.subscribe(tx_hash, subscriber_pid)
   end
 
   def unsubscribe(:transaction, tx_hash, subscriber_pid) do
-    BlockchainTransactionRegistry.unsubscribe(tx_hash, subscriber_pid)
+    BlockchainRegistry.unsubscribe(tx_hash, subscriber_pid)
   end
 
   def lookup_listener(id) do
-    BlockchainTransactionRegistry.lookup(id)
+    BlockchainRegistry.lookup(id)
   end
 end

@@ -66,6 +66,7 @@ defmodule EWallet.TransactionTracker do
     # Unsubscribing from the blockchain subapp
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
 
+    # TODO: tell registry to kill thyself
     # Kill thyself
     {:stop, :normal, transaction}
   end

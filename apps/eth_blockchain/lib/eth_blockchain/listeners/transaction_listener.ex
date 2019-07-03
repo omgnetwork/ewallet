@@ -47,10 +47,6 @@ defmodule EthBlockchain.TransactionListener do
     {:noreply, %{new_state | timer: timer}}
   end
 
-  def handle_info(msg, a) do
-    {:noreply, a}
-  end
-
   def handle_cast({:unsubscribe, subscriber_pid}, %{subscribers: subscribers} = state) do
     subscribers = List.delete(subscribers, subscriber_pid)
 
