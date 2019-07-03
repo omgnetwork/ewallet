@@ -1,9 +1,9 @@
 export function createSearchAddressQuery (value = '') {
-  if (!value) return
-  const matchValue = value.trim()
-
-  if (matchValue === '') {
-    return { matchAny: [] }
+  const matchValue = value && value.trim()
+  if (!matchValue) {
+    return {
+      matchAny: []
+    }
   }
 
   return {
@@ -20,6 +20,16 @@ export function createSearchAddressQuery (value = '') {
       },
       {
         field: 'name',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'user.username',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'user.email',
         comparator: 'contains',
         value: matchValue
       }

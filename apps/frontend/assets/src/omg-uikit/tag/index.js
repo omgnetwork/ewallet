@@ -8,6 +8,7 @@ const TagStyle = styled.div`
   display: inline-flex;
   flex-direction: row;
   align-items: center;
+  align-self: flex-start;
   padding: 5px 10px;
   background-color: ${props => props.active ? props.theme.colors.S200 : 'none'};
   border-radius: 2px;

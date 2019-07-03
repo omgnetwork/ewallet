@@ -53,7 +53,9 @@ export default class WalletSelectItem extends Component {
         <DetailContainer>
           <Address>{this.props.wallet.address}</Address>
           <WalletNameAndIdentifier>
-            {_.upperFirst(type)} {accountName || userName || userEmail} | {this.props.wallet.name} - {this.getIdentifier(this.props.wallet.identifier)}
+            {this.props.wallet.address.includes('gnis000')
+              ? 'Genesis'
+              : `${_.upperFirst(type)} ${accountName || userName || userEmail} | ${this.props.wallet.name} - ${this.getIdentifier(this.props.wallet.identifier)}`}
           </WalletNameAndIdentifier>
         </DetailContainer>
       </WalletSelectItemContainer>

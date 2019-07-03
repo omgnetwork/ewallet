@@ -38,12 +38,13 @@ function AccountWalletSubPage (props) {
   }
   return (
     <WalletsPage
+      showFilter={false}
       transferButton
       accountId={props.match.params.accountId}
       fetcher={walletFetcher}
       onClickRow={onClickRow}
       walletQuery={{
-        matchAny: getQuery()
+        matchAll: getQuery()
       }}
       divider={false}
       title={walletType === 'user' ? 'User Wallets' : 'Account Wallets'}

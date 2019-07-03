@@ -36,7 +36,6 @@ const TokenPageContainer = styled.div`
   }
 `
 const columns = [
-
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true },
@@ -73,11 +72,9 @@ class TokenDetailPage extends Component {
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
   }
-
   onClickLoadMore = e => {
     this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
-
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'exports'}>

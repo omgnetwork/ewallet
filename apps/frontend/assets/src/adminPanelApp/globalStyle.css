@@ -108,6 +108,7 @@ a {
 }
 
 .ReactModal__Content.react-modal {
+  overflow-y: auto;
   background-color: white;
   border: none;
   border-radius: 4px;
