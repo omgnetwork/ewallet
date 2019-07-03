@@ -4,12 +4,15 @@ import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
+import AdvancedFilter from '../omg-advanced-filter'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { openModal } from '../omg-modal/action'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TransactionTable from './TransactionTable'
+
 const TransactionPageContainer = styled.div`
   position: relative;
 `
@@ -20,12 +23,19 @@ class TransactionPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     history: PropTypes.object,
     divider: PropTypes.bool,
-    query: PropTypes.object,
+    showFilter: PropTypes.bool,
+    query: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     topNavigation: PropTypes.bool
   }
   static defaultProps = {
-    query: {},
-    topNavigation: true
+    query: [],
+    topNavigation: true,
+    showFilter: true
+  }
+  state = {
+    advancedFilterModalOpen: false,
+    matchAll: [],
+    matchAny: []
   }
 
   onClickExport = e => {
@@ -44,6 +54,20 @@ class TransactionPage extends Component {
       </Button>
     )
   }
+
+  renderAdvancedFilterButton = () => {
+    return (
+      <Button
+        key='filter'
+        size='small'
+        styleType='secondary'
+        onClick={() => this.setState({ advancedFilterModalOpen: true })}
+      >
+        <Icon name='Filter' /><span>Filter</span>
+      </Button>
+    )
+  }
+
   renderTransactionPage = ({
     data: transactions,
     individualLoadingStatus,
@@ -56,11 +80,21 @@ class TransactionPage extends Component {
             divider={this.props.divider}
             title={'Transactions'}
             buttons={[
+              this.props.showFilter && this.renderAdvancedFilterButton(),
               this.renderExportButton(),
               <CreateTransactionButton key={'create_transaction'} />
             ]}
           />
         )}
+
+        <AdvancedFilter
+          title='Filter Transactions'
+          page='transaction'
+          open={this.state.advancedFilterModalOpen}
+          onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
+          onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
+        />
+
         <TransactionTable
           loadingStatus={individualLoadingStatus}
           pagination={pagination}
@@ -69,6 +103,7 @@ class TransactionPage extends Component {
       </TransactionPageContainer>
     )
   }
+
   render () {
     return (
       <TransactionsFetcher
@@ -77,6 +112,8 @@ class TransactionPage extends Component {
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(this.props.location.search).search,
+          matchAll: this.state.matchAll,
+          matchAny: this.state.matchAny,
           ...this.props.query
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

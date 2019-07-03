@@ -11,6 +11,7 @@ function AccountTransactionSubPage (props) {
   }
   return (
     <UserPage
+      showFilter={false}
       fetcher={getUsersByAccountId}
       accountId={props.match.params.accountId}
       onClickRow={onClickRow}

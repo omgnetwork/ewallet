@@ -1,14 +1,13 @@
-import React, { Component, PureComponent } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import queryString from 'query-string'
 import moment from 'moment'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import DateTime from 'react-datetime'
 import { connect } from 'react-redux'
 
-import { Input, Button, Icon, Tag, Tooltip } from '../omg-uikit'
+import { Button, Icon, Tag, Tooltip, DatePicker, TimePicker } from '../omg-uikit'
 import SortableTable from '../omg-table'
 import ExportFetcher from '../omg-export/exportFetcher'
 import { downloadExportFileById, getExports } from '../omg-export/action'
@@ -28,14 +27,6 @@ const FormDetailContainer = styled.form`
   padding: 30px;
   box-shadow: 0 4px 12px 0 #e8eaed;
   margin-bottom: 40px;
-  .date-time {
-    flex: 1 0 0;
-    margin-top: 30px;
-    margin-right: 20px;
-    :last-child {
-      margin-right: 0;
-    }
-  }
   input {
     width: 100%;
   }
@@ -48,6 +39,12 @@ const FormDetailContainer = styled.form`
   .row {
     display: flex;
     flex-direction: row;
+
+    > div {
+      &:first-child {
+        margin-right: 20px;
+      }
+    }
   }
 `
 const TimestampContainer = styled.div`
@@ -428,68 +425,4 @@ class TransactionExportPage extends Component {
   }
 }
 
-class TimePicker extends PureComponent {
-  static propTypes = {
-    onChange: PropTypes.func,
-    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    onFocus: PropTypes.func
-  }
-  render () {
-    return (
-      <DateTime
-        className='date-time'
-        closeOnSelect
-        onChange={this.props.onChange}
-        dateFormat={false}
-        renderInput={(props) => {
-          return (
-            <Input
-              {...props}
-              value={this.props.value && this.props.value.format('hh:mm a')}
-              onFocus={this.props.onFocus}
-              placeholder='Time'
-              normalPlaceholder='00 : 00'
-              icon='Time'
-              inputActive
-            />
-          )
-        }}
-      />
-    )
-  }
-}
-
-class DatePicker extends PureComponent {
-  static propTypes = {
-    onChange: PropTypes.func,
-    value: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    onFocus: PropTypes.func
-  }
-  render () {
-    return (
-      <DateTime
-        className='date-time'
-        closeOnSelect
-        onChange={this.props.onChange}
-        timeFormat={false}
-        renderInput={(props) => {
-          return (
-            <Input
-              {...props}
-              value={this.props.value && this.props.value.format('DD/MM/YY')}
-              onFocus={this.props.onFocus}
-              placeholder='Date'
-              normalPlaceholder='00/00/00'
-              icon='Calendar'
-              inputActive
-            />
-          )
-        }}
-      />
-    )
-  }
-}
-
 export default enhance(TransactionExportPage)
-
-// value={this.props.value && this.props.value.format('DD/MM/YYYY hh:mm:ss a')}

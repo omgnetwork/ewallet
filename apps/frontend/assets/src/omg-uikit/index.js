@@ -15,12 +15,14 @@ import Switch from './switch'
 import Error from './error'
 import Tag from './tag'
 import Tooltip from './tooltip'
-import TabButton from './tabButton'
 import Id from './id'
 import SearchBar from './searchbar'
 import NavCard from './navcard'
 import DetailRow from './detailrow'
 import QrCode from './qrCode'
+import MultiSelect from '../omg-uikit/multiselect'
+import DatePicker from '../omg-uikit/datepicker'
+import TimePicker from '../omg-uikit/timepicker'
 
 export {
   Input,
@@ -41,7 +43,9 @@ export {
   Error,
   Tag,
   Tooltip,
-  TabButton,
+  DatePicker,
+  TimePicker,
+  MultiSelect,
   Id,
   SearchBar,
   NavCard,

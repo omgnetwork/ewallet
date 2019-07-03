@@ -34,7 +34,13 @@ export default withRouter(
       }
     }
     render () {
-      return <ActivityPage query={this.getQuery} divider={false} />
+      return (
+        <ActivityPage
+          showFilter={false}
+          query={this.getQuery}
+          divider={false}
+        />
+      )
     }
   }
 )

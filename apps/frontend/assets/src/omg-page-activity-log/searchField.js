@@ -1,6 +1,11 @@
 export function createSearchActivityLogQuery (value = '') {
-  const matchValue = value.trim()
-  if (!value) return {}
+  const matchValue = value && value.trim()
+  if (!matchValue) {
+    return {
+      matchAny: []
+    }
+  }
+
   return {
     matchAny: [
       {

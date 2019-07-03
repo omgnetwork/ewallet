@@ -333,7 +333,11 @@ class CreateTransaction extends Component {
                 onChange={this.onChangeInputToAddress}
                 onBlur={this.onBlurToAddressSelect}
                 options={data.map(d => {
-                  return { key: d.address, value: <WalletSelect wallet={d} />, ...d }
+                  return {
+                    key: d.address,
+                    value: <WalletSelect wallet={d} />,
+                    ...d
+                  }
                 })}
               />
             )
