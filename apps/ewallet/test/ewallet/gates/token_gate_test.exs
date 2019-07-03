@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.SignupGateTest do
+defmodule EWallet.TokenGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.TokenGate

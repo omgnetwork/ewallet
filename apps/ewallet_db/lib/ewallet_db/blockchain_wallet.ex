@@ -32,6 +32,9 @@ defmodule EWalletDB.BlockchainWallet do
   @cold "cold"
   @wallet_types [@hot, @cold]
 
+  def type_hot, do: @hot
+  def type_cold, do: @cold
+
   schema "blockchain_wallet" do
     # Blockchain wallets don't have an external ID. Use `address` instead.
     field(:address, :string)

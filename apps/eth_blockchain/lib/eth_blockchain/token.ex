@@ -22,6 +22,22 @@ defmodule EthBlockchain.Token do
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
+  @symbol "ETH"
+  @name "Ether"
+  @subunit_to_unit 1_000_000_000_000_000_000
+
+  @doc """
+  Returns a map containing the attributes of the Ethereum token
+  """
+  def get_default do
+    %{
+      symbol: @symbol,
+      name: @name,
+      address: EthBlockchain.eth_address(),
+      subunit_to_unit: @subunit_to_unit
+    }
+  end
+
   @doc """
   Attempt to query the value of the field for the given contract address.
   Possible fields are: "name", "symbol", "decimals", "totalSupply"
@@ -29,6 +45,8 @@ defmodule EthBlockchain.Token do
   If the given field is not allowed, returns {:error, :invalid_field}
   If the given field cannot be found in the contract, returns: {:error, :field_not_found}
   """
+  @spec get_field(map(), atom() | nil, pid() | nil) ::
+          {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def get_field(attrs, adapter \\ nil, pid \\ nil)
 
   def get_field(%{field: field, contract_address: contract_address}, adapter, pid)
@@ -46,7 +64,7 @@ defmodule EthBlockchain.Token do
 
   def get_field(_, _, _), do: {:error, :invalid_field}
 
-  defp parse_response({:ok, "0x" <> ""}, _field, adapter, pid) do
+  defp parse_response({:ok, "0x" <> ""}, _field, _adapter, _pid) do
     {:error, :field_not_found}
   end
 
@@ -65,9 +83,9 @@ defmodule EthBlockchain.Token do
     {:ok, str}
   end
 
-  defp parse_response({:error, code}, _field, adapter, pid), do: handle_error(code)
+  defp parse_response({:error, code}, _field, _adapter, _pid), do: handle_error(code)
 
-  defp parse_response({:error, code, description}, _field, adapter, pid),
+  defp parse_response({:error, code, description}, _field, _adapter, _pid),
     do: handle_error(code, description)
 
   defp decode_abi(data, types) do

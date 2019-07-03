@@ -103,6 +103,7 @@ defmodule EWalletDB.Token do
         :locked,
         :account_uuid,
         :blockchain_address,
+        :blockchain_status,
         :metadata,
         :encrypted_metadata
       ],
@@ -135,6 +136,7 @@ defmodule EWalletDB.Token do
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
+    |> validate_inclusion(:blockchain_status, @blockchain_status)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
@@ -183,10 +185,19 @@ defmodule EWalletDB.Token do
   defp blockchain_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(attrs,
-      cast: [:blockchain_address, :blockchain_status],
-      required: [:blockchain_address, :blockchain_status]
+      cast: [:blockchain_address],
+      required: [:blockchain_address]
     )
     |> unique_constraint(:blockchain_address)
+    |> merge(blockchain_status_changeset(token, attrs))
+  end
+
+  defp blockchain_status_changeset(%Token{} = token, attrs) do
+    token
+    |> cast_and_validate_required_for_activity_log(attrs,
+      cast: [:blockchain_status],
+      required: [:blockchain_status]
+    )
     |> validate_inclusion(:blockchain_status, @blockchain_status)
   end
 
