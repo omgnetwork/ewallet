@@ -292,14 +292,22 @@ class CreateTransaction extends Component {
           }}
           selectProps={{
             label: 'Token',
+            clearable: true,
             onSelectItem: this.onSelectTokenSelect('fromToken'),
             onChange: this.onChangeSearchToken('fromToken'),
             value: this.state.fromTokenSearchToken,
             filterByKey: true,
-            valueRenderer: value => {
-              const found = _.find(fromWallet.balances, b => b.token.name === value)
-              return <TokenSelect token={found.token} />
-            },
+            valueRenderer: this.state.fromTokenSelected
+              ? value => {
+                const found = _.find(
+                  fromWallet.balances,
+                  b => b.token.name.toLowerCase() === value.toLowerCase()
+                )
+                return found
+                  ? <TokenSelect token={found.token} />
+                  : value
+              }
+              : null,
             options:
               fromWallet
                 ? fromWallet.balances.map(b => ({

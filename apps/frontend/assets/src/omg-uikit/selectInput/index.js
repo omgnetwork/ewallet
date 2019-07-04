@@ -20,12 +20,14 @@ const Labels = styled.div`
   }
   div:last-child {
     flex: 2 1 0;
-    margin-left: 10px;
+    margin-left: 15px;
   }
 `
 const SelectInputContainer = styled.div`
   input {
     margin: 0 !important;
+    display: flex;
+    align-items: center;
   }
   display: flex;
   flex-direction: row;
@@ -46,7 +48,11 @@ const SelectInputContainer = styled.div`
 `
 const StyledSelect = styled(Select)`
   flex: 1 1 0;
-  padding-left: 10px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 10px;
 `
 const StyledInput = styled(Input)`
   flex: 2 1 0;

@@ -37,6 +37,7 @@ const ValueRendererContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
+  width: 100%;
   justify-content: space-between;
   align-items: flex-end;
 `
@@ -61,14 +62,16 @@ export default class Select extends PureComponent {
     filterByKey: PropTypes.bool,
     optionRenderer: PropTypes.func,
     disabled: PropTypes.bool,
-    noBorder: PropTypes.bool
+    noBorder: PropTypes.bool,
+    clearable: PropTypes.bool
   }
   static defaultProps = {
     onSelectItem: _.noop,
     onFocus: _.noop,
     onBlur: _.noop,
     filterByKey: false,
-    value: ''
+    value: '',
+    clearable: false
   }
   state = {
     active: false
@@ -88,6 +91,7 @@ export default class Select extends PureComponent {
   onClickItem = item => e => {
     this.setState({ active: false }, () => {
       this.props.onSelectItem(item)
+      this.onBlur()
     })
   }
   onClickChevronDown = () => {
@@ -96,6 +100,32 @@ export default class Select extends PureComponent {
     setTimeout(() => {
       this.input.focus()
     }, 0)
+  }
+  onClickClear = () => {
+    this.onBlur()
+    this.props.onSelectItem(null)
+  }
+  renderSuffix = () => {
+    if (this.props.disabled) {
+      return null
+    }
+    if (this.props.clearable && this.props.value) {
+      return (
+        <Icon
+          name='Close'
+          onMouseDown={this.onClickClear}
+        />
+      )
+    }
+    if (this.state.active) {
+      return <Icon name='Chevron-Up' />
+    }
+    return (
+      <Icon
+        name='Chevron-Down'
+        onMouseDown={this.onClickChevronDown}
+      />
+    )
   }
   render () {
     const filteredOption = this.props.filterByKey
@@ -112,6 +142,7 @@ export default class Select extends PureComponent {
       valueRenderer,
       ...rest
     } = this.props
+
     return (
       <SelectContainer
         style={style}
@@ -127,11 +158,7 @@ export default class Select extends PureComponent {
           >
             {valueRenderer(value)}
             <ValueRendererSuffix>
-              {disabled
-                ? null
-                : this.state.active
-                  ? <Icon name='Chevron-Up' />
-                  : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />}
+              {this.renderSuffix()}
             </ValueRendererSuffix>
           </ValueRendererContainer>
         )}
@@ -144,13 +171,7 @@ export default class Select extends PureComponent {
             onChange={this.props.onChange}
             value={value}
             registerRef={this.registerRef}
-            suffix={
-              disabled
-                ? null
-                : this.state.active
-                  ? <Icon name='Chevron-Up' />
-                  : <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
-            }
+            suffix={this.renderSuffix()}
           />
         )}
         {this.state.active && filteredOption.length > 0 && (
