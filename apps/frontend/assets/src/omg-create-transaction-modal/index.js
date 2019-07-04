@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 
-import { Input, Button, Icon, Select } from '../omg-uikit'
+import { Input, Button, Icon, Select, SelectInput } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
@@ -279,6 +279,38 @@ class CreateTransaction extends Component {
             )
           }}
         />
+
+        {/* TODO NEW TOKEN SELECT */}
+        <SelectInput
+          inputProps={{
+            label: 'Amount',
+            value: this.state.fromTokenAmount,
+            onChange: this.onChangeAmount('fromToken'),
+            type: 'amount',
+            maxAmountLength: 18,
+            suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+          }}
+          selectProps={{
+            label: 'Token',
+            onSelectItem: this.onSelectTokenSelect('fromToken'),
+            onChange: this.onChangeSearchToken('fromToken'),
+            value: this.state.fromTokenSearchToken,
+            filterByKey: true,
+            valueRenderer: value => {
+              const found = _.find(fromWallet.balances, b => b.token.name === value)
+              return <TokenSelect token={found.token} />
+            },
+            options:
+              fromWallet
+                ? fromWallet.balances.map(b => ({
+                  key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                  value: <TokenSelect token={b.token} />,
+                  ...b
+                }))
+                : []
+          }}
+        />
+
         <InputGroupContainer>
           <div>
             <InputLabel>Token</InputLabel>
