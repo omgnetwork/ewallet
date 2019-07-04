@@ -33,6 +33,8 @@ defmodule EWallet.BlockchainTransactionGate do
   alias EWalletDB.{BlockchainWallet, Transaction}
   alias ActivityLogger.System
 
+  # TODO: Check if blockchain is enabled
+  # TODO: Check if blockchain is available
   # TODO: Add tests at the controller level
   # TODO: Add tests for failures at the gate level
 
