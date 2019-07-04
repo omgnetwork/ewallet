@@ -32,6 +32,18 @@ defmodule EthBlockchain.Adapter do
   use GenServer
   require Logger
 
+  alias EthBlockchain.{
+    Balance,
+    DumbAdapter,
+    ErrorHandler,
+    Helper,
+    Token
+  }
+
+  def helper, do: Helper
+  def error_handler, do: ErrorHandler
+  def dumb_adapter, do: DumbAdapter
+
   @doc """
   Starts EthBlockchain.Adapter.
   """
@@ -162,6 +174,14 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil) :: resp({:ok, any()})
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
+
+  def call({:get_balances, attrs}, adapter, pid) do
+    Balance.get(attrs, adapter, pid)
+  end
+
+  def call({:get_field, attrs}, adapter, pid) do
+    Token.get_field(attrs, adapter, pid)
+  end
 
   def call(func_spec, nil, pid) do
     adapter =

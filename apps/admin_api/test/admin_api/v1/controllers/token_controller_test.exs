@@ -17,7 +17,14 @@ defmodule AdminAPI.V1.TokenControllerTest do
   alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
-  alias EthBlockchain.DumbAdapter
+
+  defp valid_erc20_contract_address do
+    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.valid_erc20_contract_address()
+  end
+
+  defp invalid_erc20_contract_address do
+    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.invalid_erc20_contract_address()
+  end
 
   describe "/token.all" do
     test_with_auths "returns a list of tokens and pagination data" do
@@ -179,7 +186,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address(),
+          blockchain_address: valid_erc20_contract_address(),
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
@@ -189,8 +196,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "token"
 
-      assert response["data"]["blockchain_address"] ==
-               DumbAdapter.valid_erc20_contract_address()
+      assert response["data"]["blockchain_address"] == valid_erc20_contract_address()
 
       assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
@@ -203,7 +209,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: DumbAdapter.invalid_erc20_contract_address(),
+          blockchain_address: invalid_erc20_contract_address(),
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
@@ -219,7 +225,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: DumbAdapter.invalid_erc20_contract_address(),
+          blockchain_address: invalid_erc20_contract_address(),
           amount: 100,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
@@ -964,7 +970,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "get erc20 attributes of a contract address" do
       response =
         request("/token.get_erc20_capabilities", %{
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       assert response["success"]
@@ -978,7 +984,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "fails to get attributes for an invalid address" do
       response =
         request("/token.get_erc20_capabilities", %{
-          blockchain_address: DumbAdapter.invalid_erc20_contract_address()
+          blockchain_address: invalid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1024,12 +1030,14 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       assert response["success"]
       assert response["data"]["object"] == "token"
-      assert response["data"]["blockchain_address"] == DumbAdapter.valid_erc20_contract_address()
+
+      assert response["data"]["blockchain_address"] == valid_erc20_contract_address()
+
       assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
     end
 
@@ -1067,7 +1075,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "fails to update an existing token if id is missing" do
       response =
         request("/token.set_blockchain_address", %{
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1083,7 +1091,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1099,7 +1107,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1113,7 +1121,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: "fake",
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1148,7 +1156,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         admin_user_request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       assert response["success"] == true
@@ -1168,7 +1176,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         provider_request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: DumbAdapter.valid_erc20_contract_address()
+          blockchain_address: valid_erc20_contract_address()
         })
 
       assert response["success"] == true

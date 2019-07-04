@@ -15,7 +15,8 @@
 defmodule EWallet.TokenGate do
   @moduledoc false
 
-  alias EthBlockchain.{Balance, Token}
+  alias EWallet.BlockchainHelper
+  alias EWalletDB.Token
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as
@@ -54,11 +55,11 @@ defmodule EWallet.TokenGate do
   defp validate_symbol(_, _), do: :ok
 
   def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
-    EWalletDB.Token.blockchain_status_confirmed()
+    Token.blockchain_status_confirmed()
   end
 
   def get_blockchain_status(%{hot_wallet_balance: _balance}) do
-    EWalletDB.Token.blockchain_status_pending()
+    Token.blockchain_status_pending()
   end
 
   @doc """
@@ -88,10 +89,18 @@ defmodule EWallet.TokenGate do
   end
 
   defp get_optional(contract_address) do
-    with {:ok, name} <- Token.get_field(%{field: "name", contract_address: contract_address}),
-         {:ok, symbol} <- Token.get_field(%{field: "symbol", contract_address: contract_address}),
+    with {:ok, name} <-
+           BlockchainHelper.call(:get_field, %{field: "name", contract_address: contract_address}),
+         {:ok, symbol} <-
+           BlockchainHelper.call(:get_field, %{
+             field: "symbol",
+             contract_address: contract_address
+           }),
          {:ok, decimals} <-
-           Token.get_field(%{field: "decimals", contract_address: contract_address}) do
+           BlockchainHelper.call(:get_field, %{
+             field: "decimals",
+             contract_address: contract_address
+           }) do
       {:ok, %{name: name, symbol: symbol, decimals: decimals}}
     else
       {:error, :field_not_found} -> {:ok, %{}}
@@ -102,9 +111,15 @@ defmodule EWallet.TokenGate do
   # TODO: get balance of current hot wallet
   defp get_mandatory(contract_address) do
     with {:ok, total_supply} <-
-           Token.get_field(%{field: "totalSupply", contract_address: contract_address}),
+           BlockchainHelper.call(:get_field, %{
+             field: "totalSupply",
+             contract_address: contract_address
+           }),
          {:ok, %{^contract_address => balance}} <-
-           Balance.get(%{address: contract_address, contract_addresses: [contract_address]}),
+           BlockchainHelper.call(:get_balances, %{
+             address: contract_address,
+             contract_addresses: [contract_address]
+           }),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
       {:ok, %{total_supply: total_supply, hot_wallet_balance: balance}}
     else

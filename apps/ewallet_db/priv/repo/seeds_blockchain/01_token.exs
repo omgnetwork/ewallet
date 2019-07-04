@@ -25,7 +25,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   end
 
   def run(writer, _args) do
-    token = EthBlockchain.Token.get_default()
+    token = Application.get_env(:ewallet, :blockchain_adapter).helper.default_token()
     run_with(writer, token)
   end
 

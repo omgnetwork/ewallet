@@ -16,7 +16,6 @@ defmodule EthGethAdapter.ErrorHandler do
   @moduledoc """
   Handles errors by mapping the error to its response code and description.
   """
-  alias EthBlockchain.ErrorHandler, as: EthBlockchainErrorHandler
 
   @errors %{
     geth_communication_error: %{

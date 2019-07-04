@@ -267,12 +267,12 @@ defmodule EWalletDB.TokenTest do
 
       {:ok, token} =
         Token.set_blockchain_address(token, %{
-          blockchain_address: EthBlockchain.eth_address(),
+          blockchain_address: "0x0000000000000000000000000000000000000000",
           blockchain_status: Token.blockchain_status_pending(),
           originator: %System{}
         })
 
-      assert token.blockchain_address == EthBlockchain.eth_address()
+      assert token.blockchain_address == "0x0000000000000000000000000000000000000000"
       assert token.blockchain_status == Token.blockchain_status_pending()
     end
 
@@ -283,7 +283,7 @@ defmodule EWalletDB.TokenTest do
 
       {status, changeset} =
         Token.set_blockchain_address(token, %{
-          blockchain_address: EthBlockchain.eth_address(),
+          blockchain_address: "0x0000000000000000000000000000000000000000",
           blockchain_status: "invalid status",
           originator: %System{}
         })

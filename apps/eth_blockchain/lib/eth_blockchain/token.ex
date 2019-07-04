@@ -22,22 +22,6 @@ defmodule EthBlockchain.Token do
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
-  @symbol "ETH"
-  @name "Ether"
-  @subunit_to_unit 1_000_000_000_000_000_000
-
-  @doc """
-  Returns a map containing the attributes of the Ethereum token
-  """
-  def get_default do
-    %{
-      symbol: @symbol,
-      name: @name,
-      address: EthBlockchain.eth_address(),
-      subunit_to_unit: @subunit_to_unit
-    }
-  end
-
   @doc """
   Attempt to query the value of the field for the given contract address.
   Possible fields are: "name", "symbol", "decimals", "totalSupply"

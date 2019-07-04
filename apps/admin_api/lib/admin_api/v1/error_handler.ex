@@ -19,8 +19,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
-  alias EthBlockchain.ErrorHandler, as: EthBlockchainErrorHandler
+  alias EWallet.Web.V1.ErrorHandler
   alias EWallet.Web.V1.ResponseSerializer
 
   @errors %{
@@ -137,8 +136,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    EthBlockchainErrorHandler.errors()
-    |> Map.merge(EWalletErrorHandler.errors(), fn _k, _shared, current ->
+    Application.get_env(:ewallet, :blockchain_adapter).error_handler.errors()
+    |> Map.merge(ErrorHandler.errors(), fn _k, _shared, current ->
       current
     end)
     |> Map.merge(@errors, fn _k, _shared, current ->
@@ -151,7 +150,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   def handle_error(conn, code, attrs) do
     code
-    |> EWalletErrorHandler.build_error(attrs, errors())
+    |> ErrorHandler.build_error(attrs, errors())
     |> respond(conn)
   end
 
@@ -161,7 +160,7 @@ defmodule AdminAPI.V1.ErrorHandler do
 
   def handle_error(conn, code) do
     code
-    |> EWalletErrorHandler.build_error(errors())
+    |> ErrorHandler.build_error(errors())
     |> respond(conn)
   end
 

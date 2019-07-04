@@ -16,8 +16,6 @@ defmodule EthBlockchain.ErrorHandler do
   @moduledoc """
   Handles errors by mapping the error to its response code and description.
   """
-  alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
-  alias EWallet.Web.V1.ResponseSerializer
   alias EthBlockchain.Adapter
 
   @errors %{

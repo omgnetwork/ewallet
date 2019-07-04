@@ -17,11 +17,19 @@ defmodule EWallet.TokenGateTest do
   import EWalletDB.Factory
   alias EWallet.TokenGate
   alias EWalletDB.Token
-  alias EthBlockchain.DumbAdapter
+
+  defp valid_erc20_contract_address do
+    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.valid_erc20_contract_address()
+  end
+
+  defp invalid_erc20_contract_address do
+    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.invalid_erc20_contract_address()
+  end
 
   describe "get_erc20_capabilities/1" do
     test "successfuly get erc20 attributes for a valid contract address" do
-      {res, attrs} = TokenGate.get_erc20_capabilities(DumbAdapter.valid_erc20_contract_address())
+      {res, attrs} = TokenGate.get_erc20_capabilities(valid_erc20_contract_address())
+
       assert res == :ok
       assert attrs.decimals == 18
       assert attrs.hot_wallet_balance == 123
@@ -31,8 +39,7 @@ defmodule EWallet.TokenGateTest do
     end
 
     test "returns an `token_not_erc20` error for an invalid contract address" do
-      {res, error} =
-        TokenGate.get_erc20_capabilities(DumbAdapter.invalid_erc20_contract_address())
+      {res, error} = TokenGate.get_erc20_capabilities(invalid_erc20_contract_address())
 
       assert res == :error
       assert error == :token_not_erc20
@@ -43,8 +50,7 @@ defmodule EWallet.TokenGateTest do
     test "successfuly validate a valid token" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
 
-      {res, status} =
-        TokenGate.validate_erc20_readiness(DumbAdapter.valid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
 
       assert res == :ok
       # status is confirmed because the dumb adapter returns a positive balance (123)
@@ -54,8 +60,7 @@ defmodule EWallet.TokenGateTest do
     test "returns an error when the token decimals doesn't match" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1})
 
-      {res, status} =
-        TokenGate.validate_erc20_readiness(DumbAdapter.valid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
 
       assert res == :error
       assert status == :token_not_matching_contract_info
@@ -64,8 +69,7 @@ defmodule EWallet.TokenGateTest do
     test "returns an error when the token symbol doesn't match" do
       token = insert(:token, %{symbol: "BTC", subunit_to_unit: 1_000_000_000_000_000_000})
 
-      {res, status} =
-        TokenGate.validate_erc20_readiness(DumbAdapter.valid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
 
       assert res == :error
       assert status == :token_not_matching_contract_info
@@ -74,8 +78,7 @@ defmodule EWallet.TokenGateTest do
     test "returns an error when the token is not a valid erc20" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
 
-      {res, status} =
-        TokenGate.validate_erc20_readiness(DumbAdapter.invalid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(invalid_erc20_contract_address(), token)
 
       assert res == :error
       assert status == :token_not_erc20
