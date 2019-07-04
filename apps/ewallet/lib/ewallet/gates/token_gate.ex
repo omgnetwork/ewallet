@@ -24,10 +24,13 @@ defmodule EWallet.TokenGate do
   Returns {:ok, status} where `status` is the blockchain status of the token.
   The status is "confirmed" if the hot wallet balance is positive, or "pending" otherwise.
   """
-  def validate_erc20_readiness(contract_address, token) do
+  def validate_erc20_readiness(contract_address, %{
+        symbol: symbol,
+        subunit_to_unit: subunit_to_unit
+      }) do
     with {:ok, erc20_attrs} <- get_erc20_capabilities(contract_address),
-         :ok <- validate_decimals(erc20_attrs, token),
-         :ok <- validate_symbol(erc20_attrs, token) do
+         :ok <- validate_decimals(erc20_attrs, subunit_to_unit),
+         :ok <- validate_symbol(erc20_attrs, symbol) do
       {:ok, get_blockchain_status(erc20_attrs)}
     else
       :error -> {:error, :token_not_matching_contract_info}
@@ -35,8 +38,8 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  defp validate_decimals(%{decimals: value}, token) do
-    case value == :math.log10(token.subunit_to_unit) do
+  defp validate_decimals(%{decimals: value}, subunit_to_unit) do
+    case value == :math.log10(subunit_to_unit) do
       true -> :ok
       false -> :error
     end
@@ -44,9 +47,9 @@ defmodule EWallet.TokenGate do
 
   defp validate_decimals(_, _), do: :ok
 
-  defp validate_symbol(%{symbol: value}, %{symbol: value}), do: :ok
+  defp validate_symbol(%{symbol: value}, value), do: :ok
 
-  defp validate_symbol(%{symbol: _value}, %{symbol: _diff_value}), do: :error
+  defp validate_symbol(%{symbol: _value}, _diff_value), do: :error
 
   defp validate_symbol(_, _), do: :ok
 

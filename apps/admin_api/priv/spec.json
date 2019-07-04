@@ -6541,15 +6541,15 @@
             "application/vnd.omisego.v1+json": {
               "schema": {
                 "properties": {
-                  "contract_address": {
+                  "blockchain_address": {
                     "type": "string"
                   }
                 },
                 "required": [
-                  "contract_address"
+                  "blockchain_address"
                 ],
                 "example": {
-                  "contract_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
                 }
               }
             }
@@ -6720,13 +6720,13 @@
         }
       }
     },
-    "/token.set_contract_address": {
+    "/token.set_blockchain_address": {
       "post": {
         "tags": [
           "Token"
         ],
-        "summary": "Attempts to set a contract address to the specified tokeen",
-        "operationId": "token_set_contract_address",
+        "summary": "Attempts to set a blockchain address to the specified tokeen",
+        "operationId": "token_set_blockchain_address",
         "security": [
           {
             "ProviderAuth": []
@@ -6736,7 +6736,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to set a contract address to a token.",
+          "description": "The parameters to set a blockchain address to a token.",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -6745,17 +6745,17 @@
                   "id": {
                     "type": "string"
                   },
-                  "contract_address": {
+                  "blockchain_address": {
                     "type": "string"
                   }
                 },
                 "required": [
                   "id",
-                  "contract_address"
+                  "blockchain_address"
                 ],
                 "example": {
                   "id": "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
-                  "contract_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
                 }
               }
             }

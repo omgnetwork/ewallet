@@ -259,14 +259,14 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
-  describe "set_contract_address/2" do
+  describe "set_blockchain_address/2" do
     test "set the blockchain address of a token" do
       {:ok, token} = :token |> params_for() |> Token.insert()
       assert token.blockchain_address == nil
       assert token.blockchain_status == nil
 
       {:ok, token} =
-        Token.set_contract_address(token, %{
+        Token.set_blockchain_address(token, %{
           blockchain_address: EthBlockchain.eth_address(),
           blockchain_status: Token.blockchain_status_pending(),
           originator: %System{}
@@ -282,7 +282,7 @@ defmodule EWalletDB.TokenTest do
       assert token.blockchain_status == nil
 
       {status, changeset} =
-        Token.set_contract_address(token, %{
+        Token.set_blockchain_address(token, %{
           blockchain_address: EthBlockchain.eth_address(),
           blockchain_status: "invalid status",
           originator: %System{}

@@ -168,17 +168,17 @@ token.get_erc20_capabilities:
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
 
-token.set_contract_address:
+token.set_blockchain_address:
   post:
     tags:
       - Token
-    summary: Attempts to set a contract address to the specified tokeen
-    operationId: token_set_contract_address
+    summary: Attempts to set a blockchain address to the specified tokeen
+    operationId: token_set_blockchain_address
     security:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/TokenSetContractAddress'
+      $ref: 'request_bodies.yaml#/TokenSetBlockchainAddress'
     responses:
       '200':
         $ref: 'responses.yaml#/TokenResponse'

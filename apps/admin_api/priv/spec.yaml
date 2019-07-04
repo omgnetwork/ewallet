@@ -1395,12 +1395,12 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               properties:
-                contract_address:
+                blockchain_address:
                   type: string
               required:
-                - contract_address
+                - blockchain_address
               example:
-                contract_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+                blockchain_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
       responses:
         '200':
           description: Returns a list of erc20 attributes
@@ -1436,17 +1436,17 @@ paths:
                         total_supply: 100000
                         decimals: 18
         '500': *ref_7
-  /token.set_contract_address:
+  /token.set_blockchain_address:
     post:
       tags:
         - Token
-      summary: Attempts to set a contract address to the specified tokeen
-      operationId: token_set_contract_address
+      summary: Attempts to set a blockchain address to the specified tokeen
+      operationId: token_set_blockchain_address
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        description: The parameters to set a contract address to a token.
+        description: The parameters to set a blockchain address to a token.
         required: true
         content:
           application/vnd.omisego.v1+json:
@@ -1454,14 +1454,14 @@ paths:
               properties:
                 id:
                   type: string
-                contract_address:
+                blockchain_address:
                   type: string
               required:
                 - id
-                - contract_address
+                - blockchain_address
               example:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
-                contract_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+                blockchain_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
       responses:
         '200': *ref_15
         '500': *ref_7

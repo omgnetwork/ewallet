@@ -347,7 +347,7 @@ defmodule EWalletDB.Token do
     |> Repo.update_record_with_activity_log()
   end
 
-  def set_contract_address(token, attrs) do
+  def set_blockchain_address(token, attrs) do
     token
     |> blockchain_changeset(attrs)
     |> Repo.update_record_with_activity_log()

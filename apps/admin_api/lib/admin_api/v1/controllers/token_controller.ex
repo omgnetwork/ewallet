@@ -94,6 +94,34 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
+  defp do_create(conn, %{"amount" => _, "blockchain_address" => _}) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Can't specify both `blockchain_address` and `amount`."
+    )
+  end
+
+  defp do_create(conn, %{"blockchain_address" => "0x" <> _ = blockchain_address} = attrs) do
+    with atom_map <- Map.new(attrs, fn {k, v} -> {String.to_atom(k), v} end),
+         {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, atom_map),
+         attrs <- Map.put(attrs, "blockchain_status", status),
+         {:ok, token} <- Token.insert(attrs) do
+      respond_single(token, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  defp do_create(conn, %{"blockchain_address" => _}) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `blockchain_address` is not in a valid format."
+    )
+  end
+
   defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
     with {:ok, token} <- Token.insert(attrs),
          {:ok, _} <-
@@ -162,9 +190,9 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, :missing_id)
   end
 
-  def get_erc20_capabilities(conn, %{"contract_address" => "0x" <> _ = contract_address}) do
+  def get_erc20_capabilities(conn, %{"blockchain_address" => "0x" <> _ = blockchain_address}) do
     with {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, %Token{}),
-         {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(contract_address) do
+         {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(blockchain_address) do
       render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
     else
       {:error, code} ->
@@ -182,22 +210,22 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(
       conn,
       :invalid_parameter,
-      "Invalid parameter provided. `contract_address` is required and must be in a valid format."
+      "Invalid parameter provided. `blockchain_address` is required and must be in a valid format."
     )
   end
 
-  def set_contract_address(
+  def set_blockchain_address(
         conn,
-        %{"id" => id, "contract_address" => "0x" <> _ = contract_address} = attrs
+        %{"id" => id, "blockchain_address" => "0x" <> _ = blockchain_address} = attrs
       ) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:set_contract_address, conn.assigns, token),
+         {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, token),
          true <- is_nil(token.blockchain_address) || {:error, :token_already_blockchain_enabled},
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, blockchain_status} <- TokenGate.validate_erc20_readiness(contract_address, token),
+         {:ok, blockchain_status} <-
+           TokenGate.validate_erc20_readiness(blockchain_address, token),
          attrs <- Map.put(attrs, "blockchain_status", blockchain_status),
-         attrs <- Map.put(attrs, "blockchain_address", contract_address),
-         {:ok, updated} <- Token.set_contract_address(token, attrs) do
+         {:ok, updated} <- Token.set_blockchain_address(token, attrs) do
       respond_single(updated, conn)
     else
       error ->
@@ -205,11 +233,11 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def set_contract_address(conn, _) do
+  def set_blockchain_address(conn, _) do
     handle_error(
       conn,
       :invalid_parameter,
-      "Invalid parameter provided. `id` and `contract_address` are required and must be in a valid format."
+      "Invalid parameter provided. `id` and `blockchain_address` are required and must be in a valid format."
     )
   end
 
@@ -282,6 +310,10 @@ defmodule AdminAPI.V1.TokenController do
 
   defp respond_single({:error, code}, conn) do
     handle_error(conn, code)
+  end
+
+  defp respond_single({:error, code, message}, conn) do
+    handle_error(conn, code, message)
   end
 
   defp respond_single({:ok, _mint, token}, conn) do

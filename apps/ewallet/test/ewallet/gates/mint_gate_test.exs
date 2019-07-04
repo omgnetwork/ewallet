@@ -20,6 +20,23 @@ defmodule EWallet.MintGateTest do
   alias EWalletDB.{Token, Transaction}
   alias ActivityLogger.System
 
+  describe "mint_token/2" do
+    test "returns an error when minting a blockchain token" do
+      {:ok, omg} =
+        :token
+        |> params_for(
+          symbol: "OMG",
+          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a23"
+        )
+        |> Token.insert()
+
+      {res, code, message} = MintGate.mint_token(omg, %{"amount" => 100})
+      assert res == :error
+      assert code == :invalid_parameter
+      assert message == "Can't mint a blockchain token."
+    end
+  end
+
   describe "insert/2" do
     test "inserts a new confirmed mint" do
       {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
