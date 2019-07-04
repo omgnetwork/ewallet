@@ -59,41 +59,55 @@ const StyledInput = styled(Input)`
   padding: 0 10px;
   border-left: 1px solid ${props => props.theme.colors.S400};
 `
+const EmptyAvatar = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  margin-right: 10px;
+  margin-top: 2px;
+  border: 1px solid ${props => props.theme.colors.S300};
+`
 
-const SelectInput = ({ inputProps, selectProps }) => {
+const SelectInput = ({ inputProps = {}, selectProps = {}, className }) => {
   const [ focused, setFocused ] = useState(false)
 
   const { label: inputLabel, ...restInput } = inputProps
   const { label: selectLabel, ...restSelect } = selectProps
 
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <Labels>
         <div>{selectLabel}</div>
         <div>{inputLabel}</div>
       </Labels>
       <SelectInputContainer focused={focused}>
-        <StyledSelect
-          noBorder
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          {...restSelect}
-        />
-        <StyledInput
-          noBorder
-          placeholder={inputProps.placeholder}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          {...restInput}
-        />
+        {!_.isEmpty(selectProps) && (
+          <StyledSelect
+            noBorder
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            prefix={<EmptyAvatar />}
+            {...restSelect}
+          />
+        )}
+        {!_.isEmpty(inputProps) && (
+          <StyledInput
+            noBorder
+            placeholder={inputProps.placeholder}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            {...restInput}
+          />
+        )}
       </SelectInputContainer>
     </Wrapper>
   )
 }
 
 SelectInput.propTypes = {
-  inputProps: PropTypes.object.isRequired,
-  selectProps: PropTypes.object.isRequired
+  inputProps: PropTypes.object,
+  selectProps: PropTypes.object,
+  className: PropTypes.string
 }
 
 export default SelectInput

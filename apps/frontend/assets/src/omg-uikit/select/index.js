@@ -39,10 +39,10 @@ const ValueRendererContainer = styled.div`
   flex-direction: row;
   width: 100%;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: center;
 `
 const ValueRendererSuffix = styled.div`
-  padding: 0 8px 8px 0;
+  padding-right: 8px;
   font-size: 12px;
   color: ${props => props.theme.colors.B100};
 `

@@ -146,6 +146,7 @@ class InputComponent extends PureComponent {
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
     onChange: PropTypes.func,
+    prefix: PropTypes.node,
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
@@ -245,6 +246,7 @@ class InputComponent extends PureComponent {
               <Icon name={icon} />
             </Prefix>
           )}
+          {this.props.prefix}
           <Input
             {...rest}
             value={this.props.type === 'amount' ? formatNumber(this.props.value) : this.props.value}

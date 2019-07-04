@@ -92,6 +92,10 @@ const InnerTransferContainer = styled.div`
   padding: 50px;
   margin: 0 auto;
 `
+const StyledSelectInput = styled(SelectInput)`
+  margin-top: 10px;
+  margin-bottom: 20px;
+`
 const enhance = compose(
   withRouter,
   connect(
@@ -251,7 +255,6 @@ class CreateTransaction extends Component {
     return (
       <FromToContainer>
         <h5>From</h5>
-        <InputLabel>From Address</InputLabel>
         <AllWalletsFetcher
           accountId={this.props.match.params.accountId}
           owned={false}
@@ -259,31 +262,33 @@ class CreateTransaction extends Component {
           shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
           render={({ data }) => {
             return (
-              <Select
-                disabled={!!this.props.fromAddress}
-                normalPlaceholder='acc_0x000000000000000'
-                onSelectItem={this.onSelectFromAddressSelect}
-                value={this.state.fromAddress}
-                onChange={this.onChangeInputFromAddress}
-                onBlur={this.onBlurFromAddressSelect}
-                options={data
-                  .filter(w => w.identifier !== 'burn')
-                  .map(d => {
-                    return {
-                      key: d.address,
-                      value: <WalletSelect wallet={d} />,
-                      ...d
-                    }
-                  })}
+              <StyledSelectInput
+                selectProps={{
+                  label: 'Wallet Address',
+                  disabled: !!this.props.fromAddress,
+                  onSelectItem: this.onSelectFromAddressSelect,
+                  value: this.state.fromAddress,
+                  onChange: this.onChangeInputFromAddress,
+                  options:
+                    data
+                      ? data.filter(w => w.identifier !== 'burn')
+                        .map(d => {
+                          return {
+                            key: d.address,
+                            value: <WalletSelect wallet={d} />,
+                            ...d
+                          }
+                        })
+                      : []
+                }}
               />
             )
           }}
         />
 
-        {/* TODO NEW TOKEN SELECT */}
-        <SelectInput
+        <StyledSelectInput
           inputProps={{
-            label: 'Amount',
+            label: 'Amount to send',
             value: this.state.fromTokenAmount,
             onChange: this.onChangeAmount('fromToken'),
             type: 'amount',
@@ -304,7 +309,7 @@ class CreateTransaction extends Component {
                   b => b.token.name.toLowerCase() === value.toLowerCase()
                 )
                 return found
-                  ? <TokenSelect token={found.token} />
+                  ? <TokenSelect balance={found.amount} token={found.token} />
                   : value
               }
               : null,
@@ -312,47 +317,12 @@ class CreateTransaction extends Component {
               fromWallet
                 ? fromWallet.balances.map(b => ({
                   key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                  value: <TokenSelect token={b.token} />,
+                  value: <TokenSelect balance={b.amount} token={b.token} />,
                   ...b
                 }))
                 : []
           }}
         />
-
-        <InputGroupContainer>
-          <div>
-            <InputLabel>Token</InputLabel>
-            <Select
-              normalPlaceholder='Token'
-              onSelectItem={this.onSelectTokenSelect('fromToken')}
-              onChange={this.onChangeSearchToken('fromToken')}
-              value={this.state.fromTokenSearchToken}
-              filterByKey
-              options={
-                fromWallet
-                  ? fromWallet.balances.map(b => ({
-                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                    value: <TokenSelect token={b.token} />,
-                    ...b
-                  }))
-                  : []
-              }
-            />
-            <BalanceTokenLabel>
-              Balance: {this.getBalanceOfSelectedToken('fromToken')}
-            </BalanceTokenLabel>
-          </div>
-          <div>
-            <InputLabel>Amount</InputLabel>
-            <Input
-              value={this.state.fromTokenAmount}
-              onChange={this.onChangeAmount('fromToken')}
-              type='amount'
-              maxAmountLength={18}
-              normalPlaceholder={'Token amount'}
-            />
-          </div>
-        </InputGroupContainer>
       </FromToContainer>
     )
   }
