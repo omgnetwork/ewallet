@@ -6,3 +6,6 @@ config :eth_blockchain,
          {:dumb, EthBlockchain.DumbAdapter}
        ],
        default_adapter: :dumb
+
+config :eth_blockchain,
+  transaction_poll_interval: 100

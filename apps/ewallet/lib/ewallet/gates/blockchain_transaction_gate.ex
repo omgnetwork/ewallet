@@ -33,13 +33,15 @@ defmodule EWallet.BlockchainTransactionGate do
   alias EWalletDB.{BlockchainWallet, Transaction}
   alias ActivityLogger.System
 
+  # TODO: Add tests at the controller level
+  # TODO: Add tests for failures at the gate level
+
   # Here, we send a transaction from the hot wallet to
   # an external blockchain address. This should only be used to manage
   # the funds repartition between hot and cold wallets.
   def create(actor, %{"from_address" => from} = attrs, [true, true]) do
     primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
-    # TODO: Check hot wallet balance on blockchain
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
          true <-
            primary_hot_wallet.address == from ||

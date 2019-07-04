@@ -14,9 +14,11 @@
 
 defmodule EWallet.BlockchainTransactionState do
   @moduledoc """
+  State machine module for blockchain transactions.
   """
-  # pure blockchain [:pending, :submitted, :pending_confirmations, :confirmed]
-  # local + blockchain [:pending, :locally_stored, :submitted, :pending_confirmations, :confirmed]
+  # TODO: pure blockchain [:pending, :submitted, :pending_confirmations, :confirmed]
+  # TODO: local + blockchain [:pending, :locally_stored, :submitted,
+  #                           :pending_confirmations, :confirmed]
   alias EWalletDB.{Transaction, Repo}
 
   def transition_to(:submitted, transaction, tx_hash, originator) do

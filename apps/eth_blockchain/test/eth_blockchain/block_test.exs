@@ -19,23 +19,18 @@ defmodule EthBlockchain.BlockTest do
 
   describe "get/1" do
     test "get wallet balances with the given adapter spec", state do
-      resp =
+      res =
         Block.get_number(
-          %{
-            address: state[:addr_0],
-            contract_addresses: [state[:addr_1], state[:addr_2], state[:addr_3]]
-          },
           :dumb,
           state[:pid]
         )
 
-      assert resp == {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}}
+      assert res == 14
     end
 
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                Block.get_number(
-                 %{address: state[:addr_0], contract_addresses: [state[:addr_1], state[:addr_2]]},
                  :blah,
                  state[:pid]
                )

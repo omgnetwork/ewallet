@@ -13,6 +13,11 @@
 # limitations under the License.
 
 defmodule EWallet.TransactionTracker do
+  @moduledoc """
+  This module is a GenServer started dynamically for a specific eWallet transaction
+  It will registers itself with the blockchain adapter to receive events about
+  a given transactions and act on it
+  """
   use GenServer, restart: :temporary
   require Logger
 
@@ -66,7 +71,7 @@ defmodule EWallet.TransactionTracker do
     # Unsubscribing from the blockchain subapp
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
 
-    # TODO: tell registry to kill thyself
+    # TODO: tell registry to kill this process
     # Kill thyself
     {:stop, :normal, transaction}
   end

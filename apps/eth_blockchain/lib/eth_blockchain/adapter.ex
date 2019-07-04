@@ -220,8 +220,7 @@ defmodule EthBlockchain.Adapter do
     :ok =
       BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
-        # TODO pull from config
-        interval: 500,
+        interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
         blockchain_adapter_pid: blockchain_adapter_pid,
         node_adapter: node_adapter
       })

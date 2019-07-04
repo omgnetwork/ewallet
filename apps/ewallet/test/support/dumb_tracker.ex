@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.DumbTracker do
+  @moduledoc """
+  Dumb tracker to represent a higher level tracker module.
+  """
   use GenServer, restart: :temporary
 
   def start_link(attrs) do

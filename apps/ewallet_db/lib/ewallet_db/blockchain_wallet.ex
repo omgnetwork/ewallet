@@ -67,7 +67,7 @@ defmodule EWalletDB.BlockchainWallet do
     |> validate_length(:public_key, count: :bytes, max: 255)
   end
 
-  def get_primary_hot_wallet() do
+  def get_primary_hot_wallet do
     :ewallet_db
     |> Application.get_env(:primary_hot_wallet)
     |> get("hot")

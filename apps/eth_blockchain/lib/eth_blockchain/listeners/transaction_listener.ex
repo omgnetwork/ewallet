@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EthBlockchain.TransactionListener do
+  @moduledoc """
+  Listener started dynamically to poll a specific transaction from Ethereum.
+  """
   use GenServer, restart: :temporary
 
   alias EthBlockchain.{Block, TransactionReceipt}
@@ -47,21 +50,8 @@ defmodule EthBlockchain.TransactionListener do
     {:noreply, %{new_state | timer: timer}}
   end
 
-  def handle_cast({:unsubscribe, subscriber_pid}, %{subscribers: subscribers} = state) do
-    subscribers = List.delete(subscribers, subscriber_pid)
-
-    case length(subscribers) == 0 do
-      true ->
-        {:stop, :normal, %{state | subscribers: subscribers}}
-
-      false ->
-        {:noreply, %{state | subscribers: subscribers}}
-    end
-  end
-
   defp run(
          %{
-           subscribers: subscribers,
            tx_hash: tx_hash,
            blockchain_adapter_pid: blockchain_adapter_pid,
            node_adapter: node_adapter
@@ -69,37 +59,55 @@ defmodule EthBlockchain.TransactionListener do
        ) do
     case TransactionReceipt.get(%{tx_hash: tx_hash}, node_adapter, blockchain_adapter_pid) do
       {:ok, :success, receipt} ->
-        # emit confs
         confirmations_count = Block.get_number() - receipt.block_number + 1
-
-        Enum.each(subscribers, fn subscriber_pid ->
-          GenServer.cast(subscriber_pid, {:confirmations_count, tx_hash, confirmations_count})
-        end)
-
+        broadcast({:confirmations_count, receipt, confirmations_count}, state)
         state
 
       {:ok, :failed, receipt} ->
-        # TODO: emit failure
+        broadcast({:failed_transaction, receipt}, state)
         state
 
-      a ->
-        # TODO
-        IO.inspect(a)
+      {:ok, :not_found, nil} ->
+        # Do nothing for now. TODO: increase checking interval until maximum is reached?
+        broadcast({:not_found}, state)
+        state
+
+      {:error, :adapter_error, message} ->
+        broadcast({:adapter_error, message}, state)
+        state
+
+      {:error, error} ->
+        broadcast({:adapter_error, error}, state)
         state
     end
   end
 
-  # handle push & update
+  def broadcast(msg, %{subscribers: subscribers}) do
+    Enum.each(subscribers, fn subscriber_pid ->
+      GenServer.cast(subscriber_pid, msg)
+    end)
+  end
+
   def handle_call({:subscribe, subscriber_pid}, _from, %{subscribers: subscribers} = state) do
-    state = Map.put(state, :subscribers, [subscriber_pid | subscribers])
-    {:reply, :ok, state}
+    case Enum.member?(subscribers, subscriber_pid) do
+      true ->
+        {:reply, {:error, :already_subscribed}, state}
+
+      false ->
+        state = Map.put(state, :subscribers, [subscriber_pid | subscribers])
+        {:reply, :ok, state}
+    end
   end
 
-  def subscribe(listener_pid, subscriber_pid) do
-    GenServer.call(listener_pid, {:subscribe, subscriber_pid})
-  end
+  def handle_cast({:unsubscribe, subscriber_pid}, %{subscribers: subscribers} = state) do
+    subscribers = List.delete(subscribers, subscriber_pid)
 
-  def unsubscribe(listener_pid, subscriber_pid) do
-    GenServer.cast(listener_pid, {:unsubscribe, subscriber_pid})
+    case Enum.empty?(subscribers) do
+      true ->
+        {:stop, :normal, %{state | subscribers: subscribers}}
+
+      false ->
+        {:noreply, %{state | subscribers: subscribers}}
+    end
   end
 end

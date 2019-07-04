@@ -26,7 +26,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
          meta do
       # TODO: switch to using the seeded Ethereum address
       admin = insert(:admin, global_role: "super_admin")
-      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
       hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
       attrs = %{
@@ -57,7 +60,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "returns an error when trying to exchange" do
       admin = insert(:admin, global_role: "super_admin")
-      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
       token = insert(:token)
       hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
@@ -77,7 +83,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "returns an error when amounts are not valid" do
       admin = insert(:admin, global_role: "super_admin")
-      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
       hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
       attrs = %{
@@ -96,7 +105,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "returns an error when the hot wallet doesn't have enough funds" do
       admin = insert(:admin, global_role: "super_admin")
-      primary_blockchain_token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
       hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
       attrs = %{

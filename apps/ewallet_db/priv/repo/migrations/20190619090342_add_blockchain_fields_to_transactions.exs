@@ -11,6 +11,6 @@ defmodule EWalletDB.Repo.Migrations.AddBlockchainFieldsToTransactions do
       add :blockchain_metadata, :map
     end
 
-    execute("ALTER TABLE transaction ALTER \"to\" DROP NOT NULL, ALTER \"from\" DROP NOT NULL;")
+    execute(~s(ALTER TABLE transaction ALTER "to" DROP NOT NULL, ALTER "from" DROP NOT NULL;))
   end
 end

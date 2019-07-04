@@ -14,7 +14,8 @@
 
 defmodule EWallet.TransactionRegistry do
   @moduledoc """
-
+  This module manages the lifecycle of the trackers.
+  Currently, only a transaction tracker is available.
   """
   use GenServer
 

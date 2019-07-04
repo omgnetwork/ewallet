@@ -36,7 +36,7 @@ defmodule EWallet.BlockchainRegistryTest do
       :ok = BlockchainRegistry.start_listener(DumbListener, %{id: "dumb"}, pid)
 
       assert {:ok, %{listener: DumbListener, pid: listener_pid}} =
-               BlockchainRegistry.lookup( "dumb", pid)
+               BlockchainRegistry.lookup("dumb", pid)
 
       assert is_pid(listener_pid)
 
@@ -53,10 +53,11 @@ defmodule EWallet.BlockchainRegistryTest do
 
       assert {:ok, %{listener: DumbListener, pid: listener_pid}} =
                BlockchainRegistry.lookup(id, pid)
+
       assert is_pid(listener_pid)
 
       :ok = BlockchainRegistry.subscribe(id, "fake_pid", pid)
-      state = GenServer.call(listener_pid, {:get_state})
+      state = :sys.get_state(listener_pid)
 
       assert state == %{id: "dumb", subscribers: ["fake_pid"]}
 
@@ -73,23 +74,31 @@ defmodule EWallet.BlockchainRegistryTest do
 
       assert {:ok, %{listener: DumbListener, pid: listener_pid}} =
                BlockchainRegistry.lookup(id, pid)
+
       assert is_pid(listener_pid)
 
       :ok = BlockchainRegistry.subscribe(id, "fake_pid_1", pid)
-      state = GenServer.call(listener_pid, {:get_state})
+      state = :sys.get_state(listener_pid)
+
       assert state == %{id: "dumb", subscribers: ["fake_pid_1"]}
 
       :ok = BlockchainRegistry.subscribe(id, "fake_pid_2", pid)
-      state = GenServer.call(listener_pid, {:get_state})
+      state = :sys.get_state(listener_pid)
       assert state == %{id: "dumb", subscribers: ["fake_pid_2", "fake_pid_1"]}
 
       :ok = BlockchainRegistry.unsubscribe(id, "fake_pid_1", pid)
-      state = GenServer.call(listener_pid, {:get_state})
+      state = :sys.get_state(listener_pid)
       assert state == %{id: "dumb", subscribers: ["fake_pid_2"]}
 
       # Unsubscribing the last subscriber will stop the process
       :ok = BlockchainRegistry.unsubscribe(id, "fake_pid_2", pid)
-      refute Process.alive?(listener_pid)
+
+      ref = Process.monitor(listener_pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          refute Process.alive?(listener_pid)
+      end
 
       assert GenServer.stop(pid) == :ok
     end

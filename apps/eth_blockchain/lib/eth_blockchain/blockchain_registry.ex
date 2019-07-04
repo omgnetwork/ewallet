@@ -13,6 +13,10 @@
 # limitations under the License.
 
 defmodule EthBlockchain.BlockchainRegistry do
+  @moduledoc """
+  The Blockchain registry handles the lifecycle of blockchain listeners
+  (such as the transaction listener).
+  """
   use GenServer
 
   def start_link(opts) do

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 defmodule EthBlockchain.DumbListener do
+  @moduledoc """
+  Test listener to use in tests.
+  """
   use GenServer, restart: :temporary
 
   def start_link(attrs) do
@@ -23,10 +26,6 @@ defmodule EthBlockchain.DumbListener do
     {:ok, Map.put(attrs, :subscribers, [])}
   end
 
-  def handle_call({:get_state}, _from, state) do
-    {:reply, state, state}
-  end
-
   def handle_call({:subscribe, subscriber_pid}, _from, %{subscribers: subscribers} = state) do
     state = Map.put(state, :subscribers, [subscriber_pid | subscribers])
     {:reply, :ok, state}
@@ -35,7 +34,7 @@ defmodule EthBlockchain.DumbListener do
   def handle_cast({:unsubscribe, subscriber_pid}, %{subscribers: subscribers} = state) do
     subscribers = List.delete(subscribers, subscriber_pid)
 
-    case length(subscribers) == 0 do
+    case Enum.empty?(subscribers) do
       true ->
         {:stop, :normal, %{state | subscribers: subscribers}}
 
