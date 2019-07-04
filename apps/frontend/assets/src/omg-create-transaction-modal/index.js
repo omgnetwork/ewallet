@@ -163,12 +163,22 @@ class CreateTransaction extends Component {
     })
   }
   onSelectFromAddressSelect = item => {
-    this.setState({
-      fromAddress: item.key,
-      fromTokenSelected: this.state.fromTokenSelected
-        ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id'))
-        : null
-    })
+    if (item) {
+      this.setState({
+        fromAddress: item.key,
+        fromAddressSelect: true,
+        fromTokenSelected: this.state.fromTokenSelected
+          ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id'))
+          : null
+      })
+    } else {
+      this.setState({
+        fromAddress: '',
+        fromAddressSelect: false,
+        fromTokenSelected: null,
+        fromTokenSearchToken: ''
+      })
+    }
   }
   onSelectExchangeAddressSelect = item => {
     this.setState({ exchangeAddress: item.key })
@@ -265,10 +275,19 @@ class CreateTransaction extends Component {
               <StyledSelectInput
                 selectProps={{
                   label: 'Wallet Address',
+                  clearable: true,
                   disabled: !!this.props.fromAddress,
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
+                  valueRenderer: this.state.fromAddressSelect
+                    ? value => {
+                      const wallet = _.find(data, i => i.address === value)
+                      return wallet
+                        ? <WalletSelect wallet={wallet} />
+                        : value
+                    }
+                    : null,
                   options:
                     data
                       ? data.filter(w => w.identifier !== 'burn')
