@@ -77,7 +77,6 @@ defmodule EWallet.DBCase do
       }
     )
 
-    :ok = Application.put_env(:ewallet, :node_adapter, {:dumb, DumbAdapter})
     adapter = Application.get_env(:ewallet, :blockchain_adapter)
     {:ok, adapter_pid} = adapter.start_link([])
 
