@@ -107,11 +107,11 @@ defmodule EthBlockchain.TransactionListener do
         case is_nil(state[:registry]) do
           true ->
             {:stop, :normal, %{state | subscribers: subscribers}}
+
           false ->
             :ok = GenServer.cast(state[:registry], {:stop_listener, state[:id]})
             {:noreply, %{state | subscribers: subscribers}}
         end
-
 
       false ->
         {:noreply, %{state | subscribers: subscribers}}

@@ -21,7 +21,7 @@ defmodule EWallet.TransactionTrackerTest do
   describe "start_link/1" do
     test "starts a new server" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(transaction)
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
       assert is_pid(pid)
       assert GenServer.stop(pid) == :ok
     end
@@ -30,18 +30,20 @@ defmodule EWallet.TransactionTrackerTest do
   describe "init/1" do
     test "inits with transaction" do
       transaction = insert(:blockchain_transaction)
-      assert TransactionTracker.init(transaction) == {:ok, transaction}
+
+      assert TransactionTracker.init(%{transaction: transaction}) ==
+               {:ok, %{transaction: transaction}}
     end
   end
 
   describe "handle_cast/2 with :confirmations_count" do
     test "handles confirmations count when lower than minimum" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(transaction)
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 2})
 
-      transaction = :sys.get_state(pid)
+      %{transaction: transaction} = :sys.get_state(pid)
       assert %{confirmations_count: 2, status: "pending_confirmations"} = transaction
 
       assert GenServer.stop(pid) == :ok
@@ -49,7 +51,7 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles confirmations count when higher than minimum" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(transaction)
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12})
 
@@ -66,11 +68,11 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles invalid tx_hash" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(transaction)
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
 
       :ok = GenServer.cast(pid, {:confirmations_count, "fake", 12})
 
-      transaction = :sys.get_state(pid)
+      %{transaction: transaction} = :sys.get_state(pid)
       assert %{confirmations_count: nil, status: "pending"} = transaction
 
       assert GenServer.stop(pid) == :ok
