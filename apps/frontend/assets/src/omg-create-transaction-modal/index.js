@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 
-import { Input, Button, Icon, Select, SelectInput } from '../omg-uikit'
+import { Button, Icon, SelectInput } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
@@ -41,18 +41,8 @@ const Form = styled.form`
     font-size: 18px;
   }
 `
-const InputLabel = styled.div`
-  margin-top: 20px;
-  font-size: 14px;
-  font-weight: 400;
-`
 const ButtonContainer = styled.div`
   text-align: center;
-`
-const BalanceTokenLabel = styled.div`
-  font-size: 12px;
-  color: ${props => props.theme.colors.B100};
-  margin-top: 5px;
 `
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
@@ -62,16 +52,6 @@ const Error = styled.div`
   max-height: ${props => (props.error ? '100px' : 0)};
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
-`
-const InputGroupContainer = styled.div`
-  display: flex;
-  > div:first-child {
-    flex: 1 1 55%;
-    margin-right: 40px;
-  }
-  > div:nth-child(2) {
-    flex: 1 1 45%;
-  }
 `
 const OptionalExplanation = styled.div`
   margin-top: 10px;
@@ -155,12 +135,22 @@ class CreateTransaction extends Component {
     })
   }
   onSelectToAddressSelect = item => {
-    this.setState({
-      toAddress: item.key,
-      toTokenSelected: this.state.toTokenSelected
-        ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id'))
-        : null
-    })
+    if (item) {
+      this.setState({
+        toAddress: item.key,
+        toAddressSelect: true,
+        toTokenSelected: this.state.toTokenSelected
+          ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id'))
+          : null
+      })
+    } else {
+      this.setState({
+        toAddress: '',
+        toAddressSelect: false,
+        toTokenSelected: null,
+        toTokenSearchToken: ''
+      })
+    }
   }
   onSelectFromAddressSelect = item => {
     if (item) {
@@ -181,32 +171,18 @@ class CreateTransaction extends Component {
     }
   }
   onSelectExchangeAddressSelect = item => {
-    this.setState({ exchangeAddress: item.key })
-  }
-  onFocusSelect = type => () => {
-    this.setState({ [`${type}SearchToken`]: '', [`${type}Selected`]: null })
-  }
-
-  onFocusFromAddressSelect = () => {
-    this.setState({ fromAddress: '' })
-  }
-  onFocusToAddressSelect = () => {
-    this.setState({ toAddress: '' })
-  }
-  onFocusExchangeAddressSelect = () => {
-    this.setState({ exchangeAddress: '' })
-  }
-  onBlurFromAddressSelect = () => {
-    if (!this.state.fromAddress) {
-      this.setState({ fromTokenSearchToken: '', fromTokenSelected: null })
+    if (item) {
+      this.setState({
+        exchangeAddress: item.key,
+        exchangeAddressSelect: true
+      })
+    } else {
+      this.setState({
+        exchangeAddress: '',
+        exchangeAddressSelect: false
+      })
     }
   }
-  onBlurToAddressSelect = () => {
-    if (!this.state.toAddress) {
-      this.setState({ toTokenSearchToken: '', toTokenSelected: null })
-    }
-  }
-
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -245,12 +221,10 @@ class CreateTransaction extends Component {
       this.setState({ error: JSON.stringify(e.message) })
     }
   }
-
   onRequestClose = () => {
     this.props.onRequestClose()
     this.setState({ submitting: false })
   }
-
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
       ? formatReceiveAmountToTotal(
@@ -350,24 +324,36 @@ class CreateTransaction extends Component {
     return (
       <FromToContainer>
         <h5 style={{ marginTop: '20px' }}>To</h5>
-        <InputLabel>To Address</InputLabel>
         <AllWalletsFetcher
           query={createSearchAddressQuery(this.state.toAddress)}
           render={({ data }) => {
             return (
-              <Select
-                normalPlaceholder='acc_0x000000000000000'
-                onSelectItem={this.onSelectToAddressSelect}
-                value={this.state.toAddress}
-                onChange={this.onChangeInputToAddress}
-                onBlur={this.onBlurToAddressSelect}
-                options={data.map(d => {
-                  return {
-                    key: d.address,
-                    value: <WalletSelect wallet={d} />,
-                    ...d
-                  }
-                })}
+              <StyledSelectInput
+                selectProps={{
+                  label: 'Wallet Address',
+                  clearable: true,
+                  onSelectItem: this.onSelectToAddressSelect,
+                  value: this.state.toAddress,
+                  onChange: this.onChangeInputToAddress,
+                  valueRenderer: this.state.toAddressSelect
+                    ? value => {
+                      const wallet = _.find(data, i => i.address === value)
+                      return wallet
+                        ? <WalletSelect wallet={wallet} />
+                        : value
+                    }
+                    : null,
+                  options:
+                    data
+                      ? data.map(d => {
+                        return {
+                          key: d.address,
+                          value: <WalletSelect wallet={d} />,
+                          ...d
+                        }
+                      })
+                      : []
+                }}
               />
             )
           }}
@@ -377,40 +363,44 @@ class CreateTransaction extends Component {
             The fields below are optional and should only be used if you want to perform an
             exchange. Leave the amount blank to let the server use the default exchange rate.
           </OptionalExplanation>
-          <InputGroupContainer>
-            <div>
-              <InputLabel>Token</InputLabel>
-              <Select
-                normalPlaceholder='Token'
-                onSelectItem={this.onSelectTokenSelect('toToken')}
-                onChange={this.onChangeSearchToken('toToken')}
-                value={this.state.toTokenSearchToken}
-                filterByKey
-                options={
-                  toWallet
-                    ? toWallet.balances.map(b => ({
-                      key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                      value: <TokenSelect token={b.token} />,
-                      ...b
-                    }))
-                    : []
+
+          <StyledSelectInput
+            inputProps={{
+              label: 'Amount',
+              value: this.state.toTokenAmount,
+              onChange: this.onChangeAmount('toToken'),
+              type: 'amount',
+              maxAmountLength: 18,
+              suffix: _.get(this.state.toTokenSelected, 'token.symbol')
+            }}
+            selectProps={{
+              label: 'Token',
+              clearable: true,
+              onSelectItem: this.onSelectTokenSelect('toToken'),
+              onChange: this.onChangeSearchToken('toToken'),
+              value: this.state.toTokenSearchToken,
+              filterByKey: true,
+              valueRenderer: this.state.toTokenSelected
+                ? value => {
+                  const found = _.find(
+                    toWallet.balances,
+                    b => b.token.name.toLowerCase() === value.toLowerCase()
+                  )
+                  return found
+                    ? <TokenSelect balance={found.amount} token={found.token} />
+                    : value
                 }
-              />
-              <BalanceTokenLabel>
-                Balance: {this.getBalanceOfSelectedToken('toToken')}
-              </BalanceTokenLabel>
-            </div>
-            <div>
-              <InputLabel>Amount</InputLabel>
-              <Input
-                value={this.state.toTokenAmount}
-                onChange={this.onChangeAmount('toToken')}
-                type='amount'
-                maxAmountLength={18}
-                normalPlaceholder={'Token amount'}
-              />
-            </div>
-          </InputGroupContainer>
+                : null,
+              options:
+                toWallet
+                  ? toWallet.balances.map(b => ({
+                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                    value: <TokenSelect balance={b.amount} token={b.token} />,
+                    ...b
+                  }))
+                  : []
+            }}
+          />
         </div>
       </FromToContainer>
     )
@@ -429,22 +419,33 @@ class CreateTransaction extends Component {
               query={createSearchAddressQuery(this.state.exchangeAddress)}
               render={({ data }) => {
                 return (
-                  <div>
-                    <InputLabel>Exchange Address</InputLabel>
-                    <Select
-                      normalPlaceholder='acc_0x000000000000000'
-                      onSelectItem={this.onSelectExchangeAddressSelect}
-                      value={this.state.exchangeAddress}
-                      onChange={this.onChangeInputExchangeAddress}
-                      options={data.map(d => {
-                        return {
-                          key: d.address,
-                          value: <WalletSelect wallet={d} />,
-                          ...d
+                  <StyledSelectInput
+                    selectProps={{
+                      label: 'Exchange Address',
+                      clearable: true,
+                      onSelectItem: this.onSelectExchangeAddressSelect,
+                      value: this.state.exchangeAddress,
+                      onChange: this.onChangeInputExchangeAddress,
+                      valueRenderer: this.state.exchangeAddressSelect
+                        ? value => {
+                          const wallet = _.find(data, i => i.address === value)
+                          return wallet
+                            ? <WalletSelect wallet={wallet} />
+                            : value
                         }
-                      })}
-                    />
-                  </div>
+                        : null,
+                      options:
+                        data
+                          ? data.map(d => {
+                            return {
+                              key: d.address,
+                              value: <WalletSelect wallet={d} />,
+                              ...d
+                            }
+                          })
+                          : []
+                    }}
+                  />
                 )
               }}
             />
