@@ -28,8 +28,7 @@ defmodule EthBlockchain.TransactionListener do
         id: hash,
         interval: interval,
         blockchain_adapter_pid: blockchain_adapter_pid,
-        node_adapter: node_adapter,
-        registry: registry
+        node_adapter: node_adapter
       }) do
     timer = Process.send_after(self(), :tick, interval)
 
@@ -41,7 +40,6 @@ defmodule EthBlockchain.TransactionListener do
        transaction: nil,
        blockchain_adapter_pid: blockchain_adapter_pid,
        node_adapter: node_adapter,
-       registry: registry,
        subscribers: []
      }}
   end
@@ -106,8 +104,15 @@ defmodule EthBlockchain.TransactionListener do
 
     case Enum.empty?(subscribers) do
       true ->
-        :ok = GenServer.cast(state[:registry], {:stop_listener, state[:id]})
-        {:noreply, %{state | subscribers: subscribers}}
+        case is_nil(state[:registry]) do
+          true ->
+            {:stop, :normal, %{state | subscribers: subscribers}}
+          false ->
+            :ok = GenServer.cast(state[:registry], {:stop_listener, state[:id]})
+            {:noreply, %{state | subscribers: subscribers}}
+        end
+
+
       false ->
         {:noreply, %{state | subscribers: subscribers}}
     end

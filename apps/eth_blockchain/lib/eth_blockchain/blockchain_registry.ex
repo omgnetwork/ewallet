@@ -74,7 +74,8 @@ defmodule EthBlockchain.BlockchainRegistry do
     end
   end
 
-  def handle_cast({:stop_listener, id}, _from, registry) do
+  @impl true
+  def handle_cast({:stop_listener, id}, registry) do
     if Map.has_key?(registry, id) do
       :ok =
         DynamicSupervisor.terminate_child(EthBlockchain.DynamicListenerSupervisor, registry[id][:pid])
