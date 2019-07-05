@@ -22,7 +22,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   alias EWallet.{
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
-    TransactionGate,
+    LocalTransactionGate,
     TransactionRequestFetcher,
     Web.V1.ErrorHandler
   }
@@ -185,7 +185,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       "originator" => consumption
     }
 
-    case TransactionGate.create(attrs) do
+    case LocalTransactionGate.create(attrs) do
       {:ok, transaction} ->
         # Expires the request if it has reached the max number of consumptions (only CONFIRMED
         # SUCCESSFUL) consumptions are accounted for.

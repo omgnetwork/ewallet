@@ -18,12 +18,12 @@ defmodule EWallet.DBCase do
   """
   use ExUnit.CaseTemplate
   import EWalletDB.Factory
-  alias ActivityLogger.System
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWallet.{MintGate, TransactionGate}
-  alias EWalletDB.{Account, Repo, Role}
+  alias EWallet.{MintGate, LocalTransactionGate}
+  alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
+  alias Keychain.Wallet
 
   using do
     quote do
@@ -36,16 +36,29 @@ defmodule EWallet.DBCase do
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(ActivityLogger.Repo)
+    :ok = Sandbox.checkout(Keychain.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
+      Sandbox.mode(Keychain.Repo, {:shared, self()})
     end
 
-    :ok = Role.insert_default_roles(%System{})
+    :ok = Role.insert_default_roles(%ActivityLogger.System{})
     {:ok, account} = :account |> params_for() |> Account.insert()
+
+    {:ok, {address, public_key}} = Wallet.generate()
+
+    {:ok, blockchain_wallet} =
+      BlockchainWallet.insert(%{
+        name: "Hot Wallet",
+        address: address,
+        public_key: public_key,
+        type: "hot",
+        originator: %ActivityLogger.System{}
+      })
 
     config_pid = start_supervised!(EWalletConfig.Config)
 
@@ -58,11 +71,21 @@ defmodule EWallet.DBCase do
         "enable_standalone" => false,
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
-        "master_account" => account.id
+        "master_account" => account.id,
+        "primary_hot_wallet" => blockchain_wallet.address,
+        "blockchain_confirmations_threshold" => 4
       }
     )
 
-    %{config_pid: config_pid}
+    :ok = Application.put_env(:ewallet, :node_adapter, {:dumb, DumbAdapter})
+    adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    {:ok, adapter_pid} = adapter.start_link([])
+
+    %{
+      adapter: adapter,
+      adapter_pid: adapter_pid,
+      config_pid: config_pid
+    }
   end
 
   def ensure_num_records(schema, num_required, attrs \\ %{}, count_field \\ :id) do
@@ -81,7 +104,7 @@ defmodule EWallet.DBCase do
         "amount" => amount * token.subunit_to_unit,
         "description" => "Minting #{amount} #{token.symbol}",
         "metadata" => %{},
-        "originator" => %System{}
+        "originator" => %ActivityLogger.System{}
       })
 
     assert mint.confirmed == true
@@ -90,14 +113,14 @@ defmodule EWallet.DBCase do
 
   def transfer!(from, to, token, amount) do
     {:ok, transaction} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,
         "token_id" => token.id,
         "amount" => amount,
         "metadata" => %{},
         "idempotency_token" => UUID.generate(),
-        "originator" => %System{}
+        "originator" => %ActivityLogger.System{}
       })
 
     transaction
@@ -108,14 +131,14 @@ defmodule EWallet.DBCase do
     master_wallet = Account.get_primary_wallet(master_account)
 
     {:ok, transaction} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => master_wallet.address,
         "to_address" => wallet.address,
         "token_id" => token.id,
         "amount" => amount * token.subunit_to_unit,
         "metadata" => %{},
         "idempotency_token" => UUID.generate(),
-        "originator" => %System{}
+        "originator" => %ActivityLogger.System{}
       })
 
     transaction

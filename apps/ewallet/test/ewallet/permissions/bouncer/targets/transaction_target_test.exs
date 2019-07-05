@@ -39,6 +39,7 @@ defmodule EWallet.Bouncer.TransactionTargetTest do
   describe "get_target_types/0" do
     test "returns a list of types" do
       assert TransactionTarget.get_target_types() == [
+               :blockchain_transactions,
                :account_transactions,
                :end_user_transactions
              ]

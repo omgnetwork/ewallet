@@ -20,6 +20,21 @@ config :ewallet_config,
       description:
         "The master account of this eWallet, which will be used as the default account when needed."
     },
+    "primary_hot_wallet" => %{
+      key: "primary_hot_wallet",
+      value: "",
+      type: "string",
+      position: 001,
+      description: "The primary hot wallet for this eWallet."
+    },
+    "blockchain_confirmations_threshold" => %{
+      key: "blockchain_confirmations_threshold",
+      value: 10,
+      type: "unsigned_integer",
+      position: 002,
+      description:
+        "The number of confirmations to wait for before confirming a blockchain transaction."
+    },
     "base_url" => %{
       key: "base_url",
       value: "",

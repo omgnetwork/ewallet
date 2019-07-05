@@ -39,10 +39,12 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:activity_logger, in_umbrella: true},
       {:appsignal, "~> 1.9"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
+      {:activity_logger, in_umbrella: true},
+      {:local_ledger, in_umbrella: true},
+      {:local_ledger_db, in_umbrella: true},
       {:eth_blockchain, in_umbrella: true},
       {:eth_geth_adapter, in_umbrella: true},
       {:bypass, "~> 1.0.0", only: [:test]},
@@ -52,8 +54,6 @@ defmodule EWallet.Mixfile do
       {:ewallet_config, in_umbrella: true},
       {:ewallet_db, in_umbrella: true},
       {:jason, "~> 1.1"},
-      {:local_ledger, in_umbrella: true},
-      {:local_ledger_db, in_umbrella: true},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
       {:pot, "~>0.9.6"},

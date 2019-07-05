@@ -20,6 +20,7 @@ config :ewallet,
     :file_storage_adapter,
     :gcs_bucket,
     :gcs_credentials,
+    :blockchain_confirmations_threshold,
     {EWallet.Mailer,
      [
        {:email_adapter, :adapter},

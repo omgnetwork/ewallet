@@ -223,6 +223,58 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
              }
     end
 
+    test_with_auths "updates the primary hot wallet address setting", context do
+      wallet = insert(:blockchain_wallet)
+
+      response =
+        request("/configuration.update", %{
+          primary_hot_wallet: wallet.address,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+      assert response["data"]["data"]["primary_hot_wallet"]["value"] == wallet.address
+    end
+
+    test_with_auths "fails to update the primary_hot_wallet setting with nil address", context do
+      response =
+        request("/configuration.update", %{
+          primary_hot_wallet: nil,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+
+      assert response["data"]["data"]["primary_hot_wallet"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `value` must match an existing hot wallet.",
+               "messages" => %{"value" => ["hot_wallet_not_found"]},
+               "object" => "error"
+             }
+    end
+
+    test_with_auths "fails to update the master_account setting with a cold wallet address",
+                    context do
+      wallet = insert(:blockchain_wallet, type: "cold")
+
+      response =
+        request("/configuration.update", %{
+          primary_hot_wallet: wallet.address,
+          config_pid: context[:config_pid]
+        })
+
+      assert response["success"] == true
+
+      assert response["data"]["data"]["primary_hot_wallet"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `value` must match an existing hot wallet.",
+               "messages" => %{"value" => ["hot_wallet_not_found"]},
+               "object" => "error"
+             }
+    end
+
     test_with_auths "reloads app env", context do
       response =
         request("/configuration.update", %{

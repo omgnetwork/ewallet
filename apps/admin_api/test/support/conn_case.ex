@@ -32,7 +32,7 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias EWallet.{MintGate, TransactionGate}
+  alias EWallet.{MintGate, LocalTransactionGate}
   alias EWalletConfig.ConfigTestHelper
   alias EWalletDB.{Account, Membership, GlobalRole, Key, Repo, User}
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
@@ -278,7 +278,7 @@ defmodule AdminAPI.ConnCase do
 
   def transfer!(from, to, token, amount, originator \\ %System{}) do
     {:ok, transaction} =
-      TransactionGate.create(%{
+      LocalTransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,
         "token_id" => token.id,

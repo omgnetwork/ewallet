@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.TransactionGateTest do
+defmodule EWallet.LocalTransactionGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias Ecto.UUID
-  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias EWallet.{BalanceFetcher, LocalTransactionGate}
   alias EWalletDB.{Account, Token, Transaction, User, Wallet}
   alias ActivityLogger.System
 
@@ -96,7 +96,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transaction.status == Transaction.confirmed()
 
-      {status, transaction} = TransactionGate.create(attrs)
+      {status, transaction} = LocalTransactionGate.create(attrs)
       assert status == :ok
 
       assert inserted_transaction.id == transaction.id
@@ -116,7 +116,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transaction.status == Transaction.failed()
 
-      {status, transaction, code, description} = TransactionGate.create(attrs)
+      {status, transaction, code, description} = LocalTransactionGate.create(attrs)
       assert status == :error
       assert code == "code!"
       assert description == "description!"
@@ -139,7 +139,7 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transaction.status == Transaction.pending()
       init_wallet(inserted_transaction.from, inserted_transaction.from_token, 1_000)
 
-      {status, transaction} = TransactionGate.create(attrs)
+      {status, transaction} = LocalTransactionGate.create(attrs)
       assert status == :ok
 
       assert inserted_transaction.id == transaction.id
@@ -153,7 +153,7 @@ defmodule EWallet.TransactionGateTest do
       {wallet1, wallet2, token} = insert_addresses_records()
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
 
-      {status, transaction, code, _description} = TransactionGate.create(attrs)
+      {status, transaction, code, _description} = LocalTransactionGate.create(attrs)
       assert status == :error
       assert transaction.status == Transaction.failed()
       assert code == "insufficient_funds"
@@ -189,7 +189,7 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {status, _transaction} = TransactionGate.create(attrs)
+      {status, _transaction} = LocalTransactionGate.create(attrs)
 
       assert status == :ok
 
@@ -215,7 +215,7 @@ defmodule EWallet.TransactionGateTest do
       {wallet1, wallet2, token} = insert_addresses_records()
 
       {res, transaction, code, _description} =
-        TransactionGate.create(%{
+        LocalTransactionGate.create(%{
           "from_address" => wallet1.address,
           "to_address" => wallet2.address,
           "token_id" => token.id,
@@ -236,7 +236,7 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {status, transaction} = TransactionGate.create(attrs)
+      {status, transaction} = LocalTransactionGate.create(attrs)
       assert status == :ok
       assert transaction.idempotency_token == idempotency_token
       assert transaction.from == wallet1.address
@@ -257,7 +257,7 @@ defmodule EWallet.TransactionGateTest do
           originator: %System{}
         })
 
-      {status, code} = TransactionGate.create(attrs)
+      {status, code} = LocalTransactionGate.create(attrs)
       assert status == :error
       assert code == :token_is_disabled
     end
@@ -284,7 +284,7 @@ defmodule EWallet.TransactionGateTest do
           originator: %System{}
         })
 
-      {status, code} = TransactionGate.create(attrs)
+      {status, code} = LocalTransactionGate.create(attrs)
       assert status == :error
       assert code == :from_wallet_is_disabled
     end
@@ -311,7 +311,7 @@ defmodule EWallet.TransactionGateTest do
           originator: %System{}
         })
 
-      {status, code} = TransactionGate.create(attrs)
+      {status, code} = LocalTransactionGate.create(attrs)
       assert status == :error
       assert code == :to_wallet_is_disabled
     end
@@ -336,7 +336,7 @@ defmodule EWallet.TransactionGateTest do
       initialize_wallet(wallet_1, 200_000, token_1)
 
       {:ok, transaction} =
-        TransactionGate.create(%{
+        LocalTransactionGate.create(%{
           "idempotency_token" => UUID.generate(),
           "from_user_id" => user_1.id,
           "to_user_id" => user_2.id,
