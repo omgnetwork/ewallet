@@ -39,6 +39,7 @@ defmodule EthBlockchain.Adapter do
     Helper,
     Token,
     Transaction,
+    TransactionListener,
     BlockchainRegistry
   }
 
