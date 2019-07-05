@@ -17,10 +17,7 @@ defmodule EWallet.TokenGateTest do
   import EWalletDB.Factory
   alias EWallet.{TokenGate, BlockchainHelper}
   alias EWalletDB.Token
-
-  defp valid_erc20_contract_address do
-    BlockchainHelper.adapter().dumb_adapter.valid_erc20_contract_address()
-  end
+  alias Utils.Helpers.Crypto
 
   defp invalid_erc20_contract_address do
     BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
@@ -28,7 +25,8 @@ defmodule EWallet.TokenGateTest do
 
   describe "get_erc20_capabilities/1" do
     test "successfuly get erc20 attributes for a valid contract address" do
-      {res, attrs} = TokenGate.get_erc20_capabilities(valid_erc20_contract_address())
+      address = Crypto.fake_eth_address()
+      {res, attrs} = TokenGate.get_erc20_capabilities(address)
 
       assert res == :ok
       assert attrs.decimals == 18
@@ -49,8 +47,9 @@ defmodule EWallet.TokenGateTest do
   describe "validate_erc20_readiness/2" do
     test "successfuly validate a valid token" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+      address = Crypto.fake_eth_address()
 
-      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(address, token)
 
       assert res == :ok
       # status is confirmed because the dumb adapter returns a positive balance (123)
@@ -59,8 +58,8 @@ defmodule EWallet.TokenGateTest do
 
     test "returns an error when the token decimals doesn't match" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1})
-
-      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
+      address = Crypto.fake_eth_address()
+      {res, status} = TokenGate.validate_erc20_readiness(address, token)
 
       assert res == :error
       assert status == :token_not_matching_contract_info
@@ -68,8 +67,8 @@ defmodule EWallet.TokenGateTest do
 
     test "returns an error when the token symbol doesn't match" do
       token = insert(:token, %{symbol: "BTC", subunit_to_unit: 1_000_000_000_000_000_000})
-
-      {res, status} = TokenGate.validate_erc20_readiness(valid_erc20_contract_address(), token)
+      address = Crypto.fake_eth_address()
+      {res, status} = TokenGate.validate_erc20_readiness(address, token)
 
       assert res == :error
       assert status == :token_not_matching_contract_info

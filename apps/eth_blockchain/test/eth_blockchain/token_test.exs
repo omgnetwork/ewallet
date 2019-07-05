@@ -16,6 +16,7 @@ defmodule EthBlockchain.TokenTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
   alias EthBlockchain.Token
+  alias Utils.Helpers.Crypto
 
   describe "get_field/3" do
     test "get a valid field with the given adapter spec", state do
@@ -23,7 +24,7 @@ defmodule EthBlockchain.TokenTest do
         Token.get_field(
           %{
             field: "name",
-            contract_address: DumbAdapter.valid_erc20_contract_address()
+            contract_address: Crypto.fake_eth_address()
           },
           :dumb,
           state[:pid]
@@ -37,7 +38,7 @@ defmodule EthBlockchain.TokenTest do
         Token.get_field(
           %{
             field: "invalid field",
-            contract_address: DumbAdapter.valid_erc20_contract_address()
+            contract_address: Crypto.fake_eth_address()
           },
           :dumb,
           state[:pid]
@@ -65,7 +66,7 @@ defmodule EthBlockchain.TokenTest do
                Token.get_field(
                  %{
                    field: "name",
-                   contract_address: DumbAdapter.valid_erc20_contract_address()
+                   contract_address: Crypto.fake_eth_address()
                  },
                  :blah,
                  state[:pid]

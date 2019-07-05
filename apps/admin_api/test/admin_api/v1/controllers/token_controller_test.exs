@@ -18,10 +18,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   alias EWallet.BlockchainHelper
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
-
-  defp valid_erc20_contract_address do
-    BlockchainHelper.adapter().dumb_adapter.valid_erc20_contract_address()
-  end
+  alias Utils.Helpers.Crypto
 
   defp invalid_erc20_contract_address do
     BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
@@ -181,13 +178,15 @@ defmodule AdminAPI.V1.TokenControllerTest do
     end
 
     test_with_auths "inserts a new blockchain token when matching contract info" do
+      address = Crypto.fake_eth_address()
+
       response =
         request("/token.create", %{
           symbol: "OMG",
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: valid_erc20_contract_address(),
+          blockchain_address: address,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
@@ -197,7 +196,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "token"
 
-      assert response["data"]["blockchain_address"] == valid_erc20_contract_address()
+      assert response["data"]["blockchain_address"] == address
 
       assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
@@ -226,7 +225,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: invalid_erc20_contract_address(),
+          blockchain_address: Crypto.fake_eth_address(),
           amount: 100,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
@@ -971,7 +970,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "get erc20 attributes of a contract address" do
       response =
         request("/token.get_erc20_capabilities", %{
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       assert response["success"]
@@ -1025,17 +1024,18 @@ defmodule AdminAPI.V1.TokenControllerTest do
   describe "/token.set_blockchain_address" do
     test_with_auths "sets the blockchain address to a valid existing token" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+      address = Crypto.fake_eth_address()
 
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: address
         })
 
       assert response["success"]
       assert response["data"]["object"] == "token"
 
-      assert response["data"]["blockchain_address"] == valid_erc20_contract_address()
+      assert response["data"]["blockchain_address"] == address
 
       assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
     end
@@ -1071,7 +1071,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "fails to update an existing token if id is missing" do
       response =
         request("/token.set_blockchain_address", %{
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       refute response["success"]
@@ -1087,7 +1087,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       refute response["success"]
@@ -1103,7 +1103,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       refute response["success"]
@@ -1117,7 +1117,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         request("/token.set_blockchain_address", %{
           id: "fake",
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       refute response["success"]
@@ -1152,7 +1152,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         admin_user_request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       assert response["success"] == true
@@ -1172,7 +1172,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response =
         provider_request("/token.set_blockchain_address", %{
           id: token.id,
-          blockchain_address: valid_erc20_contract_address()
+          blockchain_address: Crypto.fake_eth_address()
         })
 
       assert response["success"] == true

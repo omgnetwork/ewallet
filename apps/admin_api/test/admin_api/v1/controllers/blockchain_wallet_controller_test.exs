@@ -16,6 +16,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.DateFormatter
+  alias EWalletDB.{BlockchainWallet, Repo}
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
@@ -74,6 +75,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
   describe "/blockchain_wallet.all" do
     test_with_auths "returns all wallets when given pagination params" do
+      Repo.delete_all(BlockchainWallet)
       # Inserts 2 wallets and 2 tokens
       blockchain_wallet_1 =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})

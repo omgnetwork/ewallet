@@ -16,7 +16,7 @@ defmodule EWallet.TokenGate do
   @moduledoc false
 
   alias EWallet.BlockchainHelper
-  alias EWalletDB.Token
+  alias EWalletDB.{BlockchainWallet, Token}
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as
@@ -84,7 +84,8 @@ defmodule EWallet.TokenGate do
          {:ok, optional_info} <- get_optional(contract_address) do
       {:ok, Map.merge(mandatory_info, optional_info)}
     else
-      error -> error
+      error ->
+        error
     end
   end
 
@@ -108,7 +109,6 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  # TODO: get balance of current hot wallet
   defp get_mandatory(contract_address) do
     with {:ok, total_supply} <-
            BlockchainHelper.call(:get_field, %{
@@ -117,7 +117,7 @@ defmodule EWallet.TokenGate do
            }),
          {:ok, %{^contract_address => balance}} <-
            BlockchainHelper.call(:get_balances, %{
-             address: contract_address,
+             address: BlockchainWallet.get_primary_hot_wallet().address,
              contract_addresses: [contract_address]
            }),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
