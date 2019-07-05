@@ -4,7 +4,7 @@ defmodule EWalletConfig.MixProject do
   def project do
     [
       app: :ewallet_config,
-      version: "1.2.2-dev",
+      version: "1.3.0-pre.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
