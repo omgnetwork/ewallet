@@ -40,7 +40,7 @@ defmodule EthBlockchain.BlockchainRegistry do
       {:reply, :ok, registry}
     else
       {:ok, pid} =
-        DynamicSupervisor.start_child(EthBlockchain.DynamicListenerSupervisor, {listener, attrs})
+        DynamicSupervisor.start_child(EthBlockchain.DynamicListenerSupervisor, {listener, Map.put(attrs, :registry, self())})
 
       {:reply, :ok,
        Map.put(registry, attrs[:id], %{
@@ -71,6 +71,17 @@ defmodule EthBlockchain.BlockchainRegistry do
 
       false ->
         {:reply, {:error, :not_found}, registry}
+    end
+  end
+
+  def handle_cast({:stop_listener, id}, _from, registry) do
+    if Map.has_key?(registry, id) do
+      :ok =
+        DynamicSupervisor.terminate_child(EthBlockchain.DynamicListenerSupervisor, registry[id][:pid])
+
+      {:reply, :ok, Map.delete(registry, id)}
+    else
+      {:reply, {:error, :entry_not_found}, registry}
     end
   end
 
