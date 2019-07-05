@@ -11,6 +11,7 @@ import AccountPage from '../../omg-page-account'
 import TokenPage from '../../omg-page-token'
 import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
+import BlockchainWalletPage from '../../omg-page-blockchain-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
 import ApiKeyDetailPage from '../../omg-page-api-detail'
@@ -50,6 +51,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/tokens/:viewTokenId' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/wallets' exact component={WalletPage} />
+      <AuthenticatedRoute path='/blockchain_wallet' component={BlockchainWalletPage} />
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
 
