@@ -13,7 +13,6 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
-  alias EWallet.Web.Preloader
   alias EWalletDB.BlockchainWallet
   alias Keychain.Wallet
   alias EWalletDB.Seeder
@@ -30,7 +29,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
     attrs = %{
       address: address,
       public_key: public_key,
-      name: "Hot wallet 1",
+      name: "Hot wallet",
       type: BlockchainWallet.type_hot(),
       originator: %Seeder{}
     }
