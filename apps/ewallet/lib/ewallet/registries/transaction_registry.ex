@@ -43,13 +43,28 @@ defmodule EWallet.TransactionRegistry do
       {:reply, :ok, registry}
     else
       {:ok, pid} =
-        DynamicSupervisor.start_child(EWallet.DynamicListenerSupervisor, {tracker, transaction})
+        DynamicSupervisor.start_child(
+          EWallet.DynamicListenerSupervisor,
+          {tracker, %{transaction: transaction, registry: self()}}
+        )
 
       {:reply, :ok,
        Map.put(registry, transaction.uuid, %{
          tracker: tracker,
          pid: pid
        })}
+    end
+  end
+
+  @impl true
+  def handle_cast({:stop_tracker, uuid}, registry) do
+    if Map.has_key?(registry, uuid) do
+      :ok =
+        DynamicSupervisor.terminate_child(EWallet.DynamicListenerSupervisor, registry[uuid][:pid])
+
+      {:reply, :ok, Map.delete(registry, uuid)}
+    else
+      {:reply, {:error, :entry_not_found}, registry}
     end
   end
 

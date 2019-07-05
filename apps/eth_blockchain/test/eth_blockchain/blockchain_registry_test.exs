@@ -59,7 +59,7 @@ defmodule EWallet.BlockchainRegistryTest do
       :ok = BlockchainRegistry.subscribe(id, "fake_pid", pid)
       state = :sys.get_state(listener_pid)
 
-      assert state == %{id: "dumb", subscribers: ["fake_pid"]}
+      assert state == %{id: "dumb", subscribers: ["fake_pid"], registry: pid}
 
       assert GenServer.stop(listener_pid) == :ok
       assert GenServer.stop(pid) == :ok
@@ -80,15 +80,15 @@ defmodule EWallet.BlockchainRegistryTest do
       :ok = BlockchainRegistry.subscribe(id, "fake_pid_1", pid)
       state = :sys.get_state(listener_pid)
 
-      assert state == %{id: "dumb", subscribers: ["fake_pid_1"]}
+      assert state == %{id: "dumb", subscribers: ["fake_pid_1"], registry: pid}
 
       :ok = BlockchainRegistry.subscribe(id, "fake_pid_2", pid)
       state = :sys.get_state(listener_pid)
-      assert state == %{id: "dumb", subscribers: ["fake_pid_2", "fake_pid_1"]}
+      assert state == %{id: "dumb", subscribers: ["fake_pid_2", "fake_pid_1"], registry: pid}
 
       :ok = BlockchainRegistry.unsubscribe(id, "fake_pid_1", pid)
       state = :sys.get_state(listener_pid)
-      assert state == %{id: "dumb", subscribers: ["fake_pid_2"]}
+      assert state == %{id: "dumb", subscribers: ["fake_pid_2"], registry: pid}
 
       # Unsubscribing the last subscriber will stop the process
       :ok = BlockchainRegistry.unsubscribe(id, "fake_pid_2", pid)

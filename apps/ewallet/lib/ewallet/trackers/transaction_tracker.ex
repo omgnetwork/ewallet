@@ -26,17 +26,20 @@ defmodule EWallet.TransactionTracker do
 
   # TODO: handle failed transactions
 
-  def start_link(transaction) do
-    GenServer.start_link(__MODULE__, transaction)
+  def start_link(state) do
+    GenServer.start_link(__MODULE__, state)
   end
 
-  def init(transaction) do
+  def init(%{transaction: transaction} = state) do
     adapter = BlockchainHelper.adapter()
     :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
-    {:ok, transaction}
+    {:ok, state}
   end
 
-  def handle_cast({:confirmations_count, tx_hash, confirmations_count}, transaction) do
+  def handle_cast(
+        {:confirmations_count, tx_hash, confirmations_count},
+        %{transaction: transaction} = state
+      ) do
     case transaction.blockchain_tx_hash == tx_hash do
       true ->
         adapter = BlockchainHelper.adapter()
@@ -48,18 +51,23 @@ defmodule EWallet.TransactionTracker do
 
         update_confirmations_count(
           adapter,
-          transaction,
+          state,
           confirmations_count,
           confirmations_count > (threshold || 10)
         )
 
       false ->
-        {:noreply, transaction}
+        {:noreply, state}
     end
   end
 
   # Treshold reached, finalizing the transaction...
-  defp update_confirmations_count(adapter, transaction, confirmations_count, true) do
+  defp update_confirmations_count(
+         adapter,
+         %{transaction: transaction} = state,
+         confirmations_count,
+         true
+       ) do
     {:ok, transaction} =
       BlockchainTransactionState.transition_to(
         :confirmed,
@@ -71,13 +79,23 @@ defmodule EWallet.TransactionTracker do
     # Unsubscribing from the blockchain subapp
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
 
-    # TODO: tell registry to kill this process
-    # Kill thyself
-    {:stop, :normal, transaction}
+    case is_nil(state[:registry]) do
+      true ->
+        {:stop, :normal, Map.put(state, :transaction, transaction)}
+
+      false ->
+        :ok = GenServer.cast(state[:registry], {:stop_tracker, transaction.uuid})
+        {:noreply, Map.put(state, :transaction, transaction)}
+    end
   end
 
   # Treshold not reached yet, updating and continuing to track...
-  defp update_confirmations_count(_adapter, transaction, confirmations_count, false) do
+  defp update_confirmations_count(
+         _adapter,
+         %{transaction: transaction} = state,
+         confirmations_count,
+         false
+       ) do
     {:ok, transaction} =
       BlockchainTransactionState.transition_to(
         :pending_confirmations,
@@ -86,6 +104,6 @@ defmodule EWallet.TransactionTracker do
         %System{}
       )
 
-    {:noreply, transaction}
+    {:noreply, Map.put(state, :transaction, transaction)}
   end
 end
