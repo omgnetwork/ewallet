@@ -7,21 +7,10 @@ import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Tag } from '../omg-uikit'
 
-const BlockchainTokensPage = () => {
-  return <div>BlockchainTokensPage</div>
-}
-
-const InternalTokensPage = () => {
-  return <div>InternalTokensPage</div>
-}
-
-const BlockchainTransactionsPage = () => {
-  return <div>BlockchainTransactionsPage</div>
-}
-
-const BlockchainSettingsPage = () => {
-  return <div>BlockchainSettingsPage</div>
-}
+import BlockchainSettingsPage from './BlockchainSettingsPage'
+import BlockchainTransactionsPage from './BlockchainTransactionsPage'
+import BlockchainTokensPage from './BlockchainTokensPage'
+import InternalTokensPage from './InternalTokensPage'
 
 const KeyTopBar = styled.div`
   margin-bottom: 20px;
@@ -44,9 +33,8 @@ const KeyTopButtonsContainer = styled.div`
   }
 `
 
-const BlockchainWalletPage = ({ location: { pathname } }) => {
-  const activeTab = pathname.split('/')[2]
-
+const BlockchainWalletPage = ({ location, match }) => {
+  const activeTab = location.pathname.split('/')[2]
   return (
     <div>
       <TopNavigation
@@ -55,9 +43,7 @@ const BlockchainWalletPage = ({ location: { pathname } }) => {
         description='These are all blockchain wallets associated to you. Click each one to view their details.'
         types={false}
         searchBar={false}
-        buttons={[
-          <CreateTransactionButton key='transfer' />
-        ]}
+        buttons={[<CreateTransactionButton key='transfer' />]}
       />
       <KeyTopBar>
         <KeyTopButtonsContainer>
@@ -97,17 +83,18 @@ const BlockchainWalletPage = ({ location: { pathname } }) => {
       </KeyTopBar>
 
       <Switch>
-        <Route exact path='/blockchain_tokens' component={BlockchainTokensPage} />
-        <Route exact path='/internal_tokens' component={InternalTokensPage} />
-        <Route exact path='/blockchain_transactions' component={BlockchainTransactionsPage} />
-        <Route exact path='/blockchain_settings' component={BlockchainSettingsPage} />
+        <Route exact path={`${match.path}/blockchain_tokens`} component={BlockchainTokensPage} />
+        <Route exact path={`${match.path}/internal_tokens`}component={InternalTokensPage} />
+        <Route exact path={`${match.path}/blockchain_transactions`} component={BlockchainTransactionsPage} />
+        <Route exact path={`${match.path}/blockchain_settings`} component={BlockchainSettingsPage} />
       </Switch>
     </div>
   )
 }
 
 BlockchainWalletPage.propTypes = {
-  location: PropTypes.object
+  location: PropTypes.object,
+  match: PropTypes.object
 }
 
 export default BlockchainWalletPage
