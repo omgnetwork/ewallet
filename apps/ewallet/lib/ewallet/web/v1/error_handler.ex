@@ -477,6 +477,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     blockchain_exchange_not_allowed: %{
       code: "blockchain:exchange_not_allowed",
       description: "Blockchain exchanges aren't currently allowed."
+    },
+    invalid_blockchain_address: %{
+      code: "blockchain:invalid_address",
+      description: "The given blockchain address is not in a valid format."
     }
   }
 

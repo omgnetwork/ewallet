@@ -19,8 +19,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorHandler
-  alias EWallet.Web.V1.ResponseSerializer
+  alias EWallet.Web.V1.{ErrorHandler, ResponseSerializer}
+  alias EWallet.BlockchainHelper
 
   @errors %{
     invalid_login_credentials: %{
@@ -136,7 +136,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Application.get_env(:ewallet, :blockchain_adapter).error_handler.errors()
+    BlockchainHelper.adapter().error_handler.errors()
     |> Map.merge(ErrorHandler.errors(), fn _k, _shared, current ->
       current
     end)

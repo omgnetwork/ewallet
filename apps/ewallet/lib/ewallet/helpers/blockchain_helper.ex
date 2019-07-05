@@ -18,12 +18,29 @@ defmodule EWallet.BlockchainHelper do
   """
 
   @doc """
+  Returns true if the given address is a valid blockchain address
+  for the current adapter.
+  """
+  def is_blockchain_address(address) do
+    case adapter().helper.is_adapter_address?(address) do
+      true -> :ok
+      false -> {:error, :invalid_blockchain_address}
+    end
+  end
+
+  @doc """
   Call the default blockchain adapter with the specifed function spec
   and the default node adapter
   """
   def call(func_name, func_attrs \\ %{}, pid \\ nil) do
-    blockchain_adapter = Application.get_env(:ewallet, :blockchain_adapter)
     node_adapter = Application.get_env(:ewallet, :node_adapter)
-    blockchain_adapter.call({func_name, func_attrs}, node_adapter, pid)
+    adapter().call({func_name, func_attrs}, node_adapter, pid)
+  end
+
+  @doc """
+  Returns the default blockchain adapter
+  """
+  def adapter do
+    Application.get_env(:ewallet, :blockchain_adapter)
   end
 end

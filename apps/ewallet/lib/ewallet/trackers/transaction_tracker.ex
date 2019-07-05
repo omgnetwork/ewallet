@@ -21,7 +21,7 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.BlockchainTransactionState
+  alias EWallet.{BlockchainHelper, BlockchainTransactionState}
   alias ActivityLogger.System
 
   # TODO: handle failed transactions
@@ -31,7 +31,7 @@ defmodule EWallet.TransactionTracker do
   end
 
   def init(transaction) do
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    adapter = BlockchainHelper.adapter()
     :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
     {:ok, transaction}
   end
@@ -39,7 +39,7 @@ defmodule EWallet.TransactionTracker do
   def handle_cast({:confirmations_count, tx_hash, confirmations_count}, transaction) do
     case transaction.blockchain_tx_hash == tx_hash do
       true ->
-        adapter = Application.get_env(:ewallet, :blockchain_adapter)
+        adapter = BlockchainHelper.adapter()
         threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
 
         if is_nil(threshold) do

@@ -14,6 +14,7 @@
 
 defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   alias EWallet.Web.Preloader
+  alias EWallet.BlockchainHelper
   alias EWalletDB.{Account, Token}
   alias EWalletDB.Seeder
 
@@ -25,7 +26,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   end
 
   def run(writer, _args) do
-    token = Application.get_env(:ewallet, :blockchain_adapter).helper.default_token()
+    token = BlockchainHelper.adapter().helper.default_token()
     run_with(writer, token)
   end
 

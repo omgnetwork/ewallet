@@ -15,15 +15,15 @@
 defmodule EWallet.TokenGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.TokenGate
+  alias EWallet.{TokenGate, BlockchainHelper}
   alias EWalletDB.Token
 
   defp valid_erc20_contract_address do
-    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.valid_erc20_contract_address()
+    BlockchainHelper.adapter().dumb_adapter.valid_erc20_contract_address()
   end
 
   defp invalid_erc20_contract_address do
-    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.invalid_erc20_contract_address()
+    BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
   end
 
   describe "get_erc20_capabilities/1" do

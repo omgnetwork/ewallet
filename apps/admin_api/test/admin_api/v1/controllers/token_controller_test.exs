@@ -15,15 +15,16 @@
 defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
+  alias EWallet.BlockchainHelper
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
 
   defp valid_erc20_contract_address do
-    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.valid_erc20_contract_address()
+    BlockchainHelper.adapter().dumb_adapter.valid_erc20_contract_address()
   end
 
   defp invalid_erc20_contract_address do
-    Application.get_env(:ewallet, :blockchain_adapter).dumb_adapter.invalid_erc20_contract_address()
+    BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
   end
 
   describe "/token.all" do
@@ -1002,22 +1003,20 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `blockchain_address` is required and must be in a valid format.",
+               "description" => "Invalid parameter provided. `blockchain_address` is required.",
                "messages" => nil
              }
     end
 
-    test_with_auths "Raises invalid_parameter error if blockchain_address is in invalid format" do
+    test_with_auths "Raises `blockchain:invalid_address` error if blockchain_address is in invalid format" do
       response = request("/token.get_erc20_capabilities", %{blockchain_address: "123"})
 
       refute response["success"]
 
       assert response["data"] == %{
                "object" => "error",
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `blockchain_address` is required and must be in a valid format.",
+               "code" => "blockchain:invalid_address",
+               "description" => "The given blockchain address is not in a valid format.",
                "messages" => nil
              }
     end
@@ -1053,7 +1052,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `id` and `blockchain_address` are required and must be in a valid format."
+               "Invalid parameter provided. `id` and `blockchain_address` are required."
     end
 
     test_with_auths "fails to update an existing token if blockchain_address is invalid" do
@@ -1066,10 +1065,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `id` and `blockchain_address` are required and must be in a valid format."
+      assert response["data"]["code"] == "blockchain:invalid_address"
     end
 
     test_with_auths "fails to update an existing token if id is missing" do
@@ -1082,7 +1078,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `id` and `blockchain_address` are required and must be in a valid format."
+               "Invalid parameter provided. `id` and `blockchain_address` are required."
     end
 
     test_with_auths "fails to update an existing token if decimals don't match" do
