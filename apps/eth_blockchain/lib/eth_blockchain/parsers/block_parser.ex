@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Block do
-  @moduledoc false
+defmodule EthBlockchain.BlockParser do
+  @moduledoc """
 
-  import Utils.Helpers.Encoding
-  alias Ethereumex.HttpClient, as: Client
+  """
 
-  def get_number do
-    parse_number(Client.eth_block_number())
+  def get_and_parse(block_number) do
+    # Transactions for this block
+    block_number
+    |> get()
+    |> parse()
   end
 
-  def get(number) do
-    number
-    |> to_hex()
-    |> Client.eth_get_block_by_number(true)
+  defp get(block_number) do
   end
 
-  defp parse_number({:ok, number}), do: int_from_hex(number)
+  defp parse(block) do
+  end
+
+  defp filter(transactions) do
+  end
 end

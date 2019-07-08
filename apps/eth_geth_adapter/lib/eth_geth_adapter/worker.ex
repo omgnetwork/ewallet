@@ -87,6 +87,10 @@ defmodule EthGethAdapter.Worker do
     {:reply, Block.get_number(), reg}
   end
 
+  def handle_call({:get_block, number}, _from, reg) do
+    {:reply, Block.get(number), reg}
+  end
+
   def handle_call({:get_field, contract_address, encoded_abi_data}, _from, reg) do
     {:reply, Token.get_field(contract_address, encoded_abi_data), reg}
   end

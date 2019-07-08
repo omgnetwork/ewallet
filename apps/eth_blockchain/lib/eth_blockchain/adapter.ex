@@ -186,6 +186,10 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
 
+  def call({:get_transactions, attrs}, adapter, pid) do
+    Block.get_transactions(attrs, adapter, pid)
+  end
+
   def call({:send, attrs}, adapter, pid) do
     Transaction.send(attrs, adapter, pid)
   end

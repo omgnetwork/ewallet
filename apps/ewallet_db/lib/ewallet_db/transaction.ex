@@ -70,6 +70,7 @@ defmodule EWalletDB.Transaction do
     field(:blockchain_identifier, :string)
     field(:confirmations_count, :integer)
     field(:to_blockchain_address, :string)
+    field(:blk_number, :integer)
 
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
@@ -281,6 +282,7 @@ defmodule EWalletDB.Transaction do
         :from_blockchain_address,
         :to_blockchain_address,
         :blockchain_identifier,
+        :blk_number,
         :rate,
         :local_ledger_uuid,
         :error_code,
@@ -363,6 +365,15 @@ defmodule EWalletDB.Transaction do
       ]
     )
     |> validate_inclusion(:status, @statuses)
+  end
+
+  def get_last_blk_number(blockchain) do
+    Transaction
+    |> where([t], t.blockchain_identifier == ^blockchain and not is_nil(t.blk_number))
+    |> order_by([t], desc: t.blk_number)
+    |> select([t], t.blk_number)
+    |> limit(1)
+    |> Repo.one()
   end
 
   @doc """
