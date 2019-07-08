@@ -1,40 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
-import { Link, Route, Switch } from 'react-router-dom'
+import { Route, Switch } from 'react-router-dom'
 
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Tag } from '../omg-uikit'
 
 import BlockchainSettingsPage from './BlockchainSettingsPage'
 import BlockchainTransactionsPage from './BlockchainTransactionsPage'
 import BlockchainTokensPage from './BlockchainTokensPage'
 import InternalTokensPage from './InternalTokensPage'
 
-const KeyTopBar = styled.div`
-  margin-bottom: 20px;
-  p {
-    color: ${props => props.theme.colors.B100};
-    max-width: 80%;
-  }
-  > div:first-child {
-    display: flex;
-    align-items: center;
-  }
-  button:last-child {
-    margin-left: auto;
-  }
-`
-const KeyTopButtonsContainer = styled.div`
-  margin: 25px 0;
-  a {
-    margin-right: 10px;
-  }
-`
-
-const BlockchainWalletPage = ({ location, match }) => {
-  const activeTab = location.pathname.split('/')[2]
+const BlockchainWalletPage = ({ match }) => {
   return (
     <div>
       <TopNavigation
@@ -45,43 +21,6 @@ const BlockchainWalletPage = ({ location, match }) => {
         searchBar={false}
         buttons={[<CreateTransactionButton key='transfer' />]}
       />
-      <KeyTopBar>
-        <KeyTopButtonsContainer>
-          <Link to='blockchain_tokens'>
-            <Tag
-              title='Blockchain Tokens'
-              icon='Token'
-              active={activeTab === 'blockchain_tokens'}
-              hoverStyle
-            />
-          </Link>
-          <Link to='internal_tokens'>
-            <Tag
-              title='Internal Tokens'
-              icon='Token'
-              active={activeTab === 'internal_tokens'}
-              hoverStyle
-            />
-          </Link>
-          <Link to='blockchain_transactions'>
-            <Tag
-              title='Transaction'
-              icon='Transaction'
-              active={activeTab === 'blockchain_transactions'}
-              hoverStyle
-            />
-          </Link>
-          <Link to='blockchain_settings'>
-            <Tag
-              title='Settings'
-              icon='Setting'
-              active={activeTab === 'blockchain_settings'}
-              hoverStyle
-            />
-          </Link>
-        </KeyTopButtonsContainer>
-      </KeyTopBar>
-
       <Switch>
         <Route exact path={`${match.path}/blockchain_tokens`} component={BlockchainTokensPage} />
         <Route exact path={`${match.path}/internal_tokens`}component={InternalTokensPage} />
@@ -93,7 +32,6 @@ const BlockchainWalletPage = ({ location, match }) => {
 }
 
 BlockchainWalletPage.propTypes = {
-  location: PropTypes.object,
   match: PropTypes.object
 }
 
