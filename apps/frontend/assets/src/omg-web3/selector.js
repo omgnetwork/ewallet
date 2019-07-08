@@ -1,1 +1,1 @@
-export const selectMetamaskConnectionStatus = state => !!state.metamask.enable
+export const selectMetamaskConnectionStatus = state => !!state.metamask.enabled

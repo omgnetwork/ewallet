@@ -22,3 +22,7 @@ export const enableMetamaskEthereumConnection = () =>
 export const checkMetamaskExistance = (exist = false) => dispatch => {
   return dispatch({ type: 'METAMASK/SET_EXIST', data: { exist } })
 }
+
+export const setMetamaskSettings = metamaskSettings => dispatch => {
+  return dispatch({ type: 'METAMASK/UPDATE_SETTINGS', data: metamaskSettings })
+}

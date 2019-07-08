@@ -2,6 +2,8 @@ import { render } from 'react-dom'
 
 import React from 'react'
 import moment from 'moment'
+import Web3 from 'web3'
+
 import { getCurrentUser } from './services/currentUserService'
 import SocketConnector from './socket/connector'
 import { WEBSOCKET_URL } from './config'
@@ -11,9 +13,10 @@ import {
   setRecentAccount
 } from './services/sessionService'
 import { getAccountById, deleteAccount } from './omg-account/action'
-import { checkMetamaskExistance } from './omg-web3/action'
+import { setMetamaskSettings } from './omg-web3/action'
 import { configureStore } from './store'
 import tokenExpireMiddleware from './adminPanelApp/middlewares/tokenExpireMiddleware'
+
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
 // ===================================== ADMIN APP =====================================
@@ -69,11 +72,13 @@ async function bootAdminPanelApp () {
   }
 
   // CHECK METAMASK EXISTANCE
-
-  if (typeof web3 !== 'undefined') {
-    store.dispatch(checkMetamaskExistance(true))
-  } else {
-    store.dispatch(checkMetamaskExistance(false))
+  const { ethereum } = window
+  if (ethereum) {
+    store.dispatch(setMetamaskSettings(ethereum.publicConfigStore._state))
+    ethereum.publicConfigStore.on(
+      'update',
+      metamaskSettings => store.dispatch(setMetamaskSettings(metamaskSettings))
+    )
   }
 
   // HANDLE WEBSOCKET MESSAGES
