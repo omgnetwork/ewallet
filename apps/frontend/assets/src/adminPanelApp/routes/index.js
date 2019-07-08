@@ -31,6 +31,7 @@ import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
 import ModalController from '../../omg-modal/ModalController'
 import Alert from '../../omg-alert'
+import BlockchainPage from '../../omg-page-blockchain-connect'
 // prettier-ignore
 
 const createRoute = () => (
@@ -77,6 +78,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
+      <AuthenticatedRoute path='/blockchain' exact component={BlockchainPage} />
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />
     </Switch>

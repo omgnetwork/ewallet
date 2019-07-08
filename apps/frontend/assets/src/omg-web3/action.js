@@ -1,4 +1,8 @@
 import { createActionCreator } from '../utils/createActionCreator'
+
+const serializeDataFormat = ({ data, success }) => {
+  return { data: { data: data, success } }
+}
 export const enableMetamaskEthereumConnection = () =>
   createActionCreator({
     actionName: 'METAMASK',
@@ -7,8 +11,8 @@ export const enableMetamaskEthereumConnection = () =>
       const { ethereum } = window
       if (ethereum) {
         const connectResult = await ethereum.enable()
-        if (connectResult) {
-          return { data: connectResult, success: true }
+        if (connectResult.length) {
+          return serializeDataFormat({ data: connectResult, success: true })
         }
       }
     }
