@@ -11,6 +11,7 @@ import {
   setRecentAccount
 } from './services/sessionService'
 import { getAccountById, deleteAccount } from './omg-account/action'
+import { checkMetamaskExistance } from './omg-web3/action'
 import { configureStore } from './store'
 import tokenExpireMiddleware from './adminPanelApp/middlewares/tokenExpireMiddleware'
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
@@ -48,7 +49,6 @@ async function bootAdminPanelApp () {
       { socket },
       [tokenExpireMiddleware]
     )
-
     // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
     toInjectRecentAccount.forEach(accountId => {
       const getAccountAction = getAccountById(accountId)
@@ -66,6 +66,14 @@ async function bootAdminPanelApp () {
     store = configureStore({ session: { authenticated: false } }, { socket }, [
       tokenExpireMiddleware
     ])
+  }
+
+  // CHECK METAMASK EXISTANCE
+
+  if (typeof web3 !== 'undefined') {
+    store.dispatch(checkMetamaskExistance(true))
+  } else {
+    store.dispatch(checkMetamaskExistance(false))
   }
 
   // HANDLE WEBSOCKET MESSAGES
@@ -123,4 +131,6 @@ async function bootApp () {
   }
 }
 
-bootApp()
+window.addEventListener('load', () => {
+  bootApp()
+})

@@ -1,3 +1,4 @@
+import Web3 from 'web3'
 import { createActionCreator } from '../utils/createActionCreator'
 
 const serializeDataFormat = ({ data, success }) => {
@@ -6,7 +7,7 @@ const serializeDataFormat = ({ data, success }) => {
 export const enableMetamaskEthereumConnection = () =>
   createActionCreator({
     actionName: 'METAMASK',
-    action: 'CONNECT',
+    action: 'ENABLE',
     service: async () => {
       const { ethereum } = window
       if (ethereum) {
@@ -17,3 +18,7 @@ export const enableMetamaskEthereumConnection = () =>
       }
     }
   })
+
+export const checkMetamaskExistance = (exist = false) => dispatch => {
+  return dispatch({ type: 'METAMASK/SET_EXIST', data: { exist } })
+}

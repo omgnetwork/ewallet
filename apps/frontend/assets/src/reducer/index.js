@@ -6,7 +6,10 @@ import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
 import { apiKeysReducer } from '../omg-api-keys/reducer'
-import { accessKeysReducer, accessKeyMembershipsReducer } from '../omg-access-key/reducer'
+import {
+  accessKeysReducer,
+  accessKeyMembershipsReducer
+} from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
 import { tokensReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
 import { usersReducer } from '../omg-users/reducer'
@@ -24,6 +27,7 @@ import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
 import { recentAccountsReducer } from '../omg-recent-account/reducer'
 import { modalReducer } from '../omg-modal/reducer'
+import { metamaskReducer } from '../omg-web3/reducer'
 export default combineReducers({
   admins: adminsReducer,
   loadingBar: loadingBarReducer,
@@ -50,5 +54,6 @@ export default combineReducers({
   exports: exportsReducer,
   loadingStatus: loadingStatusReducer,
   recentAccounts: recentAccountsReducer,
-  modals: modalReducer
+  modals: modalReducer,
+  metamask: metamaskReducer
 })
