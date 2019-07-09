@@ -3,10 +3,10 @@ import createReducer from '../reducer/createReducer'
 export const sessionReducer = createReducer(
   {},
   {
-    'SESSION/LOGIN/SUCCESS': (state, action) => {
+    'SESSION/LOGIN/SUCCESS': () => {
       return { authenticated: true }
     },
-    'SESSION/LOGOUT/SUCCESS': (state, action) => {
+    'SESSION/LOGOUT/SUCCESS': () => {
       return { authenticated: false }
     }
   }
