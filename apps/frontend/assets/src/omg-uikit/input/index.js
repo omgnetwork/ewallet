@@ -146,6 +146,7 @@ class InputComponent extends PureComponent {
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
     onChange: PropTypes.func,
+    prefix: PropTypes.node,
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
@@ -209,6 +210,10 @@ class InputComponent extends PureComponent {
   onChange = e => {
     const value = e.target.value
     if (this.props.type === 'amount') {
+      if (!ensureIsNumberOnly(value) && this.props.value.length < value.length) {
+        return false
+      }
+
       const length = ensureIsNumberOnly(value).length
       if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
         return false
@@ -245,6 +250,7 @@ class InputComponent extends PureComponent {
               <Icon name={icon} />
             </Prefix>
           )}
+          {this.props.prefix}
           <Input
             {...rest}
             value={this.props.type === 'amount' ? formatNumber(this.props.value) : this.props.value}
