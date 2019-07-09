@@ -23,7 +23,7 @@ const KeyTopBar = styled.div`
 `
 
 const TabMenu = ({ location }) => {
-  const activeTab = location.pathname.split('/')[2]
+  const activeTab = location.pathname.split('/')[3]
 
   return (
     <KeyTopBar>

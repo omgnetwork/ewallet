@@ -33,11 +33,10 @@ export function getBlockchainWallet (address) {
   })
 }
 
-export function getAllBlockchainWallets ({ page, perPage, sort, matchAll, matchAny }) {
+export function getAllBlockchainWallets ({ perPage, sort, matchAll, matchAny }) {
   return authenticatedRequest({
     path: '/blockchain_wallet.all',
     data: {
-      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,

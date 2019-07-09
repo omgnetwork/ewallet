@@ -122,8 +122,8 @@ class SideNavigation extends PureComponent {
       },
       {
         icon: 'Wallet',
-        to: '/blockchain_wallet/blockchain_tokens',
-        text: 'Blockchain Wallet'
+        to: '/blockchain_wallets',
+        text: 'Blockchain Wallets'
       },
       {
         icon: 'Transaction',
