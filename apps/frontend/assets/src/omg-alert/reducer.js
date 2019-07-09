@@ -169,5 +169,7 @@ export const alertsReducer = createReducer([], {
   'CONFIGURATIONS/REQUEST/FAILED': errorStateHandler,
   'INVITE/REQUEST/FAILED': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
-  'ADMIN/UPDATE/FAILED': errorStateHandler
+  'ADMIN/UPDATE/FAILED': errorStateHandler,
+  'ADMIN/INVITE/FAILED': errorStateHandler,
+  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler
 })
