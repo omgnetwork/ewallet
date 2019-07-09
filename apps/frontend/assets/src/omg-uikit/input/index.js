@@ -210,6 +210,10 @@ class InputComponent extends PureComponent {
   onChange = e => {
     const value = e.target.value
     if (this.props.type === 'amount') {
+      if (!ensureIsNumberOnly(value) && this.props.value.length < value.length) {
+        return false
+      }
+
       const length = ensureIsNumberOnly(value).length
       if (this.props.maxAmountLength && length >= this.props.maxAmountLength) {
         return false
