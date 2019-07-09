@@ -1,13 +1,13 @@
-export const selectConsumptions = state => {
-  return _.values(state.consumptions) || []
+export const selectBlockchainWallets = state => {
+  return _.values(state.blockchainWallets) || []
 }
 
-export const selectConsumptionsCachedQuery = state => cacheKey => {
+export const selectBlockchainWalletsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(id => {
-    return selectGetConsumptionById(state)(id)
+    return selectBlockchainWalletById(state)(id)
   })
 }
 
-export const selectGetConsumptionById = state => id => state.consumptions[id] || {}
+export const selectBlockchainWalletById = state => id => state.blockchainWallets[id] || {}
 
-export const selectConsumptionsLoadingStatus = state => state.loadingStatus.consumptions
+export const selectBlockchainWalletsLoadingStatus = state => state.loadingStatus.blockchainWallets

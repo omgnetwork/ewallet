@@ -9,10 +9,10 @@ export const blockchainWalletReducer = createReducer(
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
     'BLOCKCHAIN_WALLET/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+      return { ...state, ..._.keyBy(action.data, 'address') }
     },
     'BLOCKCHAIN_WALLETS/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+      return { ...state, ..._.keyBy(action.data, 'address') }
     }
   }
 )
