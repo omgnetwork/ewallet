@@ -77,10 +77,10 @@ class ForgetPasswordForm extends Component {
         password: this.state.newPassword,
         passwordConfirmation: this.state.reEnteredNewPassword
       })
-      if (result.data.success) {
+      if (result.data) {
         this.setState({ submitStatus: 'SUCCESS' })
       } else {
-        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.code })
+        this.setState({ submitStatus: 'FAILED', submitErrorText: result.error.code })
       }
     }
   }
