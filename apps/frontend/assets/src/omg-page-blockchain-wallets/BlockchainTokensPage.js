@@ -7,7 +7,7 @@ import queryString from 'query-string'
 import TabMenu from './TabMenu'
 import SortableTable from '../omg-table'
 import { Button, Icon, Id, SearchBar } from '../omg-uikit'
-import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
+import BlockchainWalletsFetcher from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import AdvancedFilter from '../omg-advanced-filter'
 
@@ -54,12 +54,6 @@ const BlockchainTokensPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
-  i[name='Consumption'] {
-    color: ${props => props.theme.colors.B100};
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid ${props => props.theme.colors.S400};
-  }
 `
 const TokenColumn = styled.div`
   display: flex;
@@ -126,15 +120,11 @@ class BlockchainTokensPage extends Component {
     )
   }
   renderBlockchainTokenpage = ({
-    data: consumptions,
+    data: blockchainTokens,
     individualLoadingStatus,
     pagination,
     fetch
   }) => {
-    const {
-      location: { search }
-    } = this.props
-    const activeIndexKey = queryString.parse(search)['show-consumption-tab']
     return (
       <BlockchainTokensPageContainer>
         <TopRow>
@@ -145,8 +135,8 @@ class BlockchainTokensPage extends Component {
           </ActionButtons>
         </TopRow>
         <AdvancedFilter
-          title='Filter Transaction Consumption'
-          page='transaction-consumptions'
+          title='Filter Blockchain Tokens'
+          page='blockchain-tokens'
           open={this.state.advancedFilterModalOpen}
           onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}
           onFilter={({ matchAll, matchAny }) => this.setState({ matchAll, matchAny })}
@@ -156,7 +146,7 @@ class BlockchainTokensPage extends Component {
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
-            rows={consumptions}
+            rows={blockchainTokens}
             columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
@@ -164,7 +154,6 @@ class BlockchainTokensPage extends Component {
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
-            activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
       </BlockchainTokensPageContainer>
@@ -173,7 +162,7 @@ class BlockchainTokensPage extends Component {
 
   render () {
     return (
-      <ConsumptionFetcher
+      <BlockchainWalletsFetcher
         render={this.renderBlockchainTokenpage}
         {...this.state}
         {...this.props}
