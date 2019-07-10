@@ -128,7 +128,9 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
-    |> unique_constraint(:blockchain_address)
+    |> unique_constraint(:blockchain_address,
+      name: :token_blockchain_identifier_blockchain_address_index
+    )
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
@@ -157,7 +159,6 @@ defmodule EWalletDB.Token do
         :symbol_first,
         :html_entity,
         :iso_numeric,
-        :blockchain_address,
         :metadata,
         :encrypted_metadata
       ],
@@ -173,7 +174,6 @@ defmodule EWalletDB.Token do
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
-    |> unique_constraint(:blockchain_address)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
@@ -191,7 +191,9 @@ defmodule EWalletDB.Token do
       cast: [:blockchain_address, :blockchain_identifier],
       required: [:blockchain_address, :blockchain_identifier]
     )
-    |> unique_constraint(:blockchain_address)
+    |> unique_constraint(:blockchain_address,
+      name: :token_blockchain_identifier_blockchain_address_index
+    )
     |> validate_blockchain()
     |> merge(blockchain_status_changeset(token, attrs))
   end
