@@ -52,11 +52,12 @@ defmodule EWallet.DBCase do
     {:ok, {address, public_key}} = Wallet.generate()
 
     {:ok, blockchain_wallet} =
-      BlockchainWallet.insert(%{
+      BlockchainWallet.insert_hot(%{
         name: "Hot Wallet",
         address: address,
         public_key: public_key,
         type: "hot",
+        blockchain_identifier: BlockchainHelper.identifier(),
         originator: %ActivityLogger.System{}
       })
 

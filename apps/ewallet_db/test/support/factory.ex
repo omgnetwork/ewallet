@@ -121,6 +121,7 @@ defmodule EWalletDB.Factory do
   def blockchain_wallet_factory do
     %BlockchainWallet{
       address: Crypto.fake_eth_address(),
+      blockchain_identifier: "ethereum",
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",

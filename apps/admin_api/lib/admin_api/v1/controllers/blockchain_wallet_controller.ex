@@ -41,7 +41,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   def create(conn, %{"type" => "cold", "address" => _, "name" => _} = attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, wallet} <- BlockchainWallet.insert(attrs) do
+         identifier <- BlockchainHelper.identifier(),
+         attrs <- Map.put(attrs, "blockchain_identifier", identifier),
+         {:ok, wallet} <- BlockchainWallet.insert_cold(attrs) do
       respond_single(wallet, conn)
     else
       {:error, error} -> handle_error(conn, error)

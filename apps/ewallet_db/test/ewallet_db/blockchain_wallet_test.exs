@@ -16,6 +16,7 @@ defmodule EWalletDB.BlockchainWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias EWalletDB.{BlockchainWallet}
+  alias Utils.Helpers.Crypto
 
   describe "BlockchainWallet factory" do
     test_has_valid_factory(BlockchainWallet)
@@ -29,20 +30,20 @@ defmodule EWalletDB.BlockchainWalletTest do
     test_insert_field_length(BlockchainWallet, :name)
     test_insert_field_length(BlockchainWallet, :public_key)
 
-    test_insert_prevent_duplicate(BlockchainWallet, :address, "0x123")
+    test_insert_prevent_duplicate(BlockchainWallet, :address, Crypto.fake_eth_address())
     test_insert_prevent_duplicate(BlockchainWallet, :name, "A name")
     test_insert_prevent_duplicate(BlockchainWallet, :public_key, "0x321")
 
     test "insert successfuly when type is valid" do
       {res_1, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "hot"})
-        |> BlockchainWallet.insert()
+        |> params_for(%{type: "hot", blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_hot()
 
       {res_2, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "cold"})
-        |> BlockchainWallet.insert()
+        |> params_for(%{type: "cold", blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_hot()
 
       assert res_1 == :ok
       assert res_2 == :ok
@@ -51,8 +52,8 @@ defmodule EWalletDB.BlockchainWalletTest do
     test "fails to insert when type is invalid" do
       {res, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "invalid_type"})
-        |> BlockchainWallet.insert()
+        |> params_for(%{type: "invalid_type", blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_hot()
 
       assert res == :error
     end
