@@ -7,7 +7,7 @@ import queryString from 'query-string'
 import TabMenu from './TabMenu'
 import SortableTable from '../omg-table'
 import { Button, Icon, Id, SearchBar } from '../omg-uikit'
-import BlockchainWalletsFetcher from '../omg-blockchain-wallet/blockchainwalletsFetcher'
+import { BlockchainWalletFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import AdvancedFilter from '../omg-advanced-filter'
 
@@ -162,7 +162,7 @@ class BlockchainTokensPage extends Component {
 
   render () {
     return (
-      <BlockchainWalletsFetcher
+      <BlockchainWalletFetcher
         render={this.renderBlockchainTokenpage}
         {...this.state}
         {...this.props}

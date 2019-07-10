@@ -5,7 +5,7 @@ import PropTypes from 'prop-types'
 import { Id, Icon } from '../omg-uikit'
 import SortableTable from '../omg-table'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import BlockchainWalletsFetcher from '../omg-blockchain-wallet/blockchainwalletsFetcher'
+import { AllBlockchainWalletsFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 
 const SortableTableContainer = styled.div`
   position: relative;
@@ -58,7 +58,7 @@ const BlockchainWalletsPage = ({ match, history }) => {
         types={false}
         searchBar={false}
       />
-      <BlockchainWalletsFetcher
+      <AllBlockchainWalletsFetcher
         query={{ perPage: Math.floor(window.innerHeight / 65) }}
         render={({ blockchainWallets, individualLoadingStatus, pagination }) => {
           return (
