@@ -37,6 +37,7 @@ defmodule AdminAPI.ConnCase do
   alias EWalletDB.{Account, BlockchainWallet, Membership, GlobalRole, Key, Repo, User}
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
+  alias Keychain.Wallet
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -121,7 +122,7 @@ defmodule AdminAPI.ConnCase do
     # factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for() |> Account.insert()
 
-    {:ok, {address, public_key}} = Keychain.Wallet.generate()
+    {:ok, {address, public_key}} = Wallet.generate()
 
     {:ok, blockchain_wallet} =
       BlockchainWallet.insert(%{

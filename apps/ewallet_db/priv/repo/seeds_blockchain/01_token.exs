@@ -32,7 +32,6 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
     run_with(writer, token)
   end
 
-
   defp run_with(writer, data) do
     case Token.get_by(symbol: data.symbol) do
       nil ->
