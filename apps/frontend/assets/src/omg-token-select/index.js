@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 
 import { Avatar } from '../omg-uikit'
 
@@ -25,13 +26,18 @@ const TokenNameAndIdentifier = styled.div`
 `
 export default class WalletSelectItem extends Component {
   static propTypes = {
-    token: PropTypes.object
+    token: PropTypes.object,
+    balance: PropTypes.number
   }
   static defaultProps = {
     wallet: {}
   }
 
   render () {
+    const amount = formatReceiveAmountToTotal(
+      this.props.balance,
+      _.get(this.props.token, 'subunit_to_unit')
+    )
     const name = _.get(this.props.token, 'name')
     const symbol = _.get(this.props.token, 'symbol')
     return (
@@ -43,6 +49,9 @@ export default class WalletSelectItem extends Component {
           <Address>{name}</Address>
           <TokenNameAndIdentifier>
             {symbol}
+          </TokenNameAndIdentifier>
+          <TokenNameAndIdentifier>
+            {amount}
           </TokenNameAndIdentifier>
         </DetailContainer>
       </TokenSelectItemContainer>
