@@ -43,7 +43,7 @@ defmodule EthBlockchain.TransactionListenerTest do
                 blockchain_adapter_pid: nil,
                 node_adapter: nil,
                 subscribers: []
-              }} = TransactionListener.init(get_attrs())
+              }, {:continue, :start_polling}} = TransactionListener.init(get_attrs())
     end
   end
 
