@@ -1,7 +1,7 @@
 import * as blockchainWalletService from '../services/blockchainWalletService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
 
-export const getBlockchainWalletBalances = ({
+export const getBlockchainWalletBalance = ({
   address,
   tokenIds,
   tokenAddresses,
@@ -9,13 +9,14 @@ export const getBlockchainWalletBalances = ({
   perPage,
   cacheKey,
   matchAll,
-  matchAny
+  matchAny,
+  searchTerm
 }) =>
   createPaginationActionCreator({
-    actionName: 'BLOCKCHAIN_WALLET_BALANCES',
+    actionName: 'BLOCKCHAIN_WALLET_BALANCE',
     action: 'REQUEST',
     service: () =>
-      blockchainWalletService.getBlockchainWalletBalances({
+      blockchainWalletService.getBlockchainWalletBalance({
         address,
         tokenIds,
         tokenAddresses,
@@ -23,7 +24,8 @@ export const getBlockchainWalletBalances = ({
         perPage,
         sort: { by: 'created_at', dir: 'desc' },
         matchAll,
-        matchAny
+        matchAny,
+        searchTerm
       }),
     cacheKey
   })

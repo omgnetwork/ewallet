@@ -1,5 +1,5 @@
 import { createFetcher } from '../utils/createFetcher'
-import { getAllBlockchainWallets, getBlockchainWallet } from './action'
+import { getAllBlockchainWallets, getBlockchainWalletBalance } from './action'
 import {
   selectBlockchainWalletsLoadingStatus,
   selectBlockchainWalletsCachedQuery,
@@ -14,7 +14,7 @@ export const AllBlockchainWalletsFetcher = createFetcher('blockchainwallets', ge
   blockchainWallets: selectBlockchainWallets(state)
 }))
 
-export const BlockchainWalletFetcher = createFetcher('blockchainwallet', getBlockchainWallet, (state, props) => ({
+export const BlockchainWalletBalanceFetcher = createFetcher('blockchainwalletbalance', getBlockchainWalletBalance, (state, props) => ({
   loadingStatus: selectBlockchainWalletsLoadingStatus(state),
   data: selectBlockchainWalletsCachedQuery(state)(props.cacheKey),
   pagination: selectCachedQueryPagination(state)(props.cacheKey),

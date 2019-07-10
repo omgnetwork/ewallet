@@ -7,7 +7,7 @@ import queryString from 'query-string'
 import TabMenu from './TabMenu'
 import SortableTable from '../omg-table'
 import { Button, Icon, Id, SearchBar } from '../omg-uikit'
-import { BlockchainWalletFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
+import { BlockchainWalletBalanceFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import AdvancedFilter from '../omg-advanced-filter'
 
@@ -51,6 +51,10 @@ const BlockchainTokensPageContainer = styled.div`
       color: ${props => props.theme.colors.B300};
     }
   }
+  i[name='Filter'] {
+    cursor: pointer;
+    margin-right: 10px;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -75,7 +79,8 @@ const ActionButtons = styled.div`
 class BlockchainTokensPage extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    match: PropTypes.object
   }
   constructor (props) {
     super(props)
@@ -130,7 +135,7 @@ class BlockchainTokensPage extends Component {
         <TopRow>
           <TabMenu />
           <ActionButtons>
-            <SearchBar placeholder='Search token or transaction' />
+            <SearchBar placeholder='Search token' />
             {this.renderAdvancedFilterButton()}
           </ActionButtons>
         </TopRow>
@@ -162,16 +167,17 @@ class BlockchainTokensPage extends Component {
 
   render () {
     return (
-      <BlockchainWalletFetcher
+      <BlockchainWalletBalanceFetcher
         render={this.renderBlockchainTokenpage}
         {...this.state}
         {...this.props}
         query={{
+          address: this.props.match.params.address,
           page: queryString.parse(this.props.location.search).page,
           perPage: Math.floor(window.innerHeight / 65),
           matchAll: this.state.matchAll,
           matchAny: this.state.matchAny,
-          searchTerms: {
+          searchTerm: {
             id: queryString.parse(this.props.location.search).search
           }
         }}
