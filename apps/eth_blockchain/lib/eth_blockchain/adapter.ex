@@ -34,6 +34,7 @@ defmodule EthBlockchain.Adapter do
 
   alias EthBlockchain.{
     Balance,
+    Block,
     DumbAdapter,
     ErrorHandler,
     Helper,

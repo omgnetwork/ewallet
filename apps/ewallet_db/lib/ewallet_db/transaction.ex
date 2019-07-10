@@ -43,6 +43,7 @@ defmodule EWalletDB.Transaction do
   @failed "failed"
   @statuses [@pending, @recorded, @submitted, @pending_confirmations, @confirmed, @failed]
   def pending, do: @pending
+  def pending_confirmations, do: @pending_confirmations
   def confirmed, do: @confirmed
   def failed, do: @failed
 
