@@ -493,7 +493,7 @@ defmodule EWalletDB.Transaction do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
 
     changeset =
-      case attrs["type"] do
+      case (attrs["type"] || attrs[:type]) do
         "external" ->
           blockchain_changeset(%Transaction{}, attrs)
 

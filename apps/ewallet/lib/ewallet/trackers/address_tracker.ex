@@ -21,11 +21,11 @@ defmodule EWallet.AddressTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.{BlockchainHelper, BlockchainTransactionState}
+  # TODO: Have two different intervals: one for syncing and one for day-to-day block retrieval (slower)
+
+  alias EWallet.BlockchainHelper
   alias EWalletDB.{BlockchainWallet, Token, Transaction}
   alias ActivityLogger.System
-
-  # TODO: handle failed transactions
 
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
@@ -33,51 +33,69 @@ defmodule EWallet.AddressTracker do
     GenServer.start_link(__MODULE__, attrs, name: name)
   end
 
-  def init(%{interval: interval, blockchain: blockchain} = attrs) do
-    adapter = BlockchainHelper.adapter()
-    timer = Process.send_after(self(), :tick, interval)
-
-    wallets = BlockchainWallet.get_by(type: "hot")
+  def init(%{interval: interval, blockchain: blockchain}) do
+    wallet = BlockchainWallet.get_by(type: "hot")
+    addresses = [wallet.address]
     tokens = Token.all_blockchain()
+    contract_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
     blk_number = Transaction.get_last_blk_number(blockchain)
+    IO.inspect("Starting at block number #{blk_number}")
 
-    attrs =
-      attrs
-      |> Map.put(:timer, timer)
-      |> Map.put(:wallets, wallets)
-      |> Map.put(:tokens, tokens)
-      |> Map.put(:blk_number, blk_number)
-      |> Map.put(:blk_retries, 0)
-
-    {:ok, attrs}
+    {:ok, %{
+      interval: interval,
+      blockchain: blockchain,
+      timer: nil,
+      addresses: addresses,
+      contract_addresses: contract_addresses,
+      tokens: tokens,
+      blk_number: blk_number,
+      blk_retries: 0
+    }, {:continue, :start_polling}}
   end
 
-  def handle_info(:tick, %{interval: interval} = state) do
+  def handle_continue(:start_polling, state) do
+    poll(state)
+  end
+
+  def handle_info(:poll,state) do
+    poll(state)
+  end
+
+  defp poll( %{interval: interval} = state) do
+    IO.inspect("Ticking!")
     new_state = run(state)
-    timer = Process.send_after(self(), :tick, interval)
+    timer = Process.send_after(self(), :poll, interval)
     {:noreply, %{new_state | timer: timer}}
+  end
+
+  def measure(function, name) do
+    {time, value} = :timer.tc(function)
+    Logger.info("#{name} #{:erlang.float_to_binary(time / 1_000_000, [decimals: 10])}s")
+    value
   end
 
   defp run(
          %{
            blk_number: blk_number,
-           blk_retries: blk_retries,
-           blockchain: blockchain,
            addresses: addresses,
            contract_addresses: contract_addresses
          } = state
        ) do
-    transaction_results =
-      :get_transactions
-      |> BlockchainHelper.adapter().call(%{
+    IO.inspect("Running for block: #{blk_number}")
+
+    transaction_results = measure(fn ->
+      BlockchainHelper.call(:get_transactions, %{
         blk_number: blk_number,
         addresses: addresses,
         contract_addresses: contract_addresses
       })
+    end, "get_transactions")
+
+    transaction_results =
+      transaction_results
       |> Enum.map(fn tx ->
         insert(tx, state)
       end)
-
     case Enum.all?(transaction_results, fn res -> res == :ok end) do
       true ->
         next(state)
@@ -122,22 +140,22 @@ defmodule EWallet.AddressTracker do
     Map.put(state, :blk_retries, retries + 1)
   end
 
-  defp insert(blockchain_transaction, %{blk_number: blk_number, blockchain: blockchain} = state) do
+  defp insert(blockchain_transaction, %{blockchain: blockchain} = state) do
     case Transaction.get_by(%{
-           blockchain_tx_hash: blockchain_transaction["tx_hash"],
-           blockchain_identifier: blockchain
-         }) do
+      blockchain_tx_hash: blockchain_transaction.hash,
+      blockchain_identifier: blockchain
+    }) do
       nil ->
         do_insert(blockchain_transaction, state)
 
-      transaction ->
+      _transaction ->
         :ok
     end
   end
 
-  defp do_insert(blockchain_tx, %{blockchain: blockchain} = state) do
+  defp do_insert(blockchain_tx, %{blockchain: blockchain}) do
     token = Token.get_by(%{blockchain_address: blockchain_tx.contract_address})
-
+    IO.inspect("Inserting new transaction...")
     attrs = %{
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
@@ -149,10 +167,9 @@ defmodule EWallet.AddressTracker do
       confirmations_count: blockchain_tx.confirmations_count,
       blk_number: blockchain_tx.block_number,
       payload: blockchain_tx.original,
-      blockchain_metadata: blockchain_tx.data,
-      from_token: token,
-      to_token: token,
-      # TODO: need to check if funds need to be added to an internal wallet
+      blockchain_metadata: %{},#%{data: blockchain_tx.data}, # TODO: encode this in a save-able way
+      from_token_uuid: token.uuid,
+      to_token_uuid: token.uuid,
       to_wallet: nil,
       from_wallet: nil,
       from_blockchain_address: blockchain_tx.from,
@@ -160,11 +177,13 @@ defmodule EWallet.AddressTracker do
       from_account: nil,
       to_account: nil,
       from_user: nil,
-      to_user: nil
+      to_user: nil,
+      originator: %System{} # TODO: Change this to a new originator
     }
 
     # TODO: Notify websockets
-    # TODO: Add value in local ledger
+    # TODO: Add value in local ledger if needed
+    # TODO: need to check if funds need to be added to an internal wallet
     # TODO: Setup transaction tracker if pending confirmations
     case Transaction.insert(attrs) do
       {:ok, _} ->

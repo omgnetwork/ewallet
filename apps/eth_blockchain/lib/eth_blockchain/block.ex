@@ -90,10 +90,11 @@ defmodule EthBlockchain.Block do
     {to_hex(to_address), amount}
   end
 
-  defp get_data(input) do
-    "0x" <> <<_function::binary-size(8)>> <> data = input
+  defp get_data("0x" <> <<_function::binary-size(8)>> <> data) do
     from_hex(data)
   end
+
+  defp get_data(_), do: nil
 
   defp format_contract_transaction(transaction, to_address, amount) do
     transaction
