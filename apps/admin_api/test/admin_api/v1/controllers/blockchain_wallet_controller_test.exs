@@ -332,6 +332,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
       attrs = %{
         "per_page" => 1,
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
         "address" => blockchain_wallet.address,
         "token_addresses" => [
           "0x0000000000000000000000000000000000000000",
