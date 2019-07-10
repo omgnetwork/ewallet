@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Route, Switch, Redirect } from 'react-router-dom'
 
-import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
+import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
 import BlockchainSettingsPage from './BlockchainSettingsPage'
@@ -19,7 +19,12 @@ const BlockchainWalletDetailPage = ({ match, ...rest }) => {
         types={false}
         searchBar={false}
         description={match.params.address}
-        buttons={[<CreateTransactionButton key='transfer' />]}
+        buttons={[
+          <CreateBlockchainTransactionButton
+            key='transfer'
+            fromAddress={match.params.address}
+          />
+        ]}
       />
       <Switch>
         <Route exact path={`${match.path}/blockchain_tokens`} component={BlockchainTokensPage} />
