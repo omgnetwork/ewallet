@@ -46,28 +46,47 @@ defmodule EWalletDB.BlockchainWallet do
     timestamps()
   end
 
-  defp changeset(%BlockchainWallet{} = wallet, attrs) do
+  defp insert_shared_changeset(%BlockchainWallet{} = wallet, attrs) do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
         :uuid,
         :address,
-        :public_key,
         :name,
         :type
       ],
-      required: [:address, :name, :public_key, :type]
+      required: [:address, :name, :type]
     )
     |> unique_constraint(:address)
     |> unique_constraint(:name)
-    |> unique_constraint(:public_key)
     |> validate_immutable(:address)
-    |> validate_immutable(:public_key)
     |> validate_inclusion(:type, @wallet_types)
     |> validate_length(:address, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
+  end
+
+  defp insert_hot_changeset(%BlockchainWallet{} = wallet, attrs) do
+    shared = insert_shared_changeset(wallet, attrs)
+
+    wallet
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :public_key
+      ],
+      required: [:public_key]
+    )
+    |> validate_immutable(:public_key)
+    |> validate_inclusion(:type, [@hot])
     |> validate_length(:public_key, count: :bytes, max: 255)
+    |> merge(shared)
+  end
+
+  defp insert_cold_changeset(%BlockchainWallet{} = wallet, attrs) do
+    wallet
+    |> insert_shared_changeset(attrs)
+    |> validate_inclusion(:type, [@cold])
   end
 
   def get_primary_hot_wallet do
@@ -101,9 +120,21 @@ defmodule EWalletDB.BlockchainWallet do
   Create a new blockchain wallet with the passed attributes.
   """
   @spec insert(map()) :: {:ok, %__MODULE__{}}
+  def insert(%{"type" => @hot} = attrs) do
+    %BlockchainWallet{}
+    |> insert_hot_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
+  def insert(%{"type" => @cold} = attrs) do
+    %BlockchainWallet{}
+    |> insert_cold_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
   def insert(attrs) do
     %BlockchainWallet{}
-    |> changeset(attrs)
+    |> insert_shared_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
 end

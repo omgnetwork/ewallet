@@ -25,10 +25,36 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   alias EWallet.Web.{
     Orchestrator,
     Paginator,
+    Originator,
     BlockchainBalanceLoader,
     V1.BlockchainWalletOverlay,
     V1.TokenOverlay
   }
+
+  @doc """
+  Creates a new blockchain wallet with the provided params.
+  Currently, only `cold` type is supported.
+  Required attributes are `type`, `address` and `name`.
+  Returns the serialized created cold blockchain wallet.
+  """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def create(conn, %{"type" => "cold", "address" => _, "name" => _} = attrs) do
+    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, wallet} <- BlockchainWallet.insert(attrs) do
+      respond_single(wallet, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def create(conn, %{"type" => _}) do
+    handle_error(conn, :invalid_parameter, "The specified `type` is not currently supported.")
+  end
+
+  def create(conn, _) do
+    handle_error(conn, :invalid_parameter)
+  end
 
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   @doc """
