@@ -6,7 +6,7 @@ import queryString from 'query-string'
 
 import TabMenu from './TabMenu'
 import SortableTable from '../omg-table'
-import { Button, Icon, Id, SearchBar } from '../omg-uikit'
+import { Button, Icon, SearchBar, Avatar } from '../omg-uikit'
 import { BlockchainWalletBalanceFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import AdvancedFilter from '../omg-advanced-filter'
@@ -62,6 +62,9 @@ const SortableTableContainer = styled.div`
 const TokenColumn = styled.div`
   display: flex;
   flex-direction: row;
+  > span {
+    margin-left: 10px;
+  }
 `
 const TopRow = styled.div`
   display: flex;
@@ -85,7 +88,7 @@ class BlockchainTokensPage extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'id', title: 'TOKEN', sort: true },
+      { key: 'name', title: 'TOKEN', sort: true },
       { key: 'balance', title: 'BALANCE', sort: true }
     ]
   }
@@ -98,17 +101,16 @@ class BlockchainTokensPage extends Component {
     console.log('row clicked')
   }
   rowRenderer = (key, data, rows) => {
-    if (key === 'id') {
+    if (key === 'name') {
       return (
         <TokenColumn>
-          <Id>{data}</Id>
+          <Avatar image={rows.avatar} name={data.slice(0, 3)} />
+          <span>{data}</span>
         </TokenColumn>
       )
     }
     if (key === 'balance') {
-      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${
-        rows.token.symbol
-      }`
+      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     return data
   }
