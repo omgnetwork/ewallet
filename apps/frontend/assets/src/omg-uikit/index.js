@@ -20,9 +20,10 @@ import SearchBar from './searchbar'
 import NavCard from './navcard'
 import DetailRow from './detailrow'
 import QrCode from './qrCode'
-import MultiSelect from '../omg-uikit/multiselect'
-import DatePicker from '../omg-uikit/datepicker'
-import TimePicker from '../omg-uikit/timepicker'
+import MultiSelect from './multiselect'
+import DatePicker from './datepicker'
+import TimePicker from './timepicker'
+import SelectInput from './selectInput'
 
 export {
   Input,
@@ -50,5 +51,6 @@ export {
   SearchBar,
   NavCard,
   DetailRow,
-  QrCode
+  QrCode,
+  SelectInput
 }
