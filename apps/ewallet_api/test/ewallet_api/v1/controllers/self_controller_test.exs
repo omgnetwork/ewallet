@@ -110,6 +110,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "enabled" => true,
                            "blockchain_address" => btc.blockchain_address,
                            "blockchain_status" => btc.blockchain_status,
+                           "blockchain_identifier" => btc.blockchain_identifier,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,
@@ -134,6 +135,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "enabled" => true,
                            "blockchain_address" => omg.blockchain_address,
                            "blockchain_status" => omg.blockchain_status,
+                           "blockchain_identifier" => omg.blockchain_identifier,
                            "avatar" => %{
                              "large" => nil,
                              "original" => nil,

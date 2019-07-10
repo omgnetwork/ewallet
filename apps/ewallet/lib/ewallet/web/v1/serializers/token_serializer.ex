@@ -44,6 +44,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
       avatar: Avatar.urls({token.avatar, token}),
       blockchain_address: token.blockchain_address,
       blockchain_status: token.blockchain_status,
+      blockchain_identifier: token.blockchain_identifier,
       created_at: DateFormatter.to_iso8601(token.inserted_at),
       updated_at: DateFormatter.to_iso8601(token.updated_at)
     }

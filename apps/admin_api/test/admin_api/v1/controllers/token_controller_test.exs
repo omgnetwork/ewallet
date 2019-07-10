@@ -1138,7 +1138,8 @@ defmodule AdminAPI.V1.TokenControllerTest do
         target: target,
         changes: %{
           "blockchain_address" => target.blockchain_address,
-          "blockchain_status" => target.blockchain_status
+          "blockchain_status" => target.blockchain_status,
+          "blockchain_identifier" => target.blockchain_identifier
         },
         encrypted_changes: %{}
       )

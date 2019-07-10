@@ -176,13 +176,22 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_3 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
+        })
 
       attrs = %{
         "sort_by" => "inserted_at",
@@ -214,19 +223,22 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
         })
 
       token_2 =
         insert(:token, %{
           id: "tkn_2",
-          blockchain_address: "0x0000000000000000000000000000000000000001"
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
-          blockchain_address: "0x0000000000000000000000000000000000000002"
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
         })
 
       attrs = %{
@@ -256,13 +268,22 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_3 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -292,20 +313,29 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_2 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_3 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
+        })
 
       attrs = %{
         "per_page" => 1,
         "address" => blockchain_wallet.address,
         "token_addresses" => [
-          "0x0000000000000000000000000000000000000001",
-          "0x0000000000000000000000000000000000000000"
+          "0x0000000000000000000000000000000000000000",
+          "0x0000000000000000000000000000000000000001"
         ]
       }
 
@@ -331,19 +361,22 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
         })
 
       _token_2 =
         insert(:token, %{
           id: "tkn_2",
-          blockchain_address: "0x0000000000000000000000000000000000000001"
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
-          blockchain_address: "0x0000000000000000000000000000000000000002"
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
         })
 
       attrs = %{
@@ -374,12 +407,18 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
       _token_1 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000000"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
+        })
 
       _token_2 = insert(:token, %{blockchain_address: nil})
 
       _token_3 =
-        insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
+        insert(:token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address
@@ -406,19 +445,22 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
         })
 
       _token_2 =
         insert(:token, %{
           id: "tkn_2",
-          blockchain_address: "0x0000000000000000000000000000000000000001"
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          blockchain_identifier: "ethereum"
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
-          blockchain_address: "0x0000000000000000000000000000000000000002"
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
         })
 
       attrs = %{
@@ -447,7 +489,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
-          blockchain_address: "0x0000000000000000000000000000000000000000"
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: "ethereum"
         })
 
       _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: nil})
@@ -455,7 +498,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
-          blockchain_address: "0x0000000000000000000000000000000000000002"
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          blockchain_identifier: "ethereum"
         })
 
       attrs = %{

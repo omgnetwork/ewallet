@@ -29,6 +29,13 @@ defmodule EWallet.BlockchainHelper do
   end
 
   @doc """
+  Returns the blockchain identifier corresponding to the default adapter
+  """
+  def identifier do
+    adapter().helper.identifier
+  end
+
+  @doc """
   Call the default blockchain adapter with the specifed function spec
   and the default node adapter
   """
@@ -41,6 +48,6 @@ defmodule EWallet.BlockchainHelper do
   Returns the default blockchain adapter
   """
   def adapter do
-    Application.get_env(:ewallet, :blockchain_adapter)
+    Application.get_env(:ewallet_db, :blockchain_adapter)
   end
 end

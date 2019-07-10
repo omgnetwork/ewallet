@@ -20,8 +20,7 @@ defmodule EWalletDB.Transaction do
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
-  import EWalletDB.Validator
-  import EWalletDB.Validator
+  import EWalletDB.{Validator, BlockchainValidator}
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
@@ -308,12 +307,20 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
+    |> validate_blockchain()
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
     |> assoc_constraint(:exchange_account)
+  end
+
+  defp validate_blockchain(changeset) do
+    changeset
+    |> validate_blockchain_address(:from_blockchain_address)
+    |> validate_blockchain_address(:to_blockchain_address)
+    |> validate_blockchain_identifier(:blockchain_identifier)
   end
 
   def submitted_changeset(%Transaction{} = transaction, attrs) do

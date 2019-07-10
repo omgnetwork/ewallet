@@ -814,6 +814,8 @@ paths:
                                       type: string
                                     blockchain_status:
                                       type: string
+                                    blockchain_identifier:
+                                      type: string
                                     metadata:
                                       type: object
                                     encrypted_metadata:
@@ -829,6 +831,9 @@ paths:
                                     - avatar
                                     - created_at
                                     - updated_at
+                                    - blockchain_address
+                                    - blockchain_status
+                                    - blockchain_identifier
                                     - enabled
                     example:
                       data:
@@ -846,6 +851,7 @@ paths:
                             enabled: true
                             blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
                             blockchain_status: confirmed
+                            blockchain_identifier: ethereum
                             metadata: {}
                             encrypted_metadata: {}
         '500': *ref_7
@@ -901,6 +907,7 @@ paths:
                           original: file_url
                         blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
                         blockchain_status: confirmed
+                        blockchain_identifier: ethereum
                         metadata: {}
                         encrypted_metadata: {}
         '500': *ref_7
@@ -1135,6 +1142,9 @@ paths:
                       subunit_to_unit: 100
                       created_at: '2018-01-01T00:00:00Z'
                       updated_at: '2018-01-01T10:00:00Z'
+                      blockchain_address: null
+                      blockchain_status: null
+                      blockchain_identifier: null
                       enabled: true
                       metadata: {}
                       encrypted_metadata: {}

@@ -22,7 +22,7 @@ defmodule EWalletDB.Token do
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.Validator
+  import EWalletDB.{Validator, BlockchainValidator}
   alias Ecto.UUID
   alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
@@ -71,6 +71,7 @@ defmodule EWalletDB.Token do
     field(:enabled, :boolean)
     field(:blockchain_address, :string)
     field(:blockchain_status, :string)
+    field(:blockchain_identifier, :string)
 
     belongs_to(
       :account,
@@ -104,6 +105,7 @@ defmodule EWalletDB.Token do
         :account_uuid,
         :blockchain_address,
         :blockchain_status,
+        :blockchain_identifier,
         :metadata,
         :encrypted_metadata
       ],
@@ -137,6 +139,7 @@ defmodule EWalletDB.Token do
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
     |> validate_inclusion(:blockchain_status, @blockchain_status)
+    |> validate_blockchain()
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
@@ -185,10 +188,11 @@ defmodule EWalletDB.Token do
   defp blockchain_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(attrs,
-      cast: [:blockchain_address],
-      required: [:blockchain_address]
+      cast: [:blockchain_address, :blockchain_identifier],
+      required: [:blockchain_address, :blockchain_identifier]
     )
     |> unique_constraint(:blockchain_address)
+    |> validate_blockchain()
     |> merge(blockchain_status_changeset(token, attrs))
   end
 
@@ -199,6 +203,12 @@ defmodule EWalletDB.Token do
       required: [:blockchain_status]
     )
     |> validate_inclusion(:blockchain_status, @blockchain_status)
+  end
+
+  defp validate_blockchain(changeset) do
+    changeset
+    |> validate_blockchain_address(:blockchain_address)
+    |> validate_blockchain_identifier(:blockchain_identifer)
   end
 
   defp set_id(changeset, opts) do
@@ -231,21 +241,25 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns a query of Tokens that have a blockchain address
+  Returns a query of Tokens that have a blockchain address for the specified identifier
   """
-  @spec query_all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
-  def query_all_blockchain(query \\ Token) do
-    where(query, [t], not is_nil(t.blockchain_address))
+  @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
+  def query_all_blockchain(identifier, query \\ Token) do
+    where(query, [t], not is_nil(t.blockchain_address) and t.blockchain_identifier == ^identifier)
   end
 
   @doc """
-  Returns a query of Tokens that have an address matching in the provided list
+  Returns a query of Tokens that have an address matching in the provided list for the specified identifier
   """
-  @spec query_all_by_blockchain_addresses([String.t()], Ecto.Queryable.t()) :: [
+  @spec query_all_by_blockchain_addresses([String.t()], String.t(), Ecto.Queryable.t()) :: [
           Ecto.Queryable.t()
         ]
-  def query_all_by_blockchain_addresses(addresses, query \\ Token) do
-    where(query, [t], t.blockchain_address in ^addresses)
+  def query_all_by_blockchain_addresses(addresses, identifier, query \\ Token) do
+    where(
+      query,
+      [t],
+      t.blockchain_address in ^addresses and t.blockchain_identifier == ^identifier
+    )
   end
 
   @doc """

@@ -21,7 +21,11 @@ defmodule EthBlockchain.Helper do
   @token_subunit_to_unit 1_000_000_000_000_000_000
 
   def identifier, do: "ethereum"
-  def is_adapter_address?("0x" <> _ = address) when is_binary(address), do: true
+
+  def is_adapter_address?("0x" <> _ = address)
+      when is_binary(address) and byte_size(address) == 42,
+      do: true
+
   def is_adapter_address?(_address), do: false
   def default_address, do: @token_address
 
