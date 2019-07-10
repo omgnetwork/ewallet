@@ -42,14 +42,17 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
 
   defp insert_wallet(writer) do
     {:ok, {address, public_key}} = Wallet.generate()
+    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
+    identifier = adapter.helper.identifier()
     attrs = %{
       address: address,
       public_key: public_key,
       name: "Hot wallet",
       type: BlockchainWallet.type_hot(),
+      blockchain_identifier: identifier,
       originator: %Seeder{}
     }
-    case BlockchainWallet.insert(attrs) do
+    case BlockchainWallet.insert_hot(attrs) do
       {:ok, wallet} ->
         {:ok, [primary_hot_wallet: {:ok, _}]} = EWalletConfig.Config.update(%{
           primary_hot_wallet: wallet.address,
