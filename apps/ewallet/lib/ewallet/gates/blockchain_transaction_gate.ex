@@ -150,10 +150,8 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp set_blockchain(attrs) do
-    adapter = BlockchainHelper.adapter()
-
     attrs
-    |> Map.put("blockchain_identifier", adapter.helper.identifier)
+    |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
     |> Map.put("type", Transaction.external())
   end
 

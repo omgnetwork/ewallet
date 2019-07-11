@@ -29,7 +29,7 @@ defmodule EWalletDB.BlockchainValidatorTest do
   describe "validate_blockchain_address/2" do
     test "returns valid if the blockchain address is valid" do
       adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-      valid_address = adapter.helper.default_address
+      valid_address = adapter.helper().default_address
 
       struct = %SampleStruct{
         blockchain_address: valid_address
@@ -75,7 +75,7 @@ defmodule EWalletDB.BlockchainValidatorTest do
   describe "validate_blockchain_identifier/2" do
     test "returns valid if the blockchain identifier is valid" do
       adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-      valid_identifier = adapter.helper.identifier
+      valid_identifier = adapter.helper().identifier()
 
       struct = %SampleStruct{
         blockchain_identifier: valid_identifier
