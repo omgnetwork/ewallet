@@ -24,16 +24,24 @@ defmodule EWallet.TransactionTracker do
   alias EWallet.BlockchainTransactionState
   alias ActivityLogger.System
 
+  @backup_confirmations_threshold 10
+
   # TODO: handle failed transactions
 
-  def start_link(state) do
-    GenServer.start_link(__MODULE__, state)
+  def start_link(attrs) do
+    GenServer.start_link(__MODULE__, attrs)
   end
 
-  def init(%{transaction: transaction} = state) do
+  def init(%{transaction: transaction} = attrs) do
     adapter = Application.get_env(:ewallet, :blockchain_adapter)
     :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
-    {:ok, state}
+
+    {:ok,
+     %{
+       transaction: transaction,
+       # optional
+       registry: attrs[:registry]
+     }}
   end
 
   def handle_cast(
@@ -53,7 +61,7 @@ defmodule EWallet.TransactionTracker do
           adapter,
           state,
           confirmations_count,
-          confirmations_count > (threshold || 10)
+          confirmations_count >= (threshold || @backup_confirmations_threshold)
         )
 
       false ->

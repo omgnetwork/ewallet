@@ -27,8 +27,8 @@ defmodule EWallet.TransactionDispatcherGate do
       [false, false] ->
         LocalTransactionGate.create(actor, attrs)
 
-      blockchain_addresses ->
-        BlockchainTransactionGate.create(actor, attrs, blockchain_addresses)
+      [from, to] ->
+        BlockchainTransactionGate.create(actor, attrs, {from, to})
     end
   end
 end

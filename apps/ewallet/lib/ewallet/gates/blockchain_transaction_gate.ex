@@ -41,7 +41,11 @@ defmodule EWallet.BlockchainTransactionGate do
   # Here, we send a transaction from the hot wallet to
   # an external blockchain address. This should only be used to manage
   # the funds repartition between hot and cold wallets.
-  def create(actor, %{"from_address" => from} = attrs, [true, true]) do
+  #
+  # The last parameter represents the validity of the from / to addresses
+  # as blockchain addresses: {true, true} means they are both valid
+  # blockchain addresses.
+  def create(actor, %{"from_address" => from} = attrs, {true, true}) do
     primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
@@ -73,13 +77,13 @@ defmodule EWallet.BlockchainTransactionGate do
 
   # Error: we can't handle a transaction from hot wallet to something
   # other than a blockchain address
-  def create(_actor, _attrs, [true, false]) do
+  def create(_actor, _attrs, {true, false}) do
     {:error, :invalid_to_address_for_blockchain_transaction}
   end
 
   # Here we're handling a regular transaction getting funds out of an
   # internal wallet to a blockchain address
-  def create(_actor, _attrs, [false, true]) do
+  def create(_actor, _attrs, {false, true}) do
     # TODO: Next PR
     {:error, :not_implemented}
   end

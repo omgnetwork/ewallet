@@ -333,7 +333,7 @@ defmodule EWalletDB.Transaction do
       cast: [:status, :confirmations_count],
       required: [:status, :confirmations_count]
     )
-    |> validate_number(:from_amount, greater_than_or_equal_to: 0)
+    |> validate_number(:confirmations_count, greater_than_or_equal_to: 0)
     |> validate_inclusion(:status, @statuses)
   end
 

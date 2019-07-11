@@ -24,12 +24,14 @@ defmodule EthBlockchain.TransactionListener do
     GenServer.start_link(__MODULE__, attrs)
   end
 
-  def init(%{
-        id: hash,
-        interval: interval,
-        blockchain_adapter_pid: blockchain_adapter_pid,
-        node_adapter: node_adapter
-      }) do
+  def init(
+        %{
+          id: hash,
+          interval: interval,
+          blockchain_adapter_pid: blockchain_adapter_pid,
+          node_adapter: node_adapter
+        } = attrs
+      ) do
     {:ok,
      %{
        timer: nil,
@@ -38,6 +40,7 @@ defmodule EthBlockchain.TransactionListener do
        transaction: nil,
        blockchain_adapter_pid: blockchain_adapter_pid,
        node_adapter: node_adapter,
+       registry: attrs[:registry],
        subscribers: []
      }, {:continue, :start_polling}}
   end
