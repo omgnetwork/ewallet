@@ -113,7 +113,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   defp do_create(conn, %{"blockchain_address" => blockchain_address} = attrs) do
-    with :ok <- BlockchainHelper.is_blockchain_address(blockchain_address),
+    with :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
          atom_map <- Map.new(attrs, fn {k, v} -> {String.to_atom(k), v} end),
          {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, atom_map),
          attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
@@ -195,7 +195,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def get_erc20_capabilities(conn, %{"blockchain_address" => blockchain_address}) do
-    with :ok <- BlockchainHelper.is_blockchain_address(blockchain_address),
+    with :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
          {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, %Token{}),
          {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(blockchain_address) do
       render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
@@ -219,7 +219,7 @@ defmodule AdminAPI.V1.TokenController do
       ) do
     with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
          {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, token),
-         :ok <- BlockchainHelper.is_blockchain_address(blockchain_address),
+         :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
          true <- is_nil(token.blockchain_address) || {:error, :token_already_blockchain_enabled},
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, blockchain_status} <-

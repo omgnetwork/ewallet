@@ -18,10 +18,10 @@ defmodule EWallet.BlockchainHelper do
   """
 
   @doc """
-  Returns true if the given address is a valid blockchain address
-  for the current adapter.
+  Returns :ok if the given address is a valid blockchain address
+  for the current adapter or {:error, :invalid_blockchain_address} otherwise.
   """
-  def is_blockchain_address(address) do
+  def validate_blockchain_address(address) do
     case adapter().helper.is_adapter_address?(address) do
       true -> :ok
       false -> {:error, :invalid_blockchain_address}

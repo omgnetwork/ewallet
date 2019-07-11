@@ -99,7 +99,7 @@ defmodule EWallet.BlockchainTransactionGate do
 
   def blockchain_addresses?(addresses) do
     Enum.map(addresses, fn address ->
-      case BlockchainHelper.is_blockchain_address(address) do
+      case BlockchainHelper.validate_blockchain_address(address) do
         :ok -> true
         _ -> false
       end
