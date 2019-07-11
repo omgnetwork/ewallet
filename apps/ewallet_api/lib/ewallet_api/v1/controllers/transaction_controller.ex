@@ -15,7 +15,7 @@
 defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{TransactionGate, WalletFetcher}
+  alias EWallet.{LocalTransactionGate, WalletFetcher}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TransactionOverlay}
   alias EWalletDB.{Repo, Transaction, User}
 
@@ -103,7 +103,7 @@ defmodule EWalletAPI.V1.TransactionController do
       |> Enum.into(%{})
       |> Map.put("from_user_id", conn.assigns.end_user.id)
       |> Map.put("originator", Originator.extract(conn.assigns))
-      |> TransactionGate.create()
+      |> LocalTransactionGate.create()
 
     case res do
       {:ok, transaction} ->

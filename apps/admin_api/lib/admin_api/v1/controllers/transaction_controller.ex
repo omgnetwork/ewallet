@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias EWallet.{
     AccountPolicy,
     TransactionPolicy,
-    TransactionGate,
+    TransactionDispatcherGate,
     ExportGate,
     AdapterHelper,
     EndUserPolicy,
@@ -157,14 +157,14 @@ defmodule AdminAPI.V1.TransactionController do
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
-    with {:ok, _} <- authorize(:create, conn.assigns, attrs),
-         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, transaction} <- TransactionGate.create(attrs) do
+    with attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, transaction} <- TransactionDispatcherGate.create(conn.assigns, attrs) do
       transaction
       |> Orchestrator.one(TransactionOverlay, attrs)
       |> respond_single(conn)
     else
-      error -> respond_single(error, conn)
+      error ->
+        respond_single(error, conn)
     end
   end
 

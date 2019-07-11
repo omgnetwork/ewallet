@@ -35,7 +35,10 @@ defmodule EthBlockchain.Application do
 
     children = [
       worker(EthBlockchain.Adapter, [adapter_opts]),
-      {DynamicSupervisor, name: EthBlockchain.DynamicSupervisor, strategy: :one_for_one}
+      {DynamicSupervisor, name: EthBlockchain.DynamicSupervisor, strategy: :one_for_one},
+      {DynamicSupervisor, name: EthBlockchain.DynamicListenerSupervisor, strategy: :one_for_one},
+      {EthBlockchain.BlockchainRegistry,
+       name: EthBlockchain.BlockchainRegistry, strategy: :one_for_one}
     ]
 
     # We want to restart DynamicSupervisor when EthBlockchain.Adapter crashes

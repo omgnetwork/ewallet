@@ -23,17 +23,31 @@ defmodule EWalletDB.Transaction do
   import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}
+
+  alias EWalletDB.{
+    Account,
+    BlockchainWallet,
+    ExchangePair,
+    Repo,
+    Token,
+    Transaction,
+    User,
+    Wallet
+  }
 
   @pending "pending"
+  @recorded "recorded"
+  @submitted "submitted"
+  @pending_confirmations "pending_confirmations"
   @confirmed "confirmed"
   @failed "failed"
-  @statuses [@pending, @confirmed, @failed]
+  @statuses [@pending, @recorded, @submitted, @pending_confirmations, @confirmed, @failed]
   def pending, do: @pending
   def confirmed, do: @confirmed
   def failed, do: @failed
 
   @internal "internal"
+  # pull this status from the blockchain app?
   @external "external"
   @types [@internal, @external]
   def internal, do: @internal
@@ -52,6 +66,11 @@ defmodule EWalletDB.Transaction do
     field(:status, :string, default: @pending)
     # internal / external
     field(:type, :string, default: @internal)
+    field(:blockchain_tx_hash, :string)
+    field(:blockchain_identifier, :string)
+    field(:confirmations_count, :integer)
+    field(:to_blockchain_address, :string)
+
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
@@ -64,6 +83,7 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime_usec)
 
     field(:metadata, :map, default: %{})
+    field(:blockchain_metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
@@ -102,6 +122,14 @@ defmodule EWalletDB.Transaction do
       :from_wallet,
       Wallet,
       foreign_key: :from,
+      references: :address,
+      type: :string
+    )
+
+    belongs_to(
+      :from_blockchain_wallet,
+      BlockchainWallet,
+      foreign_key: :from_blockchain_address,
       references: :address,
       type: :string
     )
@@ -226,6 +254,89 @@ defmodule EWalletDB.Transaction do
     |> assoc_constraint(:exchange_account)
   end
 
+  defp blockchain_changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :idempotency_token,
+        :status,
+        :type,
+        :payload,
+        :metadata,
+        :blockchain_metadata,
+        :encrypted_metadata,
+        :from_account_uuid,
+        :to_account_uuid,
+        :from_user_uuid,
+        :to_user_uuid,
+        :from_token_uuid,
+        :to_token_uuid,
+        :from_amount,
+        :to_amount,
+        :exchange_account_uuid,
+        :exchange_wallet_address,
+        :to,
+        :from,
+        :from_blockchain_address,
+        :to_blockchain_address,
+        :blockchain_identifier,
+        :rate,
+        :local_ledger_uuid,
+        :error_code,
+        :error_description,
+        :exchange_pair_uuid,
+        :calculated_at
+      ],
+      required: [
+        :idempotency_token,
+        :status,
+        :type,
+        :payload,
+        :from_amount,
+        :from_token_uuid,
+        :to_amount,
+        :to_token_uuid,
+        :from_blockchain_address,
+        :to_blockchain_address
+      ],
+      encrypted: [:encrypted_metadata, :payload]
+    )
+    |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_from_wallet_identifier()
+    |> validate_inclusion(:status, @statuses)
+    |> validate_inclusion(:type, @types)
+    |> validate_immutable(:idempotency_token)
+    |> unique_constraint(:idempotency_token)
+    |> assoc_constraint(:from_token)
+    |> assoc_constraint(:to_token)
+    |> assoc_constraint(:to_wallet)
+    |> assoc_constraint(:from_wallet)
+    |> assoc_constraint(:exchange_account)
+  end
+
+  def submitted_changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:status, :blockchain_tx_hash],
+      required: [:status, :blockchain_tx_hash]
+    )
+    |> validate_inclusion(:status, @statuses)
+  end
+
+  def confirmations_changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:status, :confirmations_count],
+      required: [:status, :confirmations_count]
+    )
+    |> validate_number(:confirmations_count, greater_than_or_equal_to: 0)
+    |> validate_inclusion(:status, @statuses)
+  end
+
   defp confirm_changeset(%Transaction{} = transaction, attrs) do
     transaction
     |> cast_and_validate_required_for_activity_log(
@@ -312,6 +423,16 @@ defmodule EWalletDB.Transaction do
     end
   end
 
+  def get_or_insert(%{"idempotency_token" => idempotency_token} = attrs) do
+    case get_by_idempotency_token(idempotency_token) do
+      nil ->
+        insert(attrs)
+
+      transaction ->
+        {:ok, transaction}
+    end
+  end
+
   @doc """
   Gets a transaction.
   """
@@ -358,7 +479,15 @@ defmodule EWalletDB.Transaction do
   """
   def insert(attrs) do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
-    changeset = changeset(%Transaction{}, attrs)
+
+    changeset =
+      case attrs["type"] do
+        "external" ->
+          blockchain_changeset(%Transaction{}, attrs)
+
+        _ ->
+          changeset(%Transaction{}, attrs)
+      end
 
     Repo.perform(
       :insert,

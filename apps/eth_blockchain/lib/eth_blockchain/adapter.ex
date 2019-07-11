@@ -32,6 +32,16 @@ defmodule EthBlockchain.Adapter do
   use GenServer
   require Logger
 
+  alias EthBlockchain.{
+    Balance,
+    Helper,
+    Transaction,
+    TransactionListener,
+    BlockchainRegistry
+  }
+
+  def helper, do: Helper
+
   @doc """
   Starts EthBlockchain.Adapter.
   """
@@ -163,6 +173,14 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
 
+  def call({:send, attrs}, adapter, pid) do
+    Transaction.send(attrs, adapter, pid)
+  end
+
+  def call({:get_balances, attrs}, adapter, pid) do
+    Balance.get(attrs, adapter, pid)
+  end
+
   def call(func_spec, nil, pid) do
     adapter =
       :eth_blockchain
@@ -182,5 +200,31 @@ defmodule EthBlockchain.Adapter do
       error ->
         error
     end
+  end
+
+  def subscribe(
+        :transaction,
+        tx_hash,
+        subscriber_pid,
+        node_adapter \\ nil,
+        blockchain_adapter_pid \\ nil
+      ) do
+    :ok =
+      BlockchainRegistry.start_listener(TransactionListener, %{
+        id: tx_hash,
+        interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
+        blockchain_adapter_pid: blockchain_adapter_pid,
+        node_adapter: node_adapter
+      })
+
+    BlockchainRegistry.subscribe(tx_hash, subscriber_pid)
+  end
+
+  def unsubscribe(:transaction, tx_hash, subscriber_pid) do
+    BlockchainRegistry.unsubscribe(tx_hash, subscriber_pid)
+  end
+
+  def lookup_listener(id) do
+    BlockchainRegistry.lookup(id)
   end
 end

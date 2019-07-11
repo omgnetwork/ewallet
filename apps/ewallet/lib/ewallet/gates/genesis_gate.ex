@@ -16,7 +16,7 @@ defmodule EWallet.GenesisGate do
   @moduledoc """
   Handle Genesis transactions.
   """
-  alias EWallet.{TransactionFormatter, TransactionGate}
+  alias EWallet.{TransactionFormatter, LocalTransactionGate}
   alias EWalletDB.{Account, Mint, Transaction, Wallet}
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -69,7 +69,7 @@ defmodule EWallet.GenesisGate do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: true})
-    |> TransactionGate.update_transaction(transaction)
+    |> LocalTransactionGate.update_transaction(transaction)
     |> confirm_and_return(mint)
   end
 
