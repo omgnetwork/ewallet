@@ -33,7 +33,7 @@ defmodule EWallet.MintGateTest do
       {res, code, message} = MintGate.mint_token(omg, %{"amount" => 100})
       assert res == :error
       assert code == :invalid_parameter
-      assert message == "Can't mint a blockchain token."
+      assert message == "A blockchain-enabled token cannot be minted."
     end
   end
 
