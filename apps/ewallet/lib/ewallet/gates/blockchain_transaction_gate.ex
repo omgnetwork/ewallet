@@ -49,7 +49,8 @@ defmodule EWallet.BlockchainTransactionGate do
   blockchain addresses.
   """
   def create(actor, %{"from_address" => from} = attrs, {true, true}) do
-    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+    identifier = BlockchainHelper.identifier()
+    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
          true <-
