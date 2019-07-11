@@ -101,20 +101,20 @@ defmodule EWalletDB.BlockchainWallet do
     |> validate_blockchain_identifier(:blockchain_identifer)
   end
 
-  def get_primary_hot_wallet do
+  def get_primary_hot_wallet(identifier) do
     :ewallet_db
     |> Application.get_env(:primary_hot_wallet)
-    |> get("hot")
+    |> get(@hot, identifier)
   end
 
   @doc """
   Retrieves a blockchain wallet using its address.
   """
-  @spec get(String.t(), String.t()) :: %BlockchainWallet{} | nil | no_return()
-  def get(nil, _), do: nil
+  @spec get(String.t(), String.t(), String.t()) :: %BlockchainWallet{} | nil | no_return()
+  def get(nil, _, _), do: nil
 
-  def get(address, type) do
-    get_by(%{address: address, type: type})
+  def get(address, type, blockchain_identifier) do
+    get_by(%{address: address, type: type, blockchain_identifier: blockchain_identifier})
   end
 
   @doc """

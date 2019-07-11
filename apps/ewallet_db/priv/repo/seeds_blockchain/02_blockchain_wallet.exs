@@ -43,7 +43,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   defp insert_wallet(writer) do
     {:ok, {address, public_key}} = Wallet.generate()
     adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-    identifier = adapter.helper.identifier()
+    identifier = adapter.helper().identifier()
     attrs = %{
       address: address,
       public_key: public_key,

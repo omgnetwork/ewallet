@@ -134,9 +134,10 @@ defmodule EWallet.TokenGate do
              field: "totalSupply",
              contract_address: contract_address
            }),
+         identifier = BlockchainHelper.identifier(),
          {:ok, %{^contract_address => balance}} <-
            BlockchainHelper.call(:get_balances, %{
-             address: BlockchainWallet.get_primary_hot_wallet().address,
+             address: BlockchainWallet.get_primary_hot_wallet(identifier).address,
              contract_addresses: [contract_address]
            }),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
