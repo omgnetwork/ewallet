@@ -25,7 +25,7 @@ defmodule EWallet.TransactionRegistry do
   end
 
   @impl true
-  def init(:ok) do
+  def init(_opts) do
     {:ok, %{}}
   end
 

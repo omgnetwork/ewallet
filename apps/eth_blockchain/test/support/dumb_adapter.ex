@@ -23,7 +23,7 @@ defmodule EthBlockchain.DumbAdapter do
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
 
-  def init(:ok) do
+  def init(_opts) do
     {:ok, %{}}
   end
 
