@@ -29,7 +29,7 @@ defmodule EWalletDB.BlockchainValidator do
   defp do_validate_blockchain_address(blockchain_address, field, changeset) do
     adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
 
-    case adapter.helper().is_adapter_address?(blockchain_address) do
+    case adapter.helper().adapter_address?(blockchain_address) do
       true ->
         changeset
 

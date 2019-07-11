@@ -22,7 +22,7 @@ defmodule EWallet.BlockchainHelper do
   for the current adapter or {:error, :invalid_blockchain_address} otherwise.
   """
   def validate_blockchain_address(address) do
-    case adapter().helper().is_adapter_address?(address) do
+    case adapter().helper().adapter_address?(address) do
       true -> :ok
       false -> {:error, :invalid_blockchain_address}
     end
