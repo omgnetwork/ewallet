@@ -22,11 +22,17 @@ defmodule EthBlockchain.Helper do
 
   def identifier, do: "ethereum"
 
+  @doc """
+  Checks if the given address is a valid ethereum address.
+  The address must start with `0x` and be 42 byte long (including the `0x`)
+  Returns `true` if the address is valid or `false` otherwise.
+  """
   def adapter_address?("0x" <> _ = address)
       when is_binary(address) and byte_size(address) == 42,
       do: true
 
   def adapter_address?(_address), do: false
+
   def default_address, do: @token_address
 
   @doc """
