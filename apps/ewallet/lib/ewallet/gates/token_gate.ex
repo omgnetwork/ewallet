@@ -46,6 +46,8 @@ defmodule EWallet.TokenGate do
     end
   end
 
+  # The contract returned a value for the `decimals()` function.
+  # We can check if the internal token decimal mathches this value.
   defp validate_decimals(%{decimals: value}, subunit_to_unit) do
     case value == :math.log10(subunit_to_unit) do
       true -> :ok
@@ -53,14 +55,24 @@ defmodule EWallet.TokenGate do
     end
   end
 
+  # The contract doesn't implement the optional `decimals()` function
+  # It's still potentially an ERC20 contract
   defp validate_decimals(_, _), do: :ok
 
+  # The internal token symbol matches the contract symbol
   defp validate_symbol(%{symbol: value}, value), do: :ok
 
+  # The internal token symbol doesn't matches the contract symbol
   defp validate_symbol(%{symbol: _value}, _diff_value), do: :error
 
+  # The contract doesn't implement the optional `symbol()` function
+  # It's still potentially an ERC20 contract
   defp validate_symbol(_, _), do: :ok
 
+  @doc """
+  Returns the blockchain of the token by checking if the hot wallet balance is positive
+  for this token
+  """
   def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
     Token.blockchain_status_confirmed()
   end

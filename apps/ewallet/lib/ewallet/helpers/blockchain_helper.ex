@@ -50,4 +50,8 @@ defmodule EWallet.BlockchainHelper do
   def adapter do
     Application.get_env(:ewallet_db, :blockchain_adapter)
   end
+
+  def invalid_erc20_contract_address do
+    adapter().dumb_adapter.invalid_erc20_contract_address()
+  end
 end

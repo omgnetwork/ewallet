@@ -123,6 +123,7 @@ defmodule EWalletDB.Token do
       less_than_or_equal_to: 1_000_000_000_000_000_000
     )
     |> validate_immutable(:symbol)
+    |> validate_immutable(:blockchain_address)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
@@ -194,6 +195,7 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:blockchain_address,
       name: :token_blockchain_identifier_blockchain_address_index
     )
+    |> validate_immutable(:blockchain_address)
     |> validate_blockchain()
     |> merge(blockchain_status_changeset(token, attrs))
   end

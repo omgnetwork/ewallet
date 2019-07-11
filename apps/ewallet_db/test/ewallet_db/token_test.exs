@@ -360,5 +360,23 @@ defmodule EWalletDB.TokenTest do
       assert status == :error
       refute changeset.valid?
     end
+
+    test "fails to set a blockchain address to a token with an existing blockchain address" do
+      address_1 = Crypto.fake_eth_address()
+      address_2 = Crypto.fake_eth_address()
+      {:ok, token} = :token |> params_for(%{blockchain_address: address_1}) |> Token.insert()
+      assert token.blockchain_address != nil
+
+      {status, changeset} =
+        Token.set_blockchain_address(token, %{
+          blockchain_address: address_2,
+          blockchain_status: Token.blockchain_status_pending(),
+          blockchain_identifier: "ethereum",
+          originator: %System{}
+        })
+
+      assert status == :error
+      refute changeset.valid?
+    end
   end
 end

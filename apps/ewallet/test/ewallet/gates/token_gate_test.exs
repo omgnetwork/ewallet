@@ -19,10 +19,6 @@ defmodule EWallet.TokenGateTest do
   alias EWalletDB.Token
   alias Utils.Helpers.Crypto
 
-  defp invalid_erc20_contract_address do
-    BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
-  end
-
   describe "get_erc20_capabilities/1" do
     test "successfuly get erc20 attributes for a valid contract address" do
       address = Crypto.fake_eth_address()
@@ -37,7 +33,8 @@ defmodule EWallet.TokenGateTest do
     end
 
     test "returns an `token_not_erc20` error for an invalid contract address" do
-      {res, error} = TokenGate.get_erc20_capabilities(invalid_erc20_contract_address())
+      invalid_address = BlockchainHelper.invalid_erc20_contract_address()
+      {res, error} = TokenGate.get_erc20_capabilities(invalid_address)
 
       assert res == :error
       assert error == :token_not_erc20
@@ -76,8 +73,9 @@ defmodule EWallet.TokenGateTest do
 
     test "returns an error when the token is not a valid erc20" do
       token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+      invalid_address = BlockchainHelper.invalid_erc20_contract_address()
 
-      {res, status} = TokenGate.validate_erc20_readiness(invalid_erc20_contract_address(), token)
+      {res, status} = TokenGate.validate_erc20_readiness(invalid_address, token)
 
       assert res == :error
       assert status == :token_not_erc20
