@@ -137,12 +137,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
     BlockchainHelper.adapter().error_handler.errors()
-    |> Map.merge(ErrorHandler.errors(), fn _k, _shared, current ->
-      current
-    end)
-    |> Map.merge(@errors, fn _k, _shared, current ->
-      current
-    end)
+    |> Map.merge(ErrorHandler.errors())
+    |> Map.merge(@errors)
   end
 
   @doc """

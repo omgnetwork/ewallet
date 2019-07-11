@@ -24,8 +24,8 @@ defmodule EthBlockchain.ErrorHandler do
       description:
         "The provided contract address does not implement the required erc20 functions."
     },
-    unknow_error: %{
-      code: "blockchain:unknow_error",
+    unknown_error: %{
+      code: "blockchain:unknown_error",
       description: "Something went wrong when communicating with the blockchain."
     }
   }
@@ -39,9 +39,7 @@ defmodule EthBlockchain.ErrorHandler do
   def errors(adapter \\ nil, pid \\ nil) do
     {:get_errors}
     |> Adapter.call(adapter, pid)
-    |> Map.merge(@errors, fn _k, _shared, current ->
-      current
-    end)
+    |> Map.merge(@errors)
   end
 
   @doc """
