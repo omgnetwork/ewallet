@@ -33331,6 +33331,9 @@
                             "type": {
                               "type": "string"
                             },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -33345,6 +33348,7 @@
                             "address",
                             "name",
                             "type",
+                            "blockchain_identifier",
                             "created_at",
                             "updated_at"
                           ]
@@ -33355,6 +33359,7 @@
                           "object": "blockchain_wallet",
                           "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                           "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
                           "type": "hot",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z"
@@ -33714,6 +33719,9 @@
                                       "type": {
                                         "type": "string"
                                       },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -33728,6 +33736,7 @@
                                       "address",
                                       "name",
                                       "type",
+                                      "blockchain_identifier",
                                       "created_at",
                                       "updated_at"
                                     ]
@@ -33747,6 +33756,7 @@
                               "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                               "name": "blockchain_wallet_01",
                               "type": "hot",
+                              "blockchain_identifier": "ethereum",
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z"
                             }
@@ -33951,6 +33961,9 @@
                             "type": {
                               "type": "string"
                             },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -33965,6 +33978,7 @@
                             "address",
                             "name",
                             "type",
+                            "blockchain_identifier",
                             "created_at",
                             "updated_at"
                           ]
@@ -33975,6 +33989,7 @@
                           "object": "blockchain_wallet",
                           "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                           "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
                           "type": "hot",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z"
