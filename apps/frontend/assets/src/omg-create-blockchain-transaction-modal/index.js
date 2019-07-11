@@ -4,8 +4,10 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import { BigNumber } from 'bignumber.js'
 
-import { Button, Icon, SelectInput } from '../omg-uikit'
+import { Button, Icon, SelectInput, Input } from '../omg-uikit'
+import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
@@ -53,11 +55,6 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
-const OptionalExplanation = styled.div`
-  margin-top: 10px;
-  font-size: 10px;
-  color: ${props => props.theme.colors.B100};
-`
 const FromToContainer = styled.div`
   h5 {
     letter-spacing: 1px;
@@ -75,6 +72,36 @@ const InnerTransferContainer = styled.div`
 const StyledSelectInput = styled(SelectInput)`
   margin-top: 10px;
   margin-bottom: 20px;
+`
+const StyledInput = styled(Input)`
+  margin-bottom: 20px;
+`
+const Label = styled.div`
+  color: ${props => props.theme.colors.S400};
+`
+const Collapsable = styled.div`
+  background-color: ${props => props.theme.colors.S100};
+  text-align: left;
+  border-radius: 6px;
+  border: 1px solid ${props => props.theme.colors.S400};
+`
+const CollapsableHeader = styled.div`
+  cursor: pointer;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  color: ${props => props.theme.colors.S500};
+  > i {
+    margin-left: auto;
+  }
+`
+const CollapsableContent = styled.div`
+  padding: 40px;
+  border-radius: 6px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `
 const enhance = compose(
   withRouter,
@@ -100,9 +127,12 @@ class CreateBlockchainTransaction extends Component {
     fromTokenAmount: '',
     toTokenAmount: '',
     fromAddress: this.props.fromAddress || '',
-    toAddress: ''
+    toAddress: '',
+    settingsOpen: false
   }
-
+  onClickSetting = e => {
+    this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
+  }
   onChangeInputFromAddress = e => {
     this.setState({
       fromAddress: e.target.value,
@@ -319,8 +349,28 @@ class CreateBlockchainTransaction extends Component {
       </FromToContainer>
     )
   }
+  renderSettingContent () {
+    return (
+      <CollapsableContent>
+        <Label>Gas Limit</Label>
+        <StyledInput
+          onChange={e => this.setState({ gasLimit: e.target.value })}
+          value={this.state.gasLimit}
+          type='number'
+          suffix='Units'
+        />
+        <Label>Gas Price</Label>
+        <StyledInput
+          onChange={e => this.setState({ gasPrice: e.target.value })}
+          value={this.state.gasPrice}
+          type='number'
+          suffix='Gwei'
+          subTitle={this.state.gasPrice ? `${new BigNumber(this.state.gasPrice).dividedBy(1000000000).toFixed()} ETH` : ''}
+        />
+      </CollapsableContent>
+    )
+  }
   renderToSection () {
-    const toWallet = this.props.selectWalletById(this.state.toAddress.trim())
     return (
       <FromToContainer>
         <h5 style={{ marginTop: '20px' }}>To</h5>
@@ -358,50 +408,17 @@ class CreateBlockchainTransaction extends Component {
             )
           }}
         />
-        <div>
-          <OptionalExplanation>
-            The fields below are optional and should only be used if you want to perform an
-            exchange. Leave the amount blank to let the server use the default exchange rate.
-          </OptionalExplanation>
-
-          <StyledSelectInput
-            inputProps={{
-              label: 'Amount',
-              value: this.state.toTokenAmount,
-              onChange: this.onChangeAmount('toToken'),
-              type: 'amount',
-              maxAmountLength: 18,
-              suffix: _.get(this.state.toTokenSelected, 'token.symbol')
-            }}
-            selectProps={{
-              label: 'Token',
-              clearable: true,
-              onSelectItem: this.onSelectTokenSelect('toToken'),
-              onChange: this.onChangeSearchToken('toToken'),
-              value: this.state.toTokenSearchToken,
-              filterByKey: true,
-              valueRenderer: this.state.toTokenSelected
-                ? value => {
-                  const found = _.find(
-                    toWallet.balances,
-                    b => b.token.name.toLowerCase() === value.toLowerCase()
-                  )
-                  return found
-                    ? <TokenSelect balance={found.amount} token={found.token} />
-                    : value
-                }
-                : null,
-              options:
-                toWallet
-                  ? toWallet.balances.map(b => ({
-                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                    value: <TokenSelect balance={b.amount} token={b.token} />,
-                    ...b
-                  }))
-                  : []
-            }}
-          />
-        </div>
+        <Collapsable>
+          <CollapsableHeader onClick={this.onClickSetting}>
+            <span>Settings (Gas limit, Gas price, Data)</span>
+            {this.state.settingsOpen
+              ? <Icon name='Chevron-Up' />
+              : <Icon name='Chevron-Down' />}
+          </CollapsableHeader>
+          <Accordion path='settings' height={300}>
+            {this.state.settingsOpen && this.renderSettingContent()}
+          </Accordion>
+        </Collapsable>
       </FromToContainer>
     )
   }
@@ -413,43 +430,6 @@ class CreateBlockchainTransaction extends Component {
           <h4>Transfer</h4>
           {this.renderFromSection()}
           {this.renderToSection()}
-
-          {this.state.toTokenSelected && (
-            <AllWalletsFetcher
-              query={createSearchAddressQuery(this.state.exchangeAddress)}
-              render={({ data }) => {
-                return (
-                  <StyledSelectInput
-                    selectProps={{
-                      label: 'Exchange Address',
-                      clearable: true,
-                      onSelectItem: this.onSelectExchangeAddressSelect,
-                      value: this.state.exchangeAddress,
-                      onChange: this.onChangeInputExchangeAddress,
-                      valueRenderer: this.state.exchangeAddressSelect
-                        ? value => {
-                          const wallet = _.find(data, i => i.address === value)
-                          return wallet
-                            ? <WalletSelect wallet={wallet} />
-                            : value
-                        }
-                        : null,
-                      options:
-                        data
-                          ? data.map(d => {
-                            return {
-                              key: d.address,
-                              value: <WalletSelect wallet={d} />,
-                              ...d
-                            }
-                          })
-                          : []
-                    }}
-                  />
-                )
-              }}
-            />
-          )}
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
               <span>Transfer</span>
@@ -461,6 +441,7 @@ class CreateBlockchainTransaction extends Component {
     )
   }
 }
+
 const EnhancedCreateBlockchainTransaction = enhance(CreateBlockchainTransaction)
 export default class CreateBlockchainTransactionModal extends Component {
   static propTypes = {
