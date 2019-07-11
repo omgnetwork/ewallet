@@ -108,14 +108,14 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(
       conn,
       :invalid_parameter,
-      "Can't specify both `blockchain_address` and `amount`."
+      "Invalid parameter provided. `blockchain_address` and `amount` cannot be both specified."
     )
   end
 
   defp do_create(conn, %{"blockchain_address" => blockchain_address} = attrs) do
-    with :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
-         atom_map <- Map.new(attrs, fn {k, v} -> {String.to_atom(k), v} end),
-         {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, atom_map),
+    with {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, attrs),
+         :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
+         {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, attrs),
          attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
          attrs <- Map.put(attrs, "blockchain_status", status),
          {:ok, token} <- Token.insert(attrs) do
@@ -196,7 +196,7 @@ defmodule AdminAPI.V1.TokenController do
 
   def get_erc20_capabilities(conn, %{"blockchain_address" => blockchain_address}) do
     with :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
-         {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, %Token{}),
+         {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, nil),
          {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(blockchain_address) do
       render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
     else

@@ -26,6 +26,13 @@ defmodule EWallet.TokenGate do
   The status is "confirmed" if the hot wallet balance is positive, or "pending" otherwise.
   """
   def validate_erc20_readiness(contract_address, %{
+        "symbol" => symbol,
+        "subunit_to_unit" => subunit_to_unit
+      }) do
+    validate_erc20_readiness(contract_address, %{symbol: symbol, subunit_to_unit: subunit_to_unit})
+  end
+
+  def validate_erc20_readiness(contract_address, %{
         symbol: symbol,
         subunit_to_unit: subunit_to_unit
       }) do
