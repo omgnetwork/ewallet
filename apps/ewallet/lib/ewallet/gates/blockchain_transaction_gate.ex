@@ -38,13 +38,15 @@ defmodule EWallet.BlockchainTransactionGate do
   # TODO: Add tests at the controller level
   # TODO: Add tests for failures at the gate level
 
-  # Here, we send a transaction from the hot wallet to
-  # an external blockchain address. This should only be used to manage
-  # the funds repartition between hot and cold wallets.
-  #
-  # The last parameter represents the validity of the from / to addresses
-  # as blockchain addresses: {true, true} means they are both valid
-  # blockchain addresses.
+  @doc """
+  Here, we send a transaction from the hot wallet to
+  an external blockchain address. This should only be used to manage
+  the funds repartition between hot and cold wallets.
+
+  The last parameter represents the validity of the from / to addresses
+  as blockchain addresses: {true, true} means they are both valid
+  blockchain addresses.
+  """
   def create(actor, %{"from_address" => from} = attrs, {true, true}) do
     primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
 
