@@ -18,7 +18,7 @@ import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
 
-const Form = styled.form`
+const Form = styled.div`
   width: 100vw;
   height: 100vh;
   position: relative;
@@ -38,13 +38,27 @@ const Form = styled.form`
     font-size: 14px;
   }
   h4 {
-    text-align: center;
-    margin-bottom: 40px;
     font-size: 18px;
   }
 `
+const Title = styled.div`
+  margin-bottom: 20px;
+`
+const PendingIcon = styled(Icon)`
+  color: white;
+  background-color: orange;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+`
 const ButtonContainer = styled.div`
-  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 `
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
@@ -70,11 +84,13 @@ const InnerTransferContainer = styled.div`
   margin: 0 auto;
 `
 const StyledSelectInput = styled(SelectInput)`
-  margin-top: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `
 const StyledInput = styled(Input)`
   margin-bottom: 20px;
+`
+const PasswordInput = styled(Input)`
+  margin-top: 40px;
 `
 const Label = styled.div`
   color: ${props => props.theme.colors.S400};
@@ -84,6 +100,21 @@ const Collapsable = styled.div`
   text-align: left;
   border-radius: 6px;
   border: 1px solid ${props => props.theme.colors.S400};
+`
+const FeeContainer = styled.div`
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-radius: 6px;
+  i[name='Info'] {
+    color: ${props => props.theme.colors.S400};
+    margin-left: 5px;
+    cursor: pointer;
+  }
+`
+const GrayFeeContainer = styled(FeeContainer)`
+  background-color: ${props => props.theme.colors.S200};
 `
 const CollapsableHeader = styled.div`
   cursor: pointer;
@@ -102,6 +133,20 @@ const CollapsableContent = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+`
+const Links = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  color: ${props => props.theme.colors.B100};
+  span {
+    margin-top: 5px;
+    cursor: pointer;
+  }
+  i[name='Arrow-Right'] {
+    margin-left: 5px;
+  }
 `
 const enhance = compose(
   withRouter,
@@ -128,7 +173,10 @@ class CreateBlockchainTransaction extends Component {
     toTokenAmount: '',
     fromAddress: this.props.fromAddress || '',
     toAddress: '',
-    settingsOpen: false
+    settingsOpen: false,
+    transactionFee: 0,
+    amountToSend: 0,
+    step: 1
   }
   onClickSetting = e => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
@@ -308,44 +356,45 @@ class CreateBlockchainTransaction extends Component {
             )
           }}
         />
-
-        <StyledSelectInput
-          inputProps={{
-            label: 'Amount to send',
-            value: this.state.fromTokenAmount,
-            onChange: this.onChangeAmount('fromToken'),
-            type: 'amount',
-            maxAmountLength: 18,
-            suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
-          }}
-          selectProps={{
-            label: 'Token',
-            clearable: true,
-            onSelectItem: this.onSelectTokenSelect('fromToken'),
-            onChange: this.onChangeSearchToken('fromToken'),
-            value: this.state.fromTokenSearchToken,
-            filterByKey: true,
-            valueRenderer: this.state.fromTokenSelected
-              ? value => {
-                const found = _.find(
-                  fromWallet.balances,
-                  b => b.token.name.toLowerCase() === value.toLowerCase()
-                )
-                return found
-                  ? <TokenSelect balance={found.amount} token={found.token} />
-                  : value
-              }
-              : null,
-            options:
-              fromWallet
-                ? fromWallet.balances.map(b => ({
-                  key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                  value: <TokenSelect balance={b.amount} token={b.token} />,
-                  ...b
-                }))
-                : []
-          }}
-        />
+        {this.state.step === 1 && (
+          <StyledSelectInput
+            inputProps={{
+              label: 'Amount to send',
+              value: this.state.fromTokenAmount,
+              onChange: this.onChangeAmount('fromToken'),
+              type: 'amount',
+              maxAmountLength: 18,
+              suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+            }}
+            selectProps={{
+              label: 'Token',
+              clearable: true,
+              onSelectItem: this.onSelectTokenSelect('fromToken'),
+              onChange: this.onChangeSearchToken('fromToken'),
+              value: this.state.fromTokenSearchToken,
+              filterByKey: true,
+              valueRenderer: this.state.fromTokenSelected
+                ? value => {
+                  const found = _.find(
+                    fromWallet.balances,
+                    b => b.token.name.toLowerCase() === value.toLowerCase()
+                  )
+                  return found
+                    ? <TokenSelect balance={found.amount} token={found.token} />
+                    : value
+                }
+                : null,
+              options:
+                fromWallet
+                  ? fromWallet.balances.map(b => ({
+                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                    value: <TokenSelect balance={b.amount} token={b.token} />,
+                    ...b
+                  }))
+                  : []
+            }}
+          />
+        )}
       </FromToContainer>
     )
   }
@@ -367,13 +416,19 @@ class CreateBlockchainTransaction extends Component {
           suffix='Gwei'
           subTitle={this.state.gasPrice ? `${new BigNumber(this.state.gasPrice).dividedBy(1000000000).toFixed()} ETH` : ''}
         />
+        <Label>Data</Label>
+        <StyledInput
+          onChange={e => this.setState({ metaData: e.target.value })}
+          value={this.state.metaData}
+          subTitle='Optional'
+        />
       </CollapsableContent>
     )
   }
   renderToSection () {
     return (
       <FromToContainer>
-        <h5 style={{ marginTop: '20px' }}>To</h5>
+        <h5>To</h5>
         <AllWalletsFetcher
           query={createSearchAddressQuery(this.state.toAddress)}
           render={({ data }) => {
@@ -408,33 +463,97 @@ class CreateBlockchainTransaction extends Component {
             )
           }}
         />
-        <Collapsable>
-          <CollapsableHeader onClick={this.onClickSetting}>
-            <span>Settings (Gas limit, Gas price, Data)</span>
-            {this.state.settingsOpen
-              ? <Icon name='Chevron-Up' />
-              : <Icon name='Chevron-Down' />}
-          </CollapsableHeader>
-          <Accordion path='settings' height={300}>
-            {this.state.settingsOpen && this.renderSettingContent()}
-          </Accordion>
-        </Collapsable>
+        {this.state.step === 1 && (
+          <Collapsable>
+            <CollapsableHeader onClick={this.onClickSetting}>
+              <span>Settings (Gas limit, Gas price, Data)</span>
+              {this.state.settingsOpen
+                ? <Icon name='Chevron-Up' />
+                : <Icon name='Chevron-Down' />}
+            </CollapsableHeader>
+            <Accordion path='settings' height={330}>
+              {this.state.settingsOpen && this.renderSettingContent()}
+            </Accordion>
+          </Collapsable>
+        )}
+        {this.state.step !== 1 && (
+          <GrayFeeContainer>
+            <span>Amount to send</span>
+            <span>{this.state.fromTokenAmount} {_.get(this.state.fromTokenSelected, 'token.symbol')}</span>
+          </GrayFeeContainer>
+        )}
+        <FeeContainer>
+          <span>Transaction fee <Icon name='Info' /></span>
+          <span>{this.state.transactionFee} ETH</span>
+        </FeeContainer>
       </FromToContainer>
+    )
+  }
+  renderTitle () {
+    return (
+      <Title>
+        {this.state.step === 1 && <h4>Transfer</h4>}
+        {this.state.step === 2 && <h4>Confirm your Transaction</h4>}
+        {this.state.step === 3 && (
+          <>
+            <PendingIcon name='Option-Horizontal' />
+            <h4>Pending transaction</h4>
+            <div>The transaction is waiting to be included in the block.</div>
+          </>
+        )}
+      </Title>
+    )
+  }
+  renderActions () {
+    return (
+      <>
+        {this.state.step === 1 && (
+          <ButtonContainer>
+            <Button size='small' onClick={() => this.setState({ step: 2 })}>
+              <span>Transfer</span>
+            </Button>
+          </ButtonContainer>
+        )}
+        {this.state.step === 2 && (
+          <>
+            <PasswordInput
+              placeholder='Enter password to confirm'
+              onChange={e => this.setState({ password: e.target.value })}
+              value={this.state.password}
+            />
+            <ButtonContainer>
+              <Button size='small' onClick={() => this.setState({ step: 3 })}>
+                <span>Submit Transaction</span>
+              </Button>
+              <Button size='small' styleType='secondary' onClick={() => this.setState({ step: 1 })}>
+                <span>Back to Edit</span>
+              </Button>
+            </ButtonContainer>
+          </>
+        )}
+        {this.state.step === 3 && (
+          <ButtonContainer>
+            <Button size='small' styleType='secondary' onClick={this.props.onRequestClose}>
+              <span>Back to Hot Wallet</span>
+            </Button>
+            <Links>
+              <span>View Transaction <Icon name='Arrow-Right' /></span>
+              <span>Track on Etherscan <Icon name='Arrow-Right' /></span>
+            </Links>
+          </ButtonContainer>
+        )}
+      </>
     )
   }
   render () {
     return (
-      <Form onSubmit={this.onSubmit} noValidate>
+      <Form>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerTransferContainer>
-          <h4>Transfer</h4>
+          {this.renderTitle()}
           {this.renderFromSection()}
           {this.renderToSection()}
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              <span>Transfer</span>
-            </Button>
-          </ButtonContainer>
+          {this.renderActions()}
           <Error error={this.state.error}>{this.state.error}</Error>
         </InnerTransferContainer>
       </Form>
