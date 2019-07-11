@@ -37,13 +37,13 @@ defmodule EWalletDB.BlockchainWalletTest do
     test "insert successfuly when type is valid" do
       {res_1, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "hot", blockchain_identifier: "ethereum"})
-        |> BlockchainWallet.insert_hot()
+        |> params_for(%{type: BlockchainWallet.type_hot(), blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert()
 
       {res_2, _wallet} =
         :blockchain_wallet
-        |> params_for(%{type: "cold", blockchain_identifier: "ethereum"})
-        |> BlockchainWallet.insert_hot()
+        |> params_for(%{type: BlockchainWallet.type_cold(), blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert()
 
       assert res_1 == :ok
       assert res_2 == :ok
@@ -53,7 +53,47 @@ defmodule EWalletDB.BlockchainWalletTest do
       {res, _wallet} =
         :blockchain_wallet
         |> params_for(%{type: "invalid_type", blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert()
+
+      assert res == :error
+    end
+  end
+
+  describe "insert_hot/1" do
+    test "insert successfuly when type is valid" do
+      {res, _wallet} =
+        :blockchain_wallet
+        |> params_for(%{type: BlockchainWallet.type_hot(), blockchain_identifier: "ethereum"})
         |> BlockchainWallet.insert_hot()
+
+      assert res == :ok
+    end
+
+    test "fails to insert when type is invalid" do
+      {res, _wallet} =
+        :blockchain_wallet
+        |> params_for(%{type: BlockchainWallet.type_cold(), blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_hot()
+
+      assert res == :error
+    end
+  end
+
+  describe "insert_cold/1" do
+    test "insert successfuly when type is valid" do
+      {res, _wallet} =
+        :blockchain_wallet
+        |> params_for(%{type: BlockchainWallet.type_cold(), blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_cold()
+
+      assert res == :ok
+    end
+
+    test "fails to insert when type is invalid" do
+      {res, _wallet} =
+        :blockchain_wallet
+        |> params_for(%{type: BlockchainWallet.type_hot(), blockchain_identifier: "ethereum"})
+        |> BlockchainWallet.insert_cold()
 
       assert res == :error
     end

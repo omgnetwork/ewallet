@@ -28,6 +28,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializerTest do
         address: wallet.address,
         name: wallet.name,
         type: wallet.type,
+        blockchain_identifier: wallet.blockchain_identifier,
         created_at: DateFormatter.to_iso8601(wallet.inserted_at),
         updated_at: DateFormatter.to_iso8601(wallet.updated_at)
       }
@@ -57,6 +58,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializerTest do
             address: wallet_1.address,
             name: wallet_1.name,
             type: wallet_1.type,
+            blockchain_identifier: wallet_1.blockchain_identifier,
             created_at: DateFormatter.to_iso8601(wallet_1.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_1.updated_at)
           },
@@ -65,6 +67,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializerTest do
             address: wallet_2.address,
             name: wallet_2.name,
             type: wallet_2.type,
+            blockchain_identifier: wallet_2.blockchain_identifier,
             created_at: DateFormatter.to_iso8601(wallet_2.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_2.updated_at)
           }
@@ -94,6 +97,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializerTest do
             address: wallet_1.address,
             name: wallet_1.name,
             type: wallet_1.type,
+            blockchain_identifier: wallet_1.blockchain_identifier,
             created_at: DateFormatter.to_iso8601(wallet_1.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_1.updated_at)
           },
@@ -102,6 +106,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializerTest do
             address: wallet_2.address,
             name: wallet_2.name,
             type: wallet_2.type,
+            blockchain_identifier: wallet_2.blockchain_identifier,
             created_at: DateFormatter.to_iso8601(wallet_2.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_2.updated_at)
           }

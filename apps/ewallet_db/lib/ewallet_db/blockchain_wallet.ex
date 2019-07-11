@@ -83,10 +83,10 @@ defmodule EWalletDB.BlockchainWallet do
       cast: [:public_key],
       required: [:public_key]
     )
+    |> merge(shared)
     |> validate_immutable(:public_key)
     |> validate_inclusion(:type, [@hot])
     |> validate_length(:public_key, count: :bytes, max: 255)
-    |> merge(shared)
   end
 
   defp insert_cold_changeset(%BlockchainWallet{} = wallet, attrs) do
