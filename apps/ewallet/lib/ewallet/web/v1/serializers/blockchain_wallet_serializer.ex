@@ -43,6 +43,7 @@ defmodule EWallet.Web.V1.BlockchainWalletSerializer do
       address: wallet.address,
       name: wallet.name,
       type: wallet.type,
+      blockchain_identifier: wallet.blockchain_identifier,
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }

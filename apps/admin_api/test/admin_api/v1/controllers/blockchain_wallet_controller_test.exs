@@ -15,8 +15,49 @@
 defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
-  alias Utils.Helpers.DateFormatter
+  alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{BlockchainWallet, Repo}
+
+  describe "/blockchain_wallet.create" do
+    test_with_auths "inserts a cold wallet with the given attributes" do
+      address = Crypto.fake_eth_address()
+
+      response =
+        request("/blockchain_wallet.create", %{
+          name: "Primary cold wallet",
+          type: "cold",
+          address: address
+        })
+
+      assert response["success"]
+
+      assert response["data"]["type"] == "cold"
+      assert response["data"]["name"] == "Primary cold wallet"
+      assert response["data"]["address"] == address
+    end
+
+    test_with_auths "fails to insert a wallet with an invalid type" do
+      response =
+        request("/blockchain_wallet.create", %{
+          name: "Primary cold wallet",
+          type: "hot",
+          address: Crypto.fake_eth_address()
+        })
+
+      refute response["success"]
+    end
+
+    test_with_auths "fails to insert a wallet with an invalid address" do
+      response =
+        request("/blockchain_wallet.create", %{
+          name: "Primary cold wallet",
+          type: "hot",
+          address: "123"
+        })
+
+      refute response["success"]
+    end
+  end
 
   describe "/blockchain_wallet.get" do
     test_with_auths "returns a wallet when given an existing blockchain wallet address" do
@@ -36,6 +77,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                  "name" => blockchain_wallet.name,
                  "type" => blockchain_wallet.type,
                  "object" => "blockchain_wallet",
+                 "blockchain_identifier" => blockchain_wallet.blockchain_identifier,
                  "created_at" => DateFormatter.to_iso8601(blockchain_wallet.inserted_at),
                  "updated_at" => DateFormatter.to_iso8601(blockchain_wallet.updated_at)
                }
@@ -100,6 +142,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "name" => blockchain_wallet_1.name,
                      "type" => blockchain_wallet_1.type,
                      "object" => "blockchain_wallet",
+                     "blockchain_identifier" => blockchain_wallet_1.blockchain_identifier,
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_1.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_1.updated_at)
                    },
@@ -108,6 +151,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "name" => blockchain_wallet_2.name,
                      "type" => blockchain_wallet_2.type,
                      "object" => "blockchain_wallet",
+                     "blockchain_identifier" => blockchain_wallet_2.blockchain_identifier,
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
                    }
@@ -151,6 +195,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
                      "name" => blockchain_wallet_2.name,
                      "type" => blockchain_wallet_2.type,
                      "object" => "blockchain_wallet",
+                     "blockchain_identifier" => blockchain_wallet_2.blockchain_identifier,
                      "created_at" => DateFormatter.to_iso8601(blockchain_wallet_2.inserted_at),
                      "updated_at" => DateFormatter.to_iso8601(blockchain_wallet_2.updated_at)
                    }
