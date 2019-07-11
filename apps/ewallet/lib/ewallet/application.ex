@@ -33,8 +33,7 @@ defmodule EWallet.Application do
     })
 
     address_tracker_attrs = %{
-      blockchain: EWallet.BlockchainHelper.adapter.helper.identifier,
-      interval: 50
+      blockchain: EWallet.BlockchainHelper.adapter().helper.identifier
     }
 
     # List all child processes to be supervised
@@ -42,7 +41,9 @@ defmodule EWallet.Application do
       worker(EWallet.Scheduler, []),
       {DynamicSupervisor, name: EWallet.DynamicListenerSupervisor, strategy: :one_for_one},
       {EWallet.TransactionRegistry, name: EWallet.TransactionRegistry, strategy: :one_for_one},
-      supervisor(EWallet.AddressTracker, [[attrs: address_tracker_attrs]], name: EWallet.AddressTracker)
+      supervisor(EWallet.AddressTracker, [[attrs: address_tracker_attrs]],
+        name: EWallet.AddressTracker
+      )
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

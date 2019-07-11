@@ -33,6 +33,9 @@ defmodule EthBlockchain.Block do
         pid \\ nil
       ) do
     case get(blk_number, adapter, pid) do
+      {:ok, nil} ->
+        {:error, :block_not_found}
+
       {:ok, block} ->
         parse(block, attrs)
 
