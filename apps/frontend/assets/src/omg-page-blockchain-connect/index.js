@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 
 import { Button } from '../omg-uikit'
+import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import {
   selectMetamaskEnabled,
@@ -44,7 +45,16 @@ function BlockchainConnect () {
 
   const connectedStep = (
     <ConnectedStepContainer>
-      <TopNavigation title={selectedAddress} searchBar={false} />
+      <TopNavigation
+        title={selectedAddress}
+        searchBar={false}
+        buttons={[
+          <CreateBlockchainTransactionButton
+            fromAddress={selectedAddress}
+            key='create-blockchain-button'
+          />
+        ]}
+      />
       <h3>ACCOUNT BALANCE: {balance} ETH</h3>
     </ConnectedStepContainer>
   )
