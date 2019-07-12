@@ -78,7 +78,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
-      <AuthenticatedRoute path='/blockchain' exact component={BlockchainPage} />
+      <AuthenticatedRoute path='/ethereum' exact component={BlockchainPage} />
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />
     </Switch>

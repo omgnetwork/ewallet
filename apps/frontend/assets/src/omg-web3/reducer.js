@@ -11,14 +11,23 @@ export const metamaskReducer = createReducer(
     },
     'METAMASK/UPDATE_SETTINGS': (
       state,
-      { data: { isUnlocked, isEnabled, networkVersion, onboardingcomplete } }
+      {
+        data: {
+          isUnlocked,
+          isEnabled,
+          networkVersion,
+          onboardingcomplete,
+          selectedAddress
+        }
+      }
     ) => {
       return {
         ...state,
         enabled: isEnabled,
         unlocked: isUnlocked,
         networkVersion,
-        onboardingcomplete
+        onboardingcomplete,
+        selectedAddress
       }
     }
   }

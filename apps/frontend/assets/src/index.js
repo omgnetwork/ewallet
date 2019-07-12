@@ -47,10 +47,7 @@ async function bootAdminPanelApp () {
         currentUser,
         recentAccounts: toInjectRecentAccount,
         accounts,
-        session: { authenticated: true },
-        modals: {
-          blockchainDepositModal: { open: true, id: 'blockchainDepositModal' }
-        }
+        session: { authenticated: true }
       },
       { socket },
       [tokenExpireMiddleware]
@@ -76,11 +73,13 @@ async function bootAdminPanelApp () {
 
   // CHECK METAMASK EXISTANCE
   const { ethereum } = window
+
   if (ethereum) {
+    window.web3 = new Web3(ethereum)
     store.dispatch(setMetamaskSettings(ethereum.publicConfigStore._state))
-    ethereum.publicConfigStore.on('update', metamaskSettings =>
+    ethereum.publicConfigStore.on('update', metamaskSettings => {
       store.dispatch(setMetamaskSettings(metamaskSettings))
-    )
+    })
   }
 
   // HANDLE WEBSOCKET MESSAGES
