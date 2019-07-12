@@ -200,11 +200,6 @@ class CreateBlockchainTransaction extends Component {
       toTokenSearchToken: ''
     })
   }
-  onChangeInputExchangeAddress = e => {
-    this.setState({
-      exchangeAddress: e.target.value
-    })
-  }
   onChangeAmount = type => e => {
     this.setState({ [`${type}Amount`]: e.target.value })
   }
@@ -250,19 +245,6 @@ class CreateBlockchainTransaction extends Component {
         fromAddressSelect: false,
         fromTokenSelected: null,
         fromTokenSearchToken: ''
-      })
-    }
-  }
-  onSelectExchangeAddressSelect = item => {
-    if (item) {
-      this.setState({
-        exchangeAddress: item.key,
-        exchangeAddressSelect: true
-      })
-    } else {
-      this.setState({
-        exchangeAddress: '',
-        exchangeAddressSelect: false
       })
     }
   }
