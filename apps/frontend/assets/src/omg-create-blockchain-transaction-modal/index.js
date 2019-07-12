@@ -472,7 +472,7 @@ class CreateBlockchainTransaction extends Component {
           </GrayFeeContainer>
         )}
         <FeeContainer>
-          <span>Transaction fee <Icon name='Info' /></span>
+          <span>Transaction fee</span>
           <span>{this.state.transactionFee} ETH</span>
         </FeeContainer>
       </FromToContainer>
