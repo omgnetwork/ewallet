@@ -18,9 +18,12 @@ defmodule Keychain.Wallet do
   alias Keychain.Key
   alias ExthCrypto.ECIES.ECDH
   alias ExthCrypto.Hash.Keccak
+  alias Ecto.UUID
 
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
+
+  @pub_root_derivation_path "M/44'/60'/0'/0'"
 
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
@@ -39,8 +42,41 @@ defmodule Keychain.Wallet do
 
     public_key_encoded = Base.encode16(public_key, case: :lower)
     private_key_encoded = Base.encode16(private_key, case: :lower)
+    IO.inspect(private_key_encoded)
+    {:ok, _} = Key.insert(%{
+      wallet_id: wallet_address,
+      public_key: public_key_encoded,
+      encrypted_private_key: private_key_encoded
+    })
 
-    {:ok, _} = Key.insert_private_key(wallet_address, private_key_encoded)
     {:ok, {wallet_address, public_key_encoded}}
+  end
+
+  @spec generate_hd :: {:ok, <<_::288>>}
+  def generate_hd do
+    %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
+    public_key = BlockKeys.CKD.derive(root_key, @pub_root_derivation_path)
+    wallet_address = BlockKeys.Ethereum.Address.from_xpub(public_key)
+    uuid = UUID.generate()
+
+    {:ok, _} = Key.insert(%{
+      wallet_id: wallet_address,
+      public_key: public_key,
+      encrypted_private_key: root_key,
+      uuid: uuid
+    })
+
+    {:ok, uuid}
+  end
+
+  @spec generate_child_account(any, any, any) :: <<_::16, _::_*8>> | {:error, :key_not_found}
+  def generate_child_account(uuid, account_ref, deposit_ref) do
+    case Key.public_key_for_uuid(uuid) do
+      nil ->
+        {:error, :invalid_uuid}
+      public_key ->
+        path = "M/#{account_ref}/#{deposit_ref}"
+        BlockKeys.Ethereum.address(public_key, path)
+    end
   end
 end

@@ -19,12 +19,16 @@ defmodule Keychain.Key do
   use Ecto.Schema
   alias Keychain.{Repo, Key}
   import Ecto.{Changeset, Query}
+  alias Ecto.UUID
 
   @primary_key {:wallet_id, :string, []}
   @timestamps_opts [type: :naive_datetime_usec]
 
   schema "keychain" do
     field(:encrypted_private_key, Keychain.Encrypted.Binary)
+    field(:public_key, :string)
+    field(:uuid, UUID)
+
     timestamps()
   end
 
@@ -33,9 +37,10 @@ defmodule Keychain.Key do
   """
   def changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:wallet_id, :encrypted_private_key])
-    |> validate_required([:wallet_id, :encrypted_private_key])
+    |> cast(attrs, [:wallet_id, :encrypted_private_key, :public_key, :uuid])
+    |> validate_required([:wallet_id, :encrypted_private_key, :public_key])
     |> unique_constraint(:wallet_id)
+    |> unique_constraint(:uuid)
   end
 
   @doc """
@@ -48,12 +53,26 @@ defmodule Keychain.Key do
     |> Repo.one()
   end
 
+  def private_key_for_uuid(uuid) do
+    Key
+    |> select([k], k.encrypted_private_key)
+    |> where([k], k.uuid == ^uuid)
+    |> Repo.one()
+  end
+
+  def public_key_for_uuid(uuid) do
+    Key
+    |> select([k], k.public_key)
+    |> where([k], k.uuid == ^uuid)
+    |> Repo.one()
+  end
+
   @doc """
   Create a new keychain with the passed attributes.
   """
-  def insert_private_key(wallet_id, private_key) do
+  def insert(attrs) do
     %Key{}
-    |> changeset(%{wallet_id: wallet_id, encrypted_private_key: private_key})
+    |> changeset(attrs)
     |> Repo.insert()
   end
 end
