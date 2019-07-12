@@ -122,6 +122,22 @@ defmodule AdminAPI.V1.WalletController do
     do:
       handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
 
+  def generate_deposit_address(conn, %{"address" => address} = attrs) do
+    with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:generate_deposit_address, conn.assigns, wallet),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, updated} <- Wallet.generate_deposit_address(wallet) do
+      respond_single(updated, conn, attrs)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def generate_deposit_address(conn, _),
+    do:
+      handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+
+
   defp add_balances_if_allowed({:error, code, description}, _), do: {:error, code, description}
 
   defp add_balances_if_allowed(%Paginator{} = paginator, conn) do
