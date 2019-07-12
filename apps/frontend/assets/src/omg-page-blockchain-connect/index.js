@@ -46,7 +46,7 @@ function BlockchainConnect () {
   const connectedStep = (
     <ConnectedStepContainer>
       <TopNavigation
-        title={selectedAddress}
+        title={'Ethereum Connect'}
         searchBar={false}
         buttons={[
           <CreateBlockchainTransactionButton
@@ -55,7 +55,14 @@ function BlockchainConnect () {
           />
         ]}
       />
-      <h3>ACCOUNT BALANCE: {balance} ETH</h3>
+      <div>
+        <h4>Address</h4>
+        <span>{selectedAddress}</span>
+      </div>
+      <div>
+        <h4>Account Balance</h4>
+        <span> {balance} ETH</span>
+      </div>
     </ConnectedStepContainer>
   )
   const selectStep = (
