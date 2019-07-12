@@ -142,7 +142,7 @@ class BlockchainTokensPage extends Component {
           </ActionButtons>
         </TopRow>
         <AdvancedFilter
-          title='Filter Blockchain Tokens'
+          title='Filter Tokens'
           page='blockchain-tokens'
           open={this.state.advancedFilterModalOpen}
           onRequestClose={() => this.setState({ advancedFilterModalOpen: false })}

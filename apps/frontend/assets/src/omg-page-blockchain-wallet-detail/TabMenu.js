@@ -27,19 +27,11 @@ const TabMenu = ({ location }) => {
 
   return (
     <KeyTopBar>
-      <Link to='blockchain_tokens'>
+      <Link to='tokens'>
         <Tag
-          title='Blockchain Tokens'
+          title='Tokens'
           icon='Token'
-          active={activeTab === 'blockchain_tokens'}
-          hoverStyle
-        />
-      </Link>
-      <Link to='internal_tokens'>
-        <Tag
-          title='Internal Tokens'
-          icon='Token'
-          active={activeTab === 'internal_tokens'}
+          active={activeTab === 'tokens'}
           hoverStyle
         />
       </Link>

@@ -46,7 +46,7 @@ const BlockchainWalletsPage = ({ match, history }) => {
   ]
 
   const onClickRow = (data, index) => e => {
-    history.push(`${match.path}/${data.address}/blockchain_tokens`)
+    history.push(`${match.path}/${data.address}/tokens`)
   }
 
   return (

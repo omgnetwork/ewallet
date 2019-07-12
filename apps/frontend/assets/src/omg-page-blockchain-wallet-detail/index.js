@@ -8,7 +8,6 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import BlockchainSettingsPage from './BlockchainSettingsPage'
 import BlockchainTransactionsPage from './BlockchainTransactionsPage'
 import BlockchainTokensPage from './BlockchainTokensPage'
-import InternalTokensPage from './InternalTokensPage'
 
 const BlockchainWalletDetailPage = ({ match, ...rest }) => {
   return (
@@ -27,11 +26,10 @@ const BlockchainWalletDetailPage = ({ match, ...rest }) => {
         ]}
       />
       <Switch>
-        <Route exact path={`${match.path}/blockchain_tokens`} component={BlockchainTokensPage} />
-        <Route exact path={`${match.path}/internal_tokens`}component={InternalTokensPage} />
+        <Route exact path={`${match.path}/tokens`} component={BlockchainTokensPage} />
         <Route exact path={`${match.path}/blockchain_transactions`} component={BlockchainTransactionsPage} />
         <Route exact path={`${match.path}/blockchain_settings`} component={BlockchainSettingsPage} />
-        <Redirect to={`${match.path}/blockchain_tokens`} />
+        <Redirect to={`${match.path}/tokens`} />
       </Switch>
     </div>
   )
