@@ -100,6 +100,7 @@ const Collapsable = styled.div`
   text-align: left;
   border-radius: 6px;
   border: 1px solid ${props => props.theme.colors.S400};
+  margin-top: 20px;
 `
 const FeeContainer = styled.div`
   padding: 10px;
@@ -176,7 +177,11 @@ class CreateBlockchainTransaction extends Component {
     settingsOpen: false,
     transactionFee: 0,
     amountToSend: 0,
-    step: 1
+    step: 1,
+    gasLimit: '',
+    gasPrice: '',
+    metaData: '',
+    password: ''
   }
   onClickSetting = e => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
@@ -357,43 +362,45 @@ class CreateBlockchainTransaction extends Component {
           }}
         />
         {this.state.step === 1 && (
-          <StyledSelectInput
-            inputProps={{
-              label: 'Amount to send',
-              value: this.state.fromTokenAmount,
-              onChange: this.onChangeAmount('fromToken'),
-              type: 'amount',
-              maxAmountLength: 18,
-              suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
-            }}
-            selectProps={{
-              label: 'Token',
-              clearable: true,
-              onSelectItem: this.onSelectTokenSelect('fromToken'),
-              onChange: this.onChangeSearchToken('fromToken'),
-              value: this.state.fromTokenSearchToken,
-              filterByKey: true,
-              valueRenderer: this.state.fromTokenSelected
-                ? value => {
-                  const found = _.find(
-                    fromWallet.balances,
-                    b => b.token.name.toLowerCase() === value.toLowerCase()
-                  )
-                  return found
-                    ? <TokenSelect balance={found.amount} token={found.token} />
-                    : value
-                }
-                : null,
-              options:
-                fromWallet
-                  ? fromWallet.balances.map(b => ({
-                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                    value: <TokenSelect balance={b.amount} token={b.token} />,
-                    ...b
-                  }))
-                  : []
-            }}
-          />
+          <div style={{ marginBottom: '40px' }}>
+            <StyledSelectInput
+              inputProps={{
+                label: 'Amount to send',
+                value: this.state.fromTokenAmount,
+                onChange: this.onChangeAmount('fromToken'),
+                type: 'amount',
+                maxAmountLength: 18,
+                suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+              }}
+              selectProps={{
+                label: 'Token',
+                clearable: true,
+                onSelectItem: this.onSelectTokenSelect('fromToken'),
+                onChange: this.onChangeSearchToken('fromToken'),
+                value: this.state.fromTokenSearchToken,
+                filterByKey: true,
+                valueRenderer: this.state.fromTokenSelected
+                  ? value => {
+                    const found = _.find(
+                      fromWallet.balances,
+                      b => b.token.name.toLowerCase() === value.toLowerCase()
+                    )
+                    return found
+                      ? <TokenSelect balance={found.amount} token={found.token} />
+                      : value
+                  }
+                  : null,
+                options:
+                  fromWallet
+                    ? fromWallet.balances.map(b => ({
+                      key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                      value: <TokenSelect balance={b.amount} token={b.token} />,
+                      ...b
+                    }))
+                    : []
+              }}
+            />
+          </div>
         )}
       </FromToContainer>
     )
@@ -518,6 +525,7 @@ class CreateBlockchainTransaction extends Component {
           <>
             <PasswordInput
               placeholder='Enter password to confirm'
+              type='password'
               onChange={e => this.setState({ password: e.target.value })}
               value={this.state.password}
             />
