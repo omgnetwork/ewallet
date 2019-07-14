@@ -30,6 +30,9 @@ const RowInfo = styled.div`
 
 const ConnectedStepContainer = styled.div``
 
+const AccountBlanaceTitle = styled.h4`
+  display: inline-block;
+`
 function BlockchainConnect () {
   const dispatch = useDispatch()
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
@@ -70,7 +73,10 @@ function BlockchainConnect () {
         <span> {_.upperFirst(networkType)}</span>
       </RowInfo>
       <RowInfo>
-        <h4>Account Balance</h4>
+        <div>
+          <AccountBlanaceTitle>Account Balance</AccountBlanaceTitle>{' '}
+          <a>add custom token</a>
+        </div>
         <span> {balance} ETH</span>
       </RowInfo>
     </ConnectedStepContainer>
