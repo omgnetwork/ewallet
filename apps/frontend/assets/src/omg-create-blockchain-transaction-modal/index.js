@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { BigNumber } from 'bignumber.js'
 import web3Utils from 'web3-utils'
 import { blockchainTokens } from './blockchainTokens'
 import { Button, Icon } from '../omg-uikit'
@@ -18,6 +17,7 @@ import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
 import { selectBlockchainBalanceByAddress } from '../omg-web3/selector'
+import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
 import {
   Form,
   Title,
@@ -70,11 +70,28 @@ class CreateBlockchainTransaction extends Component {
     transactionFee: 0,
     amountToSend: 0,
     step: 1,
-    gasLimit: '',
+    gasLimit: 21000,
     gasPrice: '',
     metaData: '',
     password: ''
   }
+  async componentDidMount () {
+    const { web3 } = window
+    if (web3 && web3Utils.isAddress(this.state.toAddress)) {
+      const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
+      this.setState({ gasPrice: weiToGwei(gasPrice) })
+    }
+  }
+
+  async componentDidUpdate (prevProps, prevState) {
+    const { toAddress } = this.state
+    const { web3 } = window
+    if (prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) {
+      const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
+      this.setState({ gasPrice: weiToGwei(gasPrice) })
+    }
+  }
+
   onClickSetting = () => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
   }
@@ -149,22 +166,46 @@ class CreateBlockchainTransaction extends Component {
       })
     }
   }
+  getTransactionPayload = () => {
+    const {
+      fromAddress,
+      toAddress,
+      fromTokenAmount,
+      fromTokenSelected,
+      gasLimit,
+      gasPrice
+    } = this.state
+
+    const payload = {
+      from: fromAddress,
+      to: toAddress,
+      value: formatAmount(fromTokenAmount, fromTokenSelected.subunit_to_unit),
+      gas: gasLimit || undefined,
+      gasPrice: gasPrice ? gweiToWei(gasPrice) : undefined
+    }
+    return payload
+  }
+  getTransactionFee = () => {
+    return this.state.gasPrice
+      ? weiToGwei(this.state.gasPrice)
+        .multipliedBy(this.state.gasLimit)
+        .toFixed()
+      : 0
+  }
   onSubmit = async e => {
     this.setState({ submitting: true })
     e.preventDefault()
-    const { fromAddress, toAddress, fromTokenAmount } = this.state
     const { web3 } = window
     web3.eth
-      .sendTransaction({
-        from: fromAddress,
-        to: toAddress,
-        value: formatAmount(fromTokenAmount, 10000000000000)
-      })
+      .sendTransaction(this.getTransactionPayload())
       .on('transactionHash', hash => {
         this.setState({ step: 3, txhash: hash })
       })
       .on('receipt', receipt => {
         console.log(receipt)
+      })
+      .on('confirmation', (confirmationNumber, receipt) => {
+        console.log(confirmationNumber, receipt)
       })
       .on('error', () => {
         this.setState({ submitting: false })
@@ -385,13 +426,7 @@ class CreateBlockchainTransaction extends Component {
           value={this.state.gasPrice}
           type='number'
           suffix='Gwei'
-          subTitle={
-            this.state.gasPrice
-              ? `${new BigNumber(this.state.gasPrice)
-                .dividedBy(1000000000)
-                .toFixed()} ETH`
-              : ''
-          }
+          subTitle={`${this.getTransactionFee()} ETH`}
         />
         {/* <Label>Data</Label>
         <StyledInput
@@ -428,7 +463,7 @@ class CreateBlockchainTransaction extends Component {
         {this.state.step === 1 && (
           <Collapsable>
             <CollapsableHeader onClick={this.onClickSetting}>
-              <span>Settings (Gas limit, Gas price, Data)</span>
+              <span>Settings (Gas limit, Gas price)</span>
               {this.state.settingsOpen ? (
                 <Icon name='Chevron-Up' />
               ) : (
@@ -452,12 +487,12 @@ class CreateBlockchainTransaction extends Component {
         )}
         <FeeContainer>
           <span>Transaction fee</span>
-          <span>{this.state.transactionFee} ETH</span>
+          <span>{this.getTransactionFee()} ETH</span>
         </FeeContainer>
       </FromToContainer>
     )
   }
-  renderTitle () {
+  renderTitle = () => {
     return (
       <Title>
         {this.state.step === 1 && <h4>Transfer</h4>}
@@ -467,6 +502,7 @@ class CreateBlockchainTransaction extends Component {
             <PendingIcon name='Option-Horizontal' />
             <h4>Pending transaction</h4>
             <div>The transaction is waiting to be included in the block.</div>
+            <div>{String(this.state.txhash)}</div>
           </>
         )}
       </Title>
