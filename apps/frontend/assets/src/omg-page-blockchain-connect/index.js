@@ -11,7 +11,8 @@ import {
 import {
   selectMetamaskEnabled,
   selectCurrentAddress,
-  selectBlockchainBalanceByAddressArray
+  selectBlockchainBalanceByAddressArray,
+  selectMetamaskUsable
 } from '../omg-web3/selector'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
@@ -42,14 +43,17 @@ function BlockchainConnect () {
   const dispatch = useDispatch()
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
+  const metamaskUsable = useSelector(selectMetamaskUsable)
   const balance = useSelector(selectBlockchainBalanceByAddressArray)(
     selectedAddress
   )
   const [networkType, setNetworkType] = useState('...')
   useEffect(() => {
     const { web3 } = window
-    getBlockchainBalanceByAddress(selectedAddress)(dispatch)
-    web3.eth.net.getNetworkType().then(setNetworkType)
+    if (web3) {
+      getBlockchainBalanceByAddress(selectedAddress)(dispatch)
+      web3.eth.net.getNetworkType().then(setNetworkType)
+    }
   }, [selectedAddress, networkType])
 
   const onClickConnect = () => {
@@ -97,12 +101,12 @@ function BlockchainConnect () {
     <SelectStateContainer>
       <div>
         <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
-        <Button onClick={onClickConnect}>Connect metamask</Button>
+        <Button onClick={onClickConnect} disabled={!metamaskEnabled}>Connect metamask</Button>
       </div>
     </SelectStateContainer>
   )
 
-  return metamaskEnabled ? connectedStep : selectStep
+  return metamaskUsable ? connectedStep : selectStep
 }
 
 export default BlockchainConnect
