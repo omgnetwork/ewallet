@@ -34,25 +34,20 @@ export default class WalletSelectItem extends Component {
   }
 
   render () {
+    const { balance, token } = this.props
     const amount = formatReceiveAmountToTotal(
-      this.props.balance,
-      _.get(this.props.token, 'subunit_to_unit')
+      balance,
+      _.get(token, 'subunit_to_unit', 1)
     )
-    const name = _.get(this.props.token, 'name')
-    const symbol = _.get(this.props.token, 'symbol')
+    const name = _.get(token, 'name')
+    const symbol = _.get(token, 'symbol')
     return (
       <TokenSelectItemContainer>
-        <StyledAvatar
-          name={name}
-        />
+        <StyledAvatar name={name} />
         <DetailContainer>
           <Address>{name}</Address>
-          <TokenNameAndIdentifier>
-            {symbol}
-          </TokenNameAndIdentifier>
-          <TokenNameAndIdentifier>
-            {amount}
-          </TokenNameAndIdentifier>
+          <TokenNameAndIdentifier>{symbol}</TokenNameAndIdentifier>
+          <TokenNameAndIdentifier>{amount}</TokenNameAndIdentifier>
         </DetailContainer>
       </TokenSelectItemContainer>
     )

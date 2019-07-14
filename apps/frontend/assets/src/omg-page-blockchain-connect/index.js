@@ -11,7 +11,7 @@ import {
 import {
   selectMetamaskEnabled,
   selectCurrentAddress,
-  selectBlockchainBalanceByAddress
+  selectBlockchainBalanceByAddressArray
 } from '../omg-web3/selector'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
@@ -41,7 +41,7 @@ function BlockchainConnect () {
   const dispatch = useDispatch()
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
-  const balance = useSelector(selectBlockchainBalanceByAddress)(selectedAddress)
+  const balance = useSelector(selectBlockchainBalanceByAddressArray)(selectedAddress)
   const [networkType, setNetworkType] = useState('...')
   useEffect(() => {
     const { web3 } = window
