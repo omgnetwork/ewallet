@@ -34,7 +34,7 @@ import {
   CollapsableHeader,
   CollapsableContent,
   Links
-} from './styless'
+} from './styles'
 const enhance = compose(
   withRouter,
   connect(
