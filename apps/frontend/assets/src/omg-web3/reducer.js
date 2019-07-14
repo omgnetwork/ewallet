@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import createReducer from '../reducer/createReducer'
 export const metamaskReducer = createReducer(
   {},
