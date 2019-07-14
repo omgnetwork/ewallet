@@ -4,7 +4,8 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { BigNumber } from 'bignumber.js'
-
+import web3Utils from 'web3-utils'
+import { blockchainTokens } from './blockchainTokens'
 import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
@@ -232,6 +233,12 @@ class CreateBlockchainTransaction extends Component {
   }
 
   renderFromSelectTokenOption = fromWallet => {
+    if (web3Utils.isAddress(this.state.fromAddress)) {
+      return blockchainTokens.map(token => ({
+        key: `${token.name}${token.symbol}${token.id}`,
+        value: <TokenSelect balance={'...'} token={token} />
+      }))
+    }
     return fromWallet
       ? fromWallet.balances.map(b => ({
         key: `${b.token.name}${b.token.symbol}${b.token.id}`,
