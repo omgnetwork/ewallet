@@ -150,42 +150,60 @@ class CreateBlockchainTransaction extends Component {
     }
   }
   onSubmit = async e => {
-    e.preventDefault()
     this.setState({ submitting: true })
-    try {
-      const fromAmount = formatAmount(
-        this.state.fromTokenAmount,
-        _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
-      )
-      const toAmount = formatAmount(
-        this.state.toTokenAmount,
-        _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
-      )
-      const result = await this.props.transfer({
-        fromAddress: this.state.fromAddress.trim(),
-        toAddress: this.state.toAddress.trim(),
-        fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
-        toTokenId:
-          _.get(this.state.toTokenSelected, 'token.id') ||
-          _.get(this.state.fromTokenSelected, 'token.id'),
-        fromAmount,
-        toAmount,
-        exchangeAddress: this.state.exchangeAddress
+    e.preventDefault()
+    const { fromAddress, toAddress, fromTokenAmount } = this.state
+    const { web3 } = window
+    web3.eth
+      .sendTransaction({
+        from: fromAddress,
+        to: toAddress,
+        value: formatAmount(fromTokenAmount, 10000000000000)
       })
-      if (result.data) {
-        this.props.getWalletById(this.state.fromAddress)
-        this.props.getWalletById(this.state.toAddress)
-        this.onRequestClose()
-      } else {
-        this.setState({
-          submitting: false,
-          error: result.error.description || result.error.message
-        })
-      }
-      this.props.onCreateTransaction()
-    } catch (e) {
-      this.setState({ error: JSON.stringify(e.message) })
-    }
+      .on('transactionHash', hash => {
+        this.setState({ step: 3, txhash: hash })
+      })
+      .on('receipt', receipt => {
+        console.log(receipt)
+      })
+      .on('error', () => {
+        this.setState({ submitting: false })
+      })
+    // this.setState({ submitting: true })
+    // try {
+    //   const fromAmount = formatAmount(
+    //     this.state.fromTokenAmount,
+    //     _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
+    //   )
+    //   const toAmount = formatAmount(
+    //     this.state.toTokenAmount,
+    //     _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
+    //   )
+    //   const result = await this.props.transfer({
+    //     fromAddress: this.state.fromAddress.trim(),
+    //     toAddress: this.state.toAddress.trim(),
+    //     fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
+    //     toTokenId:
+    //       _.get(this.state.toTokenSelected, 'token.id') ||
+    //       _.get(this.state.fromTokenSelected, 'token.id'),
+    //     fromAmount,
+    //     toAmount,
+    //     exchangeAddress: this.state.exchangeAddress
+    //   })
+    //   if (result.data) {
+    //     this.props.getWalletById(this.state.fromAddress)
+    //     this.props.getWalletById(this.state.toAddress)
+    //     this.onRequestClose()
+    //   } else {
+    //     this.setState({
+    //       submitting: false,
+    //       error: result.error.description || result.error.message
+    //     })
+    //   }
+    //   this.props.onCreateTransaction()
+    // } catch (e) {
+    //   this.setState({ error: JSON.stringify(e.message) })
+    // }
   }
   onRequestClose = () => {
     this.props.onRequestClose()
@@ -267,12 +285,13 @@ class CreateBlockchainTransaction extends Component {
   }
 
   renderToSelectWalletValue = data => {
-    return this.state.toAddressSelect
-      ? value => {
-        const wallet = _.find(data, i => i.address === value)
-        return wallet ? <WalletSelect wallet={wallet} /> : value
+    return value => {
+      if (web3Utils.isAddress(this.state.toAddress)) {
+        return value
       }
-      : null
+      const wallet = _.find(data, i => i.address === value)
+      return wallet ? <WalletSelect wallet={wallet} /> : value
+    }
   }
 
   rendreToSelectWalletOption = data => {
@@ -308,7 +327,7 @@ class CreateBlockchainTransaction extends Component {
                 selectProps={{
                   label: 'Wallet Address',
                   clearable: true,
-                  disabled: !!this.props.fromAddress,
+                  disabled: !!this.props.fromAddress || this.state.step !== 1,
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
@@ -394,6 +413,7 @@ class CreateBlockchainTransaction extends Component {
                   label: 'Wallet Address',
                   clearable: true,
                   onSelectItem: this.onSelectToAddressSelect,
+                  disabled: this.state.step !== 1,
                   value: this.state.toAddress,
                   onChange: this.onChangeInputToAddress,
                   valueRenderer: this.renderToSelectWalletValue(data),
@@ -470,7 +490,12 @@ class CreateBlockchainTransaction extends Component {
               />
             )}
             <ButtonContainer>
-              <Button size='small' onClick={() => this.setState({ step: 3 })}>
+              <Button
+                size='small'
+                type='submit'
+                onClick={this.onSubmit}
+                loading={this.state.submitting}
+              >
                 <span>Submit Transaction</span>
               </Button>
               <Button
@@ -490,7 +515,7 @@ class CreateBlockchainTransaction extends Component {
               styleType='secondary'
               onClick={this.props.onRequestClose}
             >
-              <span>Back to Hot Wallet</span>
+              <span>Done</span>
             </Button>
             <Links>
               <span>
