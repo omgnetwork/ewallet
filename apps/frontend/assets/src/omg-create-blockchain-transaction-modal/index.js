@@ -328,7 +328,9 @@ class CreateBlockchainTransaction extends Component {
                 onChange: this.onChangeAmount('fromToken'),
                 type: 'amount',
                 maxAmountLength: 18,
-                suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+                suffix:
+                  _.get(this.state.fromTokenSelected, 'token.symbol') ||
+                  _.get(this.state.fromTokenSelected, 'symbol')
               }}
               selectProps={{
                 label: 'Token',
