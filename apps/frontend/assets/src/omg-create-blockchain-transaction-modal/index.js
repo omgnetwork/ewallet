@@ -459,12 +459,14 @@ class CreateBlockchainTransaction extends Component {
         )}
         {this.state.step === 2 && (
           <>
-            <PasswordInput
-              placeholder='Enter password to confirm'
-              type='password'
-              onChange={e => this.setState({ password: e.target.value })}
-              value={this.state.password}
-            />
+            {!web3Utils.isAddress(this.state.fromAddress) && (
+              <PasswordInput
+                placeholder='Enter password to confirm'
+                type='password'
+                onChange={e => this.setState({ password: e.target.value })}
+                value={this.state.password}
+              />
+            )}
             <ButtonContainer>
               <Button size='small' onClick={() => this.setState({ step: 3 })}>
                 <span>Submit Transaction</span>
