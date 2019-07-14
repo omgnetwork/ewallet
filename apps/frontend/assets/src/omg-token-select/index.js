@@ -27,7 +27,7 @@ const TokenNameAndIdentifier = styled.div`
 export default class WalletSelectItem extends Component {
   static propTypes = {
     token: PropTypes.object,
-    balance: PropTypes.number
+    balance: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
   }
   static defaultProps = {
     wallet: {}

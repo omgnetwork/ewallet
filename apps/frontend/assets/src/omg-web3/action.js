@@ -30,10 +30,9 @@ export const getBlockchainBalanceByAddress = address => async dispatch => {
   const { web3 } = window
   if (web3) {
     const rawBalance = await web3.eth.getBalance(address)
-    const ethBalance = web3.utils.fromWei(rawBalance, 'ether')
     return dispatch({
       type: 'BLOCKCHAIN_BALANCE/REQUEST/SUCCESS',
-      data: { token: 'ETH', balance: ethBalance, address }
+      data: { token: 'ETH', balance: rawBalance, address, decimal: 18 }
     })
   } else {
     throw new Error('web3 is not existed')

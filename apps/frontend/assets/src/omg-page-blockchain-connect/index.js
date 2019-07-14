@@ -14,6 +14,7 @@ import {
   selectBlockchainBalanceByAddressArray
 } from '../omg-web3/selector'
 import TopNavigation from '../omg-page-layout/TopNavigation'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 
 const MetaMaskImage = styled.img`
   max-width: 250px;
@@ -41,7 +42,9 @@ function BlockchainConnect () {
   const dispatch = useDispatch()
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
-  const balance = useSelector(selectBlockchainBalanceByAddressArray)(selectedAddress)
+  const balance = useSelector(selectBlockchainBalanceByAddressArray)(
+    selectedAddress
+  )
   const [networkType, setNetworkType] = useState('...')
   useEffect(() => {
     const { web3 } = window
@@ -81,8 +84,9 @@ function BlockchainConnect () {
         {balance.length &&
           balance.map(token => {
             return (
-              <span key={token.symbol}>
-                {token.balance} {_.upperCase(token.token)}
+              <span key={token.token}>
+                {formatReceiveAmountToTotal(token.balance, 10 ** token.decimal)}{' '}
+                {_.upperCase(token.token)}
               </span>
             )
           })}

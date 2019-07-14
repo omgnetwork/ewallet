@@ -393,12 +393,12 @@ class CreateBlockchainTransaction extends Component {
               : ''
           }
         />
-        <Label>Data</Label>
+        {/* <Label>Data</Label>
         <StyledInput
           onChange={e => this.setState({ metaData: e.target.value })}
           value={this.state.metaData}
           subTitle='Optional'
-        />
+        /> */}
       </CollapsableContent>
     )
   }
@@ -435,7 +435,7 @@ class CreateBlockchainTransaction extends Component {
                 <Icon name='Chevron-Down' />
               )}
             </CollapsableHeader>
-            <Accordion path='settings' height={330}>
+            <Accordion path='settings' height={230}>
               {this.state.settingsOpen && this.renderSettingContent()}
             </Accordion>
           </Collapsable>
