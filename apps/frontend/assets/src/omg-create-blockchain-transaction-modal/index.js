@@ -73,7 +73,8 @@ class CreateBlockchainTransaction extends Component {
     gasLimit: 21000,
     gasPrice: '',
     metaData: '',
-    password: ''
+    password: '',
+    fromTokenSelected: {}
   }
   async componentDidMount () {
     const { web3 } = window
@@ -86,7 +87,10 @@ class CreateBlockchainTransaction extends Component {
   async componentDidUpdate (prevProps, prevState) {
     const { toAddress } = this.state
     const { web3 } = window
-    if (prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) {
+    if (
+      (prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) ||
+      this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
+        this.state.fromTokenAmount !== prevState.fromTokenAmount) {
       const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
       this.setState({ gasPrice: weiToGwei(gasPrice) })
     }
@@ -210,6 +214,7 @@ class CreateBlockchainTransaction extends Component {
       .on('error', () => {
         this.setState({ submitting: false })
       })
+
     // this.setState({ submitting: true })
     // try {
     //   const fromAmount = formatAmount(
