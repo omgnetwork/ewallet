@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { BigNumber } from 'bignumber.js'
 
-import { Button, Icon, SelectInput, Input } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
@@ -17,138 +16,25 @@ import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
-
-const Form = styled.div`
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  > i {
-    position: absolute;
-    right: 30px;
-    top: 30px;
-    color: ${props => props.theme.colors.S400};
-    cursor: pointer;
-    font-size: 30px;
-  }
-  input {
-    margin-top: 5px;
-  }
-  button {
-    margin: 35px 0 0;
-    font-size: 14px;
-  }
-  h4 {
-    font-size: 18px;
-  }
-`
-const Title = styled.div`
-  margin-bottom: 20px;
-`
-const PendingIcon = styled(Icon)`
-  color: white;
-  background-color: orange;
-  width: 30px;
-  height: 30px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 100%;
-`
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`
-const Error = styled.div`
-  color: ${props => props.theme.colors.R400};
-  text-align: center;
-  padding: 10px 0;
-  overflow: hidden;
-  max-height: ${props => (props.error ? '100px' : 0)};
-  opacity: ${props => (props.error ? 1 : 0)};
-  transition: 0.5s ease max-height, 0.3s ease opacity;
-`
-const FromToContainer = styled.div`
-  h5 {
-    letter-spacing: 1px;
-    background-color: ${props => props.theme.colors.S300};
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 2px;
-  }
-`
-const InnerTransferContainer = styled.div`
-  max-width: 600px;
-  padding: 50px;
-  margin: 0 auto;
-`
-const StyledSelectInput = styled(SelectInput)`
-  margin-bottom: 10px;
-`
-const StyledInput = styled(Input)`
-  margin-bottom: 20px;
-`
-const PasswordInput = styled(Input)`
-  margin-top: 40px;
-`
-const Label = styled.div`
-  color: ${props => props.theme.colors.S400};
-`
-const Collapsable = styled.div`
-  background-color: ${props => props.theme.colors.S100};
-  text-align: left;
-  border-radius: 6px;
-  border: 1px solid ${props => props.theme.colors.S400};
-  margin-top: 20px;
-`
-const FeeContainer = styled.div`
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  border-radius: 6px;
-  i[name='Info'] {
-    color: ${props => props.theme.colors.S400};
-    margin-left: 5px;
-    cursor: pointer;
-  }
-`
-const GrayFeeContainer = styled(FeeContainer)`
-  background-color: ${props => props.theme.colors.S200};
-`
-const CollapsableHeader = styled.div`
-  cursor: pointer;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  color: ${props => props.theme.colors.S500};
-  > i {
-    margin-left: auto;
-  }
-`
-const CollapsableContent = styled.div`
-  padding: 40px;
-  border-radius: 6px;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`
-const Links = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  color: ${props => props.theme.colors.B100};
-  span {
-    margin-top: 5px;
-    cursor: pointer;
-  }
-  i[name='Arrow-Right'] {
-    margin-left: 5px;
-  }
-`
+import {
+  Form,
+  Title,
+  PendingIcon,
+  ButtonContainer,
+  Error,
+  FromToContainer,
+  InnerTransferContainer,
+  StyledSelectInput,
+  StyledInput,
+  PasswordInput,
+  Label,
+  Collapsable,
+  FeeContainer,
+  GrayFeeContainer,
+  CollapsableHeader,
+  CollapsableContent,
+  Links
+} from './styless'
 const enhance = compose(
   withRouter,
   connect(
@@ -204,7 +90,10 @@ class CreateBlockchainTransaction extends Component {
     this.setState({ [`${type}Amount`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
-    this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
+    this.setState({
+      [`${type}SearchToken`]: e.target.value,
+      [`${type}Selected`]: null
+    })
   }
   onSelectTokenSelect = type => token => {
     this.setState({
@@ -218,7 +107,9 @@ class CreateBlockchainTransaction extends Component {
         toAddress: item.key,
         toAddressSelect: true,
         toTokenSelected: this.state.toTokenSelected
-          ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id'))
+          ? item.balances.find(
+            b => b.token.id === _.get(this.state.toTokenSelected, 'token.id')
+          )
           : null
       })
     } else {
@@ -236,7 +127,10 @@ class CreateBlockchainTransaction extends Component {
         fromAddress: item.key,
         fromAddressSelect: true,
         fromTokenSelected: this.state.fromTokenSelected
-          ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id'))
+          ? item.balances.find(
+            b =>
+              b.token.id === _.get(this.state.fromTokenSelected, 'token.id')
+          )
           : null
       })
     } else {
@@ -299,8 +193,58 @@ class CreateBlockchainTransaction extends Component {
       : '-'
   }
 
+  renderFromSelectWAlletValue = data => {
+    return this.state.fromAddress
+      ? value => {
+        const wallet = _.find(data, i => i.address === value)
+        return wallet ? <WalletSelect wallet={wallet} /> : value
+      }
+      : null
+  }
+  renderFromSelectWalletOptions = data => {
+    return data
+      ? data
+        .filter(w => w.identifier !== 'burn')
+        .map(d => {
+          return {
+            key: d.address,
+            value: <WalletSelect wallet={d} />,
+            ...d
+          }
+        })
+      : []
+  }
+
+  renderFromSelectTokenValue = fromWallet => {
+    return this.state.fromTokenSelected
+      ? value => {
+        const found = _.find(
+          fromWallet.balances,
+          b => b.token.name.toLowerCase() === value.toLowerCase()
+        )
+        return found ? (
+          <TokenSelect balance={found.amount} token={found.token} />
+        ) : (
+          value
+        )
+      }
+      : null
+  }
+
+  renderFromSelectTokenOption = fromWallet => {
+    return fromWallet
+      ? fromWallet.balances.map(b => ({
+        key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+        value: <TokenSelect balance={b.amount} token={b.token} />,
+        ...b
+      }))
+      : []
+  }
+
   renderFromSection () {
-    const fromWallet = this.props.selectWalletById(this.state.fromAddress.trim())
+    const fromWallet = this.props.selectWalletById(
+      this.state.fromAddress.trim()
+    )
     return (
       <FromToContainer>
         <h5>From</h5>
@@ -308,7 +252,10 @@ class CreateBlockchainTransaction extends Component {
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
-          shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
+          shouldFetch={
+            !!this.props.match.params.accountId ||
+            (fromWallet && !!fromWallet.account_id)
+          }
           render={({ data }) => {
             return (
               <StyledSelectInput
@@ -319,25 +266,8 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
-                  valueRenderer: this.state.fromAddress
-                    ? value => {
-                      const wallet = _.find(data, i => i.address === value)
-                      return wallet
-                        ? <WalletSelect wallet={wallet} />
-                        : value
-                    }
-                    : null,
-                  options:
-                    data
-                      ? data.filter(w => w.identifier !== 'burn')
-                        .map(d => {
-                          return {
-                            key: d.address,
-                            value: <WalletSelect wallet={d} />,
-                            ...d
-                          }
-                        })
-                      : []
+                  valueRenderer: this.renderFromSelectWAlletValue(data),
+                  options: this.renderFromSelectWalletOptions(data)
                 }}
               />
             )
@@ -361,25 +291,8 @@ class CreateBlockchainTransaction extends Component {
                 onChange: this.onChangeSearchToken('fromToken'),
                 value: this.state.fromTokenSearchToken,
                 filterByKey: true,
-                valueRenderer: this.state.fromTokenSelected
-                  ? value => {
-                    const found = _.find(
-                      fromWallet.balances,
-                      b => b.token.name.toLowerCase() === value.toLowerCase()
-                    )
-                    return found
-                      ? <TokenSelect balance={found.amount} token={found.token} />
-                      : value
-                  }
-                  : null,
-                options:
-                  fromWallet
-                    ? fromWallet.balances.map(b => ({
-                      key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                      value: <TokenSelect balance={b.amount} token={b.token} />,
-                      ...b
-                    }))
-                    : []
+                valueRenderer: this.renderFromSelectTokenValue(fromWallet),
+                options: this.renderFromSelectTokenOption(fromWallet)
               }}
             />
           </div>
@@ -403,7 +316,13 @@ class CreateBlockchainTransaction extends Component {
           value={this.state.gasPrice}
           type='number'
           suffix='Gwei'
-          subTitle={this.state.gasPrice ? `${new BigNumber(this.state.gasPrice).dividedBy(1000000000).toFixed()} ETH` : ''}
+          subTitle={
+            this.state.gasPrice
+              ? `${new BigNumber(this.state.gasPrice)
+                .dividedBy(1000000000)
+                .toFixed()} ETH`
+              : ''
+          }
         />
         <Label>Data</Label>
         <StyledInput
@@ -432,21 +351,18 @@ class CreateBlockchainTransaction extends Component {
                   valueRenderer: this.state.toAddressSelect
                     ? value => {
                       const wallet = _.find(data, i => i.address === value)
-                      return wallet
-                        ? <WalletSelect wallet={wallet} />
-                        : value
+                      return wallet ? <WalletSelect wallet={wallet} /> : value
                     }
                     : null,
-                  options:
-                    data
-                      ? data.map(d => {
-                        return {
-                          key: d.address,
-                          value: <WalletSelect wallet={d} />,
-                          ...d
-                        }
-                      })
-                      : []
+                  options: data
+                    ? data.map(d => {
+                      return {
+                        key: d.address,
+                        value: <WalletSelect wallet={d} />,
+                        ...d
+                      }
+                    })
+                    : []
                 }}
               />
             )
@@ -456,9 +372,11 @@ class CreateBlockchainTransaction extends Component {
           <Collapsable>
             <CollapsableHeader onClick={this.onClickSetting}>
               <span>Settings (Gas limit, Gas price, Data)</span>
-              {this.state.settingsOpen
-                ? <Icon name='Chevron-Up' />
-                : <Icon name='Chevron-Down' />}
+              {this.state.settingsOpen ? (
+                <Icon name='Chevron-Up' />
+              ) : (
+                <Icon name='Chevron-Down' />
+              )}
             </CollapsableHeader>
             <Accordion path='settings' height={330}>
               {this.state.settingsOpen && this.renderSettingContent()}
@@ -468,7 +386,10 @@ class CreateBlockchainTransaction extends Component {
         {this.state.step !== 1 && (
           <GrayFeeContainer>
             <span>Amount to send</span>
-            <span>{this.state.fromTokenAmount} {_.get(this.state.fromTokenSelected, 'token.symbol')}</span>
+            <span>
+              {this.state.fromTokenAmount}{' '}
+              {_.get(this.state.fromTokenSelected, 'token.symbol')}
+            </span>
           </GrayFeeContainer>
         )}
         <FeeContainer>
@@ -515,7 +436,11 @@ class CreateBlockchainTransaction extends Component {
               <Button size='small' onClick={() => this.setState({ step: 3 })}>
                 <span>Submit Transaction</span>
               </Button>
-              <Button size='small' styleType='secondary' onClick={() => this.setState({ step: 1 })}>
+              <Button
+                size='small'
+                styleType='secondary'
+                onClick={() => this.setState({ step: 1 })}
+              >
                 <span>Back to Edit</span>
               </Button>
             </ButtonContainer>
@@ -523,12 +448,20 @@ class CreateBlockchainTransaction extends Component {
         )}
         {this.state.step === 3 && (
           <ButtonContainer>
-            <Button size='small' styleType='secondary' onClick={this.props.onRequestClose}>
+            <Button
+              size='small'
+              styleType='secondary'
+              onClick={this.props.onRequestClose}
+            >
               <span>Back to Hot Wallet</span>
             </Button>
             <Links>
-              <span>View Transaction <Icon name='Arrow-Right' /></span>
-              <span>Track on Etherscan <Icon name='Arrow-Right' /></span>
+              <span>
+                View Transaction <Icon name='Arrow-Right' />
+              </span>
+              <span>
+                Track on Etherscan <Icon name='Arrow-Right' />
+              </span>
             </Links>
           </ButtonContainer>
         )}
