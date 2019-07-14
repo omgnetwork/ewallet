@@ -24,6 +24,10 @@ const SelectStateContainer = styled.div`
   text-align: center;
 `
 
+const RowInfo = styled.div`
+  margin-bottom: 10px;
+`
+
 const ConnectedStepContainer = styled.div``
 
 function BlockchainConnect () {
@@ -31,13 +35,15 @@ function BlockchainConnect () {
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
   const [balance, setBalance] = useState('...')
-
+  const [networkType, setNetworkType] = useState('...')
   useEffect(() => {
-    window.web3.eth.getBalance(selectedAddress).then(rawBalance => {
-      const ethBalance = window.web3.utils.fromWei(rawBalance, 'ether')
+    const { web3 } = window
+    web3.eth.getBalance(selectedAddress).then(rawBalance => {
+      const ethBalance = web3.utils.fromWei(rawBalance, 'ether')
       setBalance(ethBalance)
     })
-  }, [selectedAddress])
+    web3.eth.net.getNetworkType().then(setNetworkType)
+  }, [selectedAddress, networkType])
 
   const onClickConnect = () => {
     enableMetamaskEthereumConnection()(dispatch)
@@ -55,14 +61,18 @@ function BlockchainConnect () {
           />
         ]}
       />
-      <div>
+      <RowInfo>
         <h4>Address</h4>
         <span>{selectedAddress}</span>
-      </div>
-      <div>
+      </RowInfo>
+      <RowInfo>
+        <h4>Network</h4>
+        <span> {_.upperFirst(networkType)}</span>
+      </RowInfo>
+      <RowInfo>
         <h4>Account Balance</h4>
         <span> {balance} ETH</span>
-      </div>
+      </RowInfo>
     </ConnectedStepContainer>
   )
   const selectStep = (
