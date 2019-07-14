@@ -445,7 +445,8 @@ class CreateBlockchainTransaction extends Component {
             <span>Amount to send</span>
             <span>
               {this.state.fromTokenAmount}{' '}
-              {_.get(this.state.fromTokenSelected, 'token.symbol')}
+              {_.get(this.state.fromTokenSelected, 'token.symbol') ||
+                _.get(this.state.fromTokenSelected, 'symbol')}
             </span>
           </GrayFeeContainer>
         )}

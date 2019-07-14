@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { Icon, Input, SelectInput } from '../omg-uikit'
-export const Form = styled.form`
+export const Form = styled.div`
   width: 100vw;
   height: 100vh;
   position: relative;
