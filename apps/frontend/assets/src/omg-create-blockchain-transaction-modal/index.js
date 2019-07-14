@@ -514,11 +514,13 @@ class CreateBlockchainTransaction extends Component {
     )
   }
   renderActions () {
+    const { fromAddress, toAddress, fromTokenSelected } = this.state
+    const transferDisabled = !(fromAddress && toAddress && fromTokenSelected)
     return (
       <>
         {this.state.step === 1 && (
           <ButtonContainer>
-            <Button size='small' onClick={() => this.setState({ step: 2 })}>
+            <Button size='small' onClick={() => this.setState({ step: 2 })} disabled={transferDisabled}>
               <span>Transfer</span>
             </Button>
           </ButtonContainer>
