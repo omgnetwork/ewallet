@@ -28,7 +28,7 @@ import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
 import { recentAccountsReducer } from '../omg-recent-account/reducer'
 import { modalReducer } from '../omg-modal/reducer'
-import { metamaskReducer } from '../omg-web3/reducer'
+import { metamaskReducer, blockchainBalanceReducer } from '../omg-web3/reducer'
 
 export default combineReducers({
   blockchainWallets: blockchainWalletReducer,
@@ -58,5 +58,6 @@ export default combineReducers({
   loadingStatus: loadingStatusReducer,
   recentAccounts: recentAccountsReducer,
   modals: modalReducer,
-  metamask: metamaskReducer
+  metamask: metamaskReducer,
+  blockchainBalance: blockchainBalanceReducer
 })

@@ -25,3 +25,17 @@ export const checkMetamaskExistance = (exist = false) => dispatch => {
 export const setMetamaskSettings = metamaskSettings => dispatch => {
   return dispatch({ type: 'METAMASK/UPDATE_SETTINGS', data: metamaskSettings })
 }
+
+export const getBlockchainBalanceByAddress = address => async dispatch => {
+  const { web3 } = window
+  if (web3) {
+    const rawBalance = await web3.eth.getBalance(address)
+    const ethBalance = web3.utils.fromWei(rawBalance, 'ether')
+    return dispatch({
+      type: 'BLOCKCHAIN_BALANCE/REQUEST/SUCCESS',
+      data: { token: 'ETH', balance: ethBalance, address }
+    })
+  } else {
+    throw new Error('web3 is not existed')
+  }
+}

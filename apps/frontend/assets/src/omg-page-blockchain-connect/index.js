@@ -4,10 +4,14 @@ import styled from 'styled-components'
 
 import { Button } from '../omg-uikit'
 import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
-import { enableMetamaskEthereumConnection } from '../omg-web3/action'
+import {
+  enableMetamaskEthereumConnection,
+  getBlockchainBalanceByAddress
+} from '../omg-web3/action'
 import {
   selectMetamaskEnabled,
-  selectCurrentAddress
+  selectCurrentAddress,
+  selectBlockchainBalanceByAddress
 } from '../omg-web3/selector'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
@@ -37,14 +41,11 @@ function BlockchainConnect () {
   const dispatch = useDispatch()
   const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
-  const [balance, setBalance] = useState('...')
+  const balance = useSelector(selectBlockchainBalanceByAddress)(selectedAddress)
   const [networkType, setNetworkType] = useState('...')
   useEffect(() => {
     const { web3 } = window
-    web3.eth.getBalance(selectedAddress).then(rawBalance => {
-      const ethBalance = web3.utils.fromWei(rawBalance, 'ether')
-      setBalance(ethBalance)
-    })
+    getBlockchainBalanceByAddress(selectedAddress)(dispatch)
     web3.eth.net.getNetworkType().then(setNetworkType)
   }, [selectedAddress, networkType])
 
@@ -77,7 +78,14 @@ function BlockchainConnect () {
           <AccountBlanaceTitle>Account Balance</AccountBlanaceTitle>{' '}
           <a>add custom token</a>
         </div>
-        <span> {balance} ETH</span>
+        {balance.length &&
+          balance.map(token => {
+            return (
+              <span key={token.symbol}>
+                {token.balance} {_.upperCase(token.token)}
+              </span>
+            )
+          })}
       </RowInfo>
     </ConnectedStepContainer>
   )

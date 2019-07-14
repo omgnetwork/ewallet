@@ -70,7 +70,7 @@ class CreateBlockchainTransaction extends Component {
     metaData: '',
     password: ''
   }
-  onClickSetting = e => {
+  onClickSetting = () => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
   }
   onChangeInputFromAddress = e => {
@@ -98,7 +98,8 @@ class CreateBlockchainTransaction extends Component {
   }
   onSelectTokenSelect = type => token => {
     this.setState({
-      [`${type}SearchToken`]: _.get(token, 'token.name'),
+      [`${type}SearchToken`]:
+        _.get(token, 'token.name') || _.get(token, 'name'),
       [`${type}Selected`]: token
     })
   }
@@ -194,7 +195,7 @@ class CreateBlockchainTransaction extends Component {
       : '-'
   }
 
-  renderFromSelectWAlletValue = data => {
+  renderFromSelectWalletValue = data => {
     return this.state.fromAddress
       ? value => {
         const wallet = _.find(data, i => i.address === value)
@@ -217,26 +218,29 @@ class CreateBlockchainTransaction extends Component {
   }
 
   renderFromSelectTokenValue = fromWallet => {
-    return this.state.fromTokenSelected
-      ? value => {
-        const found = _.find(
-          fromWallet.balances,
-          b => b.token.name.toLowerCase() === value.toLowerCase()
-        )
-        return found ? (
-          <TokenSelect balance={found.amount} token={found.token} />
-        ) : (
-          value
-        )
-      }
-      : null
+    return value => {
+      const from = web3Utils.isAddress(this.state.fromAddress)
+        ? blockchainTokens
+        : fromWallet.balances.token
+      const foundToken = _.find(
+        from,
+        token => token.name.toLowerCase() === value.toLowerCase()
+      )
+
+      return foundToken ? (
+        <TokenSelect balance={foundToken.balance} token={foundToken} />
+      ) : (
+        value
+      )
+    }
   }
 
   renderFromSelectTokenOption = fromWallet => {
     if (web3Utils.isAddress(this.state.fromAddress)) {
       return blockchainTokens.map(token => ({
         key: `${token.name}${token.symbol}${token.id}`,
-        value: <TokenSelect balance={'...'} token={token} />
+        value: <TokenSelect balance={100} token={token} />,
+        ...token
       }))
     }
     return fromWallet
@@ -245,6 +249,27 @@ class CreateBlockchainTransaction extends Component {
         value: <TokenSelect balance={b.amount} token={b.token} />,
         ...b
       }))
+      : []
+  }
+
+  renderToSelectWalletValue = data => {
+    return this.state.toAddressSelect
+      ? value => {
+        const wallet = _.find(data, i => i.address === value)
+        return wallet ? <WalletSelect wallet={wallet} /> : value
+      }
+      : null
+  }
+
+  rendreToSelectWalletOption = data => {
+    return data
+      ? data.map(d => {
+        return {
+          key: d.address,
+          value: <WalletSelect wallet={d} />,
+          ...d
+        }
+      })
       : []
   }
 
@@ -273,7 +298,7 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
-                  valueRenderer: this.renderFromSelectWAlletValue(data),
+                  valueRenderer: this.renderFromSelectWalletValue(data),
                   options: this.renderFromSelectWalletOptions(data)
                 }}
               />
@@ -355,21 +380,8 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectToAddressSelect,
                   value: this.state.toAddress,
                   onChange: this.onChangeInputToAddress,
-                  valueRenderer: this.state.toAddressSelect
-                    ? value => {
-                      const wallet = _.find(data, i => i.address === value)
-                      return wallet ? <WalletSelect wallet={wallet} /> : value
-                    }
-                    : null,
-                  options: data
-                    ? data.map(d => {
-                      return {
-                        key: d.address,
-                        value: <WalletSelect wallet={d} />,
-                        ...d
-                      }
-                    })
-                    : []
+                  valueRenderer: this.renderToSelectWalletValue(data),
+                  options: this.rendreToSelectWalletOption(data)
                 }}
               />
             )

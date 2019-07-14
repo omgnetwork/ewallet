@@ -32,3 +32,15 @@ export const metamaskReducer = createReducer(
     }
   }
 )
+
+export const blockchainBalanceReducer = createReducer(
+  {},
+  {
+    'BLOCKCHAIN_BALANCE/REQUEST/SUCCESS': (state, { data }) => {
+      return {
+        ...state,
+        [data.address]: { ...state[data.address], [data.token]: data }
+      }
+    }
+  }
+)
