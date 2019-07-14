@@ -10,6 +10,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
+import { sendTransaction } from '../omg-web3/action'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
@@ -44,7 +45,7 @@ const enhance = compose(
       selectWalletById: selectWalletById(state),
       selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state)
     }),
-    { transfer, getWalletById }
+    { transfer, getWalletById, sendTransaction }
   )
 )
 class CreateBlockchainTransaction extends Component {
@@ -56,7 +57,8 @@ class CreateBlockchainTransaction extends Component {
     match: PropTypes.object,
     onCreateTransaction: PropTypes.func,
     transfer: PropTypes.func,
-    selectBlockchainBalanceByAddress: PropTypes.func
+    selectBlockchainBalanceByAddress: PropTypes.func,
+    sendTransaction: PropTypes.func
   }
   static defaultProps = {
     onCreateTransaction: _.noop
@@ -90,7 +92,8 @@ class CreateBlockchainTransaction extends Component {
     if (
       (prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) ||
       this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
-        this.state.fromTokenAmount !== prevState.fromTokenAmount) {
+      this.state.fromTokenAmount !== prevState.fromTokenAmount
+    ) {
       const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
       this.setState({ gasPrice: weiToGwei(gasPrice) })
     }
@@ -199,21 +202,21 @@ class CreateBlockchainTransaction extends Component {
   onSubmit = async e => {
     this.setState({ submitting: true })
     e.preventDefault()
-    const { web3 } = window
-    web3.eth
-      .sendTransaction(this.getTransactionPayload())
-      .on('transactionHash', hash => {
+    this.props.sendTransaction({
+      transaction: this.getTransactionPayload(),
+      onTransactionHash: hash => {
         this.setState({ step: 3, txhash: hash })
-      })
-      .on('receipt', receipt => {
+      },
+      onReceipt: receipt => {
         console.log(receipt)
-      })
-      .on('confirmation', (confirmationNumber, receipt) => {
+      },
+      onConfirmation: (confirmationNumber, receipt) => {
         console.log(confirmationNumber, receipt)
-      })
-      .on('error', () => {
+      },
+      onError: () => {
         this.setState({ submitting: false })
-      })
+      }
+    })
 
     // this.setState({ submitting: true })
     // try {
@@ -520,7 +523,11 @@ class CreateBlockchainTransaction extends Component {
       <>
         {this.state.step === 1 && (
           <ButtonContainer>
-            <Button size='small' onClick={() => this.setState({ step: 2 })} disabled={transferDisabled}>
+            <Button
+              size='small'
+              onClick={() => this.setState({ step: 2 })}
+              disabled={transferDisabled}
+            >
               <span>Transfer</span>
             </Button>
           </ButtonContainer>
