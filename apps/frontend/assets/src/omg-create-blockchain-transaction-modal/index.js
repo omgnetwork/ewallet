@@ -285,13 +285,15 @@ class CreateBlockchainTransaction extends Component {
   }
 
   renderToSelectWalletValue = data => {
-    return value => {
-      if (web3Utils.isAddress(this.state.toAddress)) {
-        return value
+    const blockchain = web3Utils.isAddress(this.state.toAddress)
+    if (blockchain) return value => value
+    if (this.state.toAddressSelect) {
+      return value => {
+        const wallet = _.find(data, i => i.address === value)
+        return wallet ? <WalletSelect wallet={wallet} /> : value
       }
-      const wallet = _.find(data, i => i.address === value)
-      return wallet ? <WalletSelect wallet={wallet} /> : value
     }
+    return null
   }
 
   rendreToSelectWalletOption = data => {
