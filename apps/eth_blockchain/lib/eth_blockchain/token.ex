@@ -17,10 +17,33 @@ defmodule EthBlockchain.Token do
   import Utils.Helpers.Encoding
   import EthBlockchain.ErrorHandler
 
-  alias EthBlockchain.{Adapter, ABIEncoder}
-  alias ABI.{TypeDecoder, FunctionSelector}
+  alias EthBlockchain.{Adapter, ABIEncoder, Transaction}
+  alias ABI.{TypeDecoder, TypeEncoder, FunctionSelector}
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
+
+  def deploy_erc20(
+        %{from: from, name: name, symbol: symbol, decimals: decimals, mint_amount: mint_amount},
+        adapter \\ nil,
+        pid \\ nil
+      ) do
+    constructor_attributes =
+      [{name, symbol, decimals, mint_amount}]
+      |> TypeEncoder.encode(%ABI.FunctionSelector{
+        function: nil,
+        types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
+      })
+      |> Base.encode16(case: :lower)
+
+    {:ok, contract_binary} =
+      :eth_blockchain
+      |> Application.get_env(:erc20_bin_file_path)
+      |> File.read()
+
+    data = "0x" <> contract_binary <> constructor_attributes
+
+    Transaction.send(%{from: from, contract_data: data}, adapter, pid)
+  end
 
   @doc """
   Attempt to query the value of the field for the given contract address.

@@ -74,6 +74,12 @@ defmodule EthBlockchain.Transaction do
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def send(attrs, adapter \\ nil, pid \\ nil)
 
+  # Deploy a new contract
+  def send(%{contract_data: _data} = attrs, adapter, pid) do
+    create_contract(attrs, adapter, pid)
+  end
+
+  # Send ETH
   def send(
         %{contract_address: "0x0000000000000000000000000000000000000000"} = attrs,
         adapter,
@@ -82,19 +88,13 @@ defmodule EthBlockchain.Transaction do
     send_eth(attrs, adapter, pid)
   end
 
-  def send(
-        %{contract_address: _} = attrs,
-        adapter,
-        pid
-      ) do
+  # Send token
+  def send(%{contract_address: _} = attrs, adapter, pid) do
     send_token(attrs, adapter, pid)
   end
 
-  def send(
-        attrs,
-        adapter,
-        pid
-      ) do
+  # Send eth by default
+  def send(attrs, adapter, pid) do
     send_eth(attrs, adapter, pid)
   end
 
@@ -107,18 +107,13 @@ defmodule EthBlockchain.Transaction do
          adapter,
          pid
        ) do
-    gas_limit = Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
-    gas_price = get_gas_price_or_default(attrs)
-
-    case get_transaction_count(%{address: from}, adapter, pid) do
-      {:ok, nonce} ->
+    case get_transaction_meta(attrs, :default_eth_transaction_gas_limit, adapter, pid) do
+      {:ok, meta} ->
         %__MODULE__{
-          gas_limit: gas_limit,
-          gas_price: gas_price,
-          nonce: int_from_hex(nonce),
           to: from_hex(to),
           value: amount
         }
+        |> Map.merge(meta)
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
 
@@ -137,18 +132,14 @@ defmodule EthBlockchain.Transaction do
          adapter,
          pid
        ) do
-    with {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount),
-         {:ok, nonce} <- get_transaction_count(%{address: from}, adapter, pid) do
-      gas_limit = Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
-      gas_price = get_gas_price_or_default(attrs)
-
+    with {:ok, meta} <-
+           get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
+         {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount) do
       %__MODULE__{
-        gas_limit: gas_limit,
-        gas_price: gas_price,
-        nonce: int_from_hex(nonce),
         to: from_hex(contract_address),
         data: encoded_abi_data
       }
+      |> Map.merge(meta)
       |> sign_and_hash(from)
       |> send_raw(adapter, pid)
     else
@@ -156,11 +147,39 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
+  defp create_contract(%{from: from, contract_data: init} = attrs, adapter, pid) do
+    case get_transaction_meta(attrs, :default_contract_creation_gas_limit, adapter, pid) do
+      {:ok, meta} ->
+        %__MODULE__{init: from_hex(init)}
+        |> Map.merge(meta)
+        |> sign_and_hash(from)
+        |> send_raw(adapter, pid)
+
+      error ->
+        error
+    end
+  end
+
+  defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
+    case get_transaction_count(%{address: from}, adapter, pid) do
+      {:ok, nonce} ->
+        gas_limit = get_gas_limit_or_default(gas_limit_type, attrs)
+        gas_price = get_gas_price_or_default(attrs)
+
+        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: int_from_hex(nonce)}}
+
+      error ->
+        error
+    end
+  end
+
+  defp get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
+  defp get_gas_limit_or_default(type, _attrs), do: Application.get_env(:eth_blockchain, type)
+
   defp get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
 
-  defp get_gas_price_or_default(_attrs) do
-    Application.get_env(:eth_blockchain, :default_gas_price)
-  end
+  defp get_gas_price_or_default(_attrs),
+    do: Application.get_env(:eth_blockchain, :default_gas_price)
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
     case sign_transaction(transaction_data, from) do
