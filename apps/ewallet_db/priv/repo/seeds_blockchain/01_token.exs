@@ -67,8 +67,8 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
         end
       %Token{} = token ->
         {:ok, token} = Preloader.preload_one(token, :account)
-        writer.error("""
-          Token #{data.name} (#{token.symbol}) already exists in the database!!!
+        writer.warn("""
+          Skipping #{token.name} (#{token.symbol}) generation, already exists in database
 
           Info:
           ID                 : #{token.id}
