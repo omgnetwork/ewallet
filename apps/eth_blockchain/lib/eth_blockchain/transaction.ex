@@ -74,11 +74,6 @@ defmodule EthBlockchain.Transaction do
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def send(attrs, adapter \\ nil, pid \\ nil)
 
-  # Deploy a new contract
-  def send(%{contract_data: _data} = attrs, adapter, pid) do
-    create_contract(attrs, adapter, pid)
-  end
-
   # Send ETH
   def send(
         %{contract_address: "0x0000000000000000000000000000000000000000"} = attrs,
@@ -147,13 +142,21 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  defp create_contract(%{from: from, contract_data: init} = attrs, adapter, pid) do
+  @doc """
+  Submit a contract creation transaction with the given data
+  Returns {:ok, tx_hash, contract_address} if success,
+  {:error, code} || {:error, code, message} otherwise
+  """
+  def create_contract(%{from: from, contract_data: init} = attrs, adapter, pid) do
     case get_transaction_meta(attrs, :default_contract_creation_gas_limit, adapter, pid) do
-      {:ok, meta} ->
+      {:ok, %{nonce: nonce} = meta} ->
+        contract_address = get_contract_address(nonce, from)
+
         %__MODULE__{init: from_hex(init)}
         |> Map.merge(meta)
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
+        |> append_contract_address(contract_address)
 
       error ->
         error
@@ -171,6 +174,16 @@ defmodule EthBlockchain.Transaction do
       error ->
         error
     end
+  end
+
+  defp get_contract_address(nonce, sender) do
+    "0x" <> <<_::bytes-size(24)>> <> contract_address =
+      [from_hex(sender), encode_unsigned(nonce)]
+      |> ExRLP.encode()
+      |> Keccak.kec()
+      |> to_hex()
+
+    "0x" <> contract_address
   end
 
   defp get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
@@ -220,6 +233,11 @@ defmodule EthBlockchain.Transaction do
       error -> error
     end
   end
+
+  defp append_contract_address({:ok, _} = t, contract_address),
+    do: Tuple.append(t, contract_address)
+
+  defp append_contract_address(error, _), do: error
 
   @doc """
   Serialize, encode and returns a hash of a given transaction

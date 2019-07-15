@@ -134,6 +134,8 @@ paths:
     $ref: 'token/paths.yaml#/token.get_erc20_capabilities'
   /token.set_blockchain_address:
     $ref: 'token/paths.yaml#/token.set_blockchain_address'
+  /token.deploy_erc20:
+    $ref: 'token/paths.yaml#/token.deploy_erc20'
 
   # EXCHANGE PAIR
   /exchange_pair.all:

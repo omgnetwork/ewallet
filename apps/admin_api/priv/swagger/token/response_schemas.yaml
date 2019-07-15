@@ -21,6 +21,7 @@ TokenResponseSchema:
           blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
           blockchain_status: 'confirmed'
           blockchain_identifier: 'ethereum'
+          tx_hash: '0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41'
           metadata: {}
           encrypted_metadata: {}
 
@@ -55,6 +56,7 @@ TokensResponseSchema:
             blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
             blockchain_status: 'confirmed'
             blockchain_identifier: 'ethereum'
+            tx_hash: '0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41'
             metadata: {}
             encrypted_metadata: {}
 
@@ -92,6 +94,7 @@ TokenStatsResponseSchema:
         blockchain_address: null
         blockchain_status: null
         blockchain_identifier: null
+        tx_hash: null
         enabled: true
         metadata: {}
         encrypted_metadata: {}

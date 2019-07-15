@@ -26,6 +26,8 @@ TokenSchema:
       type: string
     blockchain_identifier:
       type: string
+    tx_hash:
+      type: string
     metadata:
       type: object
     encrypted_metadata:
@@ -44,6 +46,7 @@ TokenSchema:
     - blockchain_address
     - blockchain_status
     - blockchain_identifier
+    - tx_hash
     - enabled
 
 MintSchema:

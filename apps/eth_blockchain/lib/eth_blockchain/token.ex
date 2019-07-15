@@ -22,6 +22,11 @@ defmodule EthBlockchain.Token do
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
+  @doc """
+  Format and submit a contract creation transaction with the given data
+  Returns {:ok, tx_hash, contract_address} if success,
+  {:error, code} || {:error, code, message} otherwise
+  """
   def deploy_erc20(
         %{from: from, name: name, symbol: symbol, decimals: decimals, mint_amount: mint_amount},
         adapter \\ nil,
@@ -42,7 +47,7 @@ defmodule EthBlockchain.Token do
 
     data = "0x" <> contract_binary <> constructor_attributes
 
-    Transaction.send(%{from: from, contract_data: data}, adapter, pid)
+    Transaction.create_contract(%{from: from, contract_data: data}, adapter, pid)
   end
 
   @doc """

@@ -19,6 +19,38 @@ defmodule EWallet.TokenGate do
   alias EWalletDB.{BlockchainWallet, Token}
 
   @doc """
+  Attempts to deploy an ERC20 token with the specified attributes
+  Returns {:ok, tx_hash} if a transaction containing the contract code has been successfuly submited
+  or {:error, code} || {:error, code, description} otherwise
+  """
+  def deploy_erc20(%{
+        "name" => name,
+        "symbol" => symbol,
+        "subunit_to_unit" => subunit_to_unit,
+        "amount" => amount
+      }) do
+    decimals =
+      subunit_to_unit
+      |> :math.log10()
+      |> trunc()
+
+    from = BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.identifier()).address
+
+    BlockchainHelper.call(:deploy_erc20, %{
+      from: from,
+      name: name,
+      symbol: symbol,
+      decimals: decimals,
+      mint_amount: amount
+    })
+  end
+
+  def deploy_erc20(_) do
+    {:error, :invalid_parameter,
+     "`name`, `symbol`, `subunit_to_unit` and `amount` are required when deploying an ERC20 token."}
+  end
+
+  @doc """
   Validate that the `decimals` and `symbol` of the token are the same as
   the ones defined in the erc20 contract. If the contract does not implement
   these fields, we rely on the token's field values.

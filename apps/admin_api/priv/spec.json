@@ -3661,6 +3661,9 @@
                                       "blockchain_identifier": {
                                         "type": "string"
                                       },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -3683,6 +3686,7 @@
                                       "blockchain_address",
                                       "blockchain_status",
                                       "blockchain_identifier",
+                                      "tx_hash",
                                       "enabled"
                                     ]
                                   }
@@ -3711,6 +3715,7 @@
                               "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                               "blockchain_status": "confirmed",
                               "blockchain_identifier": "ethereum",
+                              "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                               "metadata": {},
                               "encrypted_metadata": {}
                             }
@@ -3925,6 +3930,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -3947,6 +3955,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -3967,6 +3976,7 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4226,6 +4236,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4248,6 +4261,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -4268,6 +4282,7 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4511,6 +4526,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4533,6 +4551,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -4553,6 +4572,7 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4771,6 +4791,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4793,6 +4816,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -4813,6 +4837,7 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -5030,6 +5055,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -5052,6 +5080,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -5072,6 +5101,7 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -5263,6 +5293,9 @@
                         "blockchain_identifier": {
                           "type": "string"
                         },
+                        "tx_hash": {
+                          "type": "string"
+                        },
                         "metadata": {
                           "type": "object"
                         },
@@ -5285,6 +5318,7 @@
                         "blockchain_address",
                         "blockchain_status",
                         "blockchain_identifier",
+                        "tx_hash",
                         "enabled"
                       ]
                     },
@@ -5314,6 +5348,7 @@
                         "blockchain_address": null,
                         "blockchain_status": null,
                         "blockchain_identifier": null,
+                        "tx_hash": null,
                         "enabled": true,
                         "metadata": {},
                         "encrypted_metadata": {}
@@ -5721,6 +5756,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -5743,6 +5781,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -6037,6 +6076,9 @@
                                                   "blockchain_identifier": {
                                                     "type": "string"
                                                   },
+                                                  "tx_hash": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -6059,6 +6101,7 @@
                                                   "blockchain_address",
                                                   "blockchain_status",
                                                   "blockchain_identifier",
+                                                  "tx_hash",
                                                   "enabled"
                                                 ]
                                               }
@@ -6115,6 +6158,9 @@
                                                   "blockchain_identifier": {
                                                     "type": "string"
                                                   },
+                                                  "tx_hash": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -6137,6 +6183,7 @@
                                                   "blockchain_address",
                                                   "blockchain_status",
                                                   "blockchain_identifier",
+                                                  "tx_hash",
                                                   "enabled"
                                                 ]
                                               }
@@ -6454,6 +6501,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -6476,6 +6526,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -6911,6 +6962,9 @@
                             "blockchain_identifier": {
                               "type": "string"
                             },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -6933,6 +6987,7 @@
                             "blockchain_address",
                             "blockchain_status",
                             "blockchain_identifier",
+                            "tx_hash",
                             "enabled"
                           ]
                         }
@@ -6953,6 +7008,313 @@
                           "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                           "blockchain_status": "confirmed",
                           "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
+                          "metadata": {},
+                          "encrypted_metadata": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.deploy_erc20": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Attempts to deploy an ERC20 token with the specified parameters",
+        "operationId": "token_deploy_erc20",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to create a token. Note that if amount is specified, the token will be minted automatically.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "subunit_to_unit": {
+                    "type": "integer"
+                  },
+                  "amount": {
+                    "type": "integer"
+                  },
+                  "iso_code": {
+                    "type": "string"
+                  },
+                  "short_symbol": {
+                    "type": "string"
+                  },
+                  "subunit": {
+                    "type": "string"
+                  },
+                  "symbol_first": {
+                    "type": "boolean"
+                  },
+                  "html_entity": {
+                    "type": "string"
+                  },
+                  "iso_numeric": {
+                    "type": "string"
+                  },
+                  "smallest_denomination": {
+                    "type": "integer"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "encrypted_metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "symbol",
+                  "description",
+                  "subunit_to_unit"
+                ],
+                "example": {
+                  "symbol": "BTC",
+                  "name": "Bitcoin",
+                  "description": "desc",
+                  "subunit_to_unit": 100
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single tokens",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a token",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a token",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "subunit_to_unit": {
+                              "type": "integer"
+                            },
+                            "avatar": {
+                              "type": "object"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "symbol",
+                            "name",
+                            "subunit_to_unit",
+                            "avatar",
+                            "created_at",
+                            "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "token",
+                          "id": "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3",
+                          "symbol": "ABC",
+                          "name": "ABC Point",
+                          "subunit_to_unit": 100,
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z",
+                          "enabled": true,
+                          "avatar": {
+                            "original": "file_url"
+                          },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -7342,6 +7704,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7364,6 +7729,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -7409,6 +7775,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7431,6 +7800,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -7738,6 +8108,9 @@
                                 "blockchain_identifier": {
                                   "type": "string"
                                 },
+                                "tx_hash": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7760,6 +8133,7 @@
                                 "blockchain_address",
                                 "blockchain_status",
                                 "blockchain_identifier",
+                                "tx_hash",
                                 "enabled"
                               ]
                             },
@@ -7805,6 +8179,9 @@
                                 "blockchain_identifier": {
                                   "type": "string"
                                 },
+                                "tx_hash": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7827,6 +8204,7 @@
                                 "blockchain_address",
                                 "blockchain_status",
                                 "blockchain_identifier",
+                                "tx_hash",
                                 "enabled"
                               ]
                             },
@@ -8243,6 +8621,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8265,6 +8646,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -8310,6 +8692,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8332,6 +8717,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -8748,6 +9134,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8770,6 +9159,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -8815,6 +9205,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8837,6 +9230,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -9236,6 +9630,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -9258,6 +9655,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -9303,6 +9701,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -9325,6 +9726,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -15886,6 +16288,9 @@
                                                 "blockchain_identifier": {
                                                   "type": "string"
                                                 },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -15908,6 +16313,7 @@
                                                 "blockchain_address",
                                                 "blockchain_status",
                                                 "blockchain_identifier",
+                                                "tx_hash",
                                                 "enabled"
                                               ]
                                             },
@@ -16688,6 +17094,9 @@
                                                 "blockchain_identifier": {
                                                   "type": "string"
                                                 },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -16710,6 +17119,7 @@
                                                 "blockchain_address",
                                                 "blockchain_status",
                                                 "blockchain_identifier",
+                                                "tx_hash",
                                                 "enabled"
                                               ]
                                             },
@@ -17187,6 +17597,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -17209,6 +17622,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -17265,6 +17679,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -17287,6 +17704,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -27504,6 +27922,9 @@
                                                 "blockchain_identifier": {
                                                   "type": "string"
                                                 },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -27526,6 +27947,7 @@
                                                 "blockchain_address",
                                                 "blockchain_status",
                                                 "blockchain_identifier",
+                                                "tx_hash",
                                                 "enabled"
                                               ]
                                             },
@@ -28011,6 +28433,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -28033,6 +28458,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -28089,6 +28515,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -28111,6 +28540,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -29713,6 +30143,9 @@
                                                 "blockchain_identifier": {
                                                   "type": "string"
                                                 },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -29735,6 +30168,7 @@
                                                 "blockchain_address",
                                                 "blockchain_status",
                                                 "blockchain_identifier",
+                                                "tx_hash",
                                                 "enabled"
                                               ]
                                             },
@@ -30396,6 +30830,9 @@
                                       "blockchain_identifier": {
                                         "type": "string"
                                       },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -30418,6 +30855,7 @@
                                       "blockchain_address",
                                       "blockchain_status",
                                       "blockchain_identifier",
+                                      "tx_hash",
                                       "enabled"
                                     ]
                                   },
@@ -31007,6 +31445,9 @@
                                       "blockchain_identifier": {
                                         "type": "string"
                                       },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -31029,6 +31470,7 @@
                                       "blockchain_address",
                                       "blockchain_status",
                                       "blockchain_identifier",
+                                      "tx_hash",
                                       "enabled"
                                     ]
                                   },
@@ -31988,6 +32430,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -32010,6 +32455,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -32579,6 +33025,9 @@
                                       "blockchain_identifier": {
                                         "type": "string"
                                       },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -32601,6 +33050,7 @@
                                       "blockchain_address",
                                       "blockchain_status",
                                       "blockchain_identifier",
+                                      "tx_hash",
                                       "enabled"
                                     ]
                                   },
@@ -33089,6 +33539,9 @@
                                           "blockchain_identifier": {
                                             "type": "string"
                                           },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -33111,6 +33564,7 @@
                                           "blockchain_address",
                                           "blockchain_status",
                                           "blockchain_identifier",
+                                          "tx_hash",
                                           "enabled"
                                         ]
                                       },
@@ -34386,6 +34840,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -34408,6 +34865,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -34464,6 +34922,9 @@
                                               "blockchain_identifier": {
                                                 "type": "string"
                                               },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -34486,6 +34947,7 @@
                                               "blockchain_address",
                                               "blockchain_status",
                                               "blockchain_identifier",
+                                              "tx_hash",
                                               "enabled"
                                             ]
                                           }
@@ -35134,6 +35596,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -35156,6 +35621,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 }
@@ -35212,6 +35678,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -35234,6 +35703,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 }
@@ -35632,6 +36102,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -35654,6 +36127,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 }
@@ -35710,6 +36184,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -35732,6 +36209,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 }
@@ -36089,6 +36567,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -36111,6 +36592,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 },
@@ -36156,6 +36638,9 @@
                                     "blockchain_identifier": {
                                       "type": "string"
                                     },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -36178,6 +36663,7 @@
                                     "blockchain_address",
                                     "blockchain_status",
                                     "blockchain_identifier",
+                                    "tx_hash",
                                     "enabled"
                                   ]
                                 },

@@ -89,6 +89,24 @@ defmodule AdminAPI.V1.TokenController do
 
   def stats(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @spec deploy_erc20(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def deploy_erc20(conn, attrs) do
+    with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
+         {:ok, _} <- authorize(:deploy_erc20, conn.assigns, attrs),
+         {:ok, tx_hash, contract_address} <- TokenGate.deploy_erc20(attrs),
+         attrs <- Map.put(attrs, "tx_hash", tx_hash),
+         attrs <- Map.put(attrs, "blockchain_address", contract_address),
+         attrs <- Map.put(attrs, "blockchain_status", Token.blockchain_status_pending()),
+         attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, token} <- Token.insert(attrs) do
+      respond_single(token, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
   @doc """
   Creates a new Token.
   """

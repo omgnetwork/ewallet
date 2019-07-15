@@ -184,3 +184,20 @@ token.set_blockchain_address:
         $ref: 'responses.yaml#/TokenResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+token.deploy_erc20:
+  post:
+    tags:
+      - Token
+    summary: Attempts to deploy an ERC20 token with the specified parameters
+    operationId: token_deploy_erc20
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenCreateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

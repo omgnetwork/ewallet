@@ -72,6 +72,7 @@ defmodule EWalletDB.Token do
     field(:blockchain_address, :string)
     field(:blockchain_status, :string)
     field(:blockchain_identifier, :string)
+    field(:tx_hash, :string)
 
     belongs_to(
       :account,
@@ -106,6 +107,7 @@ defmodule EWalletDB.Token do
         :blockchain_address,
         :blockchain_status,
         :blockchain_identifier,
+        :tx_hash,
         :metadata,
         :encrypted_metadata
       ],
@@ -132,6 +134,7 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:blockchain_address,
       name: :token_blockchain_identifier_blockchain_address_index
     )
+    |> unique_constraint(:tx_hash)
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)

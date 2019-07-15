@@ -190,6 +190,10 @@ defmodule EthBlockchain.Adapter do
     Token.get_field(attrs, adapter, pid)
   end
 
+  def call({:deploy_erc20, attrs}, adapter, pid) do
+    Token.deploy_erc20(attrs, adapter, pid)
+  end
+
   def call(func_spec, nil, pid) do
     adapter =
       :eth_blockchain
