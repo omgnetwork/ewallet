@@ -1,10 +1,15 @@
 defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
   use Ecto.Migration
+  alias EWalletDB.Repo
 
   def change do
     alter table(:blockchain_wallet) do
       add :blockchain_identifier, :string
     end
+
+    flush()
+
+    {:ok, _} = Repo.query("UPDATE blockchain_wallet SET blockchain_identifier = 'ethereum' WHERE blockchain_identifier IS NULL")
 
     drop constraint(:transaction, "transaction_from_blockchain_address_fkey")
 
