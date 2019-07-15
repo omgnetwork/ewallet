@@ -87,12 +87,15 @@ class CreateBlockchainTransaction extends Component {
   }
 
   async componentDidUpdate (prevProps, prevState) {
-    const { toAddress } = this.state
+    const { toAddress, fromTokenAmount, fromTokenSelected } = this.state
     const { web3 } = window
     if (
-      (prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) ||
-      this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
-      this.state.fromTokenAmount !== prevState.fromTokenAmount
+      fromTokenAmount &&
+      toAddress &&
+      fromTokenSelected &&
+      ((prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) ||
+        this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
+        this.state.fromTokenAmount !== prevState.fromTokenAmount)
     ) {
       const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
       this.setState({ gasPrice: weiToGwei(gasPrice) })

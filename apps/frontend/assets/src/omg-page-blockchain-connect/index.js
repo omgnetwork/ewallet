@@ -41,7 +41,6 @@ const AccountBlanaceTitle = styled.h4`
 `
 function BlockchainConnect () {
   const dispatch = useDispatch()
-  const metamaskEnabled = useSelector(selectMetamaskEnabled)
   const selectedAddress = useSelector(selectCurrentAddress)
   const metamaskUsable = useSelector(selectMetamaskUsable)
   const balance = useSelector(selectBlockchainBalanceByAddressArray)(
@@ -101,7 +100,7 @@ function BlockchainConnect () {
     <SelectStateContainer>
       <div>
         <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
-        <Button onClick={onClickConnect} disabled={!metamaskEnabled}>Connect metamask</Button>
+        <Button onClick={onClickConnect}>Connect metamask</Button>
       </div>
     </SelectStateContainer>
   )
