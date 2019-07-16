@@ -15,8 +15,8 @@ const CopyTextContainer = styled.div`
     vertical-align: bottom;
   }
 `
-const createAlertState = (text, type) => {
-  return { id: uuid(), text, type }
+const createAlertState = (text, type, icon, duration, actions) => {
+  return { id: uuid(), text, type, icon, duration, actions }
 }
 
 const errorStateHandler = (state, { error }) => {
