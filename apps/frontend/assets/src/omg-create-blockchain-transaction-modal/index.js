@@ -208,7 +208,7 @@ class CreateBlockchainTransaction extends Component {
     this.props.sendTransaction({
       transaction: this.getTransactionPayload(),
       onTransactionHash: hash => {
-        this.setState({ step: 3, txhash: hash })
+        this.setState({ step: 3, txhash: String(hash) })
       },
       onReceipt: console.log,
       onConfirmation: console.log,
@@ -467,7 +467,7 @@ class CreateBlockchainTransaction extends Component {
             <PendingIcon name='Option-Horizontal' />
             <h4>Pending transaction</h4>
             <div>The transaction is waiting to be included in the block.</div>
-            <div>{String(this.state.txhash)}</div>
+            <div>{this.state.txhash}</div>
           </>
         )}
       </Title>
