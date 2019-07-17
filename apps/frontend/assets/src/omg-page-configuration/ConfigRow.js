@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Select, Checkbox } from '../omg-uikit'
@@ -33,7 +33,7 @@ const RadioButtonsContainer = styled.div`
   }
 `
 
-export default class ConfigRow extends Component {
+class ConfigRow extends Component {
   static propTypes = {
     description: PropTypes.string,
     value: PropTypes.any,
@@ -59,7 +59,7 @@ export default class ConfigRow extends Component {
 
   renderInputType () {
     return (
-      <Fragment>
+      <>
         {this.props.type === 'input' && (
           <Input
             suffix={this.props.suffix}
@@ -88,7 +88,7 @@ export default class ConfigRow extends Component {
             <Checkbox checked={this.props.value} onClick={this.props.onChange} />
           </RadioButtonsContainer>
         )}
-      </Fragment>
+      </>
     )
   }
 
@@ -104,3 +104,5 @@ export default class ConfigRow extends Component {
     )
   }
 }
+
+export default ConfigRow

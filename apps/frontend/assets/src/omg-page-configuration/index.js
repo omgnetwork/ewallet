@@ -1,18 +1,13 @@
-import React, { Component, Fragment } from 'react'
-import { Prompt, withRouter } from 'react-router-dom'
+import React from 'react'
+import { Prompt, withRouter, NavLink, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 
-import AccountsFetcher from '../omg-account/accountsFetcher'
-import { createSearchMasterAccountQuery } from '../omg-account/searchField'
-import AccountSelect from '../omg-account-select'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Icon, Input, LoadingSkeleton } from '../omg-uikit'
+import { Button } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
-import ConfigRow from './ConfigRow'
 import {
   selectConfigurationsByKey,
   selectConfigurationLoadingStatus
@@ -22,7 +17,12 @@ import {
   updateConfiguration
 } from '../omg-configuration/action'
 import CONSTANT from '../constants'
-import { isEmail } from '../utils/validator'
+
+import BlockchainSettings from './BlockchainSettings'
+import CacheSettings from './CacheSettings'
+import EmailSettings from './EmailSettings'
+import FileStorageSettings from './FileStorageSettings'
+import GlobalSettings from './GlobalSettings'
 
 const ConfigurationPageContainer = styled.div`
   position: relative;
@@ -31,61 +31,26 @@ const ConfigurationPageContainer = styled.div`
     margin-top: 50px;
   }
 `
-
-const SubSettingContainer = styled.div`
-  > div {
-    margin-left: 25px;
-    padding: 0 20px;
-    background-color: ${props => props.theme.colors.S100};
-    border-radius: 4px;
-    border: 1px solid transparent;
-    div:first-child {
-      flex: 0 0 175px;
-    }
-  }
+const ConnectionNotification = styled.div`
+  margin: 40px 0;
 `
-const InputPrefixContainer = styled.div`
-  position: relative;
-  i {
-    position: absolute;
-    right: -20px;
-    top: 4px;
-    visibility: ${props => (props.hide ? 'hidden' : 'visible')};
-    opacity: 0;
-    font-size: 8px;
-    cursor: pointer;
-    padding: 10px;
-  }
-  :hover > i {
-    opacity: 1;
-  }
+const Layout = styled.div`
+  display: flex;
+  flex-direction: row;
 `
-
-const InputsPrefixContainer = styled.div`
-  ${InputPrefixContainer} {
-    :not(:first-child) {
-      margin-top: 20px;
-    }
-  }
-`
-
-const PrefixContainer = styled.div`
-  text-align: left;
+const SideMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  margin-right: 40px;
   a {
-    display: block;
-    margin-top: 20px;
-    color: ${props =>
-    props.active ? props.theme.colors.BL400 : props.theme.colors.S500};
+    margin-bottom: 15px;
+    color: black;
+  }
+  .active {
+    color: ${props => props.theme.colors.BL400};
   }
 `
-
-const LoadingSkeletonContainer = styled.div`
-  margin-top: 50px;
-  > div {
-    margin-bottom: 20px;
-  }
-`
-
 const enhance = compose(
   withRouter,
   connect(
@@ -99,15 +64,16 @@ const enhance = compose(
   )
 )
 
-class ConfigurationPage extends Component {
+class ConfigurationPage extends React.Component {
   static propTypes = {
     configurations: PropTypes.object,
     configurationLoadingStatus: PropTypes.string,
     updateConfiguration: PropTypes.func,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    location: PropTypes.object,
+    history: PropTypes.object
   }
-
-  static getDerivedStateFromProps (props, state) {
+  static getDerivedStateFromProps = (props, state) => {
     const config = props.configurations
     if (
       !state.fetched &&
@@ -149,12 +115,15 @@ class ConfigurationPage extends Component {
     }
     return null
   }
-
   state = {
     originalState: null,
     submitStatus: CONSTANT.LOADING_STATUS.DEFAULT
   }
-
+  componentDidMount = () => {
+    if (this.props.location.pathname === '/configuration') {
+      this.props.history.push('/configuration/blockchain_settings')
+    }
+  }
   handleCancelClick = () => {
     this.setState(oldState => ({
       originalState: oldState.originalState,
@@ -162,14 +131,13 @@ class ConfigurationPage extends Component {
       ...oldState.originalState
     }))
   }
-
-  resetGcsState () {
+  resetGcsState = () => {
     this.setState({
       gcsBucket: this.props.configurations.gcs_bucket.value,
       gcsCredentials: this.props.configurations.gcs_credentials.value
     })
   }
-  resetAwsState () {
+  resetAwsState = () => {
     this.setState({
       awsBucket: this.props.configurations.aws_bucket.value,
       awsRegion: this.props.configurations.aws_region.value,
@@ -177,7 +145,7 @@ class ConfigurationPage extends Component {
       awsSecretAccessKey: this.props.configurations.aws_secret_access_key.value
     })
   }
-  isSendButtonDisabled () {
+  isSendButtonDisabled = () => {
     return (
       Object.keys(this.props.configurations)
         .filter(configKey => this.state[_.camelCase(configKey)] !== undefined)
@@ -191,25 +159,22 @@ class ConfigurationPage extends Component {
       !this.state.masterAccount
     )
   }
-  isAddPrefixButtonDisabled () {
+  isAddPrefixButtonDisabled = () => {
     const lastDynamicInputPrefix = _.last(this.state.redirectUrlPrefixes)
     return lastDynamicInputPrefix && lastDynamicInputPrefix.length <= 0
   }
   onSelectEmailAdapter = option => {
     this.setState({ emailAdapter: option.value })
   }
-
   onSelectBalanceCache = option => {
     this.setState({ balanceCachingStrategy: option.value })
   }
-
   onSelectMasterAccount = option => {
     this.setState({
       masterAccount: option.id,
       masterAccountSelected: true
     })
   }
-
   onClickRemovePrefix = index => e => {
     if (this.state.redirectUrlPrefixes.length > 1) {
       const newState = this.state.redirectUrlPrefixes.slice()
@@ -256,7 +221,6 @@ class ConfigurationPage extends Component {
       enableStandalone: !oldState.enableStandalone
     }))
   }
-
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
@@ -339,7 +303,6 @@ class ConfigurationPage extends Component {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
   }
-
   onClickAddPrefix = e => {
     if (!this.isAddPrefixButtonDisabled()) {
       this.setState(oldState => {
@@ -347,7 +310,6 @@ class ConfigurationPage extends Component {
       })
     }
   }
-
   renderCancelButton = () => {
     return (
       <Button
@@ -361,7 +323,6 @@ class ConfigurationPage extends Component {
       </Button>
     )
   }
-
   renderSaveButton = () => {
     return (
       <Button
@@ -375,316 +336,19 @@ class ConfigurationPage extends Component {
       </Button>
     )
   }
-
-  renderFileStorageAdpter (configurations) {
-    return (
-      <Fragment>
-        <h4>File Storage Adapter</h4>
-        <ConfigRow
-          name={'File Storage Adapter'}
-          description={configurations.file_storage_adapter.description}
-          value={this.state.fileStorageAdapter}
-          onSelectItem={this.onSelectFileStorageAdapter}
-          type='select'
-          options={configurations.file_storage_adapter.options.map(option => ({
-            key: option,
-            value: option
-          }))}
-        />
-        {this.state.fileStorageAdapter === 'gcs' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'GCS Bucket Key'}
-                description={configurations.gcs_bucket.description}
-                value={this.state.gcsBucket}
-                placeholder={'ie. google_cloud_1'}
-                onChange={this.onChangeInput('gcsBucket')}
-              />
-              <ConfigRow
-                name={'GCS Credential JSON'}
-                description={configurations.gcs_credentials.description}
-                value={this.state.gcsCredentials}
-                placeholder={
-                  'ie. {"type": "service_account", "project_id": "your-project-id" ...'
-                }
-                border={this.state.emailAdapter !== 'gcs'}
-                onChange={this.onChangeInput('gcsCredentials')}
-                inputErrorMessage='Invalid json credential'
-                inputValidator={value => {
-                  try {
-                    if (value.length === 0) return true
-                    // INCASE OF THE GCS KEY HAS NEW LINE IN PEM
-                    JSON.parse(value.replace(/\n|\r/g, ''))
-                    return true
-                  } catch (error) {
-                    return false
-                  }
-                }}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
-        {this.state.fileStorageAdapter === 'aws' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'AWS Bucket Name'}
-                description={configurations.aws_bucket.description}
-                value={this.state.awsBucket}
-                placeholder={'ie. aws_cloud_1'}
-                onChange={this.onChangeInput('awsBucket')}
-              />
-              <ConfigRow
-                name={'AWS Region'}
-                description={configurations.aws_region.description}
-                value={this.state.awsRegion}
-                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
-                border={this.state.emailAdapter !== 'gcs'}
-                onChange={this.onChangeInput('awsRegion')}
-              />
-              <ConfigRow
-                name={'AWS Access Key ID'}
-                description={configurations.aws_access_key_id.description}
-                value={this.state.awsAccessKeyId}
-                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
-                border={this.state.emailAdapter !== 'gcs'}
-                onChange={this.onChangeInput('awsAccessKeyId')}
-              />
-              <ConfigRow
-                name={'AWS Access Key ID'}
-                description={configurations.aws_secret_access_key.description}
-                value={this.state.awsSecretAccessKey}
-                placeholder={'ie. AIzaSyD0g8OombPqMBoIhit8ESNj0TueP_OVx2w'}
-                border={this.state.emailAdapter !== 'gcs'}
-                onChange={this.onChangeInput('awsSecretAccessKey')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
-      </Fragment>
-    )
-  }
-  renderCacheSetting (configurations) {
-    return (
-      <Fragment>
-        <h4>Cache Settings</h4>
-        <ConfigRow
-          name={'Balance Caching Strategy'}
-          description={configurations.balance_caching_strategy.description}
-          value={this.state.balanceCachingStrategy}
-          onSelectItem={this.onSelectBalanceCache}
-          type='select'
-          options={configurations.balance_caching_strategy.options.map(
-            option => ({
-              key: option,
-              value: option
-            })
-          )}
-        />
-        {this.state.balanceCachingStrategy === 'since_last_cached' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'Balance Caching Reset Frequency'}
-                description={
-                  configurations.balance_caching_reset_frequency.description
-                }
-                value={this.state.balanceCachingResetFrequency}
-                placeholder={'ie. 10'}
-                onChange={this.onChangeInput('balanceCachingResetFrequency')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
-      </Fragment>
-    )
-  }
-  renderGlobalSetting (configurations) {
-    return (
-      <Fragment>
-        <h4>Global Settings</h4>
-        <AccountsFetcher
-          query={createSearchMasterAccountQuery(this.state.masterAccount)}
-          render={({ data }) => {
-            return (
-              <ConfigRow
-                name={'Master Account'}
-                description={configurations.master_account.description}
-                value={this.state.masterAccount}
-                onSelectItem={this.onSelectMasterAccount}
-                onChange={this.onChangeInput('masterAccount')}
-                type='select'
-                options={data.map(account => ({
-                  key: account.id,
-                  value: <AccountSelect account={account} />,
-                  ...account
-                }))}
-              />
-            )
-          }}
-        />
-        <ConfigRow
-          name={'Base URL'}
-          description={configurations.base_url.description}
-          value={this.state.baseUrl}
-          onChange={this.onChangeInput('baseUrl')}
-          inputValidator={value => value.length > 0}
-          inputErrorMessage={'This field shouldn\'t be empty'}
-        />
-
-        <ConfigRow
-          name={'Redirect URL Prefixes'}
-          description={configurations.redirect_url_prefixes.description}
-          valueRenderer={() => {
-            return (
-              <InputsPrefixContainer>
-                {this.state.redirectUrlPrefixes.map((prefix, index) => (
-                  <InputPrefixContainer
-                    key={index}
-                    hide={this.state.redirectUrlPrefixes.length === 1}
-                  >
-                    <Input
-                      value={this.state.redirectUrlPrefixes[index]}
-                      onChange={this.onChangeInputredirectUrlPrefixes(index)}
-                      normalPlaceholder={`ie. https://website${index}.com`}
-                    />
-                    <Icon
-                      name='Close'
-                      onClick={this.onClickRemovePrefix(index)}
-                    />
-                  </InputPrefixContainer>
-                ))}
-                <PrefixContainer active={!this.isAddPrefixButtonDisabled()}>
-                  <a onClick={this.onClickAddPrefix}>+ Add Prefix</a>
-                </PrefixContainer>
-              </InputsPrefixContainer>
-            )
-          }}
-        />
-        <ConfigRow
-          name={'Enable Standalone'}
-          description={configurations.enable_standalone.description}
-          value={this.state.enableStandalone}
-          onChange={this.onChangeRadio}
-          type='boolean'
-        />
-        <ConfigRow
-          name={'Maximum Records Per Page'}
-          description={configurations.max_per_page.description}
-          value={String(this.state.maxPerPage)}
-          inputType='number'
-          onChange={this.onChangeInput('maxPerPage')}
-          inputValidator={value => Number(value) >= 1}
-          inputErrorMessage='invalid number'
-          suffix='Items'
-        />
-        <ConfigRow
-          name={'Minimum Password Length'}
-          description={configurations.min_password_length.description}
-          value={String(this.state.minPasswordLength)}
-          inputType='number'
-          onChange={this.onChangeInput('minPasswordLength')}
-          inputValidator={value => Number(value) >= 1}
-          inputErrorMessage='invalid number'
-          suffix='Characters'
-        />
-        <ConfigRow
-          name={'Forget Password Request Lifetime'}
-          description={
-            configurations.forget_password_request_lifetime.description
-          }
-          value={String(this.state.forgetPasswordRequestLifetime)}
-          inputType='number'
-          onChange={this.onChangeInput('forgetPasswordRequestLifetime')}
-          inputValidator={value => Number(value) >= 1}
-          inputErrorMessage='invalid number'
-          suffix='Mins'
-        />
-        <ConfigRow
-          name={'Pre Auth Token Lifetime'}
-          description={configurations.pre_auth_token_lifetime.description}
-          value={String(this.state.preAuthTokenLifetime)}
-          inputType='number'
-          onChange={this.onChangeInput('preAuthTokenLifetime')}
-          inputValidator={value => Number(value) >= 0}
-          inputErrorMessage='invalid number'
-          suffix='Secs'
-        />
-        <ConfigRow
-          name={'Auth Token Lifetime'}
-          description={configurations.auth_token_lifetime.description}
-          value={String(this.state.authTokenLifetime)}
-          inputType='number'
-          onChange={this.onChangeInput('authTokenLifetime')}
-          inputValidator={value => Number(value) >= 0}
-          inputErrorMessage='invalid number'
-          suffix='Secs'
-        />
-      </Fragment>
-    )
-  }
-  renderEmailSetting (configurations) {
-    return (
-      <Fragment>
-        <h4>Email Settings</h4>
-        <ConfigRow
-          name={'Sender Email'}
-          description={configurations.sender_email.description}
-          value={this.state.senderEmail}
-          onChange={this.onChangeInput('senderEmail')}
-          inputValidator={value => isEmail(value)}
-          inputErrorMessage={'Invalid email'}
-        />
-        <ConfigRow
-          name={'Email Adapter'}
-          description={configurations.email_adapter.description}
-          value={this.state.emailAdapter}
-          onSelectItem={this.onSelectEmailAdapter}
-          onChange={this.onChangeInput('emailAdapter')}
-          type='select'
-          options={configurations.email_adapter.options.map(option => ({
-            key: option,
-            value: option
-          }))}
-        />
-        {this.state.emailAdapter === 'smtp' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'SMTP Host'}
-                description={configurations.smtp_host.description}
-                value={this.state.smtpHost}
-                placeholder={'ie. smtp.yourdomain.com'}
-                onChange={this.onChangeInput('smtpHost')}
-              />
-              <ConfigRow
-                name={'SMTP Port'}
-                description={configurations.smtp_port.description}
-                value={this.state.smtpPort}
-                placeholder={'ie. 8830'}
-                onChange={this.onChangeInput('smtpPort')}
-              />
-              <ConfigRow
-                name={'SMTP Username'}
-                description={configurations.smtp_username.description}
-                value={this.state.smtpUsername}
-                placeholder={'ie. usertest01'}
-                onChange={this.onChangeInput('smtpUsername')}
-              />
-              <ConfigRow
-                name={'SMTP Password'}
-                description={configurations.smtp_password.description}
-                value={this.state.smtpPassword}
-                border={this.state.emailAdapter !== 'smtp'}
-                placeholder={'ie. password'}
-                onChange={this.onChangeInput('smtpPassword')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
-      </Fragment>
-    )
+  configApi = {
+    resetGcsState: this.resetGcsState,
+    resetAwsState: this.resetAwsState,
+    isAddPrefixButtonDisabled: this.isAddPrefixButtonDisabled,
+    onSelectEmailAdapter: this.onSelectEmailAdapter,
+    onSelectBalanceCache: this.onSelectBalanceCache,
+    onSelectMasterAccount: this.onSelectMasterAccount,
+    onClickRemovePrefix: this.onClickRemovePrefix,
+    onSelectFileStorageAdapter: this.onSelectFileStorageAdapter,
+    onChangeInput: this.onChangeInput,
+    onChangeInputredirectUrlPrefixes: this.onChangeInputredirectUrlPrefixes,
+    onChangeRadio: this.onChangeRadio,
+    onClickAddPrefix: this.onClickAddPrefix
   }
   renderConfigurationPage = () => {
     return (
@@ -699,30 +363,76 @@ class ConfigurationPage extends Component {
           ]}
           types={false}
         />
-        {!_.isEmpty(this.props.configurations) ? (
-          <form>
-            {this.renderGlobalSetting(this.props.configurations)}
-            {this.renderEmailSetting(this.props.configurations)}
-            {this.renderFileStorageAdpter(this.props.configurations)}
-            {this.renderCacheSetting(this.props.configurations)}
-          </form>
-        ) : (
-          <LoadingSkeletonContainer>
-            <LoadingSkeleton width={'150px'} />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-            <LoadingSkeleton />
-          </LoadingSkeletonContainer>
-        )}
+        <ConnectionNotification>Blockchain connection notification...</ConnectionNotification>
+        <Layout>
+          <SideMenu>
+            <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink>
+            <NavLink to='/configuration/global_settings'>Global Settings</NavLink>
+            <NavLink to='/configuration/email_settings'>Email Settings</NavLink>
+            <NavLink to='/configuration/cache_settings'>Cache Settings</NavLink>
+            <NavLink to='/configuration/file_storage_settings'>File Storage Settings</NavLink>
+          </SideMenu>
+          <Switch>
+            <Route
+              exact
+              path='/configuration/blockchain_settings'
+              render={() => (
+                <BlockchainSettings
+                  {...this.props}
+                  {...this.state}
+                  {...this.configApi}
+                />
+              )}
+            />
+            <Route
+              exact
+              path='/configuration/global_settings'
+              render={() => (
+                <GlobalSettings
+                  {...this.props}
+                  {...this.state}
+                  {...this.configApi}
+                />
+              )}
+            />
+            <Route
+              exact
+              path='/configuration/email_settings'
+              render={() => (
+                <EmailSettings
+                  {...this.props}
+                  {...this.state}
+                  {...this.configApi}
+                />
+              )}
+            />
+            <Route
+              exact
+              path='/configuration/cache_settings'
+              render={() => (
+                <CacheSettings
+                  {...this.props}
+                  {...this.state}
+                  {...this.configApi}
+                />
+              )}
+            />
+            <Route
+              exact
+              path='/configuration/file_storage_settings'
+              render={() => (
+                <FileStorageSettings
+                  {...this.props}
+                  {...this.state}
+                  {...this.configApi}
+                />
+              )}
+            />
+          </Switch>
+        </Layout>
       </ConfigurationPageContainer>
     )
   }
-
   render () {
     return (
       <>
