@@ -10,7 +10,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { sendTransaction } from '../omg-web3/action'
+import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
@@ -19,7 +19,6 @@ import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
 import {
   selectBlockchainBalanceByAddress,
-  se,
   selectNetwork
 } from '../omg-web3/selector'
 import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
@@ -51,7 +50,7 @@ const enhance = compose(
       selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state),
       network: selectNetwork(state)
     }),
-    { transfer, getWalletById, sendTransaction }
+    { transfer, getWalletById, sendTransaction, estimateGasFromTransaction }
   )
 )
 class CreateBlockchainTransaction extends Component {
@@ -62,6 +61,7 @@ class CreateBlockchainTransaction extends Component {
     match: PropTypes.object,
     selectBlockchainBalanceByAddress: PropTypes.func,
     sendTransaction: PropTypes.func,
+    estimateGasFromTransaction: PropTypes.func,
     network: PropTypes.number
   }
   static defaultProps = {
@@ -83,26 +83,28 @@ class CreateBlockchainTransaction extends Component {
     fromTokenSelected: {}
   }
   async componentDidMount () {
-    const { web3 } = window
-    if (web3 && web3Utils.isAddress(this.state.toAddress)) {
-      const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
-      this.setState({ gasPrice: weiToGwei(gasPrice) })
-    }
+    this.setGasPrice()
   }
 
   async componentDidUpdate (prevProps, prevState) {
     const { toAddress, fromTokenAmount, fromTokenSelected } = this.state
-    const { web3 } = window
     if (
       fromTokenAmount &&
       toAddress &&
       fromTokenSelected &&
-      ((prevState.toAddress !== toAddress && web3Utils.isAddress(toAddress)) ||
+      ((prevState.toAddress !== toAddress) ||
         this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
         this.state.fromTokenAmount !== prevState.fromTokenAmount)
     ) {
-      const gasPrice = await web3.eth.estimateGas(this.getTransactionPayload())
-      this.setState({ gasPrice: weiToGwei(gasPrice) })
+      this.setGasPrice()
+    }
+  }
+
+  setGasPrice = async () => {
+    const { estimateGasFromTransaction } = this.props
+    if (web3Utils.isAddress(this.state.toAddress)) {
+      const { data: { gas } } = await estimateGasFromTransaction(this.getTransactionPayload())
+      this.setState({ gasPrice: weiToGwei(gas) })
     }
   }
 

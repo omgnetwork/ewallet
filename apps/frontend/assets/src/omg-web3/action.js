@@ -46,7 +46,7 @@ export const getBlockchainBalanceByAddress = address =>
 export const estimateGasFromTransaction = transaction =>
   createWeb3Call(async dispatch => {
     const { web3 } = window
-    const gas = await web3.eth.esimateGas(transaction)
+    const gas = await web3.eth.estimateGas(transaction)
     return dispatch({
       type: 'WEB3/ESTIMATE_GAS/SUCCESS',
       data: { transaction, gas }
