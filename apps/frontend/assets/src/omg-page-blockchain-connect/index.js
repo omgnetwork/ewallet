@@ -9,7 +9,6 @@ import {
   getBlockchainBalanceByAddress
 } from '../omg-web3/action'
 import {
-  selectMetamaskEnabled,
   selectCurrentAddress,
   selectBlockchainBalanceByAddressArray,
   selectMetamaskUsable
