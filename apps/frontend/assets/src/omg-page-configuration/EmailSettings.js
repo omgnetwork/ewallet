@@ -24,66 +24,74 @@ const SubSettingContainer = styled.div`
     }
   }
 `
+const Grid = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`
+
 const EmailSettings = (props) => {
   const renderEmailSetting = (configurations) => {
     return (
       <>
         <h4>Email Settings</h4>
-        <ConfigRow
-          name={'Sender Email'}
-          description={configurations.sender_email.description}
-          value={props.senderEmail}
-          onChange={props.onChangeInput('senderEmail')}
-          inputValidator={value => isEmail(value)}
-          inputErrorMessage={'Invalid email'}
-        />
-        <ConfigRow
-          name={'Email Adapter'}
-          description={configurations.email_adapter.description}
-          value={props.emailAdapter}
-          onSelectItem={props.onSelectEmailAdapter}
-          onChange={props.onChangeInput('emailAdapter')}
-          type='select'
-          options={configurations.email_adapter.options.map(option => ({
-            key: option,
-            value: option
-          }))}
-        />
-        {props.emailAdapter === 'smtp' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'SMTP Host'}
-                description={configurations.smtp_host.description}
-                value={props.smtpHost}
-                placeholder={'ie. smtp.yourdomain.com'}
-                onChange={props.onChangeInput('smtpHost')}
-              />
-              <ConfigRow
-                name={'SMTP Port'}
-                description={configurations.smtp_port.description}
-                value={props.smtpPort}
-                placeholder={'ie. 8830'}
-                onChange={props.onChangeInput('smtpPort')}
-              />
-              <ConfigRow
-                name={'SMTP Username'}
-                description={configurations.smtp_username.description}
-                value={props.smtpUsername}
-                placeholder={'ie. usertest01'}
-                onChange={props.onChangeInput('smtpUsername')}
-              />
-              <ConfigRow
-                name={'SMTP Password'}
-                description={configurations.smtp_password.description}
-                value={props.smtpPassword}
-                border={props.emailAdapter !== 'smtp'}
-                placeholder={'ie. password'}
-                onChange={props.onChangeInput('smtpPassword')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
+        <Grid>
+          <ConfigRow
+            name={'Sender Email'}
+            description={configurations.sender_email.description}
+            value={props.senderEmail}
+            onChange={props.onChangeInput('senderEmail')}
+            inputValidator={value => isEmail(value)}
+            inputErrorMessage={'Invalid email'}
+          />
+          <ConfigRow
+            name={'Email Adapter'}
+            description={configurations.email_adapter.description}
+            value={props.emailAdapter}
+            onSelectItem={props.onSelectEmailAdapter}
+            onChange={props.onChangeInput('emailAdapter')}
+            type='select'
+            options={configurations.email_adapter.options.map(option => ({
+              key: option,
+              value: option
+            }))}
+          />
+          {props.emailAdapter === 'smtp' && (
+            <SubSettingContainer>
+              <div>
+                <ConfigRow
+                  name={'SMTP Host'}
+                  description={configurations.smtp_host.description}
+                  value={props.smtpHost}
+                  placeholder={'ie. smtp.yourdomain.com'}
+                  onChange={props.onChangeInput('smtpHost')}
+                />
+                <ConfigRow
+                  name={'SMTP Port'}
+                  description={configurations.smtp_port.description}
+                  value={props.smtpPort}
+                  placeholder={'ie. 8830'}
+                  onChange={props.onChangeInput('smtpPort')}
+                />
+                <ConfigRow
+                  name={'SMTP Username'}
+                  description={configurations.smtp_username.description}
+                  value={props.smtpUsername}
+                  placeholder={'ie. usertest01'}
+                  onChange={props.onChangeInput('smtpUsername')}
+                />
+                <ConfigRow
+                  name={'SMTP Password'}
+                  description={configurations.smtp_password.description}
+                  value={props.smtpPassword}
+                  border={props.emailAdapter !== 'smtp'}
+                  placeholder={'ie. password'}
+                  onChange={props.onChangeInput('smtpPassword')}
+                />
+              </div>
+            </SubSettingContainer>
+          )}
+        </Grid>
       </>
     )
   }

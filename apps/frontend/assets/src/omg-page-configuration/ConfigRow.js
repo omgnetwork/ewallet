@@ -4,23 +4,19 @@ import styled from 'styled-components'
 import { Input, Select, Checkbox } from '../omg-uikit'
 const ConfigRowContainer = styled.div`
   display: flex;
-  border-bottom: ${props => (props.border ? `1px solid ${props.theme.colors.S200}` : 'none')};
+  flex-direction: column;
+  width: calc(50% - 60px);
+  margin: 20px 60px 20px 0;
 `
 const ConfigCol = styled.div`
   flex: 1 1 auto;
-  padding: 20px;
   vertical-align: bottom;
   :first-child {
-    flex: 0 1 220px;
-    padding-left: 0;
     font-weight: 600;
-  }
-  :nth-child(2) {
-    flex: 0 1 300px;
+    margin-bottom: 10px;
   }
   :last-child {
-    padding-right: 0;
-    flex: 0 1 400px;
+    margin-top: 10px;
   }
 `
 const RadioButtonsContainer = styled.div`

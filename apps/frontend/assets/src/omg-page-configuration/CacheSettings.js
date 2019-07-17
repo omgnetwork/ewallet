@@ -23,39 +23,47 @@ const SubSettingContainer = styled.div`
     }
   }
 `
+const Grid = styled.div`
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+`
+
 const CacheSettings = (props) => {
   const renderCacheSetting = (configurations) => {
     return (
       <>
         <h4>Cache Settings</h4>
-        <ConfigRow
-          name={'Balance Caching Strategy'}
-          description={configurations.balance_caching_strategy.description}
-          value={props.balanceCachingStrategy}
-          onSelectItem={props.onSelectBalanceCache}
-          type='select'
-          options={configurations.balance_caching_strategy.options.map(
-            option => ({
-              key: option,
-              value: option
-            })
+        <Grid>
+          <ConfigRow
+            name={'Balance Caching Strategy'}
+            description={configurations.balance_caching_strategy.description}
+            value={props.balanceCachingStrategy}
+            onSelectItem={props.onSelectBalanceCache}
+            type='select'
+            options={configurations.balance_caching_strategy.options.map(
+              option => ({
+                key: option,
+                value: option
+              })
+            )}
+          />
+          {props.balanceCachingStrategy === 'since_last_cached' && (
+            <SubSettingContainer>
+              <div>
+                <ConfigRow
+                  name={'Balance Caching Reset Frequency'}
+                  description={
+                    configurations.balance_caching_reset_frequency.description
+                  }
+                  value={props.balanceCachingResetFrequency}
+                  placeholder={'ie. 10'}
+                  onChange={props.onChangeInput('balanceCachingResetFrequency')}
+                />
+              </div>
+            </SubSettingContainer>
           )}
-        />
-        {props.balanceCachingStrategy === 'since_last_cached' && (
-          <SubSettingContainer>
-            <div>
-              <ConfigRow
-                name={'Balance Caching Reset Frequency'}
-                description={
-                  configurations.balance_caching_reset_frequency.description
-                }
-                value={props.balanceCachingResetFrequency}
-                placeholder={'ie. 10'}
-                onChange={props.onChangeInput('balanceCachingResetFrequency')}
-              />
-            </div>
-          </SubSettingContainer>
-        )}
+        </Grid>
       </>
     )
   }

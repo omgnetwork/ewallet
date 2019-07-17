@@ -51,6 +51,12 @@ const SideMenu = styled.div`
     color: ${props => props.theme.colors.BL400};
   }
 `
+const Content = styled.div`
+width: 100%;
+  form {
+    width: 100%;
+  }
+`
 const enhance = compose(
   withRouter,
   connect(
@@ -372,63 +378,65 @@ class ConfigurationPage extends React.Component {
             <NavLink to='/configuration/cache_settings'>Cache Settings</NavLink>
             <NavLink to='/configuration/file_storage_settings'>File Storage Settings</NavLink>
           </SideMenu>
-          <Switch>
-            <Route
-              exact
-              path='/configuration/blockchain_settings'
-              render={() => (
-                <BlockchainSettings
-                  {...this.props}
-                  {...this.state}
-                  {...this.configApi}
-                />
-              )}
-            />
-            <Route
-              exact
-              path='/configuration/global_settings'
-              render={() => (
-                <GlobalSettings
-                  {...this.props}
-                  {...this.state}
-                  {...this.configApi}
-                />
-              )}
-            />
-            <Route
-              exact
-              path='/configuration/email_settings'
-              render={() => (
-                <EmailSettings
-                  {...this.props}
-                  {...this.state}
-                  {...this.configApi}
-                />
-              )}
-            />
-            <Route
-              exact
-              path='/configuration/cache_settings'
-              render={() => (
-                <CacheSettings
-                  {...this.props}
-                  {...this.state}
-                  {...this.configApi}
-                />
-              )}
-            />
-            <Route
-              exact
-              path='/configuration/file_storage_settings'
-              render={() => (
-                <FileStorageSettings
-                  {...this.props}
-                  {...this.state}
-                  {...this.configApi}
-                />
-              )}
-            />
-          </Switch>
+          <Content>
+            <Switch>
+              <Route
+                exact
+                path='/configuration/blockchain_settings'
+                render={() => (
+                  <BlockchainSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path='/configuration/global_settings'
+                render={() => (
+                  <GlobalSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path='/configuration/email_settings'
+                render={() => (
+                  <EmailSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path='/configuration/cache_settings'
+                render={() => (
+                  <CacheSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path='/configuration/file_storage_settings'
+                render={() => (
+                  <FileStorageSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+            </Switch>
+          </Content>
         </Layout>
       </ConfigurationPageContainer>
     )
