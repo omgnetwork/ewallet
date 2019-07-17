@@ -100,7 +100,9 @@ function BlockchainConnect () {
     <SelectStateContainer>
       <div>
         <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
-        <Button onClick={onClickConnect}>Connect metamask</Button>
+        <Button onClick={onClickConnect} disabled={!window.ethereum || !window.web3}>
+          Connect metamask
+        </Button>
       </div>
     </SelectStateContainer>
   )

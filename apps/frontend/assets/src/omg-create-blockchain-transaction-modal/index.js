@@ -53,10 +53,7 @@ class CreateBlockchainTransaction extends Component {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
     selectWalletById: PropTypes.func,
-    getWalletById: PropTypes.func,
     match: PropTypes.object,
-    onCreateTransaction: PropTypes.func,
-    transfer: PropTypes.func,
     selectBlockchainBalanceByAddress: PropTypes.func,
     sendTransaction: PropTypes.func
   }
@@ -220,42 +217,6 @@ class CreateBlockchainTransaction extends Component {
         this.setState({ submitting: false })
       }
     })
-
-    // this.setState({ submitting: true })
-    // try {
-    //   const fromAmount = formatAmount(
-    //     this.state.fromTokenAmount,
-    //     _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
-    //   )
-    //   const toAmount = formatAmount(
-    //     this.state.toTokenAmount,
-    //     _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
-    //   )
-    //   const result = await this.props.transfer({
-    //     fromAddress: this.state.fromAddress.trim(),
-    //     toAddress: this.state.toAddress.trim(),
-    //     fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
-    //     toTokenId:
-    //       _.get(this.state.toTokenSelected, 'token.id') ||
-    //       _.get(this.state.fromTokenSelected, 'token.id'),
-    //     fromAmount,
-    //     toAmount,
-    //     exchangeAddress: this.state.exchangeAddress
-    //   })
-    //   if (result.data) {
-    //     this.props.getWalletById(this.state.fromAddress)
-    //     this.props.getWalletById(this.state.toAddress)
-    //     this.onRequestClose()
-    //   } else {
-    //     this.setState({
-    //       submitting: false,
-    //       error: result.error.description || result.error.message
-    //     })
-    //   }
-    //   this.props.onCreateTransaction()
-    // } catch (e) {
-    //   this.setState({ error: JSON.stringify(e.message) })
-    // }
   }
   onRequestClose = () => {
     this.props.onRequestClose()
@@ -438,13 +399,7 @@ class CreateBlockchainTransaction extends Component {
           type='number'
           suffix='Gwei'
           subTitle={`${this.getTransactionFee()} ETH`}
-        />
-        {/* <Label>Data</Label>
-        <StyledInput
-          onChange={e => this.setState({ metaData: e.target.value })}
-          value={this.state.metaData}
-          subTitle='Optional'
-        /> */}
+        />  
       </CollapsableContent>
     )
   }

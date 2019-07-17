@@ -26,51 +26,51 @@ export const setMetamaskSettings = metamaskSettings => dispatch => {
   return dispatch({ type: 'METAMASK/UPDATE_SETTINGS', data: metamaskSettings })
 }
 
-const createWeb3Call = fn => {
+const createWeb3Call = fn => dispatch => {
   if (!window.web3) {
-    throw new Error('web3 metamask is not existed')
+    console.warn('web3 metamask is not existed')
   }
-  return fn
+  return fn(dispatch)
 }
-export const getBlockchainBalanceByAddress = createWeb3Call(
-  address => async dispatch => {
+
+export const getBlockchainBalanceByAddress = address =>
+  createWeb3Call(async dispatch => {
     const { web3 } = window
     const rawBalance = await web3.eth.getBalance(address)
     return dispatch({
       type: 'BLOCKCHAIN_BALANCE/REQUEST/SUCCESS',
       data: { token: 'ETH', balance: rawBalance, address, decimal: 18 }
     })
-  }
-)
+  })
 
-export const estimateGasFromTransaction = createWeb3Call(
-  transaction => async dispatch => {
+export const estimateGasFromTransaction = transaction =>
+  createWeb3Call(async dispatch => {
     const { web3 } = window
     const gas = await web3.eth.esimateGas(transaction)
     return dispatch({
       type: 'WEB3/ESTIMATE_GAS/SUCCESS',
       data: { transaction, gas }
     })
-  }
-)
-
-export const getNetworkType = createWeb3Call(() => async dispatch => {
-  const { web3 } = window
-  const networkType = await web3.eth.net.getNetworkType
-  return dispatch({
-    type: 'WEB3/ESTIMATE_GAS/SUCCESS',
-    data: { networkType }
   })
-})
 
-export const sendTransaction = createWeb3Call(
-  ({
-    transaction,
-    onTransactionHash,
-    onReceipt,
-    onConfirmation,
-    onError
-  }) => async dispatch => {
+export const getNetworkType = () =>
+  createWeb3Call(async dispatch => {
+    const { web3 } = window
+    const networkType = await web3.eth.net.getNetworkType
+    return dispatch({
+      type: 'WEB3/ESTIMATE_GAS/SUCCESS',
+      data: { networkType }
+    })
+  })
+
+export const sendTransaction = ({
+  transaction,
+  onTransactionHash,
+  onReceipt,
+  onConfirmation,
+  onError
+}) =>
+  createWeb3Call(async dispatch => {
     const { web3 } = window
     web3.eth
       .sendTransaction(transaction)
@@ -84,5 +84,4 @@ export const sendTransaction = createWeb3Call(
       .on('receipt', onReceipt)
       .on('confirmation', onConfirmation)
       .on('error', onError)
-  }
-)
+  })
