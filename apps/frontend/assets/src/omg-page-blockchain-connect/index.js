@@ -82,7 +82,7 @@ function BlockchainConnect () {
       <RowInfo>
         <div>
           <AccountBlanaceTitle>Account Balance</AccountBlanaceTitle>{' '}
-          <a>add custom token</a>
+          {/* <a>add custom token</a> */}
         </div>
         {balance.length &&
           balance.map(token => {
