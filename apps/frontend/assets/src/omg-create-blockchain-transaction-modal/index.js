@@ -17,7 +17,7 @@ import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
-import { selectBlockchainBalanceByAddress } from '../omg-web3/selector'
+import { selectBlockchainBalanceByAddress, se, selectNetwork } from '../omg-web3/selector'
 import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
 import {
   Form,
@@ -38,12 +38,14 @@ import {
   CollapsableContent,
   Links
 } from './styles'
+import { ethExplorerMetamaskNetworkMap } from '../omg-web3/constants'
 const enhance = compose(
   withRouter,
   connect(
     state => ({
       selectWalletById: selectWalletById(state),
-      selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state)
+      selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state),
+      network: selectNetwork(state)
     }),
     { transfer, getWalletById, sendTransaction }
   )
@@ -55,7 +57,8 @@ class CreateBlockchainTransaction extends Component {
     selectWalletById: PropTypes.func,
     match: PropTypes.object,
     selectBlockchainBalanceByAddress: PropTypes.func,
-    sendTransaction: PropTypes.func
+    sendTransaction: PropTypes.func,
+    network: PropTypes.number
   }
   static defaultProps = {
     onCreateTransaction: _.noop
@@ -207,12 +210,8 @@ class CreateBlockchainTransaction extends Component {
       onTransactionHash: hash => {
         this.setState({ step: 3, txhash: hash })
       },
-      onReceipt: receipt => {
-        console.log(receipt)
-      },
-      onConfirmation: (confirmationNumber, receipt) => {
-        console.log(confirmationNumber, receipt)
-      },
+      onReceipt: console.log,
+      onConfirmation: console.log,
       onError: () => {
         this.setState({ submitting: false })
       }
@@ -475,7 +474,9 @@ class CreateBlockchainTransaction extends Component {
     )
   }
   renderActions () {
-    const { fromAddress, toAddress, fromTokenSelected } = this.state
+    const { fromAddress, toAddress, fromTokenSelected, txHash } = this.state
+    const { network } = this.props
+    const exlorerUrl = `${ethExplorerMetamaskNetworkMap[network]}/tx/${txHash}`
     const transferDisabled = !(fromAddress && toAddress && fromTokenSelected)
     return (
       <>
@@ -530,10 +531,7 @@ class CreateBlockchainTransaction extends Component {
             </Button>
             <Links>
               <span>
-                View Transaction <Icon name='Arrow-Right' />
-              </span>
-              <span>
-                Track on Etherscan <Icon name='Arrow-Right' />
+                <a href={exlorerUrl}>Track on Etherscan <Icon name='Arrow-Right' /></a>
               </span>
             </Links>
           </ButtonContainer>
