@@ -17,7 +17,11 @@ import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
-import { selectBlockchainBalanceByAddress, se, selectNetwork } from '../omg-web3/selector'
+import {
+  selectBlockchainBalanceByAddress,
+  se,
+  selectNetwork
+} from '../omg-web3/selector'
 import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
 import {
   Form,
@@ -208,7 +212,7 @@ class CreateBlockchainTransaction extends Component {
     this.props.sendTransaction({
       transaction: this.getTransactionPayload(),
       onTransactionHash: hash => {
-        this.setState({ step: 3, txhash: String(hash) })
+        this.setState({ step: 3, txHash: String(hash) })
       },
       onReceipt: console.log,
       onConfirmation: console.log,
@@ -398,7 +402,7 @@ class CreateBlockchainTransaction extends Component {
           type='number'
           suffix='Gwei'
           subTitle={`${this.getTransactionFee()} ETH`}
-        />  
+        />
       </CollapsableContent>
     )
   }
@@ -467,7 +471,7 @@ class CreateBlockchainTransaction extends Component {
             <PendingIcon name='Option-Horizontal' />
             <h4>Pending transaction</h4>
             <div>The transaction is waiting to be included in the block.</div>
-            <div>{this.state.txhash}</div>
+            <div>{this.state.txHash}</div>
           </>
         )}
       </Title>
@@ -531,7 +535,9 @@ class CreateBlockchainTransaction extends Component {
             </Button>
             <Links>
               <span>
-                <a href={exlorerUrl}>Track on Etherscan <Icon name='Arrow-Right' /></a>
+                <a href={exlorerUrl} target='_blank' rel='noopener noreferrer'>
+                  Track on Etherscan <Icon name='Arrow-Right' />
+                </a>
               </span>
             </Links>
           </ButtonContainer>

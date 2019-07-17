@@ -16,7 +16,7 @@ export const Form = styled.div`
     margin-top: 5px;
   }
   button {
-    margin: 35px 0 0;
+    margin: 15px 0;
     font-size: 14px;
   }
   h4 {
@@ -41,6 +41,7 @@ export const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  align-items: center;
 `
 export const Error = styled.div`
   color: ${props => props.theme.colors.R400};
