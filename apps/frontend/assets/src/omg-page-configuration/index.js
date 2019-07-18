@@ -33,13 +33,14 @@ const ConfigurationPageContainer = styled.div`
 `
 const ConnectionNotification = styled.div`
   margin: 40px 0;
-  background-color: ${props => props.theme.colors.S100};
+  background-color: ${props => props.connected ? props.theme.colors.S100 : '#fef7e5'};
   padding: 10px 24px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   i[name="Info"] {
     margin-right: 10px;
+    color: ${props => props.connected ? props.theme.colors.S100 : '#ffb200'};
   }
 `
 const Layout = styled.div`
@@ -392,9 +393,9 @@ class ConfigurationPage extends React.Component {
           ]}
           types={false}
         />
-        <ConnectionNotification>
+        <ConnectionNotification connected={_.get(this.props.configurations, 'enable_blockchain.value', false)}>
           <Icon name='Info' />
-          The app is currently not connected to Ethereum.
+          {`The app is currently ${_.get(this.props.configurations, 'enable_blockchain.value', false) ? '' : ' not'} connected to Ethereum.`}
         </ConnectionNotification>
         <Layout>
           <SideMenu>
