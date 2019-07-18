@@ -354,7 +354,8 @@ class ConfigurationPage extends React.Component {
     onChangeInput: this.onChangeInput,
     onChangeInputredirectUrlPrefixes: this.onChangeInputredirectUrlPrefixes,
     onChangeRadio: this.onChangeRadio,
-    onClickAddPrefix: this.onClickAddPrefix
+    onClickAddPrefix: this.onClickAddPrefix,
+    handleCancelClick: this.handleCancelClick
   }
   renderConfigurationPage = () => {
     return (

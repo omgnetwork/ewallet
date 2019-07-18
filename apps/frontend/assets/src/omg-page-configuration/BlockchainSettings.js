@@ -1,6 +1,11 @@
-import React from 'react'
+/* eslint-disable react/prop-types */
+import React, { useEffect } from 'react'
 
-const BlockchainSettings = () => {
+const BlockchainSettings = (props) => {
+  useEffect(() => {
+    return props.handleCancelClick
+  }, [])
+
   return (
     <div>BlockchainSettings</div>
   )

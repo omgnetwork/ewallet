@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 
 import ConfigRow from './ConfigRow'
@@ -30,6 +30,10 @@ const Grid = styled.div`
 `
 
 const FileStorageSettings = (props) => {
+  useEffect(() => {
+    return props.handleCancelClick
+  }, [])
+
   const renderFileStorageAdpter = (configurations) => {
     return (
       <>
