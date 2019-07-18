@@ -193,6 +193,7 @@ const GlobalSettings = (props) => {
           <LoadingSkeleton width={'150px'} />
           <LoadingSkeleton />
           <LoadingSkeleton />
+          <LoadingSkeleton />
         </LoadingSkeletonContainer>
       )}
     </>

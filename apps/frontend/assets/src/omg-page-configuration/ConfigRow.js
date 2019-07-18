@@ -9,7 +9,6 @@ const ConfigRowContainer = styled.div`
   margin: 20px 60px 20px 0;
 `
 const ConfigCol = styled.div`
-  flex: 1 1 auto;
   vertical-align: bottom;
   :first-child {
     font-weight: 600;
@@ -21,10 +20,14 @@ const ConfigCol = styled.div`
 `
 const RadioButtonsContainer = styled.div`
   display: flex;
+  flex-direction: row;
   > div {
     display: inline-block;
     :first-child {
-      margin-right: 25px;
+      margin-right: 15px;
+    }
+    :last-child {
+      margin-top: 0;
     }
   }
 `
@@ -79,11 +82,6 @@ class ConfigRow extends Component {
             errorText={this.props.inputErrorMessage}
           />
         )}
-        {this.props.type === 'boolean' && (
-          <RadioButtonsContainer>
-            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
-          </RadioButtonsContainer>
-        )}
       </>
     )
   }
@@ -92,10 +90,21 @@ class ConfigRow extends Component {
     return (
       <ConfigRowContainer border={this.props.border}>
         <ConfigCol>{this.props.name}</ConfigCol>
-        <ConfigCol>{this.props.description}</ConfigCol>
-        <ConfigCol>
-          {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
-        </ConfigCol>
+        {this.props.type === 'boolean' && (
+          <RadioButtonsContainer>
+            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
+            <ConfigCol>{this.props.description}</ConfigCol>
+          </RadioButtonsContainer>
+        )}
+
+        {this.props.type !== 'boolean' && (
+          <>
+            <ConfigCol>{this.props.description}</ConfigCol>
+            <ConfigCol>
+              {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
+            </ConfigCol>
+          </>
+        )}
       </ConfigRowContainer>
     )
   }
