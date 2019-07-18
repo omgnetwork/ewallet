@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo, StoredSetting}
-  alias EWallet.ConfigurationPolicy
+  alias EWallet.{BlockchainHelper, ConfigurationPolicy}
   alias EWalletDB.{Account, BlockchainWallet}
   alias Ecto.Changeset
 
@@ -72,7 +72,9 @@ defmodule AdminAPI.V1.ConfigurationController do
   defp validate_primary_hot_wallet(
          {%{"primary_hot_wallet" => primary_hot_wallet_address} = attrs, errors}
        ) do
-    case BlockchainWallet.get(primary_hot_wallet_address, "hot") do
+    identifier = BlockchainHelper.identifier()
+
+    case BlockchainWallet.get(primary_hot_wallet_address, "hot", identifier) do
       nil ->
         {
           Map.delete(attrs, "primary_hot_wallet"),

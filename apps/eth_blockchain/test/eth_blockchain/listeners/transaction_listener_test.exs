@@ -43,7 +43,7 @@ defmodule EthBlockchain.TransactionListenerTest do
                 blockchain_adapter_pid: nil,
                 node_adapter: nil,
                 subscribers: []
-              }} = TransactionListener.init(get_attrs())
+              }, {:continue, :start_polling}} = TransactionListener.init(get_attrs())
     end
   end
 
@@ -100,6 +100,34 @@ defmodule EthBlockchain.TransactionListenerTest do
           refute Process.alive?(pid)
       end
     end
+
+    test "unsubscribes an already unsubscribed subscriber" do
+      {:ok, pid} = TransactionListener.start_link(get_attrs())
+      {:ok, subscriber_pid_1} = DumbSubscriber.start_link(%{})
+      {:ok, subscriber_pid_2} = DumbSubscriber.start_link(%{})
+
+      :ok = GenServer.call(pid, {:subscribe, subscriber_pid_1})
+      :ok = GenServer.call(pid, {:subscribe, subscriber_pid_2})
+      %{subscribers: subscribers} = :sys.get_state(pid)
+      assert subscribers == [subscriber_pid_2, subscriber_pid_1]
+
+      :ok = GenServer.cast(pid, {:unsubscribe, subscriber_pid_2})
+      %{subscribers: subscribers} = :sys.get_state(pid)
+      assert subscribers == [subscriber_pid_1]
+
+      :ok = GenServer.cast(pid, {:unsubscribe, subscriber_pid_2})
+      %{subscribers: subscribers} = :sys.get_state(pid)
+      assert subscribers == [subscriber_pid_1]
+
+      :ok = GenServer.cast(pid, {:unsubscribe, subscriber_pid_1})
+
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          refute Process.alive?(pid)
+      end
+    end
   end
 
   describe "run/1" do
@@ -117,10 +145,10 @@ defmodule EthBlockchain.TransactionListenerTest do
           assert state[:confirmations_count] == 13
           assert state[:receipt][:transaction_hash] == "valid"
           assert state[:receipt][:status] == 1
-
-          assert GenServer.stop(subscriber_pid) == :ok
-          assert GenServer.stop(pid) == :ok
       end
+
+      assert GenServer.stop(subscriber_pid) == :ok
+      assert GenServer.stop(pid) == :ok
     end
 
     test "handles a not found transaction" do
@@ -131,10 +159,10 @@ defmodule EthBlockchain.TransactionListenerTest do
       receive do
         state ->
           assert state[:error] == :not_found
-
-          assert GenServer.stop(subscriber_pid) == :ok
-          assert GenServer.stop(pid) == :ok
       end
+
+      assert GenServer.stop(subscriber_pid) == :ok
+      assert GenServer.stop(pid) == :ok
     end
 
     test "handles a failed transaction" do

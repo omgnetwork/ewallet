@@ -14,7 +14,6 @@
 
 defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   alias EWallet.Web.Preloader
-  alias EWallet.BlockchainHelper
   alias EWalletDB.{Account, Token}
   alias EWalletDB.Seeder
 
@@ -26,7 +25,10 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   end
 
   def run(writer, _args) do
-    token = BlockchainHelper.adapter().helper.default_token()
+    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
+    identifier = adapter.helper().identifier()
+    token = adapter.helper().default_token()
+    token = Map.put(token, :blockchain_identifier, identifier)
     run_with(writer, token)
   end
 
@@ -65,8 +67,8 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
         end
       %Token{} = token ->
         {:ok, token} = Preloader.preload_one(token, :account)
-        writer.error("""
-          Token #{data.name} (#{token.symbol}) already exists in the database!!!
+        writer.warn("""
+          Skipping #{token.name} (#{token.symbol}) generation, already exists in database
 
           Info:
           ID                 : #{token.id}

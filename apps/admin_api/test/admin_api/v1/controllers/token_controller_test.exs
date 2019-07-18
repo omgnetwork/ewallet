@@ -20,10 +20,6 @@ defmodule AdminAPI.V1.TokenControllerTest do
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
 
-  defp invalid_erc20_contract_address do
-    BlockchainHelper.adapter().dumb_adapter.invalid_erc20_contract_address()
-  end
-
   describe "/token.all" do
     test_with_auths "returns a list of tokens and pagination data" do
       response = request("/token.all")
@@ -209,7 +205,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
           name: "OmiseGO",
           description: "desc",
           subunit_to_unit: 1_000_000_000_000_000_000,
-          blockchain_address: invalid_erc20_contract_address(),
+          blockchain_address: BlockchainHelper.invalid_erc20_contract_address(),
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
@@ -984,7 +980,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test_with_auths "fails to get attributes for an invalid address" do
       response =
         request("/token.get_erc20_capabilities", %{
-          blockchain_address: invalid_erc20_contract_address()
+          blockchain_address: BlockchainHelper.invalid_erc20_contract_address()
         })
 
       refute response["success"]
@@ -1127,6 +1123,28 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["code"] == "unauthorized"
     end
 
+    test_with_auths "fails to update a token that is already blockchain enabled." do
+      address_1 = Crypto.fake_eth_address()
+
+      token =
+        insert(:token, %{
+          symbol: "OMG",
+          subunit_to_unit: 1_000_000_000_000_000_000,
+          blockchain_address: address_1
+        })
+
+      address_2 = Crypto.fake_eth_address()
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: address_2
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:already_blockchain_enabled"
+    end
+
     defp assert_set_blockchain_address_logs(logs, originator, target) do
       assert Enum.count(logs) == 1
 
@@ -1138,7 +1156,8 @@ defmodule AdminAPI.V1.TokenControllerTest do
         target: target,
         changes: %{
           "blockchain_address" => target.blockchain_address,
-          "blockchain_status" => target.blockchain_status
+          "blockchain_status" => target.blockchain_status,
+          "blockchain_identifier" => target.blockchain_identifier
         },
         encrypted_changes: %{}
       )

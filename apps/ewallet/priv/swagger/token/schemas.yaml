@@ -24,6 +24,8 @@ TokenSchema:
       type: string
     blockchain_status: 
       type: string
+    blockchain_identifier:
+      type: string
     metadata:
       type: object
     encrypted_metadata:
@@ -39,6 +41,9 @@ TokenSchema:
     - avatar
     - created_at
     - updated_at
+    - blockchain_address
+    - blockchain_status
+    - blockchain_identifier
     - enabled
 
 MintSchema:

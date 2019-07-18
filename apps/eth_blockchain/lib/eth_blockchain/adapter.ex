@@ -93,14 +93,6 @@ defmodule EthBlockchain.Adapter do
     GenServer.stop(pid)
   end
 
-  @spec adapter_or_default(atom() | nil) :: atom()
-  def adapter_or_default(adapter \\ nil) do
-    adapter ||
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:default_adapter)
-  end
-
   ## Utilities
   ##
 

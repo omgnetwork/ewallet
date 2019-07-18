@@ -25,15 +25,36 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   end
 
   def run(writer, _args) do
+    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
+    identifier = adapter.helper().identifier()
+
+    case BlockchainWallet.get_primary_hot_wallet(identifier) do
+      nil -> insert_wallet(writer, identifier)
+      wallet ->
+        writer.warn("""
+          Skipping hot wallet generation, #{wallet.name} is already in the database.
+
+          Info:
+          Name                : #{wallet.name}
+          Address             : #{wallet.address}
+          Public key          : #{wallet.public_key}
+          Type                : #{wallet.type}
+        """)
+    end
+  end
+
+  defp insert_wallet(writer, identifier) do
     {:ok, {address, public_key}} = Wallet.generate()
+
     attrs = %{
       address: address,
       public_key: public_key,
       name: "Hot wallet",
       type: BlockchainWallet.type_hot(),
+      blockchain_identifier: identifier,
       originator: %Seeder{}
     }
-    case BlockchainWallet.insert(attrs) do
+    case BlockchainWallet.insert_hot(attrs) do
       {:ok, wallet} ->
         {:ok, [primary_hot_wallet: {:ok, _}]} = EWalletConfig.Config.update(%{
           primary_hot_wallet: wallet.address,

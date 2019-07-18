@@ -15,7 +15,7 @@
 defmodule EWallet.BlockchainTransactionGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
-  alias EWallet.{BlockchainTransactionGate, TransactionRegistry}
+  alias EWallet.{BlockchainHelper, BlockchainTransactionGate, TransactionRegistry}
   alias EWalletDB.BlockchainWallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -30,7 +30,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -41,7 +42,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, [true, true])
+      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
 
       assert transaction.status == "submitted"
       assert transaction.type == "external"
@@ -65,7 +66,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
       token = insert(:token)
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -78,7 +80,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       {:error, :blockchain_exchange_not_allowed} =
-        BlockchainTransactionGate.create(admin, attrs, [true, true])
+        BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error when amounts are not valid" do
@@ -87,7 +89,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -100,7 +103,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       {:error, :amounts_missing_or_invalid} =
-        BlockchainTransactionGate.create(admin, attrs, [true, true])
+        BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error when the hot wallet doesn't have enough funds" do
@@ -109,7 +112,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -120,13 +124,15 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:error, :insufficient_funds} = BlockchainTransactionGate.create(admin, attrs, [true, true])
+      {:error, :insufficient_funds} = BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error if the token is not a blockchain token" do
       admin = insert(:admin, global_role: "super_admin")
       token = insert(:token)
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -138,7 +144,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       {:error, :token_not_blockchain_enabled} =
-        BlockchainTransactionGate.create(admin, attrs, [true, true])
+        BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
   end
 end

@@ -41,11 +41,18 @@ defmodule EWallet.BlockchainTransactionGate do
   # TODO: Add tests at the controller level
   # TODO: Add tests for failures at the gate level
 
-  # Here, we send a transaction from the hot wallet to
-  # an external blockchain address. This should only be used to manage
-  # the funds repartition between hot and cold wallets.
-  def create(actor, %{"from_address" => from} = attrs, [true, true]) do
-    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet()
+  @doc """
+  Here, we send a transaction from the hot wallet to
+  an external blockchain address. This should only be used to manage
+  the funds repartition between hot and cold wallets.
+
+  The last parameter represents the validity of the from / to addresses
+  as blockchain addresses: {true, true} means they are both valid
+  blockchain addresses.
+  """
+  def create(actor, %{"from_address" => from} = attrs, {true, true}) do
+    identifier = BlockchainHelper.identifier()
+    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
          true <-
@@ -76,13 +83,13 @@ defmodule EWallet.BlockchainTransactionGate do
 
   # Error: we can't handle a transaction from hot wallet to something
   # other than a blockchain address
-  def create(_actor, _attrs, [true, false]) do
+  def create(_actor, _attrs, {true, false}) do
     {:error, :invalid_to_address_for_blockchain_transaction}
   end
 
   # Here we're handling a regular transaction getting funds out of an
   # internal wallet to a blockchain address
-  def create(_actor, _attrs, [false, true]) do
+  def create(_actor, _attrs, {false, true}) do
     # TODO: Next PR
     {:error, :not_implemented}
   end
@@ -150,7 +157,7 @@ defmodule EWallet.BlockchainTransactionGate do
 
   def blockchain_addresses?(addresses) do
     Enum.map(addresses, fn address ->
-      case BlockchainHelper.is_blockchain_address(address) do
+      case BlockchainHelper.validate_blockchain_address(address) do
         :ok -> true
         _ -> false
       end
@@ -229,10 +236,8 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp set_blockchain(attrs) do
-    adapter = BlockchainHelper.adapter()
-
     attrs
-    |> Map.put("blockchain_identifier", adapter.helper.identifier)
+    |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
     |> Map.put("type", Transaction.external())
   end
 

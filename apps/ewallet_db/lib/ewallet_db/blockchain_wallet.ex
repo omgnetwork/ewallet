@@ -19,7 +19,7 @@ defmodule EWalletDB.BlockchainWallet do
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
   import Ecto.Changeset
-  import EWalletDB.Validator
+  import EWalletDB.{BlockchainValidator, Validator}
   import EWalletDB.Helpers.Preloader
 
   alias Ecto.UUID
@@ -41,49 +41,80 @@ defmodule EWalletDB.BlockchainWallet do
     field(:name, :string)
     field(:public_key, :string)
     field(:type, :string)
+    field(:blockchain_identifier, :string)
 
     activity_logging()
     timestamps()
   end
 
-  defp changeset(%BlockchainWallet{} = wallet, attrs) do
+  defp insert_shared_changeset(%BlockchainWallet{} = wallet, attrs) do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
         :uuid,
         :address,
-        :public_key,
         :name,
-        :type
+        :type,
+        :public_key,
+        :blockchain_identifier
       ],
-      required: [:address, :name, :public_key, :type]
+      required: [:address, :name, :type, :blockchain_identifier]
     )
-    |> unique_constraint(:address)
+    |> unique_constraint(:address, name: :blockchain_wallet_blockchain_identifier_address_index)
+    |> unique_constraint(:public_key,
+      name: :blockchain_wallet_blockchain_identifier_public_key_index
+    )
     |> unique_constraint(:name)
-    |> unique_constraint(:public_key)
     |> validate_immutable(:address)
-    |> validate_immutable(:public_key)
+    |> validate_blockchain()
     |> validate_inclusion(:type, @wallet_types)
     |> validate_length(:address, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
     |> validate_length(:public_key, count: :bytes, max: 255)
   end
 
-  def get_primary_hot_wallet do
+  defp insert_hot_changeset(%BlockchainWallet{} = wallet, attrs) do
+    shared = insert_shared_changeset(wallet, attrs)
+
+    wallet
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:public_key],
+      required: [:public_key]
+    )
+    |> merge(shared)
+    |> validate_immutable(:public_key)
+    |> validate_inclusion(:type, [@hot])
+    |> validate_length(:public_key, count: :bytes, max: 255)
+  end
+
+  defp insert_cold_changeset(%BlockchainWallet{} = wallet, attrs) do
+    wallet
+    |> insert_shared_changeset(attrs)
+    |> validate_inclusion(:type, [@cold])
+  end
+
+  defp validate_blockchain(changeset) do
+    changeset
+    |> validate_blockchain_address(:address)
+    |> validate_blockchain_identifier(:blockchain_identifer)
+  end
+
+  def get_primary_hot_wallet(identifier) do
     :ewallet_db
     |> Application.get_env(:primary_hot_wallet)
-    |> get("hot")
+    |> get(@hot, identifier)
   end
 
   @doc """
   Retrieves a blockchain wallet using its address.
   """
-  @spec get(String.t(), String.t()) :: %BlockchainWallet{} | nil | no_return()
-  def get(nil, _), do: nil
+  @spec get(String.t(), String.t(), String.t()) :: %BlockchainWallet{} | nil | no_return()
+  def get(nil, _, _), do: nil
 
-  def get(address, type) do
-    get_by(%{address: address, type: type})
+  def get(address, type, blockchain_identifier) do
+    get_by(%{address: address, type: type, blockchain_identifier: blockchain_identifier})
   end
 
   @doc """
@@ -103,7 +134,27 @@ defmodule EWalletDB.BlockchainWallet do
   @spec insert(map()) :: {:ok, %__MODULE__{}}
   def insert(attrs) do
     %BlockchainWallet{}
-    |> changeset(attrs)
+    |> insert_shared_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Create a new hot blockchain wallet with the passed attributes.
+  """
+  @spec insert_hot(map()) :: {:ok, %__MODULE__{}}
+  def insert_hot(attrs) do
+    %BlockchainWallet{}
+    |> insert_hot_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Create a new cold blockchain wallet with the passed attributes.
+  """
+  @spec insert_cold(map()) :: {:ok, %__MODULE__{}}
+  def insert_cold(attrs) do
+    %BlockchainWallet{}
+    |> insert_cold_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
 end

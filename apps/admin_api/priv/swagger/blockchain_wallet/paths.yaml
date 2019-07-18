@@ -48,3 +48,20 @@ blockchain_wallet.all:
         $ref: 'responses.yaml#/BlockchainWalletsResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+blockchain_wallet.create:
+  post:
+    tags:
+      - Blockchain wallet
+    summary: Create a new blockchain wallet.
+    operationId: blockchain_wallet_create
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/BlockchainWalletCreateBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/BlockchainWalletResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

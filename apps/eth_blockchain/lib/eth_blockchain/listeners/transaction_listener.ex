@@ -24,29 +24,38 @@ defmodule EthBlockchain.TransactionListener do
     GenServer.start_link(__MODULE__, attrs)
   end
 
-  def init(%{
-        id: hash,
-        interval: interval,
-        blockchain_adapter_pid: blockchain_adapter_pid,
-        node_adapter: node_adapter
-      }) do
-    timer = Process.send_after(self(), :tick, interval)
-
+  def init(
+        %{
+          id: hash,
+          interval: interval,
+          blockchain_adapter_pid: blockchain_adapter_pid,
+          node_adapter: node_adapter
+        } = attrs
+      ) do
     {:ok,
      %{
-       timer: timer,
+       timer: nil,
        interval: interval,
        tx_hash: hash,
        transaction: nil,
        blockchain_adapter_pid: blockchain_adapter_pid,
        node_adapter: node_adapter,
+       registry: attrs[:registry],
        subscribers: []
-     }}
+     }, {:continue, :start_polling}}
   end
 
-  def handle_info(:tick, %{interval: interval} = state) do
+  def handle_continue(:start_polling, state) do
+    poll(state)
+  end
+
+  def handle_info(:poll, state) do
+    poll(state)
+  end
+
+  defp poll(%{interval: interval} = state) do
     new_state = run(state)
-    timer = Process.send_after(self(), :tick, interval)
+    timer = Process.send_after(self(), :poll, interval)
     {:noreply, %{new_state | timer: timer}}
   end
 

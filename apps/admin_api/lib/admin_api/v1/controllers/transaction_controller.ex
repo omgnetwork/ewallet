@@ -156,7 +156,7 @@ defmodule AdminAPI.V1.TransactionController do
   Creates a transaction.
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create(conn, %{} = attrs) do
+  def create(conn, attrs) do
     with attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, transaction} <- TransactionDispatcherGate.create(conn.assigns, attrs) do
       transaction

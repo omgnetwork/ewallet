@@ -20,8 +20,8 @@ defmodule EthGethAdapter.ErrorHandler do
   @errors %{
     geth_communication_error: %{
       code: "geth:communication_error",
-      description:
-        "Could not communicate with geth, make sure that there is a valid geth instance running at the specified url."
+      template:
+        "Could not communicate with geth, make sure that there is a valid geth instance running at the specified url. Error: %{error_code}"
     },
     geth_error: %{
       code: "geth:error",
@@ -43,7 +43,7 @@ defmodule EthGethAdapter.ErrorHandler do
   end
 
   def handle_error(code) when is_atom(code) do
-    {:error, :geth_communication_error}
+    {:error, :geth_communication_error, error_code: code}
   end
 
   def handle_error(code, attrs) do

@@ -21,11 +21,11 @@ defmodule EthBlockchain.BlockchainRegistry do
 
   def start_link(opts) do
     name = Keyword.get(opts, :name, __MODULE__)
-    GenServer.start_link(__MODULE__, :ok, name: name)
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
   @impl true
-  def init(:ok) do
+  def init(_opts) do
     {:ok, %{}}
   end
 
@@ -36,20 +36,22 @@ defmodule EthBlockchain.BlockchainRegistry do
 
   @impl true
   def handle_call({:start_listener, listener, attrs}, _from, registry) do
-    if Map.has_key?(registry, attrs[:id]) do
-      {:reply, :ok, registry}
-    else
-      {:ok, pid} =
-        DynamicSupervisor.start_child(
-          EthBlockchain.DynamicListenerSupervisor,
-          {listener, Map.put(attrs, :registry, self())}
-        )
+    case Map.has_key?(registry, attrs[:id]) do
+      true ->
+        {:reply, :ok, registry}
 
-      {:reply, :ok,
-       Map.put(registry, attrs[:id], %{
-         listener: listener,
-         pid: pid
-       })}
+      false ->
+        {:ok, pid} =
+          DynamicSupervisor.start_child(
+            EthBlockchain.DynamicListenerSupervisor,
+            {listener, Map.put(attrs, :registry, self())}
+          )
+
+        {:reply, :ok,
+         Map.put(registry, attrs[:id], %{
+           listener: listener,
+           pid: pid
+         })}
     end
   end
 
@@ -79,16 +81,18 @@ defmodule EthBlockchain.BlockchainRegistry do
 
   @impl true
   def handle_cast({:stop_listener, id}, registry) do
-    if Map.has_key?(registry, id) do
-      :ok =
-        DynamicSupervisor.terminate_child(
-          EthBlockchain.DynamicListenerSupervisor,
-          registry[id][:pid]
-        )
+    case Map.has_key?(registry, id) do
+      true ->
+        :ok =
+          DynamicSupervisor.terminate_child(
+            EthBlockchain.DynamicListenerSupervisor,
+            registry[id][:pid]
+          )
 
-      {:reply, :ok, Map.delete(registry, id)}
-    else
-      {:reply, {:error, :entry_not_found}, registry}
+        {:reply, :ok, Map.delete(registry, id)}
+
+      false ->
+        {:reply, {:error, :entry_not_found}, registry}
     end
   end
 

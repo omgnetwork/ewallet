@@ -158,7 +158,11 @@ defmodule EWalletDB.ForgetPasswordRequest do
     token = Crypto.generate_base64_key(@token_length)
 
     lifetime_minutes =
-      Application.get_env(:ewallet, :forget_password_request_lifetime, @default_lifetime_minutes)
+      Application.get_env(
+        :ewallet_db,
+        :forget_password_request_lifetime,
+        @default_lifetime_minutes
+      )
 
     expires_at = NaiveDateTime.utc_now() |> NaiveDateTime.add(60 * lifetime_minutes)
 

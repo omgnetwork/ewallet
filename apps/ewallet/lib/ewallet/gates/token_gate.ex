@@ -26,6 +26,13 @@ defmodule EWallet.TokenGate do
   The status is "confirmed" if the hot wallet balance is positive, or "pending" otherwise.
   """
   def validate_erc20_readiness(contract_address, %{
+        "symbol" => symbol,
+        "subunit_to_unit" => subunit_to_unit
+      }) do
+    validate_erc20_readiness(contract_address, %{symbol: symbol, subunit_to_unit: subunit_to_unit})
+  end
+
+  def validate_erc20_readiness(contract_address, %{
         symbol: symbol,
         subunit_to_unit: subunit_to_unit
       }) do
@@ -39,6 +46,8 @@ defmodule EWallet.TokenGate do
     end
   end
 
+  # The contract returned a value for the `decimals()` function.
+  # We can check if the internal token decimal mathches this value.
   defp validate_decimals(%{decimals: value}, subunit_to_unit) do
     case value == :math.log10(subunit_to_unit) do
       true -> :ok
@@ -46,14 +55,24 @@ defmodule EWallet.TokenGate do
     end
   end
 
+  # The contract doesn't implement the optional `decimals()` function
+  # It's still potentially an ERC20 contract
   defp validate_decimals(_, _), do: :ok
 
+  # The internal token symbol matches the contract symbol
   defp validate_symbol(%{symbol: value}, value), do: :ok
 
+  # The internal token symbol doesn't matches the contract symbol
   defp validate_symbol(%{symbol: _value}, _diff_value), do: :error
 
+  # The contract doesn't implement the optional `symbol()` function
+  # It's still potentially an ERC20 contract
   defp validate_symbol(_, _), do: :ok
 
+  @doc """
+  Returns the blockchain of the token by checking if the hot wallet balance is positive
+  for this token
+  """
   def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
     Token.blockchain_status_confirmed()
   end
@@ -115,9 +134,10 @@ defmodule EWallet.TokenGate do
              field: "totalSupply",
              contract_address: contract_address
            }),
+         identifier = BlockchainHelper.identifier(),
          {:ok, %{^contract_address => balance}} <-
            BlockchainHelper.call(:get_balances, %{
-             address: BlockchainWallet.get_primary_hot_wallet().address,
+             address: BlockchainWallet.get_primary_hot_wallet(identifier).address,
              contract_addresses: [contract_address]
            }),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do

@@ -44,7 +44,7 @@ defmodule EWalletDB.Uploaders.Avatar do
 
   # Override the storage directory:
   def storage_dir(_version, {_file, scope}) do
-    "public/uploads/#{Application.get_env(:ewallet, :env)}/#{get_schema_name(scope)}/avatars/#{
+    "public/uploads/#{Application.get_env(:ewallet_db, :env)}/#{get_schema_name(scope)}/avatars/#{
       scope.id
     }"
   end
