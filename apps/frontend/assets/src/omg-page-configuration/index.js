@@ -6,7 +6,7 @@ import styled from 'styled-components'
 import PropTypes from 'prop-types'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import ConfigurationsFetcher from '../omg-configuration/configurationFetcher'
 import {
   selectConfigurationsByKey,
@@ -33,6 +33,14 @@ const ConfigurationPageContainer = styled.div`
 `
 const ConnectionNotification = styled.div`
   margin: 40px 0;
+  background-color: ${props => props.theme.colors.S100};
+  padding: 10px 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  i[name="Info"] {
+    margin-right: 10px;
+  }
 `
 const Layout = styled.div`
   display: flex;
@@ -55,6 +63,9 @@ const Content = styled.div`
 width: 100%;
   form {
     width: 100%;
+    h4 {
+      margin-bottom: 10px;
+    }
   }
 `
 const enhance = compose(
@@ -89,6 +100,7 @@ class ConfigurationPage extends React.Component {
         baseUrl: config.base_url.value,
         redirectUrlPrefixes: config.redirect_url_prefixes.value,
         enableStandalone: config.enable_standalone.value,
+        enableBlockchain: false, // TODO: config.enable_blockchain.value,
         maxPerPage: config.max_per_page.value,
         minPasswordLength: config.min_password_length.value,
         senderEmail: config.sender_email.value,
@@ -222,9 +234,14 @@ class ConfigurationPage extends React.Component {
       redirectUrlPrefixes: newState
     })
   }
-  onChangeRadio = e => {
+  onChangeEnableStandalone = e => {
     this.setState(oldState => ({
       enableStandalone: !oldState.enableStandalone
+    }))
+  }
+  onChangeEnableBlockchain = e => {
+    this.setState(oldState => ({
+      enableBlockchain: !oldState.enableBlockchain
     }))
   }
   onClickSaveConfiguration = async e => {
@@ -252,6 +269,10 @@ class ConfigurationPage extends React.Component {
             enableStandalone: _.get(
               result.data.data,
               'enable_standalone.value'
+            ),
+            enableBlockchain: _.get(
+              result.data.data,
+              'enable_blockchain.value'
             ),
             maxPerPage: _.get(result.data.data, 'max_per_page.value'),
             minPasswordLength: _.get(
@@ -353,7 +374,8 @@ class ConfigurationPage extends React.Component {
     onSelectFileStorageAdapter: this.onSelectFileStorageAdapter,
     onChangeInput: this.onChangeInput,
     onChangeInputredirectUrlPrefixes: this.onChangeInputredirectUrlPrefixes,
-    onChangeRadio: this.onChangeRadio,
+    onChangeEnableStandalone: this.onChangeEnableStandalone,
+    onChangeEnableBlockchain: this.onChangeEnableBlockchain,
     onClickAddPrefix: this.onClickAddPrefix,
     handleCancelClick: this.handleCancelClick
   }
@@ -370,7 +392,10 @@ class ConfigurationPage extends React.Component {
           ]}
           types={false}
         />
-        <ConnectionNotification>Blockchain connection notification...</ConnectionNotification>
+        <ConnectionNotification>
+          <Icon name='Info' />
+          The app is currently not connected to Ethereum.
+        </ConnectionNotification>
         <Layout>
           <SideMenu>
             <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink>

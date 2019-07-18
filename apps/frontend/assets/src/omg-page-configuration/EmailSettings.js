@@ -13,16 +13,15 @@ const LoadingSkeletonContainer = styled.div`
   }
 `
 const SubSettingContainer = styled.div`
-  > div {
-    margin-left: 25px;
-    padding: 0 20px;
-    background-color: ${props => props.theme.colors.S100};
-    border-radius: 4px;
-    border: 1px solid transparent;
-    div:first-child {
-      flex: 0 0 175px;
-    }
-  }
+  width: 100%;
+  padding: 20px 40px;
+  margin-right: 60px;
+  background-color: ${props => props.theme.colors.BL100};
+  border-radius: 4px;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
 `
 const Grid = styled.div`
   display: flex;
@@ -62,37 +61,35 @@ const EmailSettings = (props) => {
           />
           {props.emailAdapter === 'smtp' && (
             <SubSettingContainer>
-              <div>
-                <ConfigRow
-                  name={'SMTP Host'}
-                  description={configurations.smtp_host.description}
-                  value={props.smtpHost}
-                  placeholder={'ie. smtp.yourdomain.com'}
-                  onChange={props.onChangeInput('smtpHost')}
-                />
-                <ConfigRow
-                  name={'SMTP Port'}
-                  description={configurations.smtp_port.description}
-                  value={props.smtpPort}
-                  placeholder={'ie. 8830'}
-                  onChange={props.onChangeInput('smtpPort')}
-                />
-                <ConfigRow
-                  name={'SMTP Username'}
-                  description={configurations.smtp_username.description}
-                  value={props.smtpUsername}
-                  placeholder={'ie. usertest01'}
-                  onChange={props.onChangeInput('smtpUsername')}
-                />
-                <ConfigRow
-                  name={'SMTP Password'}
-                  description={configurations.smtp_password.description}
-                  value={props.smtpPassword}
-                  border={props.emailAdapter !== 'smtp'}
-                  placeholder={'ie. password'}
-                  onChange={props.onChangeInput('smtpPassword')}
-                />
-              </div>
+              <ConfigRow
+                name={'SMTP Host'}
+                description={configurations.smtp_host.description}
+                value={props.smtpHost}
+                placeholder={'ie. smtp.yourdomain.com'}
+                onChange={props.onChangeInput('smtpHost')}
+              />
+              <ConfigRow
+                name={'SMTP Port'}
+                description={configurations.smtp_port.description}
+                value={props.smtpPort}
+                placeholder={'ie. 8830'}
+                onChange={props.onChangeInput('smtpPort')}
+              />
+              <ConfigRow
+                name={'SMTP Username'}
+                description={configurations.smtp_username.description}
+                value={props.smtpUsername}
+                placeholder={'ie. usertest01'}
+                onChange={props.onChangeInput('smtpUsername')}
+              />
+              <ConfigRow
+                name={'SMTP Password'}
+                description={configurations.smtp_password.description}
+                value={props.smtpPassword}
+                border={props.emailAdapter !== 'smtp'}
+                placeholder={'ie. password'}
+                onChange={props.onChangeInput('smtpPassword')}
+              />
             </SubSettingContainer>
           )}
         </Grid>

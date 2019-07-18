@@ -123,7 +123,7 @@ const GlobalSettings = (props) => {
             name={'Enable Standalone'}
             description={configurations.enable_standalone.description}
             value={props.enableStandalone}
-            onChange={props.onChangeRadio}
+            onChange={props.onChangeEnableStandalone}
             type='boolean'
           />
           <ConfigRow
