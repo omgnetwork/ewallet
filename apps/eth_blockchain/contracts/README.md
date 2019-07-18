@@ -1,3 +1,7 @@
+## Contract sources
+
+The contracts are a copy of the [open zeppelin contracts](https://github.com/OpenZeppelin/openzeppelin-solidity/tree/master/contracts).
+
 ## Compiling contracts
 
 The compiled binary of the contracts were generated using the solidity compiler `solc` with a version matching the `pragma` version at the top of the files.
