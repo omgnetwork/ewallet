@@ -23,7 +23,8 @@ defmodule EWallet.LocalTransactionGate do
     AmountFetcher,
     TokenFetcher,
     TransactionFormatter,
-    TransactionSourceFetcher
+    TransactionSourceFetcher,
+    BlockchainTransactionState
   }
 
   alias EWalletDB.{AccountUser, Transaction}
@@ -61,6 +62,20 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
+  def process_with_transaction(%Transaction{status: "pending_recording"} = transaction) do
+    # TODO: better way to handle this?
+    IO.inspect("pending recording")
+    from_blockchain? = is_from_blockchain?(transaction)
+
+    transaction
+    |> set_blockchain_wallets(:from_wallet, :from, from_blockchain?)
+    |> TransactionFormatter.format()
+    |> IO.inspect()
+    |> LedgerTransaction.insert(%{genesis: from_blockchain?})
+    |> update_transaction(transaction)
+    |> process_with_transaction()
+  end
+
   def process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
     {:ok, transaction}
   end
@@ -68,6 +83,20 @@ defmodule EWallet.LocalTransactionGate do
   def process_with_transaction(%Transaction{status: "failed"} = transaction) do
     {:error, transaction, transaction.error_code,
      transaction.error_description || transaction.error_data}
+  end
+
+  defp set_blockchain_wallets(transaction, _, _, false), do: transaction
+  defp set_blockchain_wallets(transaction, assoc, field, true) do
+    case Map.get(transaction, field) do
+      nil ->
+        Map.put(transaction, assoc, %{address: transaction.blockchain_identifier, metadata: %{}})
+      _ ->
+        transaction
+    end
+  end
+
+  defp is_from_blockchain?(transaction) do
+    is_nil(transaction.from) && !is_nil(transaction.from_blockchain_address) && !is_nil(transaction.blockchain_identifier)
   end
 
   def get_or_insert(
@@ -117,11 +146,11 @@ defmodule EWallet.LocalTransactionGate do
   end
 
   def update_transaction({:ok, ledger_transaction}, transaction) do
-    Transaction.confirm(transaction, ledger_transaction.uuid, %System{})
+    BlockchainTransactionState.transition_to(:local_confirmed, transaction, ledger_transaction, %System{})
   end
 
   def update_transaction({:error, code, description}, transaction) do
-    Transaction.fail(transaction, code, description, %System{})
+    BlockchainTransactionState.transition_to(:failed, transaction, code, description, %System{})
   end
 
   defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid} = transaction)

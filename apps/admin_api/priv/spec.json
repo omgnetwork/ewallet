@@ -32544,6 +32544,611 @@
         }
       }
     },
+    "/wallet.generate_deposit_address": {
+      "post": {
+        "tags": [
+          "Wallet"
+        ],
+        "summary": "Generate a blockchain deposit address",
+        "operationId": "wallet_generate_deposit_address",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to generate a deposit address.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "example": {
+                  "address": "kxhk519271652215"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single wallet",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a wallet",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a wallet",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "socket_topic": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "identifier": {
+                              "type": "string"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "user_id": {
+                              "type": "string"
+                            },
+                            "user": {
+                              "description": "The object schema for a user",
+                              "type": "object",
+                              "properties": {
+                                "object": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "username": {
+                                  "type": "string"
+                                },
+                                "full_name": {
+                                  "type": "string"
+                                },
+                                "calling_name": {
+                                  "type": "string"
+                                },
+                                "provider_user_id": {
+                                  "type": "string"
+                                },
+                                "email": {
+                                  "type": "string",
+                                  "format": "email"
+                                },
+                                "enabled": {
+                                  "type": "boolean"
+                                },
+                                "metadata": {
+                                  "type": "object"
+                                },
+                                "encrypted_metadata": {
+                                  "type": "object"
+                                },
+                                "avatar": {
+                                  "type": "object"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "object",
+                                "id",
+                                "created_at",
+                                "updated_at"
+                              ]
+                            },
+                            "account_id": {
+                              "type": "string"
+                            },
+                            "account": {
+                              "description": "The object schema for an account",
+                              "type": "object",
+                              "properties": {
+                                "object": {
+                                  "type": "string"
+                                },
+                                "id": {
+                                  "type": "string"
+                                },
+                                "parent_id": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "master": {
+                                  "type": "boolean"
+                                },
+                                "avatar": {
+                                  "type": "object"
+                                },
+                                "category_ids": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "categories": {
+                                  "type": "object",
+                                  "allOf": [
+                                    {
+                                      "description": "The object schema for an unpaginated list",
+                                      "type": "object",
+                                      "properties": {
+                                        "object": {
+                                          "type": "string"
+                                        },
+                                        "data": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object"
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "object",
+                                        "data"
+                                      ],
+                                      "example": {
+                                        "object": "list",
+                                        "data": []
+                                      }
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "data": {
+                                          "type": "array",
+                                          "items": {
+                                            "description": "The object schema for a category",
+                                            "type": "object",
+                                            "properties": {
+                                              "object": {
+                                                "type": "string"
+                                              },
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "name": {
+                                                "type": "string"
+                                              },
+                                              "description": {
+                                                "type": "string"
+                                              },
+                                              "account_ids": {
+                                                "type": "array",
+                                                "items": {
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "accounts": {
+                                                "type": "object",
+                                                "allOf": [
+                                                  {
+                                                    "description": "The object schema for an unpaginated list",
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "object": {
+                                                        "type": "string"
+                                                      },
+                                                      "data": {
+                                                        "type": "array",
+                                                        "items": {
+                                                          "type": "object"
+                                                        }
+                                                      }
+                                                    },
+                                                    "required": [
+                                                      "object",
+                                                      "data"
+                                                    ],
+                                                    "example": {
+                                                      "object": "list",
+                                                      "data": []
+                                                    }
+                                                  },
+                                                  {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "data": {
+                                                        "type": "array",
+                                                        "items": {
+                                                          "description": "The object schema for an account",
+                                                          "type": "object",
+                                                          "properties": {
+                                                            "object": {
+                                                              "type": "string"
+                                                            },
+                                                            "id": {
+                                                              "type": "string"
+                                                            },
+                                                            "parent_id": {
+                                                              "type": "string"
+                                                            },
+                                                            "name": {
+                                                              "type": "string"
+                                                            },
+                                                            "description": {
+                                                              "type": "string"
+                                                            },
+                                                            "master": {
+                                                              "type": "boolean"
+                                                            },
+                                                            "avatar": {
+                                                              "type": "object"
+                                                            },
+                                                            "metadata": {
+                                                              "type": "object"
+                                                            },
+                                                            "encrypted_metadata": {
+                                                              "type": "object"
+                                                            },
+                                                            "created_at": {
+                                                              "type": "string",
+                                                              "format": "date-time"
+                                                            },
+                                                            "updated_at": {
+                                                              "type": "string",
+                                                              "format": "date-time"
+                                                            }
+                                                          },
+                                                          "required": [
+                                                            "object",
+                                                            "id",
+                                                            "parent_id",
+                                                            "name",
+                                                            "master",
+                                                            "avatar",
+                                                            "created_at",
+                                                            "updated_at"
+                                                          ]
+                                                        }
+                                                      }
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "created_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                              },
+                                              "updated_at": {
+                                                "type": "string",
+                                                "format": "date-time"
+                                              }
+                                            },
+                                            "required": [
+                                              "object",
+                                              "id",
+                                              "name",
+                                              "description",
+                                              "account_ids",
+                                              "accounts",
+                                              "created_at",
+                                              "updated_at"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "metadata": {
+                                  "type": "object"
+                                },
+                                "encrypted_metadata": {
+                                  "type": "object"
+                                },
+                                "created_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                },
+                                "updated_at": {
+                                  "type": "string",
+                                  "format": "date-time"
+                                }
+                              },
+                              "required": [
+                                "object",
+                                "id",
+                                "parent_id",
+                                "name",
+                                "master",
+                                "avatar",
+                                "category_ids",
+                                "categories",
+                                "created_at",
+                                "updated_at"
+                              ]
+                            },
+                            "balances": {
+                              "type": "array",
+                              "items": {
+                                "description": "The object schema for a balance",
+                                "type": "object",
+                                "properties": {
+                                  "object": {
+                                    "type": "string"
+                                  },
+                                  "token": {
+                                    "type": "object",
+                                    "description": "The object schema for a token",
+                                    "properties": {
+                                      "object": {
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "symbol": {
+                                        "type": "string"
+                                      },
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "subunit_to_unit": {
+                                        "type": "integer"
+                                      },
+                                      "avatar": {
+                                        "type": "object"
+                                      },
+                                      "created_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "updated_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                      },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "metadata": {
+                                        "type": "object"
+                                      },
+                                      "encrypted_metadata": {
+                                        "type": "object"
+                                      },
+                                      "enabled": {
+                                        "type": "boolean"
+                                      }
+                                    },
+                                    "required": [
+                                      "object",
+                                      "id",
+                                      "symbol",
+                                      "name",
+                                      "subunit_to_unit",
+                                      "avatar",
+                                      "created_at",
+                                      "updated_at",
+                                      "enabled"
+                                    ]
+                                  },
+                                  "amount": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": [
+                                  "object",
+                                  "token",
+                                  "amount"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "socket_topic",
+                            "address",
+                            "name",
+                            "identifier",
+                            "metadata",
+                            "encrypted_metadata",
+                            "user_id",
+                            "user",
+                            "account_id",
+                            "account",
+                            "balances",
+                            "enabled"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "wallet",
+                          "socket_topic": "wallet:XXX123",
+                          "address": "XXX123",
+                          "name": "primary",
+                          "identifier": "primary",
+                          "metadata": {},
+                          "encrypted_metadata": {},
+                          "enabled": true,
+                          "user_id": "usr_01cbfg6v9thrc3sd9m1v4gazjv",
+                          "user": {},
+                          "account_id": null,
+                          "account": null,
+                          "balances": [
+                            {
+                              "amount": 0,
+                              "token": {
+                                "object": "token",
+                                "id": "tok_BTC_01cbffybmtbbb449r05zgfct2h",
+                                "symbol": "BTC",
+                                "name": "Bitcoin",
+                                "subunit_to_unit": 100000000000000000
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/blockchain_wallet.get_balances": {
       "post": {
         "tags": [
@@ -44444,7 +45049,7 @@
         }
       }
     },
-    "/configuration.get": {
+    "/configuration.all": {
       "post": {
         "tags": [
           "Configuration"

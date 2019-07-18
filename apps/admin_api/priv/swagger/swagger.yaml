@@ -276,6 +276,8 @@ paths:
     $ref: 'wallet/paths.yaml#/wallet.get_balances'
   /wallet.enable_or_disable:
     $ref: 'wallet/paths.yaml#/wallet.enable_or_disable'
+  /wallet.generate_deposit_address:
+    $ref: 'wallet/paths.yaml#/wallet.generate_deposit_address'
 
   # BLOCKCHAIN WALLET
   /blockchain_wallet.get_balances:
@@ -360,8 +362,8 @@ paths:
     $ref: 'export/paths.yaml#/export.download'
 
   # CONFIGURATION
-  /configuration.get:
-    $ref: 'configuration/paths.yaml#/configuration.get'
+  /configuration.all:
+    $ref: 'configuration/paths.yaml#/configuration.all'
   /configuration.update:
     $ref: 'configuration/paths.yaml#/configuration.update'
 

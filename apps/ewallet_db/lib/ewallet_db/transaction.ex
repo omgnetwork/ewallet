@@ -38,11 +38,14 @@ defmodule EWalletDB.Transaction do
   @pending "pending"
   @recorded "recorded"
   @submitted "submitted"
+  @pending_recording "pending_recording"
   @pending_confirmations "pending_confirmations"
+  @blockchain_confirmed "blockchain_confirmed"
   @confirmed "confirmed"
   @failed "failed"
-  @statuses [@pending, @recorded, @submitted, @pending_confirmations, @confirmed, @failed]
+  @statuses [@pending, @submitted, @pending_recording, @recorded, @pending_confirmations, @blockchain_confirmed, @confirmed, @failed]
   def pending, do: @pending
+  def pending_recording, do: @pending_recording
   def pending_confirmations, do: @pending_confirmations
   def confirmed, do: @confirmed
   def failed, do: @failed
@@ -261,6 +264,7 @@ defmodule EWalletDB.Transaction do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
+        :blockchain_tx_hash,
         :idempotency_token,
         :status,
         :type,

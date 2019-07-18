@@ -16,30 +16,43 @@ defmodule EWallet.BlockchainDepositWalletGate do
   @moduledoc """
 
   """
+  alias EWallet.AddressTracker
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet
 
-  def get_or_generate(wallet) do
+  def get_or_generate(wallet, %{"originator" => originator}) do
     case BlockchainDepositWallet.get_last_for(wallet) do
       nil ->
         case BlockchainHDWallet.get_primary() do
           nil ->
-            {:error, :hd_wallet_not_found}
+            {:error, :hd_wallet_not_found} # TODO: Handle error in ErrorHandler
           hd_wallet ->
-            ref = 1 # TODO: generate random int?
+            ref = generate_unique_ref()
             address = Wallet.generate_child_account(hd_wallet.keychain_uuid, ref, 0)
 
-            # TODO: Store refs with record
-            BlockchainDepositWallet.insert(%{
+            %{
               address: address,
-              wallet_address: wallet.address
-            })
-
-            # TODO: Notify Address Tracker to track this address
+              path_ref: ref,
+              wallet_address: wallet.address,
+              blockchain_hd_wallet_uuid: hd_wallet.uuid,
+              originator: originator,
+            }
+            |> BlockchainDepositWallet.insert()
+            |> case do
+              {:ok, deposit_wallet} ->
+                :ok = AddressTracker.register_address(deposit_wallet.address, deposit_wallet.wallet_address)
+                {:ok, Map.put(wallet, :deposit_wallet, deposit_wallet)}
+              error ->
+                error
+            end
         end
 
       deposit_wallet ->
-        Map.put(wallet, :deposit_wallet, deposit_wallet)
+        {:ok, Map.put(wallet, :deposit_wallet, deposit_wallet)}
     end
+  end
+
+  defp generate_unique_ref do
+    :rand.uniform(999_999_999)
   end
 end

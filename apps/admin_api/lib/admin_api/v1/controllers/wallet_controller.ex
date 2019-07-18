@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.WalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{UUIDFetcher, EndUserPolicy, WalletPolicy}
+  alias EWallet.{UUIDFetcher, EndUserPolicy, WalletPolicy, BlockchainDepositWalletGate}
   alias EWallet.Web.{Orchestrator, Originator, Paginator, BalanceLoader, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
 
@@ -126,7 +126,7 @@ defmodule AdminAPI.V1.WalletController do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:generate_deposit_address, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, updated} <- Wallet.generate_deposit_address(wallet) do
+         {:ok, updated} <- BlockchainDepositWalletGate.get_or_generate(wallet, attrs) do
       respond_single(updated, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)

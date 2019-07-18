@@ -22,10 +22,12 @@ defmodule EWallet.BlockchainTransactionGate do
   for simplicity (modifying the existing inputs instead of creating new
   data structures).
   """
+  import Logger
   alias EWallet.{
     BlockchainTransactionPolicy,
     TokenFetcher,
     BlockchainTransactionState,
+    LocalTransactionGate,
     TransactionRegistry,
     TransactionTracker,
     BlockchainHelper
@@ -85,6 +87,55 @@ defmodule EWallet.BlockchainTransactionGate do
     {:error, :not_implemented}
   end
 
+  # 52c2d98c949a35859f2630b84305da17b2d8aa9f2c4c282ba9c2d116f0400a13
+  # hot 0x31829d6eb77c6932fbd15a1a5e2ed61569f3eb75
+  # other 0xa9e01f346f195f2464a408f36fc89343bedc0d2b
+
+  # eth.sendTransaction({"from":"0x31829d6eb77c6932fbd15a1a5e2ed61569f3eb75","to":"0xa9e01f346f195f2464a408f36fc89343bedc0d2b", value: 1000000})
+
+
+  # Handle external -> hot
+  # Handle external -> internal
+  def create_from_tracker(attrs) do
+    # 1. insert ewallet db transaction with pending
+    # 2. insert local ledger transfer
+    # 3. Update pending status
+    # 4. Start transaction listener if not enough confirmations
+    case Transaction.insert(attrs) do
+      {:ok, %{to: nil} = transaction} ->
+        confirm_or_start_listener(transaction, :confirmed)
+
+      {:ok, transaction} ->
+        # TODO: handle error?
+        {:ok, transaction} = confirm_or_start_listener(transaction, :blockchain_confirmed)
+
+        if(%{status: "blockchain_confirmed"} = transaction) do
+          handle_local_insert(transaction)
+        end
+
+        # If transaction is confirmed
+
+        # Insert local
+        # case transaction do
+        #   %{status: "blockchain_confirmed"} ->
+            #  case LocalTransactionGate.process_with_transaction(transaction) do
+            #   {:ok, transaction} ->
+            #     BlockchainTransactionState.transition_to(:confirmed, transaction, %System{})
+            #   error ->
+            #     # TODO: handle error properly
+            #     error
+            # end
+        #   transaction ->
+
+        # end
+
+
+      error ->
+        error
+    end
+  end
+
+
   def get_or_insert(
         %{
           "idempotency_token" => _idempotency_token
@@ -104,6 +155,34 @@ defmodule EWallet.BlockchainTransactionGate do
         _ -> false
       end
     end)
+  end
+
+  defp confirm_or_start_listener(%{confirmations_count: confirmations_count} = transaction, status) do
+    threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
+
+    if is_nil(threshold) do
+      Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
+    end
+
+    case is_integer(confirmations_count) && confirmations_count > (threshold || 10) do
+      true ->
+        # TODO: Change originator?
+        IO.inspect(status)
+        BlockchainTransactionState.transition_to(status, transaction, confirmations_count, %System{})
+      false ->
+        IO.inspect(transaction)
+        :ok = TransactionRegistry.start_tracker(TransactionTracker, transaction)
+        {:ok, transaction}
+    end
+  end
+
+  def handle_local_insert(transaction) do
+    case EWallet.LocalTransactionGate.process_with_transaction(transaction) do
+      {:ok, transaction} ->
+         BlockchainTransactionState.transition_to(:confirmed, transaction, %System{})
+      error ->
+        error
+    end
   end
 
   defp set_blockchain_addresses(attrs) do

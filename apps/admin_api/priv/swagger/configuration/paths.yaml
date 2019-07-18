@@ -1,4 +1,4 @@
-configuration.get:
+configuration.all:
   post:
     tags:
       - Configuration

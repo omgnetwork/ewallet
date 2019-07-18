@@ -12,45 +12,47 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
-  alias EWalletDB.BlockchainWallet
+defmodule EWalletDB.Repo.Seeds.BlockchainWalletRepresentations do
+  alias EWalletDB.Wallet
   alias Keychain.Wallet
-  alias EWalletDB.Seeder
+  alias EWalletDB.{Seeder, BlockchainHDWallet}
 
   def seed do
     [
-      run_banner: "Seeding primary hot wallet:",
+      run_banner: "Seeding HD root wallet:",
       argsline: [],
     ]
   end
 
   def run(writer, _args) do
-    {:ok, {address, public_key}} = Wallet.generate()
+    case BlockchainHDWallet.get_primary() do
+      nil ->
+        insert(writer)
+      hd_wallet ->
+        writer.error("""
+          Blockchain HD Wallet already exists: #{hd_wallet.uuid}.
+        """)
+    end
+  end
+
+  defp insert(writer) do
+    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+    IO.inspect(keychain_hd_wallet_uuid)
     attrs = %{
-      address: address,
-      public_key: public_key,
-      name: "Hot wallet",
-      type: BlockchainWallet.type_hot(),
+      keychain_uuid: keychain_hd_wallet_uuid,
       originator: %Seeder{}
     }
-    case BlockchainWallet.insert(attrs) do
+    case BlockchainHDWallet.insert(attrs) do
       {:ok, wallet} ->
-        {:ok, [primary_hot_wallet: {:ok, _}]} = EWalletConfig.Config.update(%{
-          primary_hot_wallet: wallet.address,
-          originator: %Seeder{}
-        })
-
         writer.success("""
-          Name                : #{wallet.name}
-          Address             : #{wallet.address}
-          Public key          : #{wallet.public_key}
-          Type                : #{wallet.type}
+          UUID                : #{wallet.uuid}
+          Keychain UUID       : #{wallet.keychain_uuid}
         """)
       {:error, changeset} ->
-        writer.error("  Wallet #{address} could not be inserted.")
+        writer.error("  HD Wallet #{keychain_hd_wallet_uuid} could not be inserted.")
         writer.print_errors(changeset)
       _ ->
-        writer.error("  Wallet #{address} could not be inserted.")
+        writer.error("  HD Wallet #{keychain_hd_wallet_uuid} could not be inserted.")
         writer.error("  Unknown error.")
     end
   end

@@ -23,7 +23,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
-  alias EWalletDB.{Account, Repo, User, Wallet, BlockchainWallet}
+  alias EWalletDB.{Account, Repo, User, Wallet, BlockchainDepositWallet}
   alias ExULID.ULID
   alias ActivityLogger.System
 

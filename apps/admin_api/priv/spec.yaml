@@ -4459,6 +4459,31 @@ paths:
       responses:
         '200': *ref_49
         '500': *ref_7
+  /wallet.generate_deposit_address:
+    post:
+      tags:
+        - Wallet
+      summary: Generate a blockchain deposit address
+      operationId: wallet_generate_deposit_address
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to generate a deposit address.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                address:
+                  type: string
+              required:
+                - address
+              example:
+                address: kxhk519271652215
+      responses:
+        '200': *ref_49
+        '500': *ref_7
   /blockchain_wallet.get_balances:
     post:
       tags:
@@ -6241,7 +6266,7 @@ paths:
                 type: string
                 format: binary
         '500': *ref_7
-  /configuration.get:
+  /configuration.all:
     post:
       tags:
         - Configuration

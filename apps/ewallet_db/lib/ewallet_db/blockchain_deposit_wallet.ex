@@ -23,7 +23,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
   import EWalletDB.Helpers.Preloader
 
   alias Ecto.UUID
-  alias EWalletDB.{Repo, BlockchainDepositWallet, Wallet}
+  alias EWalletDB.{Repo, BlockchainDepositWallet, BlockchainHDWallet, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -32,6 +32,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
     # Blockchain deposit wallets don't have an external ID. Use `address` instead.
     field(:address, :string)
     field(:public_key, :string)
+    field(:path_ref, :integer)
 
     belongs_to(
       :wallet,
@@ -39,6 +40,14 @@ defmodule EWalletDB.BlockchainDepositWallet do
       foreign_key: :wallet_address,
       references: :address,
       type: :string
+    )
+
+    belongs_to(
+      :blockchain_hd_wallet,
+      BlockchainHDWallet,
+      foreign_key: :blockchain_hd_wallet_uuid,
+      references: :uuid,
+      type: UUID
     )
 
     activity_logging()
@@ -52,9 +61,10 @@ defmodule EWalletDB.BlockchainDepositWallet do
       cast: [
         :address,
         :public_key,
-        :wallet_address
+        :wallet_address,
+        :blockchain_hd_wallet_uuid
       ],
-      required: [:address, :wallet_address]
+      required: [:address, :wallet_address, :blockchain_hd_wallet_uuid]
     )
     |> unique_constraint(:address)
     |> unique_constraint(:public_key)
@@ -62,6 +72,12 @@ defmodule EWalletDB.BlockchainDepositWallet do
     |> validate_immutable(:public_key)
     |> validate_length(:address, count: :bytes, max: 255)
     |> validate_length(:public_key, count: :bytes, max: 255)
+    |> assoc_constraint(:blockchain_hd_wallet)
+  end
+
+  # TODO: Reduce scope?
+  def all do
+    Repo.all(BlockchainDepositWallet)
   end
 
   @doc """
