@@ -15,7 +15,7 @@ config :eth_blockchain,
   # Custom id used for development/testing only, to be updated for production use
   chain_id: 90_325,
   transaction_poll_interval: 5000,
-  erc20_bin_file_path: "apps/eth_blockchain/contracts/ERC20/EWalletERC20.bin"
+  erc20_bin_file_path: "apps/eth_blockchain/contracts/compiled/EWalletERC20.bin"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
