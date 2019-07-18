@@ -13,6 +13,7 @@ function CreateBlockchainTransactionButton (props) {
       onClick={() =>
         props.openModal({ id: 'createBlockchainTransaction', fromAddress: props.fromAddress })
       }
+      disabled={!window.web3 || !window.ethereum}
     >
       <Icon name='Transaction' />
       <span>Transfer</span>

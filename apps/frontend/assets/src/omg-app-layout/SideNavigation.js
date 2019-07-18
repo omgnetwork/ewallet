@@ -109,6 +109,11 @@ class SideNavigation extends PureComponent {
         text: 'Keys'
       },
       {
+        icon: 'Key',
+        to: '/ethereum',
+        text: 'Ethereum'
+      },
+      {
         icon: 'Setting',
         to: '/configuration',
         text: 'Configuration'
@@ -120,11 +125,11 @@ class SideNavigation extends PureComponent {
         to: '/wallets',
         text: 'Wallets'
       },
-      // {
-      //   icon: 'Wallet',
-      //   to: '/blockchain_wallets',
-      //   text: 'Blockchain Wallets'
-      // },
+      {
+        icon: 'Wallet',
+        to: '/blockchain_wallets',
+        text: 'Blockchain Wallets'
+      },
       {
         icon: 'Transaction',
         to: '/transaction',

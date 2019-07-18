@@ -1,159 +1,56 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { BigNumber } from 'bignumber.js'
-
-import { Button, Icon, SelectInput, Input } from '../omg-uikit'
+import web3Utils from 'web3-utils'
+import { blockchainTokens } from './blockchainTokens'
+import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
+import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
-
-const Form = styled.div`
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  > i {
-    position: absolute;
-    right: 30px;
-    top: 30px;
-    color: ${props => props.theme.colors.S400};
-    cursor: pointer;
-    font-size: 30px;
-  }
-  input {
-    margin-top: 5px;
-  }
-  button {
-    margin: 35px 0 0;
-    font-size: 14px;
-  }
-  h4 {
-    font-size: 18px;
-  }
-`
-const Title = styled.div`
-  margin-bottom: 20px;
-`
-const PendingIcon = styled(Icon)`
-  color: white;
-  background-color: orange;
-  width: 30px;
-  height: 30px;
-  margin-bottom: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 100%;
-`
-const ButtonContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`
-const Error = styled.div`
-  color: ${props => props.theme.colors.R400};
-  text-align: center;
-  padding: 10px 0;
-  overflow: hidden;
-  max-height: ${props => (props.error ? '100px' : 0)};
-  opacity: ${props => (props.error ? 1 : 0)};
-  transition: 0.5s ease max-height, 0.3s ease opacity;
-`
-const FromToContainer = styled.div`
-  h5 {
-    letter-spacing: 1px;
-    background-color: ${props => props.theme.colors.S300};
-    display: inline-block;
-    padding: 5px 10px;
-    border-radius: 2px;
-  }
-`
-const InnerTransferContainer = styled.div`
-  max-width: 600px;
-  padding: 50px;
-  margin: 0 auto;
-`
-const StyledSelectInput = styled(SelectInput)`
-  margin-bottom: 10px;
-`
-const StyledInput = styled(Input)`
-  margin-bottom: 20px;
-`
-const PasswordInput = styled(Input)`
-  margin-top: 40px;
-`
-const Label = styled.div`
-  color: ${props => props.theme.colors.S400};
-`
-const Collapsable = styled.div`
-  background-color: ${props => props.theme.colors.S100};
-  text-align: left;
-  border-radius: 6px;
-  border: 1px solid ${props => props.theme.colors.S400};
-  margin-top: 20px;
-`
-const FeeContainer = styled.div`
-  padding: 10px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  border-radius: 6px;
-  i[name='Info'] {
-    color: ${props => props.theme.colors.S400};
-    margin-left: 5px;
-    cursor: pointer;
-  }
-`
-const GrayFeeContainer = styled(FeeContainer)`
-  background-color: ${props => props.theme.colors.S200};
-`
-const CollapsableHeader = styled.div`
-  cursor: pointer;
-  padding: 10px 20px;
-  display: flex;
-  align-items: center;
-  color: ${props => props.theme.colors.S500};
-  > i {
-    margin-left: auto;
-  }
-`
-const CollapsableContent = styled.div`
-  padding: 40px;
-  border-radius: 6px;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-`
-const Links = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: flex-end;
-  color: ${props => props.theme.colors.B100};
-  span {
-    margin-top: 5px;
-    cursor: pointer;
-  }
-  i[name='Arrow-Right'] {
-    margin-left: 5px;
-  }
-`
+import {
+  selectBlockchainBalanceByAddress,
+  selectNetwork
+} from '../omg-web3/selector'
+import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
+import {
+  Form,
+  Title,
+  PendingIcon,
+  ButtonContainer,
+  Error,
+  FromToContainer,
+  InnerTransferContainer,
+  StyledSelectInput,
+  StyledInput,
+  PasswordInput,
+  Label,
+  Collapsable,
+  FeeContainer,
+  GrayFeeContainer,
+  CollapsableHeader,
+  CollapsableContent,
+  Links
+} from './styles'
+import { ethExplorerMetamaskNetworkMap } from '../omg-web3/constants'
 const enhance = compose(
   withRouter,
   connect(
-    state => ({ selectWalletById: selectWalletById(state) }),
-    { transfer, getWalletById }
+    state => ({
+      selectWalletById: selectWalletById(state),
+      selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state),
+      network: selectNetwork(state)
+    }),
+    { transfer, getWalletById, sendTransaction, estimateGasFromTransaction }
   )
 )
 class CreateBlockchainTransaction extends Component {
@@ -161,10 +58,11 @@ class CreateBlockchainTransaction extends Component {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
     selectWalletById: PropTypes.func,
-    getWalletById: PropTypes.func,
     match: PropTypes.object,
-    onCreateTransaction: PropTypes.func,
-    transfer: PropTypes.func
+    selectBlockchainBalanceByAddress: PropTypes.func,
+    sendTransaction: PropTypes.func,
+    estimateGasFromTransaction: PropTypes.func,
+    network: PropTypes.number
   }
   static defaultProps = {
     onCreateTransaction: _.noop
@@ -178,12 +76,39 @@ class CreateBlockchainTransaction extends Component {
     transactionFee: 0,
     amountToSend: 0,
     step: 1,
-    gasLimit: '',
+    gasLimit: 21000,
     gasPrice: '',
     metaData: '',
-    password: ''
+    password: '',
+    fromTokenSelected: {}
   }
-  onClickSetting = e => {
+  async componentDidMount () {
+    this.setGasPrice()
+  }
+
+  async componentDidUpdate (prevProps, prevState) {
+    const { toAddress, fromTokenAmount, fromTokenSelected } = this.state
+    if (
+      fromTokenAmount &&
+      toAddress &&
+      fromTokenSelected &&
+      ((prevState.toAddress !== toAddress) ||
+        this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
+        this.state.fromTokenAmount !== prevState.fromTokenAmount)
+    ) {
+      this.setGasPrice()
+    }
+  }
+
+  setGasPrice = async () => {
+    const { estimateGasFromTransaction } = this.props
+    if (web3Utils.isAddress(this.state.toAddress)) {
+      const { data: { gas } } = await estimateGasFromTransaction(this.getTransactionPayload())
+      this.setState({ gasPrice: weiToGwei(gas) })
+    }
+  }
+
+  onClickSetting = () => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
   }
   onChangeInputFromAddress = e => {
@@ -204,11 +129,15 @@ class CreateBlockchainTransaction extends Component {
     this.setState({ [`${type}Amount`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
-    this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
+    this.setState({
+      [`${type}SearchToken`]: e.target.value,
+      [`${type}Selected`]: null
+    })
   }
   onSelectTokenSelect = type => token => {
     this.setState({
-      [`${type}SearchToken`]: _.get(token, 'token.name'),
+      [`${type}SearchToken`]:
+        _.get(token, 'token.name') || _.get(token, 'name'),
       [`${type}Selected`]: token
     })
   }
@@ -218,7 +147,9 @@ class CreateBlockchainTransaction extends Component {
         toAddress: item.key,
         toAddressSelect: true,
         toTokenSelected: this.state.toTokenSelected
-          ? item.balances.find(b => b.token.id === _.get(this.state.toTokenSelected, 'token.id'))
+          ? item.balances.find(
+            b => b.token.id === _.get(this.state.toTokenSelected, 'token.id')
+          )
           : null
       })
     } else {
@@ -236,7 +167,10 @@ class CreateBlockchainTransaction extends Component {
         fromAddress: item.key,
         fromAddressSelect: true,
         fromTokenSelected: this.state.fromTokenSelected
-          ? item.balances.find(b => b.token.id === _.get(this.state.fromTokenSelected, 'token.id'))
+          ? item.balances.find(
+            b =>
+              b.token.id === _.get(this.state.fromTokenSelected, 'token.id')
+          )
           : null
       })
     } else {
@@ -248,43 +182,46 @@ class CreateBlockchainTransaction extends Component {
       })
     }
   }
-  onSubmit = async e => {
-    e.preventDefault()
-    this.setState({ submitting: true })
-    try {
-      const fromAmount = formatAmount(
-        this.state.fromTokenAmount,
-        _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
-      )
-      const toAmount = formatAmount(
-        this.state.toTokenAmount,
-        _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
-      )
-      const result = await this.props.transfer({
-        fromAddress: this.state.fromAddress.trim(),
-        toAddress: this.state.toAddress.trim(),
-        fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
-        toTokenId:
-          _.get(this.state.toTokenSelected, 'token.id') ||
-          _.get(this.state.fromTokenSelected, 'token.id'),
-        fromAmount,
-        toAmount,
-        exchangeAddress: this.state.exchangeAddress
-      })
-      if (result.data) {
-        this.props.getWalletById(this.state.fromAddress)
-        this.props.getWalletById(this.state.toAddress)
-        this.onRequestClose()
-      } else {
-        this.setState({
-          submitting: false,
-          error: result.error.description || result.error.message
-        })
-      }
-      this.props.onCreateTransaction()
-    } catch (e) {
-      this.setState({ error: JSON.stringify(e.message) })
+  getTransactionPayload = () => {
+    const {
+      fromAddress,
+      toAddress,
+      fromTokenAmount,
+      fromTokenSelected,
+      gasLimit,
+      gasPrice
+    } = this.state
+
+    const payload = {
+      from: fromAddress,
+      to: toAddress,
+      value: formatAmount(fromTokenAmount, fromTokenSelected.subunit_to_unit),
+      gas: gasLimit || undefined,
+      gasPrice: gasPrice ? gweiToWei(gasPrice) : undefined
     }
+    return payload
+  }
+  getTransactionFee = () => {
+    return this.state.gasPrice
+      ? weiToGwei(this.state.gasPrice)
+        .multipliedBy(this.state.gasLimit)
+        .toFixed()
+      : 0
+  }
+  onSubmit = async e => {
+    this.setState({ submitting: true })
+    e.preventDefault()
+    this.props.sendTransaction({
+      transaction: this.getTransactionPayload(),
+      onTransactionHash: hash => {
+        this.setState({ step: 3, txHash: String(hash) })
+      },
+      onReceipt: console.log,
+      onConfirmation: console.log,
+      onError: () => {
+        this.setState({ submitting: false })
+      }
+    })
   }
   onRequestClose = () => {
     this.props.onRequestClose()
@@ -299,8 +236,100 @@ class CreateBlockchainTransaction extends Component {
       : '-'
   }
 
+  renderFromSelectWalletValue = data => {
+    return this.state.fromAddress
+      ? value => {
+        const wallet = _.find(data, i => i.address === value)
+        return wallet ? <WalletSelect wallet={wallet} /> : value
+      }
+      : null
+  }
+  renderFromSelectWalletOptions = data => {
+    return data
+      ? data
+        .filter(w => w.identifier !== 'burn')
+        .map(d => {
+          return {
+            key: d.address,
+            value: <WalletSelect wallet={d} />,
+            ...d
+          }
+        })
+      : []
+  }
+
+  renderFromSelectTokenValue = fromWallet => {
+    const { fromAddress } = this.state
+    const blockchain = web3Utils.isAddress(fromAddress)
+    const balances = this.props.selectBlockchainBalanceByAddress(fromAddress)
+    return value => {
+      const from = blockchain ? blockchainTokens : fromWallet.balances.token
+
+      const foundToken = _.find(
+        from,
+        token => token.name.toLowerCase() === value.toLowerCase()
+      )
+      const balance = blockchain
+        ? balances[foundToken.symbol].balance
+        : foundToken.balance
+
+      return foundToken ? (
+        <TokenSelect balance={balance} token={foundToken} />
+      ) : (
+        value
+      )
+    }
+  }
+
+  renderFromSelectTokenOption = fromWallet => {
+    const { fromAddress } = this.state
+    if (web3Utils.isAddress(this.state.fromAddress)) {
+      const balances = this.props.selectBlockchainBalanceByAddress(fromAddress)
+      return blockchainTokens.map(token => ({
+        key: `${token.name}${token.symbol}${token.id}`,
+        value: (
+          <TokenSelect balance={balances[token.symbol].balance} token={token} />
+        ),
+        ...token
+      }))
+    }
+    return fromWallet
+      ? fromWallet.balances.map(b => ({
+        key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+        value: <TokenSelect balance={b.amount} token={b.token} />,
+        ...b
+      }))
+      : []
+  }
+
+  renderToSelectWalletValue = data => {
+    const blockchain = web3Utils.isAddress(this.state.toAddress)
+    if (blockchain) return value => value
+    if (this.state.toAddressSelect) {
+      return value => {
+        const wallet = _.find(data, i => i.address === value)
+        return wallet ? <WalletSelect wallet={wallet} /> : value
+      }
+    }
+    return null
+  }
+
+  rendreToSelectWalletOption = data => {
+    return data
+      ? data.map(d => {
+        return {
+          key: d.address,
+          value: <WalletSelect wallet={d} />,
+          ...d
+        }
+      })
+      : []
+  }
+
   renderFromSection () {
-    const fromWallet = this.props.selectWalletById(this.state.fromAddress.trim())
+    const fromWallet = this.props.selectWalletById(
+      this.state.fromAddress.trim()
+    )
     return (
       <FromToContainer>
         <h5>From</h5>
@@ -308,36 +337,22 @@ class CreateBlockchainTransaction extends Component {
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
-          shouldFetch={!!this.props.match.params.accountId || (fromWallet && !!fromWallet.account_id)}
+          shouldFetch={
+            !!this.props.match.params.accountId ||
+            (fromWallet && !!fromWallet.account_id)
+          }
           render={({ data }) => {
             return (
               <StyledSelectInput
                 selectProps={{
                   label: 'Wallet Address',
                   clearable: true,
-                  disabled: !!this.props.fromAddress,
+                  disabled: !!this.props.fromAddress || this.state.step !== 1,
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
-                  valueRenderer: this.state.fromAddress
-                    ? value => {
-                      const wallet = _.find(data, i => i.address === value)
-                      return wallet
-                        ? <WalletSelect wallet={wallet} />
-                        : value
-                    }
-                    : null,
-                  options:
-                    data
-                      ? data.filter(w => w.identifier !== 'burn')
-                        .map(d => {
-                          return {
-                            key: d.address,
-                            value: <WalletSelect wallet={d} />,
-                            ...d
-                          }
-                        })
-                      : []
+                  valueRenderer: this.renderFromSelectWalletValue(data),
+                  options: this.renderFromSelectWalletOptions(data)
                 }}
               />
             )
@@ -352,7 +367,9 @@ class CreateBlockchainTransaction extends Component {
                 onChange: this.onChangeAmount('fromToken'),
                 type: 'amount',
                 maxAmountLength: 18,
-                suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+                suffix:
+                  _.get(this.state.fromTokenSelected, 'token.symbol') ||
+                  _.get(this.state.fromTokenSelected, 'symbol')
               }}
               selectProps={{
                 label: 'Token',
@@ -361,25 +378,8 @@ class CreateBlockchainTransaction extends Component {
                 onChange: this.onChangeSearchToken('fromToken'),
                 value: this.state.fromTokenSearchToken,
                 filterByKey: true,
-                valueRenderer: this.state.fromTokenSelected
-                  ? value => {
-                    const found = _.find(
-                      fromWallet.balances,
-                      b => b.token.name.toLowerCase() === value.toLowerCase()
-                    )
-                    return found
-                      ? <TokenSelect balance={found.amount} token={found.token} />
-                      : value
-                  }
-                  : null,
-                options:
-                  fromWallet
-                    ? fromWallet.balances.map(b => ({
-                      key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                      value: <TokenSelect balance={b.amount} token={b.token} />,
-                      ...b
-                    }))
-                    : []
+                valueRenderer: this.renderFromSelectTokenValue(fromWallet),
+                options: this.renderFromSelectTokenOption(fromWallet)
               }}
             />
           </div>
@@ -403,13 +403,7 @@ class CreateBlockchainTransaction extends Component {
           value={this.state.gasPrice}
           type='number'
           suffix='Gwei'
-          subTitle={this.state.gasPrice ? `${new BigNumber(this.state.gasPrice).dividedBy(1000000000).toFixed()} ETH` : ''}
-        />
-        <Label>Data</Label>
-        <StyledInput
-          onChange={e => this.setState({ metaData: e.target.value })}
-          value={this.state.metaData}
-          subTitle='Optional'
+          subTitle={`${this.getTransactionFee()} ETH`}
         />
       </CollapsableContent>
     )
@@ -427,26 +421,11 @@ class CreateBlockchainTransaction extends Component {
                   label: 'Wallet Address',
                   clearable: true,
                   onSelectItem: this.onSelectToAddressSelect,
+                  disabled: this.state.step !== 1,
                   value: this.state.toAddress,
                   onChange: this.onChangeInputToAddress,
-                  valueRenderer: this.state.toAddressSelect
-                    ? value => {
-                      const wallet = _.find(data, i => i.address === value)
-                      return wallet
-                        ? <WalletSelect wallet={wallet} />
-                        : value
-                    }
-                    : null,
-                  options:
-                    data
-                      ? data.map(d => {
-                        return {
-                          key: d.address,
-                          value: <WalletSelect wallet={d} />,
-                          ...d
-                        }
-                      })
-                      : []
+                  valueRenderer: this.renderToSelectWalletValue(data),
+                  options: this.rendreToSelectWalletOption(data)
                 }}
               />
             )
@@ -455,12 +434,14 @@ class CreateBlockchainTransaction extends Component {
         {this.state.step === 1 && (
           <Collapsable>
             <CollapsableHeader onClick={this.onClickSetting}>
-              <span>Settings (Gas limit, Gas price, Data)</span>
-              {this.state.settingsOpen
-                ? <Icon name='Chevron-Up' />
-                : <Icon name='Chevron-Down' />}
+              <span>Settings (Gas limit, Gas price)</span>
+              {this.state.settingsOpen ? (
+                <Icon name='Chevron-Up' />
+              ) : (
+                <Icon name='Chevron-Down' />
+              )}
             </CollapsableHeader>
-            <Accordion path='settings' height={330}>
+            <Accordion path='settings' height={230}>
               {this.state.settingsOpen && this.renderSettingContent()}
             </Accordion>
           </Collapsable>
@@ -468,17 +449,21 @@ class CreateBlockchainTransaction extends Component {
         {this.state.step !== 1 && (
           <GrayFeeContainer>
             <span>Amount to send</span>
-            <span>{this.state.fromTokenAmount} {_.get(this.state.fromTokenSelected, 'token.symbol')}</span>
+            <span>
+              {this.state.fromTokenAmount}{' '}
+              {_.get(this.state.fromTokenSelected, 'token.symbol') ||
+                _.get(this.state.fromTokenSelected, 'symbol')}
+            </span>
           </GrayFeeContainer>
         )}
         <FeeContainer>
           <span>Transaction fee</span>
-          <span>{this.state.transactionFee} ETH</span>
+          <span>{this.getTransactionFee()} ETH</span>
         </FeeContainer>
       </FromToContainer>
     )
   }
-  renderTitle () {
+  renderTitle = () => {
     return (
       <Title>
         {this.state.step === 1 && <h4>Transfer</h4>}
@@ -488,34 +473,54 @@ class CreateBlockchainTransaction extends Component {
             <PendingIcon name='Option-Horizontal' />
             <h4>Pending transaction</h4>
             <div>The transaction is waiting to be included in the block.</div>
+            <div>{this.state.txHash}</div>
           </>
         )}
       </Title>
     )
   }
   renderActions () {
+    const { fromAddress, toAddress, fromTokenSelected, txHash } = this.state
+    const { network } = this.props
+    const exlorerUrl = `${ethExplorerMetamaskNetworkMap[network]}/tx/${txHash}`
+    const transferDisabled = !(fromAddress && toAddress && fromTokenSelected)
     return (
       <>
         {this.state.step === 1 && (
           <ButtonContainer>
-            <Button size='small' onClick={() => this.setState({ step: 2 })}>
+            <Button
+              size='small'
+              onClick={() => this.setState({ step: 2 })}
+              disabled={transferDisabled}
+            >
               <span>Transfer</span>
             </Button>
           </ButtonContainer>
         )}
         {this.state.step === 2 && (
           <>
-            <PasswordInput
-              placeholder='Enter password to confirm'
-              type='password'
-              onChange={e => this.setState({ password: e.target.value })}
-              value={this.state.password}
-            />
+            {!web3Utils.isAddress(this.state.fromAddress) && (
+              <PasswordInput
+                placeholder='Enter password to confirm'
+                type='password'
+                onChange={e => this.setState({ password: e.target.value })}
+                value={this.state.password}
+              />
+            )}
             <ButtonContainer>
-              <Button size='small' onClick={() => this.setState({ step: 3 })}>
+              <Button
+                size='small'
+                type='submit'
+                onClick={this.onSubmit}
+                loading={this.state.submitting}
+              >
                 <span>Submit Transaction</span>
               </Button>
-              <Button size='small' styleType='secondary' onClick={() => this.setState({ step: 1 })}>
+              <Button
+                size='small'
+                styleType='secondary'
+                onClick={() => this.setState({ step: 1 })}
+              >
                 <span>Back to Edit</span>
               </Button>
             </ButtonContainer>
@@ -523,12 +528,19 @@ class CreateBlockchainTransaction extends Component {
         )}
         {this.state.step === 3 && (
           <ButtonContainer>
-            <Button size='small' styleType='secondary' onClick={this.props.onRequestClose}>
-              <span>Back to Hot Wallet</span>
+            <Button
+              size='small'
+              styleType='secondary'
+              onClick={this.props.onRequestClose}
+            >
+              <span>Done</span>
             </Button>
             <Links>
-              <span>View Transaction <Icon name='Arrow-Right' /></span>
-              <span>Track on Etherscan <Icon name='Arrow-Right' /></span>
+              <span>
+                <a href={exlorerUrl} target='_blank' rel='noopener noreferrer'>
+                  Track on Etherscan <Icon name='Arrow-Right' />
+                </a>
+              </span>
             </Links>
           </ButtonContainer>
         )}
