@@ -16,7 +16,8 @@
 # - Add ability to finish minting and toggle `locked` when done
 # - Add ability to mint token on blockchain if not `locked`
 
-# TODO: Add listener to change status from `pending` to `confirmed` after X block confirmation + balance > 0 for hot wallet
+# TODO: Add listener to change status from `pending` to `confirmed`
+# after X block confirmation + balance > 0 for hot wallet
 
 defmodule EWalletDB.Token do
   @moduledoc """

@@ -22,9 +22,9 @@ defmodule EthBlockchain.Token do
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
-  @erc20UUID "3681491a-e8d0-4219-a40a-53d9a47fe64a"
+  @erc20_uuid "3681491a-e8d0-4219-a40a-53d9a47fe64a"
 
-  @erc20MintableUUID "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
+  @erc20_mintable_uuid "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
 
   @doc """
   Format and submit an ERC20 contract creation transaction with the given data
@@ -34,11 +34,11 @@ defmodule EthBlockchain.Token do
   def deploy_erc20(attrs, adapter \\ nil, pid \\ nil)
 
   def deploy_erc20(%{locked: false} = attrs, adapter, pid) do
-    do_deploy(attrs, @erc20MintableUUID, adapter, pid)
+    do_deploy(attrs, @erc20_mintable_uuid, adapter, pid)
   end
 
   def deploy_erc20(attrs, adapter, pid) do
-    do_deploy(attrs, @erc20UUID, adapter, pid)
+    do_deploy(attrs, @erc20_uuid, adapter, pid)
   end
 
   defp do_deploy(
