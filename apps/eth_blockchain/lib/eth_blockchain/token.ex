@@ -63,7 +63,8 @@ defmodule EthBlockchain.Token do
 
     contract_binary =
       :eth_blockchain
-      |> Application.get_env(:contracts_file_path)
+      |> Application.app_dir()
+      |> Path.join("priv/contracts.json")
       |> File.read!()
       |> Jason.decode!()
       |> Map.get(contract_uuid)

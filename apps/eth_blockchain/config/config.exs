@@ -14,8 +14,7 @@ config :eth_blockchain,
   default_contract_creation_gas_limit: 1_500_000,
   # Custom id used for development/testing only, to be updated for production use
   chain_id: 90_325,
-  transaction_poll_interval: 5000,
-  contracts_file_path: "apps/eth_blockchain/contracts/contracts.json"
+  transaction_poll_interval: 5000
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
