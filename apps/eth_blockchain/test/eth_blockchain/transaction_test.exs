@@ -27,13 +27,6 @@ defmodule EthBlockchain.TransactionTest do
     |> Map.put(:public_key, public_key)
   end
 
-  defp decode_response(response) do
-    response
-    |> Encoding.from_hex()
-    |> ExRLP.decode()
-    |> Transaction.deserialize()
-  end
-
   defp recover_public_key(trx) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
@@ -58,7 +51,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
 
       sender_public_key = recover_public_key(trx)
 
@@ -88,7 +81,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
 
       assert trx.data == ""
@@ -112,7 +105,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
 
       assert trx.data == ""
@@ -141,7 +134,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
       {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
 
@@ -172,7 +165,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
       {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
 
