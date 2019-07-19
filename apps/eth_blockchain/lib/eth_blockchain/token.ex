@@ -55,7 +55,7 @@ defmodule EthBlockchain.Token do
        ) do
     constructor_attributes =
       [{name, symbol, decimals, initial_amount}]
-      |> TypeEncoder.encode(%ABI.FunctionSelector{
+      |> TypeEncoder.encode(%FunctionSelector{
         function: nil,
         types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
       })

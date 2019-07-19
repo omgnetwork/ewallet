@@ -45,6 +45,38 @@ defmodule EthBlockchain.TransactionTest do
     pub_key
   end
 
+  describe "create_contract/3" do
+    test "generates a contract creation transaction", state do
+      contract_data = "0x" <> "0123456789abcdef"
+
+      {resp, encoded_trx, contract_address} =
+        Transaction.create_contract(
+          %{from: state[:valid_sender], contract_data: contract_data},
+          :dumb,
+          state[:pid]
+        )
+
+      assert resp == :ok
+
+      trx = decode_response(encoded_trx)
+
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == ""
+      assert trx.init == Encoding.from_hex(contract_data)
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_contract_creation_gas_limit)
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == "0x"
+
+      assert contract_address != nil
+    end
+  end
+
   describe "send/3" do
     test "generates an eth transaction when not specifying contract or gas price", state do
       {resp, encoded_trx} =
