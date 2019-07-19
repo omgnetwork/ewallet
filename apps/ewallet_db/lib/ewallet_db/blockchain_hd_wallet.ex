@@ -64,6 +64,7 @@ defmodule EWalletDB.BlockchainHDWallet do
         %BlockchainHDWallet{}
         |> changeset(attrs)
         |> Repo.insert_record_with_activity_log()
+
       _ ->
         {:error, :blockchain_hd_wallet_already_exists}
     end

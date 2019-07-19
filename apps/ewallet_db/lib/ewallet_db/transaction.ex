@@ -39,10 +39,21 @@ defmodule EWalletDB.Transaction do
   @submitted "submitted"
   @pending_recording "pending_recording"
   @pending_confirmations "pending_confirmations"
+  @local_confirmed "local_confirmed"
   @blockchain_confirmed "blockchain_confirmed"
   @confirmed "confirmed"
   @failed "failed"
-  @statuses [@pending, @submitted, @pending_recording, @recorded, @pending_confirmations, @blockchain_confirmed, @confirmed, @failed]
+  @statuses [
+    @pending,
+    @submitted,
+    @pending_recording,
+    @recorded,
+    @pending_confirmations,
+    @local_confirmed,
+    @blockchain_confirmed,
+    @confirmed,
+    @failed
+  ]
   def pending, do: @pending
   def pending_recording, do: @pending_recording
   def pending_confirmations, do: @pending_confirmations

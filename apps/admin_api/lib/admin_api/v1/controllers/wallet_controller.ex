@@ -137,7 +137,6 @@ defmodule AdminAPI.V1.WalletController do
     do:
       handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
 
-
   defp add_balances_if_allowed({:error, code, description}, _), do: {:error, code, description}
 
   defp add_balances_if_allowed(%Paginator{} = paginator, conn) do

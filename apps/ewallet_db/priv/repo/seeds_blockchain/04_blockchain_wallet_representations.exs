@@ -25,11 +25,12 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWalletRepresentations do
   end
 
   def run(writer, _args) do
+    # TODO: add blockchain identifier
     case BlockchainHDWallet.get_primary() do
       nil ->
         insert(writer)
       hd_wallet ->
-        writer.error("""
+        writer.warn("""
           Blockchain HD Wallet already exists: #{hd_wallet.uuid}.
         """)
     end
@@ -37,7 +38,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWalletRepresentations do
 
   defp insert(writer) do
     {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
-    IO.inspect(keychain_hd_wallet_uuid)
+
     attrs = %{
       keychain_uuid: keychain_hd_wallet_uuid,
       originator: %Seeder{}

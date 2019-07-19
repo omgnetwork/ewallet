@@ -42,12 +42,13 @@ defmodule Keychain.Wallet do
 
     public_key_encoded = Base.encode16(public_key, case: :lower)
     private_key_encoded = Base.encode16(private_key, case: :lower)
-    IO.inspect(private_key_encoded)
-    {:ok, _} = Key.insert(%{
-      wallet_id: wallet_address,
-      public_key: public_key_encoded,
-      encrypted_private_key: private_key_encoded
-    })
+
+    {:ok, _} =
+      Key.insert(%{
+        wallet_id: wallet_address,
+        public_key: public_key_encoded,
+        encrypted_private_key: private_key_encoded
+      })
 
     {:ok, {wallet_address, public_key_encoded}}
   end
@@ -59,12 +60,13 @@ defmodule Keychain.Wallet do
     wallet_address = BlockKeys.Ethereum.Address.from_xpub(public_key)
     uuid = UUID.generate()
 
-    {:ok, _} = Key.insert(%{
-      wallet_id: wallet_address,
-      public_key: public_key,
-      encrypted_private_key: root_key,
-      uuid: uuid
-    })
+    {:ok, _} =
+      Key.insert(%{
+        wallet_id: wallet_address,
+        public_key: public_key,
+        encrypted_private_key: root_key,
+        uuid: uuid
+      })
 
     {:ok, uuid}
   end
@@ -74,6 +76,7 @@ defmodule Keychain.Wallet do
     case Key.public_key_for_uuid(uuid) do
       nil ->
         {:error, :invalid_uuid}
+
       public_key ->
         path = "M/#{account_ref}/#{deposit_ref}"
         BlockKeys.Ethereum.address(public_key, path)

@@ -28,7 +28,8 @@ defmodule EWallet.AddressTracker do
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50
-  @polling_interval 500#15000
+  # 15000
+  @polling_interval 500
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
@@ -40,22 +41,20 @@ defmodule EWallet.AddressTracker do
   def init(%{blockchain: blockchain}) do
     wallet = BlockchainWallet.get_by(type: "hot")
     addresses = %{wallet.address => nil}
-    tokens = Token.all_blockchain()
+    tokens = Token.all_blockchain(blockchain)
     contract_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
     tx_blk_number = Transaction.get_last_blk_number(blockchain)
     global_blk_number = get_global_blk_number(blockchain)
     blk_number = get_starting_blk_number(blockchain, global_blk_number, tx_blk_number)
 
     # TODO: Load all addresses from blockchain deposit wallets
-    IO.inspect(BlockchainDepositWallet.all())
     addresses =
       BlockchainDepositWallet.all()
-      |> Enum.map(fn deposit_wallet -> {deposit_wallet.address, nil} end)
+      |> Enum.map(fn deposit_wallet -> {deposit_wallet.address, deposit_wallet.wallet_address} end)
       |> Enum.into(%{})
       |> Map.merge(addresses)
 
     IO.inspect("Starting at block number #{blk_number}")
-    IO.inspect(addresses)
 
     {:ok,
      %{
@@ -68,7 +67,7 @@ defmodule EWallet.AddressTracker do
        blk_number: blk_number,
        blk_retries: 0,
        blk_syncing_save_count: 0,
-       blk_syncing_save_interval: @blk_syncing_save_interval,
+       blk_syncing_save_interval: @blk_syncing_save_interval
      }, {:continue, :start_polling}}
   end
 
@@ -80,10 +79,14 @@ defmodule EWallet.AddressTracker do
     poll(state)
   end
 
-  def handle_call({:register_address, blockchain_address, internal_address}, %{addresses: addresses} = state) do
+  def handle_call(
+        {:register_address, blockchain_address, internal_address},
+        %{addresses: addresses} = state
+      ) do
     case addresses[blockchain_address] do
       nil ->
         {:ok, :ok, state}
+
       _ ->
         addresses = Map.put(addresses, blockchain_address, internal_address)
         {:ok, :ok, %{state | addresses: addresses}}
@@ -91,7 +94,7 @@ defmodule EWallet.AddressTracker do
   end
 
   def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
-     GenServer.call(pid, {:register_address, blockchain_address, internal_address})
+    GenServer.call(pid, {:register_address, blockchain_address, internal_address})
   end
 
   defp poll(state) do
@@ -145,6 +148,7 @@ defmodule EWallet.AddressTracker do
         |> Map.put(:blk_syncing_save_count, state[:blk_syncing_save_count] + 1)
         |> Map.put(:blk_number, new_blk_number)
         |> Map.put(:blk_retries, 0)
+
       false ->
         {:ok, blockchain_state} = BlockchainState.update(blockchain, new_blk_number)
 
@@ -199,15 +203,13 @@ defmodule EWallet.AddressTracker do
 
   defp do_insert(blockchain_tx, %{addresses: addresses, blockchain: blockchain}) do
     token = Token.get_by(%{blockchain_address: blockchain_tx.contract_address})
-    IO.inspect("Inserting new transaction...")
-    IO.inspect(blockchain_tx)
-    IO.inspect("Found interesting tx with to address #{blockchain_tx.to} linked with #{addresses[blockchain_tx.to]}!")
 
     attrs = %{
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
       to_amount: blockchain_tx.amount,
-      status:  Transaction.pending_recording(),# get_status(blockchain_tx.confirmations_count),
+      # get_status(blockchain_tx.confirmations_count),
+      status: Transaction.pending_recording(),
       type: Transaction.external(),
       blockchain_tx_hash: blockchain_tx.hash,
       blockchain_identifier: blockchain,
@@ -277,7 +279,7 @@ defmodule EWallet.AddressTracker do
   defp get_starting_blk_number(_blockchain, global_blk_number, nil), do: global_blk_number
 
   defp get_starting_blk_number(blockchain, global_blk_number, tx_blk_number)
-  when is_integer(global_blk_number) and is_integer(tx_blk_number) do
+       when is_integer(global_blk_number) and is_integer(tx_blk_number) do
     case global_blk_number > tx_blk_number do
       true ->
         global_blk_number

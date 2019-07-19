@@ -51,14 +51,24 @@ defmodule EWallet.BlockchainTransactionState do
     |> Repo.update_record_with_activity_log()
   end
 
-  def transition_to(:local_confirmed, %{status: "pending"} = transaction, ledger_transaction, originator) do
+  def transition_to(
+        :local_confirmed,
+        %{status: "pending"} = transaction,
+        ledger_transaction,
+        originator
+      ) do
     Transaction.confirm(transaction, ledger_transaction.uuid, originator)
   end
 
-  def transition_to(:local_confirmed, %{status: "pending_recording"} = transaction, ledger_transaction, originator) do
+  def transition_to(
+        :local_confirmed,
+        %{status: "blockchain_confirmed"} = transaction,
+        ledger_transaction,
+        originator
+      ) do
     transaction
     |> Transaction.confirmations_changeset(%{
-      status: "recorded",
+      status: "local_confirmed",
       local_ledger_uuid: ledger_transaction.uuid,
       originator: originator
     })
@@ -66,8 +76,6 @@ defmodule EWallet.BlockchainTransactionState do
   end
 
   def transition_to(:confirmed, transaction, confirmations_count, originator) do
-    IO.inspect("Confirmed!")
-    IO.inspect(confirmations_count)
     transaction
     |> Transaction.confirmations_changeset(%{
       status: "confirmed",
@@ -77,7 +85,16 @@ defmodule EWallet.BlockchainTransactionState do
     |> Repo.update_record_with_activity_log()
   end
 
-  def transition_to(:confirmed, %{status: "recorded"} = transaction, originator) do
+  def transition_to(:confirmed, %{status: "local_confirmed"} = transaction, originator) do
+    transaction
+    |> Transaction.confirmations_changeset(%{
+      status: "confirmed",
+      originator: originator
+    })
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def transition_to(:confirmed, %{status: "blockchain_confirmed"} = transaction, originator) do
     transaction
     |> Transaction.confirmations_changeset(%{
       status: "confirmed",

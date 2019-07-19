@@ -37,7 +37,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainHDWallet do
 
   defp insert(writer) do
     {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
-    IO.inspect(keychain_hd_wallet_uuid)
+
     attrs = %{
       keychain_uuid: keychain_hd_wallet_uuid,
       originator: %Seeder{}

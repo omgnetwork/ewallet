@@ -44,14 +44,23 @@ defmodule Keychain.Signature do
   @doc """
   Returns a ECDSA signature (v,r,s) for a child key specified via account_ref & deposit_ref
   """
-  @spec sign_with_child_key(Keccak.keccak_hash(), Ecto.UUID.t(), Integer.t(), Integer.t(), integer() | nil) ::
+  @spec sign_with_child_key(
+          Keccak.keccak_hash(),
+          Ecto.UUID.t(),
+          Integer.t(),
+          Integer.t(),
+          integer() | nil
+        ) ::
           {hash_v, hash_r, hash_s} | {:error, :invalid_uuid}
   def sign_with_child_key(hash, wallet_uuid, account_ref, deposit_ref, chain_id \\ nil) do
     case Key.private_key_for_uuid(wallet_uuid) do
       nil ->
         {:error, :invalid_uuid}
+
       xprv ->
-        child_xprv = BlockKeys.CKD.derive(xprv, @priv_derivation_path <> "/#{account_ref}/#{deposit_ref}")
+        child_xprv =
+          BlockKeys.CKD.derive(xprv, @priv_derivation_path <> "/#{account_ref}/#{deposit_ref}")
+
         decoded = BlockKeys.Encoding.decode_extended_key(child_xprv)
         <<_prefix::binary-1, pkey::binary-32>> = decoded[:key]
         do_sign(pkey, hash, chain_id)

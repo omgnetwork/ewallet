@@ -48,15 +48,10 @@ defmodule EWallet.TransactionTracker do
         {:confirmations_count, transaction_receipt, confirmations_count},
         %{transaction: transaction} = state
       ) do
-    IO.inspect("Confirmation count cast")
-    IO.inspect(confirmations_count)
-    IO.inspect(transaction.blockchain_tx_hash)
-    IO.inspect(transaction_receipt.transaction_hash)
     case transaction.blockchain_tx_hash == transaction_receipt.transaction_hash do
       true ->
         adapter = BlockchainHelper.adapter()
         threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
-        IO.inspect("Threshold: #{threshold}")
 
         if is_nil(threshold) do
           Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
@@ -83,7 +78,6 @@ defmodule EWallet.TransactionTracker do
          confirmations_count,
          true
        ) do
-    IO.inspect("Confirming tx...")
     {:ok, transaction} =
       BlockchainTransactionState.transition_to(
         :blockchain_confirmed,
@@ -92,6 +86,7 @@ defmodule EWallet.TransactionTracker do
         %System{}
       )
 
+    # TODO: handle error
     {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
 
     # Unsubscribing from the blockchain subapp
@@ -114,8 +109,6 @@ defmodule EWallet.TransactionTracker do
          confirmations_count,
          false
        ) do
-    IO.inspect("Updating confirmation counts: #{confirmations_count}")
-
     {:ok, transaction} =
       BlockchainTransactionState.transition_to(
         :pending_confirmations,

@@ -40,7 +40,6 @@ defmodule EthBlockchain.Block do
         parse(block, attrs)
 
       error ->
-        IO.inspect(error)
         error
     end
   end
@@ -80,11 +79,13 @@ defmodule EthBlockchain.Block do
   end
 
   defp relevant_eth_transaction?(transaction, addresses) do
+    # TODO: Switch to maps?
     Enum.member?(addresses, transaction["from"]) ||
       Enum.member?(addresses, transaction["to"])
   end
 
   defp tracked_contract_transaction?(transaction, contract_addresses) do
+    # TODO: Switch to maps?
     Enum.member?(contract_addresses, transaction["to"])
   end
 

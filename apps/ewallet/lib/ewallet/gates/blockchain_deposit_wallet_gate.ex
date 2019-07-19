@@ -25,7 +25,9 @@ defmodule EWallet.BlockchainDepositWalletGate do
       nil ->
         case BlockchainHDWallet.get_primary() do
           nil ->
-            {:error, :hd_wallet_not_found} # TODO: Handle error in ErrorHandler
+            # TODO: Handle error in ErrorHandler
+            {:error, :hd_wallet_not_found}
+
           hd_wallet ->
             ref = generate_unique_ref()
             address = Wallet.generate_child_account(hd_wallet.keychain_uuid, ref, 0)
@@ -35,13 +37,19 @@ defmodule EWallet.BlockchainDepositWalletGate do
               path_ref: ref,
               wallet_address: wallet.address,
               blockchain_hd_wallet_uuid: hd_wallet.uuid,
-              originator: originator,
+              originator: originator
             }
             |> BlockchainDepositWallet.insert()
             |> case do
               {:ok, deposit_wallet} ->
-                :ok = AddressTracker.register_address(deposit_wallet.address, deposit_wallet.wallet_address)
+                :ok =
+                  AddressTracker.register_address(
+                    deposit_wallet.address,
+                    deposit_wallet.wallet_address
+                  )
+
                 {:ok, Map.put(wallet, :deposit_wallet, deposit_wallet)}
+
               error ->
                 error
             end
