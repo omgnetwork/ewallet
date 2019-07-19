@@ -234,8 +234,9 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  defp append_contract_address({:ok, _} = t, contract_address),
-    do: Tuple.append(t, contract_address)
+  defp append_contract_address({:ok, _} = t, contract_address) do
+    Tuple.append(t, contract_address)
+  end
 
   defp append_contract_address(error, _), do: error
 

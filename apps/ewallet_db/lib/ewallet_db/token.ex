@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: handled mintable tokens (locked)
+# - Add ability to finish minting and toggle `locked` when done
+# - Add ability to mint token on blockchain if not `locked`
+
+# TODO: Add listener to change status from `pending` to `confirmed` after X block confirmation + balance > 0 for hot wallet
+
 defmodule EWalletDB.Token do
   @moduledoc """
   Ecto Schema representing tokens.
@@ -73,6 +79,8 @@ defmodule EWalletDB.Token do
     field(:blockchain_status, :string)
     field(:blockchain_identifier, :string)
     field(:tx_hash, :string)
+    field(:blk_number, :integer)
+    field(:contract_uuid, :string)
 
     belongs_to(
       :account,
@@ -108,6 +116,8 @@ defmodule EWalletDB.Token do
         :blockchain_status,
         :blockchain_identifier,
         :tx_hash,
+        :blk_number,
+        :contract_uuid,
         :metadata,
         :encrypted_metadata
       ],
@@ -163,6 +173,7 @@ defmodule EWalletDB.Token do
         :symbol_first,
         :html_entity,
         :iso_numeric,
+        :locked,
         :metadata,
         :encrypted_metadata
       ],

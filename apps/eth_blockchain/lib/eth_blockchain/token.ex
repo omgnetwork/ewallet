@@ -22,33 +22,65 @@ defmodule EthBlockchain.Token do
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
 
+  @erc20UUID "3681491a-e8d0-4219-a40a-53d9a47fe64a"
+
+  @erc20MintableUUID "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
+
   @doc """
-  Format and submit a contract creation transaction with the given data
+  Format and submit an ERC20 contract creation transaction with the given data
   Returns {:ok, tx_hash, contract_address} if success,
   {:error, code} || {:error, code, message} otherwise
   """
-  def deploy_erc20(
-        %{from: from, name: name, symbol: symbol, decimals: decimals, mint_amount: mint_amount},
-        adapter \\ nil,
-        pid \\ nil
-      ) do
+  def deploy_erc20(attrs, adapter \\ nil, pid \\ nil)
+
+  def deploy_erc20(%{locked: false} = attrs, adapter, pid) do
+    do_deploy(attrs, @erc20MintableUUID, adapter, pid)
+  end
+
+  def deploy_erc20(attrs, adapter, pid) do
+    do_deploy(attrs, @erc20UUID, adapter, pid)
+  end
+
+  defp do_deploy(
+         %{
+           from: from,
+           name: name,
+           symbol: symbol,
+           decimals: decimals,
+           initial_amount: initial_amount
+         },
+         contract_uuid,
+         adapter,
+         pid
+       ) do
     constructor_attributes =
-      [{name, symbol, decimals, mint_amount}]
+      [{name, symbol, decimals, initial_amount}]
       |> TypeEncoder.encode(%ABI.FunctionSelector{
         function: nil,
         types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
       })
       |> Base.encode16(case: :lower)
 
-    {:ok, contract_binary} =
+    contract_binary =
       :eth_blockchain
-      |> Application.get_env(:erc20_bin_file_path)
-      |> File.read()
+      |> Application.get_env(:contracts_file_path)
+      |> File.read!()
+      |> Jason.decode!()
+      |> Map.get(contract_uuid)
+      |> Map.get("binary")
 
     data = "0x" <> contract_binary <> constructor_attributes
 
-    Transaction.create_contract(%{from: from, contract_data: data}, adapter, pid)
+    %{from: from, contract_data: data}
+    |> Transaction.create_contract(adapter, pid)
+    |> respond_deploy(contract_uuid)
   end
+
+  defp respond_deploy({:ok, _tx_hash, _contract_address} = t, contract_uuid) do
+    Tuple.append(t, contract_uuid)
+  end
+
+  defp respond_deploy(error, _contract_uuid), do: error
 
   @doc """
   Attempt to query the value of the field for the given contract address.

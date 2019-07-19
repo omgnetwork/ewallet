@@ -20,15 +20,23 @@ defmodule EWallet.TokenGate do
 
   @doc """
   Attempts to deploy an ERC20 token with the specified attributes
-  Returns {:ok, tx_hash} if a transaction containing the contract code has been successfuly submited
-  or {:error, code} || {:error, code, description} otherwise
+  Returns {:ok, updated_attrs} if a transaction containing the contract code has been successfuly submited
+  where `updated_attrs` is a map containing the initial attrs + `tx_hash`, `blockchain_address`, `contract_uuid`,
+  `blockchain_status` and `blockchain_identifier`.
+  Or {:error, code} || {:error, code, description} otherwise
   """
-  def deploy_erc20(%{
-        "name" => name,
-        "symbol" => symbol,
-        "subunit_to_unit" => subunit_to_unit,
-        "amount" => amount
-      }) do
+
+  def deploy_erc20(
+        %{
+          "name" => name,
+          "symbol" => symbol,
+          "subunit_to_unit" => subunit_to_unit,
+          "amount" => amount,
+          "locked" => locked
+        } = attrs
+      )
+      when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
+             is_binary(name) and is_binary(symbol) do
     decimals =
       subunit_to_unit
       |> :math.log10()
@@ -36,19 +44,36 @@ defmodule EWallet.TokenGate do
 
     from = BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.identifier()).address
 
-    BlockchainHelper.call(:deploy_erc20, %{
+    :deploy_erc20
+    |> BlockchainHelper.call(%{
       from: from,
       name: name,
       symbol: symbol,
       decimals: decimals,
-      mint_amount: amount
+      initial_amount: amount,
+      locked: locked
     })
+    |> parse_deploy_response(attrs)
   end
 
   def deploy_erc20(_) do
     {:error, :invalid_parameter,
-     "`name`, `symbol`, `subunit_to_unit` and `amount` are required when deploying an ERC20 token."}
+     "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
+
+  defp parse_deploy_response({:ok, tx_hash, contract_address, contract_uuid}, attrs) do
+    attrs =
+      attrs
+      |> Map.put("tx_hash", tx_hash)
+      |> Map.put("blockchain_address", contract_address)
+      |> Map.put("contract_uuid", contract_uuid)
+      |> Map.put("blockchain_status", Token.blockchain_status_pending())
+      |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
+
+    {:ok, attrs}
+  end
+
+  defp parse_deploy_response(error, _attrs), do: error
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as
