@@ -7126,7 +7126,7 @@
           }
         ],
         "requestBody": {
-          "description": "The parameters to create a token. Note that if amount is specified, the token will be minted automatically.",
+          "description": "The parameters to create a blockchain token.",
           "required": true,
           "content": {
             "application/vnd.omisego.v1+json": {
@@ -7147,26 +7147,8 @@
                   "amount": {
                     "type": "integer"
                   },
-                  "iso_code": {
-                    "type": "string"
-                  },
-                  "short_symbol": {
-                    "type": "string"
-                  },
-                  "subunit": {
-                    "type": "string"
-                  },
-                  "symbol_first": {
+                  "locked": {
                     "type": "boolean"
-                  },
-                  "html_entity": {
-                    "type": "string"
-                  },
-                  "iso_numeric": {
-                    "type": "string"
-                  },
-                  "smallest_denomination": {
-                    "type": "integer"
                   },
                   "metadata": {
                     "type": "object",
@@ -7180,14 +7162,17 @@
                 "required": [
                   "name",
                   "symbol",
-                  "description",
-                  "subunit_to_unit"
+                  "subunit_to_unit",
+                  "amount",
+                  "locked"
                 ],
                 "example": {
-                  "symbol": "BTC",
-                  "name": "Bitcoin",
-                  "description": "desc",
-                  "subunit_to_unit": 100
+                  "symbol": "OMG",
+                  "name": "OMGToken",
+                  "description": "The OMG ERC20 token",
+                  "subunit_to_unit": 1000000000000000000,
+                  "amount": 50000000000000000000,
+                  "locked": true
                 }
               }
             }

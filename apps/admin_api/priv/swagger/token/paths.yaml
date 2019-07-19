@@ -195,7 +195,7 @@ token.deploy_erc20:
       - ProviderAuth: []
       - AdminAuth: []
     requestBody:
-      $ref: 'request_bodies.yaml#/TokenCreateBody'
+      $ref: 'request_bodies.yaml#/BlockchainTokenCreateBody'
     responses:
       '200':
         $ref: 'responses.yaml#/TokenResponse'

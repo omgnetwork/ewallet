@@ -74,6 +74,45 @@ TokenCreateBody:
           description: desc
           subunit_to_unit: 100
 
+BlockchainTokenCreateBody:
+  description: The parameters to create a blockchain token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          name:
+            type: string
+          symbol:
+            type: string
+          description:
+            type: string
+          subunit_to_unit:
+            type: integer
+          amount:
+            type: integer
+          locked:
+            type: boolean
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - name
+          - symbol
+          - subunit_to_unit
+          - amount
+          - locked
+        example:
+          symbol: OMG
+          name: OMGToken
+          description: The OMG ERC20 token
+          subunit_to_unit: 1000000000000000000
+          amount: 50000000000000000000
+          locked: true
+
 TokenUpdateBody:
   description: The parameters to update a token.
   required: true
