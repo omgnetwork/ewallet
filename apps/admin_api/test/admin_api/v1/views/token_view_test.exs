@@ -36,6 +36,7 @@ defmodule AdminAPI.V1.TokenViewTest do
           blockchain_address: token.blockchain_address,
           blockchain_status: token.blockchain_status,
           blockchain_identifier: token.blockchain_identifier,
+          tx_hash: token.tx_hash,
           avatar: %{
             large: nil,
             original: nil,
@@ -82,6 +83,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               blockchain_address: token1.blockchain_address,
               blockchain_status: token1.blockchain_status,
               blockchain_identifier: token1.blockchain_identifier,
+              tx_hash: token1.tx_hash,
               avatar: %{
                 large: nil,
                 original: nil,
@@ -103,6 +105,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               blockchain_address: token2.blockchain_address,
               blockchain_status: token2.blockchain_status,
               blockchain_identifier: token2.blockchain_identifier,
+              tx_hash: token2.tx_hash,
               avatar: %{
                 large: nil,
                 original: nil,
