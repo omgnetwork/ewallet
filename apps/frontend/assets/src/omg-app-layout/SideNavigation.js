@@ -110,7 +110,7 @@ class SideNavigation extends PureComponent {
       },
       {
         icon: 'Setting',
-        to: '/configuration',
+        to: '/configuration/blockchain_settings',
         text: 'Configuration'
       }
     ]
