@@ -20,13 +20,14 @@ const AlertContainer = styled.div`
   line-height: 1.5;
 `
 const AlertItemContainer = styled.div`
+  display: flex;
+  align-items: center;
   position: relative;
   padding: 10px 24px;
   font-size: 12px;
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
   border-radius: 4px;
-  align-items: left;
   min-width: 400px;
   max-width: 500px;
   background-color: ${props => props.theme.colors.S100};
