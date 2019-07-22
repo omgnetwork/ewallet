@@ -34,6 +34,8 @@ TokenSchema:
       type: object
     enabled:
       type: boolean
+    locked:
+      type: boolean
   required:
     - object
     - id
@@ -48,6 +50,7 @@ TokenSchema:
     - blockchain_identifier
     - tx_hash
     - enabled
+    - locked
 
 MintSchema:
   description: The object schema for a mint

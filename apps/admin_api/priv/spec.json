@@ -3672,6 +3672,9 @@
                                       },
                                       "enabled": {
                                         "type": "boolean"
+                                      },
+                                      "locked": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -3687,7 +3690,8 @@
                                       "blockchain_status",
                                       "blockchain_identifier",
                                       "tx_hash",
-                                      "enabled"
+                                      "enabled",
+                                      "locked"
                                     ]
                                   }
                                 }
@@ -3712,6 +3716,7 @@
                                 "original": "file_url"
                               },
                               "enabled": true,
+                              "locked": true,
                               "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
                               "blockchain_status": "confirmed",
                               "blockchain_identifier": "ethereum",
@@ -3941,6 +3946,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -3956,7 +3964,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -3970,6 +3979,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -4247,6 +4257,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -4262,7 +4275,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4276,6 +4290,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -4537,6 +4552,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -4552,7 +4570,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4566,6 +4585,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -4802,6 +4822,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -4817,7 +4840,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4831,6 +4855,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -5066,6 +5091,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -5081,7 +5109,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -5095,6 +5124,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -5304,6 +5334,9 @@
                         },
                         "enabled": {
                           "type": "boolean"
+                        },
+                        "locked": {
+                          "type": "boolean"
                         }
                       },
                       "required": [
@@ -5319,7 +5352,8 @@
                         "blockchain_status",
                         "blockchain_identifier",
                         "tx_hash",
-                        "enabled"
+                        "enabled",
+                        "locked"
                       ]
                     },
                     "total_supply": {
@@ -5350,6 +5384,7 @@
                         "blockchain_identifier": null,
                         "tx_hash": null,
                         "enabled": true,
+                        "locked": true,
                         "metadata": {},
                         "encrypted_metadata": {}
                       }
@@ -5767,6 +5802,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -5782,7 +5820,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "account_id": {
@@ -6087,6 +6126,9 @@
                                                   },
                                                   "enabled": {
                                                     "type": "boolean"
+                                                  },
+                                                  "locked": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -6102,7 +6144,8 @@
                                                   "blockchain_status",
                                                   "blockchain_identifier",
                                                   "tx_hash",
-                                                  "enabled"
+                                                  "enabled",
+                                                  "locked"
                                                 ]
                                               }
                                             }
@@ -6169,6 +6212,9 @@
                                                   },
                                                   "enabled": {
                                                     "type": "boolean"
+                                                  },
+                                                  "locked": {
+                                                    "type": "boolean"
                                                   }
                                                 },
                                                 "required": [
@@ -6184,7 +6230,8 @@
                                                   "blockchain_status",
                                                   "blockchain_identifier",
                                                   "tx_hash",
-                                                  "enabled"
+                                                  "enabled",
+                                                  "locked"
                                                 ]
                                               }
                                             }
@@ -6512,6 +6559,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -6527,7 +6577,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -6973,6 +7024,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -6988,7 +7042,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -7002,6 +7057,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -7264,6 +7320,9 @@
                             },
                             "enabled": {
                               "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
                             }
                           },
                           "required": [
@@ -7279,7 +7338,8 @@
                             "blockchain_status",
                             "blockchain_identifier",
                             "tx_hash",
-                            "enabled"
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -7293,6 +7353,7 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
@@ -7700,6 +7761,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -7715,7 +7779,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -7771,6 +7836,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -7786,7 +7854,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -8104,6 +8173,9 @@
                                 },
                                 "enabled": {
                                   "type": "boolean"
+                                },
+                                "locked": {
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -8119,7 +8191,8 @@
                                 "blockchain_status",
                                 "blockchain_identifier",
                                 "tx_hash",
-                                "enabled"
+                                "enabled",
+                                "locked"
                               ]
                             },
                             "to_token_id": {
@@ -8175,6 +8248,9 @@
                                 },
                                 "enabled": {
                                   "type": "boolean"
+                                },
+                                "locked": {
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -8190,7 +8266,8 @@
                                 "blockchain_status",
                                 "blockchain_identifier",
                                 "tx_hash",
-                                "enabled"
+                                "enabled",
+                                "locked"
                               ]
                             },
                             "rate": {
@@ -8617,6 +8694,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -8632,7 +8712,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -8688,6 +8769,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -8703,7 +8787,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -9130,6 +9215,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9145,7 +9233,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -9201,6 +9290,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9216,7 +9308,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -9626,6 +9719,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9641,7 +9737,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -9697,6 +9794,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -9712,7 +9812,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -16284,6 +16385,9 @@
                                                 },
                                                 "enabled": {
                                                   "type": "boolean"
+                                                },
+                                                "locked": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -16299,7 +16403,8 @@
                                                 "blockchain_status",
                                                 "blockchain_identifier",
                                                 "tx_hash",
-                                                "enabled"
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -17090,6 +17195,9 @@
                                                 },
                                                 "enabled": {
                                                   "type": "boolean"
+                                                },
+                                                "locked": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -17105,7 +17213,8 @@
                                                 "blockchain_status",
                                                 "blockchain_identifier",
                                                 "tx_hash",
-                                                "enabled"
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -17593,6 +17702,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -17608,7 +17720,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -17675,6 +17788,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -17690,7 +17806,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -27918,6 +28035,9 @@
                                                 },
                                                 "enabled": {
                                                   "type": "boolean"
+                                                },
+                                                "locked": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -27933,7 +28053,8 @@
                                                 "blockchain_status",
                                                 "blockchain_identifier",
                                                 "tx_hash",
-                                                "enabled"
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -28429,6 +28550,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -28444,7 +28568,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -28511,6 +28636,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -28526,7 +28654,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -30139,6 +30268,9 @@
                                                 },
                                                 "enabled": {
                                                   "type": "boolean"
+                                                },
+                                                "locked": {
+                                                  "type": "boolean"
                                                 }
                                               },
                                               "required": [
@@ -30154,7 +30286,8 @@
                                                 "blockchain_status",
                                                 "blockchain_identifier",
                                                 "tx_hash",
-                                                "enabled"
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -30826,6 +30959,9 @@
                                       },
                                       "enabled": {
                                         "type": "boolean"
+                                      },
+                                      "locked": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -30841,7 +30977,8 @@
                                       "blockchain_status",
                                       "blockchain_identifier",
                                       "tx_hash",
-                                      "enabled"
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -31441,6 +31578,9 @@
                                       },
                                       "enabled": {
                                         "type": "boolean"
+                                      },
+                                      "locked": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -31456,7 +31596,8 @@
                                       "blockchain_status",
                                       "blockchain_identifier",
                                       "tx_hash",
-                                      "enabled"
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -32426,6 +32567,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -32441,7 +32585,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "amount": {
@@ -33021,6 +33166,9 @@
                                       },
                                       "enabled": {
                                         "type": "boolean"
+                                      },
+                                      "locked": {
+                                        "type": "boolean"
                                       }
                                     },
                                     "required": [
@@ -33036,7 +33184,8 @@
                                       "blockchain_status",
                                       "blockchain_identifier",
                                       "tx_hash",
-                                      "enabled"
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -33535,6 +33684,9 @@
                                           },
                                           "enabled": {
                                             "type": "boolean"
+                                          },
+                                          "locked": {
+                                            "type": "boolean"
                                           }
                                         },
                                         "required": [
@@ -33550,7 +33702,8 @@
                                           "blockchain_status",
                                           "blockchain_identifier",
                                           "tx_hash",
-                                          "enabled"
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "amount": {
@@ -34836,6 +34989,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -34851,7 +35007,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -34918,6 +35075,9 @@
                                               },
                                               "enabled": {
                                                 "type": "boolean"
+                                              },
+                                              "locked": {
+                                                "type": "boolean"
                                               }
                                             },
                                             "required": [
@@ -34933,7 +35093,8 @@
                                               "blockchain_status",
                                               "blockchain_identifier",
                                               "tx_hash",
-                                              "enabled"
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -35592,6 +35753,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -35607,7 +35771,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -35674,6 +35839,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -35689,7 +35857,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -36098,6 +36267,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -36113,7 +36285,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -36180,6 +36353,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -36195,7 +36371,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -36563,6 +36740,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -36578,7 +36758,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 },
                                 "to_token_id": {
@@ -36634,6 +36815,9 @@
                                     },
                                     "enabled": {
                                       "type": "boolean"
+                                    },
+                                    "locked": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -36649,7 +36833,8 @@
                                     "blockchain_status",
                                     "blockchain_identifier",
                                     "tx_hash",
-                                    "enabled"
+                                    "enabled",
+                                    "locked"
                                   ]
                                 },
                                 "rate": {
