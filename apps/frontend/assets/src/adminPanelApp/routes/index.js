@@ -62,7 +62,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
-      <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
+      <AuthenticatedRoute path='/configuration' component={ConfigurationPage} />
 
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
 
@@ -72,7 +72,7 @@ const createRoute = () => (
 
       {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId/:type' exact component={() => <UserDetailPage withBreadCrumb />} />
-      <AuthenticatedRoute path='/users/:userId' excact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
 
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />

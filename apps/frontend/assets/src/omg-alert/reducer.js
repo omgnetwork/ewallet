@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import createReducer from '../reducer/createReducer'
 
 const CopyTextContainer = styled.div`
+  margin-right: 10px;
   b {
     display: inline-block;
     max-width: 280px;
