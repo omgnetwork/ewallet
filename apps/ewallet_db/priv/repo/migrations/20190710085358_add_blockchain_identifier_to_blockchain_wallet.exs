@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
   use Ecto.Migration
   alias EWalletDB.Repo
 
-  def change do
+  def up do
     alter table(:blockchain_wallet) do
       add :blockchain_identifier, :string
     end
@@ -18,5 +18,18 @@ defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
 
     create unique_index(:blockchain_wallet, [:blockchain_identifier, :address])
     create unique_index(:blockchain_wallet, [:blockchain_identifier, :public_key])
+  end
+
+  def down do
+    alter table(:blockchain_wallet) do
+      remove :blockchain_identifier
+    end
+
+    create unique_index(:blockchain_wallet, [:address])
+    create unique_index(:blockchain_wallet, [:public_key])
+
+    alter table(:transaction) do
+      modify :from_blockchain_address, references(:blockchain_wallet, type: :string, column: :address)
+    end
   end
 end
