@@ -21,15 +21,7 @@ defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
   end
 
   def down do
-    alter table(:blockchain_wallet) do
-      remove :blockchain_identifier
-    end
-
-    create unique_index(:blockchain_wallet, [:address])
-    create unique_index(:blockchain_wallet, [:public_key])
-
-    alter table(:transaction) do
-      modify :from_blockchain_address, references(:blockchain_wallet, type: :string, column: :address)
-    end
+    raise MigrationError, message: "This migration cannot be rolled back due to potential loss
+                                   of data."
   end
 end
