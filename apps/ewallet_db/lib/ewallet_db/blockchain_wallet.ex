@@ -61,7 +61,6 @@ defmodule EWalletDB.BlockchainWallet do
       ],
       required: [:address, :name, :type, :blockchain_identifier]
     )
-
     |> unique_constraint(:name)
     |> validate_blockchain()
     |> validate_inclusion(:type, @wallet_types)
