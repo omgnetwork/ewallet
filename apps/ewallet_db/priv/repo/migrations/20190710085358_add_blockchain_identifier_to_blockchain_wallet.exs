@@ -1,6 +1,7 @@
 defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
   use Ecto.Migration
   alias EWalletDB.Repo
+  alias Ecto.MigrationError
 
   def up do
     alter table(:blockchain_wallet) do
