@@ -26,6 +26,8 @@ defmodule EWalletDB.Factory do
     AccountUser,
     APIKey,
     AuthToken,
+    BlockchainDepositWallet,
+    BlockchainHDWallet,
     BlockchainWallet,
     PreAuthToken,
     Category,
@@ -121,11 +123,29 @@ defmodule EWalletDB.Factory do
   def blockchain_wallet_factory do
     %BlockchainWallet{
       address: Crypto.fake_eth_address(),
-      blockchain_identifier: "ethereum",
+      blockchain_identifier: "dumb",
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",
       originator: %System{}
+    }
+  end
+
+  def blockchain_hd_wallet_factory do
+    %BlockchainHDWallet{
+      blockchain_identifier: "dumb",
+      keychain_uuid: UUID.generate()
+    }
+  end
+
+  def blockchain_deposit_wallet_factory do
+    %BlockchainDepositWallet{
+      address: Crypto.fake_eth_address(),
+      blockchain_identifier: "dumb",
+      public_key: Crypto.fake_eth_address(),
+      originator: %System{},
+      wallet_address: insert(:wallet).address,
+      blockchain_hd_wallet_uuid: insert(:blockchain_hd_wallet).uuid
     }
   end
 

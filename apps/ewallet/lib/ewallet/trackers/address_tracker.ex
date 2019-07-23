@@ -21,15 +21,22 @@ defmodule EWallet.AddressTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.BlockchainHelper
-  alias EWalletDB.{BlockchainWallet, BlockchainDepositWallet, BlockchainState, Token, Transaction}
+  alias EWallet.{
+    BlockchainHelper,
+    BlockchainAddressFetcher,
+    BlockchainStateGate,
+    BlockchainTransactionGate
+  }
+
+  alias EWalletDB.{BlockchainState, Token, Transaction}
   alias ActivityLogger.System
+
+  # TODO: only starts when blockchain is enabled
 
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50
-  # 15000
-  @polling_interval 500
+  @polling_interval 500 # 15000
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
@@ -38,36 +45,20 @@ defmodule EWallet.AddressTracker do
     GenServer.start_link(__MODULE__, attrs, name: name)
   end
 
-  def init(%{blockchain: blockchain}) do
-    wallet = BlockchainWallet.get_by(type: "hot")
-    addresses = %{wallet.address => nil}
-    tokens = Token.all_blockchain(blockchain)
-    contract_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
-    tx_blk_number = Transaction.get_last_blk_number(blockchain)
-    global_blk_number = get_global_blk_number(blockchain)
-    blk_number = get_starting_blk_number(blockchain, global_blk_number, tx_blk_number)
-
-    # TODO: Load all addresses from blockchain deposit wallets
-    addresses =
-      BlockchainDepositWallet.all()
-      |> Enum.map(fn deposit_wallet -> {deposit_wallet.address, deposit_wallet.wallet_address} end)
-      |> Enum.into(%{})
-      |> Map.merge(addresses)
-
-    IO.inspect("Starting at block number #{blk_number}")
-
+  def init(%{blockchain: blockchain} = attrs) do
     {:ok,
      %{
        interval: @syncing_interval,
        blockchain: blockchain,
        timer: nil,
-       addresses: addresses,
-       contract_addresses: contract_addresses,
-       tokens: tokens,
-       blk_number: blk_number,
+       addresses: BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain),
+       contract_addresses:
+         BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain),
+       blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain),
        blk_retries: 0,
        blk_syncing_save_count: 0,
-       blk_syncing_save_interval: @blk_syncing_save_interval
+       blk_syncing_save_interval: @blk_syncing_save_interval,
+       adapter: attrs[:adapter]
      }, {:continue, :start_polling}}
   end
 
@@ -107,21 +98,22 @@ defmodule EWallet.AddressTracker do
          %{
            blk_number: blk_number,
            addresses: addresses,
-           contract_addresses: contract_addresses
+           contract_addresses: contract_addresses,
+           adapter: adapter
          } = state
        ) do
-    # IO.inspect("Syncing with block #{blk_number}...")
-
     attrs = %{
       blk_number: blk_number,
       addresses: Map.keys(addresses),
       contract_addresses: contract_addresses
     }
 
-    case BlockchainHelper.call(:get_transactions, attrs) do
+    # TODO: change the .call last argument to a map of options?
+    case BlockchainHelper.call(:get_transactions, attrs, nil, adapter) do
       {:error, :block_not_found} ->
         # We've reached the end of the chain, switching to a slower polling interval
-        # Logger.info("Block #{blk_number} not found, retrying in #{@polling_interval}ms...")
+        Logger.info("Block #{blk_number} not found, retrying in #{@polling_interval}ms...")
+
         state
         |> Map.put(:interval, @polling_interval)
         |> Map.put(:blk_syncing_save_interval, @blk_syncing_polling_interval)
@@ -163,12 +155,12 @@ defmodule EWallet.AddressTracker do
        when retries > 2 do
     errors =
       Enum.reduce(transaction_results, [], fn res, acc ->
-        case res == :ok do
-          false ->
-            [res | acc]
-
-          true ->
+        case res do
+          {:ok, _} ->
             acc
+
+          error ->
+            [error | acc]
         end
       end)
 
@@ -196,20 +188,20 @@ defmodule EWallet.AddressTracker do
       nil ->
         do_insert(blockchain_transaction, state)
 
-      _transaction ->
-        :ok
+      transaction ->
+        {:ok, transaction}
     end
   end
 
   defp do_insert(blockchain_tx, %{addresses: addresses, blockchain: blockchain}) do
     token = Token.get_by(%{blockchain_address: blockchain_tx.contract_address})
+    # TODO: Notify websockets
 
-    attrs = %{
+    BlockchainTransactionGate.create_from_tracker(%{
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
       to_amount: blockchain_tx.amount,
-      # get_status(blockchain_tx.confirmations_count),
-      status: Transaction.pending_recording(),
+      status: Transaction.pending(),
       type: Transaction.external(),
       blockchain_tx_hash: blockchain_tx.hash,
       blockchain_identifier: blockchain,
@@ -228,66 +220,8 @@ defmodule EWallet.AddressTracker do
       to_account: nil,
       from_user: nil,
       to_user: nil,
-      # TODO: Change this to a new originator "%Tracker{}"
+      # TODO: Change this to a new originator "%Tracker{}"?
       originator: %System{}
-    }
-
-    {:ok, _} = EWallet.BlockchainTransactionGate.create_from_tracker(attrs)
-
-    :ok
-
-    # TODO: Notify websockets
-    # TODO: Add value in local ledger if needed
-    # TODO: need to check if funds need to be added to an internal wallet
-    # TODO: Setup transaction tracker if pending confirmations
-    # case Transaction.insert(attrs) do
-    #   {:ok, _} ->
-    #     :ok
-
-    #   error ->
-    #     error
-    # end
-  end
-
-  defp get_status(confirmations_count) do
-    threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
-
-    if is_nil(threshold) do
-      Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
-    end
-
-    case confirmations_count > (threshold || 10) do
-      true ->
-        Transaction.confirmed()
-
-      false ->
-        Transaction.pending_confirmations()
-    end
-  end
-
-  defp get_global_blk_number(blockchain) do
-    case BlockchainState.get(blockchain) do
-      nil ->
-        {:ok, state} = BlockchainState.insert(%{identifier: blockchain})
-        state.blk_number
-
-      state ->
-        state.blk_number
-    end
-  end
-
-  defp get_starting_blk_number(_blockchain, global_blk_number, nil), do: global_blk_number
-
-  defp get_starting_blk_number(blockchain, global_blk_number, tx_blk_number)
-       when is_integer(global_blk_number) and is_integer(tx_blk_number) do
-    case global_blk_number > tx_blk_number do
-      true ->
-        global_blk_number
-
-      false ->
-        # update global blk number
-        {:ok, state} = BlockchainState.update(blockchain, tx_blk_number)
-        state.blk_number
-    end
+    })
   end
 end

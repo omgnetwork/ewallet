@@ -33,6 +33,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
     field(:address, :string)
     field(:public_key, :string)
     field(:path_ref, :integer)
+    field(:blockchain_identifier, :string)
 
     belongs_to(
       :wallet,
@@ -62,9 +63,10 @@ defmodule EWalletDB.BlockchainDepositWallet do
         :address,
         :public_key,
         :wallet_address,
-        :blockchain_hd_wallet_uuid
+        :blockchain_hd_wallet_uuid,
+        :blockchain_identifier
       ],
-      required: [:address, :wallet_address, :blockchain_hd_wallet_uuid]
+      required: [:address, :wallet_address, :blockchain_hd_wallet_uuid, :blockchain_identifier]
     )
     |> unique_constraint(:address)
     |> unique_constraint(:public_key)
@@ -76,8 +78,10 @@ defmodule EWalletDB.BlockchainDepositWallet do
   end
 
   # TODO: Reduce scope?
-  def all do
-    Repo.all(BlockchainDepositWallet)
+  def all(blockchain_identifier) do
+    BlockchainDepositWallet
+    |> where([w], w.blockchain_identifier == ^blockchain_identifier)
+    |> Repo.all()
   end
 
   @doc """

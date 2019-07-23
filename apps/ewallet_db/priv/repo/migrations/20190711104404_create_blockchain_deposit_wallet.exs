@@ -7,7 +7,7 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainDepositWallet do
       add :address, :string, null: false
       add :public_key, :string
       add :path_ref, :integer
-      add(:blockchain_identifier, :string)
+      add(:blockchain_identifier, :string, null: false)
       add(:wallet_address, references(:wallet, type: :string, column: :address))
       add(:blockchain_hd_wallet_uuid, references(:blockchain_hd_wallet, type: :uuid, column: :uuid))
 

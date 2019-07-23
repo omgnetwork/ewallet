@@ -9,5 +9,7 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainState do
 
       timestamps()
     end
+
+    create unique_index(:blockchain_state, :identifier)
   end
 end
