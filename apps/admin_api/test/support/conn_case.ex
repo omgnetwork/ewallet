@@ -34,9 +34,10 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, LocalTransactionGate}
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Account, Membership, GlobalRole, Key, Repo, User}
+  alias EWalletDB.{Account, BlockchainWallet, Membership, GlobalRole, Key, Repo, User}
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
+  alias Keychain.Wallet
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -107,19 +108,32 @@ defmodule AdminAPI.ConnCase do
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(ActivityLogger.Repo)
+    :ok = Sandbox.checkout(Keychain.Repo)
 
     unless tags[:async] do
       Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
       Sandbox.mode(EWalletDB.Repo, {:shared, self()})
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
       Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
+      Sandbox.mode(Keychain.Repo, {:shared, self()})
     end
 
     # Insert account via `Account.insert/1` instead of the test
     # factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for() |> Account.insert()
 
-    config_pid = start_config_server(account)
+    {:ok, {address, public_key}} = Wallet.generate()
+
+    {:ok, blockchain_wallet} =
+      BlockchainWallet.insert(%{
+        name: "Hot Wallet",
+        address: address,
+        public_key: public_key,
+        type: "hot",
+        originator: %ActivityLogger.System{}
+      })
+
+    config_pid = start_config_server(account, blockchain_wallet)
 
     # Insert necessary records for making authenticated calls.
     admin =
@@ -168,7 +182,7 @@ defmodule AdminAPI.ConnCase do
     %{config_pid: config_pid}
   end
 
-  def start_config_server(account) do
+  def start_config_server(account, blockchain_wallet) do
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
@@ -180,7 +194,8 @@ defmodule AdminAPI.ConnCase do
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
         "sender_email" => "admin@example.com",
-        "master_account" => account.id
+        "master_account" => account.id,
+        "primary_hot_wallet" => blockchain_wallet.address
       }
     )
 

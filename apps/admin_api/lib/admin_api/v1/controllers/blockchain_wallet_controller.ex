@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.BlockchainWalletPolicy
+  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy}
   alias EWalletDB.{BlockchainWallet, Token}
   alias AdminAPI.V1.BalanceView
 
@@ -93,8 +93,10 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do
+    identifier = BlockchainHelper.identifier()
+
     addresses
-    |> Token.query_all_by_blockchain_addresses()
+    |> Token.query_all_by_blockchain_addresses(identifier)
     |> paginated_blockchain_tokens(attrs)
   end
 
@@ -107,8 +109,8 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
 
   defp paginated_blockchain_tokens(query, attrs) do
-    query
-    |> Token.query_all_blockchain()
+    BlockchainHelper.identifier()
+    |> Token.query_all_blockchain(query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end
 

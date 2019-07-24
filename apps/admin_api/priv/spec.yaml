@@ -810,6 +810,12 @@ paths:
                                     updated_at:
                                       type: string
                                       format: date-time
+                                    blockchain_address:
+                                      type: string
+                                    blockchain_status:
+                                      type: string
+                                    blockchain_identifier:
+                                      type: string
                                     metadata:
                                       type: object
                                     encrypted_metadata:
@@ -825,6 +831,9 @@ paths:
                                     - avatar
                                     - created_at
                                     - updated_at
+                                    - blockchain_address
+                                    - blockchain_status
+                                    - blockchain_identifier
                                     - enabled
                     example:
                       data:
@@ -840,6 +849,9 @@ paths:
                             avatar:
                               original: file_url
                             enabled: true
+                            blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
+                            blockchain_status: confirmed
+                            blockchain_identifier: ethereum
                             metadata: {}
                             encrypted_metadata: {}
         '500': *ref_7
@@ -893,6 +905,9 @@ paths:
                         enabled: true
                         avatar:
                           original: file_url
+                        blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
+                        blockchain_status: confirmed
+                        blockchain_identifier: ethereum
                         metadata: {}
                         encrypted_metadata: {}
         '500': *ref_7
@@ -1127,6 +1142,9 @@ paths:
                       subunit_to_unit: 100
                       created_at: '2018-01-01T00:00:00Z'
                       updated_at: '2018-01-01T10:00:00Z'
+                      blockchain_address: null
+                      blockchain_status: null
+                      blockchain_identifier: null
                       enabled: true
                       metadata: {}
                       encrypted_metadata: {}
@@ -1370,6 +1388,92 @@ paths:
                         transaction: {}
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T00:00:00Z'
+        '500': *ref_7
+  /token.get_erc20_capabilities:
+    post:
+      tags:
+        - Token
+      summary: Get the erc20 capabilities of a contract address
+      operationId: token_get_erc20_capabilities
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to verify the erc20 capabilities of a contract address.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                blockchain_address:
+                  type: string
+              required:
+                - blockchain_address
+              example:
+                blockchain_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+      responses:
+        '200':
+          description: Returns a list of erc20 attributes
+          content:
+            application/vnd.omisego.v1+json:
+              schema:
+                description: The response schema for the erc20 attrs of a contract address
+                allOf:
+                  - *ref_1
+                  - type: object
+                    properties:
+                      object:
+                        type: string
+                      symbol:
+                        type: string
+                      name:
+                        type: string
+                      total_supply:
+                        type: integer
+                      decimals:
+                        type: integer
+                    required:
+                      - object
+                      - symbol
+                      - name
+                      - total_supply
+                      - decimals
+                    example:
+                      data:
+                        object: erc20_attrs
+                        symbol: OMG
+                        name: OMGToken
+                        total_supply: 100000
+                        decimals: 18
+        '500': *ref_7
+  /token.set_blockchain_address:
+    post:
+      tags:
+        - Token
+      summary: Attempts to set a blockchain address to the specified tokeen
+      operationId: token_set_blockchain_address
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to set a blockchain address to a token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                blockchain_address:
+                  type: string
+              required:
+                - id
+                - blockchain_address
+              example:
+                id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
+                blockchain_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+      responses:
+        '200': *ref_15
         '500': *ref_7
   /exchange_pair.all:
     post:

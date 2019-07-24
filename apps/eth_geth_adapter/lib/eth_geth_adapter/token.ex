@@ -12,21 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Transaction do
+defmodule EthGethAdapter.Token do
   @moduledoc false
 
   import EthGethAdapter.ErrorHandler
 
   alias Ethereumex.HttpClient, as: Client
 
-  def send_raw(transaction_data) do
-    transaction_data
-    |> Client.eth_send_raw_transaction()
-    |> parse_response()
-  end
+  @doc """
 
-  def get_transaction_count(address) do
-    Client.eth_get_transaction_count(address)
+  """
+  def get_field(contract_address, encoded_abi_data) do
+    %{
+      data: encoded_abi_data,
+      to: contract_address
+    }
+    |> Client.eth_call()
+    |> parse_response()
   end
 
   defp parse_response({:ok, _data} = response), do: response

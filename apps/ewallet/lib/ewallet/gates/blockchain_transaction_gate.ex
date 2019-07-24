@@ -27,7 +27,8 @@ defmodule EWallet.BlockchainTransactionGate do
     TokenFetcher,
     BlockchainTransactionState,
     TransactionRegistry,
-    TransactionTracker
+    TransactionTracker,
+    BlockchainHelper
   }
 
   alias EWalletDB.{BlockchainWallet, Transaction}
@@ -103,10 +104,11 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   def blockchain_addresses?(addresses) do
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
-
     Enum.map(addresses, fn address ->
-      adapter.helper.is_adapter_address?(address)
+      case BlockchainHelper.validate_blockchain_address(address) do
+        :ok -> true
+        _ -> false
+      end
     end)
   end
 
@@ -136,7 +138,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp enough_funds?(address, token, amount) do
-    blockchain_adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    blockchain_adapter = BlockchainHelper.adapter()
     node_adapter = Application.get_env(:ewallet, :node_adapter)
 
     # TODO: handle errors
@@ -154,10 +156,8 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp set_blockchain(attrs) do
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
-
     attrs
-    |> Map.put("blockchain_identifier", adapter.helper.identifier)
+    |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
     |> Map.put("type", Transaction.external())
   end
 
@@ -177,7 +177,7 @@ defmodule EWallet.BlockchainTransactionGate do
   defp check_amount(_), do: {:error, :amounts_missing_or_invalid}
 
   defp submit(transaction) do
-    blockchain_adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    blockchain_adapter = BlockchainHelper.adapter()
     node_adapter = Application.get_env(:ewallet, :node_adapter)
 
     attrs = %{

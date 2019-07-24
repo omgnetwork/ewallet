@@ -14,7 +14,6 @@
 
 defmodule EthBlockchain.ABIEncoder do
   @moduledoc false
-
   import Utils.Helpers.Encoding
 
   def balance_of("0x" <> _ = address) do
@@ -33,4 +32,8 @@ defmodule EthBlockchain.ABIEncoder do
   end
 
   def transfer(_to_address, _amount), do: {:error, :invalid_input}
+
+  def get_field(field) do
+    {:ok, ABI.encode("#{field}()", [])}
+  end
 end

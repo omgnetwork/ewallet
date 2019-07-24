@@ -43,15 +43,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 OEM
       account_name: "master_account",
       originator: %Seeder{}
-    },
-    %{
-      symbol: "ETH",
-      name: "Ether",
-      subunit_to_unit: 1_000_000_000_000_000_000,
-      genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
-      account_name: "master_account",
-      originator: %Seeder{}
-    },
+    }
   ]
 
   def seed do

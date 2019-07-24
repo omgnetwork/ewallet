@@ -3652,6 +3652,15 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -3671,6 +3680,9 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
                                       "enabled"
                                     ]
                                   }
@@ -3696,6 +3708,9 @@
                                 "original": "file_url"
                               },
                               "enabled": true,
+                              "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                              "blockchain_status": "confirmed",
+                              "blockchain_identifier": "ethereum",
                               "metadata": {},
                               "encrypted_metadata": {}
                             }
@@ -3901,6 +3916,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -3920,6 +3944,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -3937,6 +3964,9 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4187,6 +4217,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4206,6 +4245,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -4223,6 +4265,9 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4457,6 +4502,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4476,6 +4530,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -4493,6 +4550,9 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4702,6 +4762,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4721,6 +4790,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -4738,6 +4810,9 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4946,6 +5021,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4965,6 +5049,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -4982,6 +5069,9 @@
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -5164,6 +5254,15 @@
                           "type": "string",
                           "format": "date-time"
                         },
+                        "blockchain_address": {
+                          "type": "string"
+                        },
+                        "blockchain_status": {
+                          "type": "string"
+                        },
+                        "blockchain_identifier": {
+                          "type": "string"
+                        },
                         "metadata": {
                           "type": "object"
                         },
@@ -5183,6 +5282,9 @@
                         "avatar",
                         "created_at",
                         "updated_at",
+                        "blockchain_address",
+                        "blockchain_status",
+                        "blockchain_identifier",
                         "enabled"
                       ]
                     },
@@ -5209,6 +5311,9 @@
                         "subunit_to_unit": 100,
                         "created_at": "2018-01-01T00:00:00Z",
                         "updated_at": "2018-01-01T10:00:00Z",
+                        "blockchain_address": null,
+                        "blockchain_status": null,
+                        "blockchain_identifier": null,
                         "enabled": true,
                         "metadata": {},
                         "encrypted_metadata": {}
@@ -5607,6 +5712,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -5626,6 +5740,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -5911,6 +6028,15 @@
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_identifier": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -5930,6 +6056,9 @@
                                                   "avatar",
                                                   "created_at",
                                                   "updated_at",
+                                                  "blockchain_address",
+                                                  "blockchain_status",
+                                                  "blockchain_identifier",
                                                   "enabled"
                                                 ]
                                               }
@@ -5977,6 +6106,15 @@
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_identifier": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -5996,6 +6134,9 @@
                                                   "avatar",
                                                   "created_at",
                                                   "updated_at",
+                                                  "blockchain_address",
+                                                  "blockchain_status",
+                                                  "blockchain_identifier",
                                                   "enabled"
                                                 ]
                                               }
@@ -6304,6 +6445,15 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -6323,6 +6473,9 @@
                             "avatar",
                             "created_at",
                             "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
                             "enabled"
                           ]
                         }
@@ -6342,6 +6495,466 @@
                           "transaction": {},
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T00:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.get_erc20_capabilities": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Get the erc20 capabilities of a contract address",
+        "operationId": "token_get_erc20_capabilities",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to verify the erc20 capabilities of a contract address.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "blockchain_address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "blockchain_address"
+                ],
+                "example": {
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of erc20 attributes",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for the erc20 attrs of a contract address",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "object": {
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "total_supply": {
+                          "type": "integer"
+                        },
+                        "decimals": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "object",
+                        "symbol",
+                        "name",
+                        "total_supply",
+                        "decimals"
+                      ],
+                      "example": {
+                        "data": {
+                          "object": "erc20_attrs",
+                          "symbol": "OMG",
+                          "name": "OMGToken",
+                          "total_supply": 100000,
+                          "decimals": 18
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.set_blockchain_address": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Attempts to set a blockchain address to the specified tokeen",
+        "operationId": "token_set_blockchain_address",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to set a blockchain address to a token.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "blockchain_address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "blockchain_address"
+                ],
+                "example": {
+                  "id": "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single tokens",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a token",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a token",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "subunit_to_unit": {
+                              "type": "integer"
+                            },
+                            "avatar": {
+                              "type": "object"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "symbol",
+                            "name",
+                            "subunit_to_unit",
+                            "avatar",
+                            "created_at",
+                            "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "enabled"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "token",
+                          "id": "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3",
+                          "symbol": "ABC",
+                          "name": "ABC Point",
+                          "subunit_to_unit": 100,
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z",
+                          "enabled": true,
+                          "avatar": {
+                            "original": "file_url"
+                          },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "metadata": {},
+                          "encrypted_metadata": {}
                         }
                       }
                     }
@@ -6720,6 +7333,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -6739,6 +7361,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -6775,6 +7400,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -6794,6 +7428,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -7092,6 +7729,15 @@
                                   "type": "string",
                                   "format": "date-time"
                                 },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
+                                },
+                                "blockchain_identifier": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7111,6 +7757,9 @@
                                 "avatar",
                                 "created_at",
                                 "updated_at",
+                                "blockchain_address",
+                                "blockchain_status",
+                                "blockchain_identifier",
                                 "enabled"
                               ]
                             },
@@ -7147,6 +7796,15 @@
                                   "type": "string",
                                   "format": "date-time"
                                 },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
+                                },
+                                "blockchain_identifier": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7166,6 +7824,9 @@
                                 "avatar",
                                 "created_at",
                                 "updated_at",
+                                "blockchain_address",
+                                "blockchain_status",
+                                "blockchain_identifier",
                                 "enabled"
                               ]
                             },
@@ -7573,6 +8234,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7592,6 +8262,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -7628,6 +8301,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7647,6 +8329,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -8054,6 +8739,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8073,6 +8767,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -8109,6 +8806,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8128,6 +8834,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -8518,6 +9227,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8537,6 +9255,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -8573,6 +9294,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8592,6 +9322,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -15144,6 +15877,15 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -15163,6 +15905,9 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
                                                 "enabled"
                                               ]
                                             },
@@ -15934,6 +16679,15 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -15953,6 +16707,9 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
                                                 "enabled"
                                               ]
                                             },
@@ -16421,6 +17178,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -16440,6 +17206,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -16487,6 +17256,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -16506,6 +17284,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -26714,6 +27495,15 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -26733,6 +27523,9 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
                                                 "enabled"
                                               ]
                                             },
@@ -27209,6 +28002,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -27228,6 +28030,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -27275,6 +28080,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -27294,6 +28108,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -28887,6 +29704,15 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -28906,6 +29732,9 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
                                                 "enabled"
                                               ]
                                             },
@@ -29558,6 +30387,15 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -29577,6 +30415,9 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
                                       "enabled"
                                     ]
                                   },
@@ -30157,6 +30998,15 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -30176,6 +31026,9 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
                                       "enabled"
                                     ]
                                   },
@@ -31126,6 +31979,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -31145,6 +32007,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -31705,6 +32570,15 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -31724,6 +32598,9 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
                                       "enabled"
                                     ]
                                   },
@@ -32203,6 +33080,15 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -32222,6 +33108,9 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
                                           "enabled"
                                         ]
                                       },
@@ -33246,6 +34135,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -33265,6 +34163,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -33312,6 +34213,15 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -33331,6 +34241,9 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
                                               "enabled"
                                             ]
                                           }
@@ -33970,6 +34883,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -33989,6 +34911,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 }
@@ -34036,6 +34961,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34055,6 +34989,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 }
@@ -34444,6 +35381,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34463,6 +35409,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 }
@@ -34510,6 +35459,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34529,6 +35487,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 }
@@ -34877,6 +35838,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34896,6 +35866,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 },
@@ -34932,6 +35905,15 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34951,6 +35933,9 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
                                     "enabled"
                                   ]
                                 },

@@ -150,3 +150,37 @@ token.mint:
         $ref: 'responses.yaml#/MintResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+token.get_erc20_capabilities:
+  post:
+    tags:
+      - Token
+    summary: Get the erc20 capabilities of a contract address
+    operationId: token_get_erc20_capabilities
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenERC20Capabilities'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TokenERC20CapabilitiesResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+token.set_blockchain_address:
+  post:
+    tags:
+      - Token
+    summary: Attempts to set a blockchain address to the specified tokeen
+    operationId: token_set_blockchain_address
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/TokenSetBlockchainAddress'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/TokenResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

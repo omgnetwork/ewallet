@@ -37,14 +37,17 @@ defmodule EWallet.ReleaseTasks.Seed do
   @sample_spec [
     {:ewallet_config, :seeds_settings},
     {:ewallet_db, :seeds},
-    {:ewallet_db, :seeds_sample}
+    {:ewallet_db, :seeds_sample},
+    {:ewallet_db, :seeds_blockchain}
   ]
   @settings_spec [{:ewallet_config, :seeds_settings}]
+  @blockchain_spec [{:ewallet_db, :seeds_blockchain}]
 
   def run, do: seed_with(@std_spec)
   def run_e2e, do: seed_with(@e2e_spec)
   def run_sample, do: seed_with(@sample_spec)
   def run_settings, do: seed_with(@settings_spec)
+  def run_blockchain, do: seed_with(@blockchain_spec)
 
   defp seed_with(spec) do
     _ = Enum.each(@start_apps, &Application.ensure_all_started/1)

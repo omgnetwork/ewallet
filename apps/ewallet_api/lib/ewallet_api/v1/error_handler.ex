@@ -29,9 +29,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Map.merge(EWalletErrorHandler.errors(), @errors, fn _k, _shared, current ->
-      current
-    end)
+    Map.merge(EWalletErrorHandler.errors(), @errors)
   end
 
   @doc """

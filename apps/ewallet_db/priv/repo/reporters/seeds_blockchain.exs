@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Transaction do
-  @moduledoc false
+defmodule EWalletDB.Repo.Reporters.SeedsBlockchainReporter do
 
-  import EthGethAdapter.ErrorHandler
+  def run(writer, _args) do
+    writer.heading("Populating blockchain data")
 
-  alias Ethereumex.HttpClient, as: Client
-
-  def send_raw(transaction_data) do
-    transaction_data
-    |> Client.eth_send_raw_transaction()
-    |> parse_response()
+    writer.print("""
+    We have seeded blockchain data
+    """)
   end
-
-  def get_transaction_count(address) do
-    Client.eth_get_transaction_count(address)
-  end
-
-  defp parse_response({:ok, _data} = response), do: response
-
-  defp parse_response({:error, error}), do: handle_error(error)
 end

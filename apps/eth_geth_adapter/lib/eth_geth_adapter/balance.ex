@@ -15,6 +15,7 @@
 defmodule EthGethAdapter.Balance do
   @moduledoc false
   import Utils.Helpers.Encoding
+  import EthGethAdapter.ErrorHandler
 
   alias Ethereumex.HttpClient, as: Client
 
@@ -33,6 +34,8 @@ defmodule EthGethAdapter.Balance do
       "contract_address_2" => integer_balance_2
     }
   }
+  Note that the `integer_balance_x` can be nil if the specified contract doesn't support the
+  `balanceOf(address)` function.
   ```
   if successful or {:error, error_code} if failed.
   """
@@ -82,13 +85,19 @@ defmodule EthGethAdapter.Balance do
   # Response parsers
 
   defp parse_response({:ok, data}) when is_list(data) do
-    balances = Enum.map(data, fn hex_balance -> int_from_hex(hex_balance) end)
+    balances = Enum.map(data, fn hex_balance -> parse_hex_balance(hex_balance) end)
     {:ok, balances}
   end
 
-  defp parse_response({:ok, data}), do: {:ok, int_from_hex(data)}
+  defp parse_response({:ok, data}), do: {:ok, parse_hex_balance(data)}
 
-  defp parse_response({:error, data}), do: {:error, data}
+  defp parse_response({:error, error}), do: handle_error(error)
+
+  # function `balanceOf(address)` not found in contract
+  defp parse_hex_balance("0x"), do: nil
+
+  # function `balanceOf(address)` found in contract
+  defp parse_hex_balance(balance), do: int_from_hex(balance)
 
   # Formatters
 

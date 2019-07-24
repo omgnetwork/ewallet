@@ -34,13 +34,18 @@ defmodule EthBlockchain.Adapter do
 
   alias EthBlockchain.{
     Balance,
+    DumbAdapter,
+    ErrorHandler,
     Helper,
+    Token,
     Transaction,
     TransactionListener,
     BlockchainRegistry
   }
 
   def helper, do: Helper
+  def error_handler, do: ErrorHandler
+  def dumb_adapter, do: DumbAdapter
 
   @doc """
   Starts EthBlockchain.Adapter.
@@ -143,7 +148,7 @@ defmodule EthBlockchain.Adapter do
   ##
 
   @doc """
-  Handles the call call from the client API call/4.
+  Handles the call from the client API call/4.
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do
@@ -179,6 +184,10 @@ defmodule EthBlockchain.Adapter do
 
   def call({:get_balances, attrs}, adapter, pid) do
     Balance.get(attrs, adapter, pid)
+  end
+
+  def call({:get_field, attrs}, adapter, pid) do
+    Token.get_field(attrs, adapter, pid)
   end
 
   def call(func_spec, nil, pid) do

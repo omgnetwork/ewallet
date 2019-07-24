@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,24 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Transaction do
-  @moduledoc false
+defmodule EWallet.Web.V1.ERC20AttributesSerializer do
+  @moduledoc """
+  Serializes a map of erc20 token attributes into V1 JSON response format.
+  """
 
-  import EthGethAdapter.ErrorHandler
+  def serialize(nil), do: nil
 
-  alias Ethereumex.HttpClient, as: Client
-
-  def send_raw(transaction_data) do
-    transaction_data
-    |> Client.eth_send_raw_transaction()
-    |> parse_response()
+  def serialize(attrs) do
+    %{
+      object: "erc20_attrs",
+      decimals: attrs.decimals,
+      name: attrs.name,
+      symbol: attrs.symbol,
+      total_supply: attrs.total_supply
+    }
   end
-
-  def get_transaction_count(address) do
-    Client.eth_get_transaction_count(address)
-  end
-
-  defp parse_response({:ok, _data} = response), do: response
-
-  defp parse_response({:error, error}), do: handle_error(error)
 end

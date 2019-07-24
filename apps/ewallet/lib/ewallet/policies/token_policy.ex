@@ -24,6 +24,17 @@ defmodule EWallet.TokenPolicy do
     Bouncer.bounce(attrs, %Permission{action: :create, target: %Token{account_uuid: account_uuid}})
   end
 
+  def authorize(:set_blockchain_address, attrs, %{"account_uuid" => account_uuid}) do
+    Bouncer.bounce(attrs, %Permission{
+      action: :set_blockchain_address,
+      target: %Token{account_uuid: account_uuid}
+    })
+  end
+
+  def authorize(:get_erc20_capabilities, attrs, nil) do
+    Bouncer.bounce(attrs, %Permission{action: :get_erc20_capabilities, type: :global})
+  end
+
   def authorize(action, attrs, target) do
     PolicyHelper.authorize(action, attrs, :tokens, Token, target)
   end

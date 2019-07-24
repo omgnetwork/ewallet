@@ -58,6 +58,8 @@ defmodule AdminAPI.V1.Router do
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)
     post("/token.upload_avatar", TokenController, :upload_avatar)
+    post("/token.get_erc20_capabilities", TokenController, :get_erc20_capabilities)
+    post("/token.set_blockchain_address", TokenController, :set_blockchain_address)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)

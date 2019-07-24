@@ -17,7 +17,7 @@ defmodule EWallet.BlockchainBalanceFetcher do
   Handles the retrieval and formatting of balances from the blockchain.
   """
 
-  alias EthBlockchain.Balance
+  alias EWallet.BlockchainHelper
 
   @doc """
   Prepare the list of balances for specified tokens and turn them into a suitable format for
@@ -57,8 +57,8 @@ defmodule EWallet.BlockchainBalanceFetcher do
   defp query_and_add_balances(wallet_address, tokens) do
     token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
 
-    %{address: wallet_address, contract_addresses: token_addresses}
-    |> Balance.get()
+    :get_balances
+    |> BlockchainHelper.call(%{address: wallet_address, contract_addresses: token_addresses})
     |> process_response(tokens)
   end
 

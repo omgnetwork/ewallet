@@ -15,8 +15,10 @@
 defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
+  alias EWallet.BlockchainHelper
   alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
+  alias Utils.Helpers.Crypto
 
   describe "/token.all" do
     test_with_auths "returns a list of tokens and pagination data" do
@@ -150,7 +152,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   end
 
   describe "/token.create" do
-    test_with_auths "inserts a new token" do
+    test_with_auths "inserts a new (non blockchain) token" do
       response =
         request("/token.create", %{
           symbol: "BTC",
@@ -169,6 +171,64 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
       assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
+    end
+
+    test_with_auths "inserts a new blockchain token when matching contract info" do
+      address = Crypto.fake_eth_address()
+
+      response =
+        request("/token.create", %{
+          symbol: "OMG",
+          name: "OmiseGO",
+          description: "desc",
+          subunit_to_unit: 1_000_000_000_000_000_000,
+          blockchain_address: address,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+
+      assert response["data"]["blockchain_address"] == address
+
+      assert Token.get(response["data"]["id"]) != nil
+      assert mint == nil
+    end
+
+    test_with_auths "returns an error when inserting an invalid blockchain token" do
+      response =
+        request("/token.create", %{
+          symbol: "OMG",
+          name: "OmiseGO",
+          description: "desc",
+          subunit_to_unit: 1_000_000_000_000_000_000,
+          blockchain_address: BlockchainHelper.invalid_erc20_contract_address(),
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_erc20"
+    end
+
+    test_with_auths "returns an error when both amount and blockchain_address are provided" do
+      response =
+        request("/token.create", %{
+          symbol: "OMG",
+          name: "OmiseGO",
+          description: "desc",
+          subunit_to_unit: 1_000_000_000_000_000_000,
+          blockchain_address: Crypto.fake_eth_address(),
+          amount: 100,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test_with_auths "returns an error with decimals > 18 (19 decimals)" do
@@ -899,6 +959,248 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/token.get_erc20_capabilities" do
+    test_with_auths "get erc20 attributes of a contract address" do
+      response =
+        request("/token.get_erc20_capabilities", %{
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "erc20_attrs"
+      assert response["data"]["name"] == "OMGToken"
+      assert response["data"]["symbol"] == "OMG"
+      assert response["data"]["decimals"] == 18
+      assert response["data"]["total_supply"] == 100_000_000_000_000_000_000
+    end
+
+    test_with_auths "fails to get attributes for an invalid address" do
+      response =
+        request("/token.get_erc20_capabilities", %{
+          blockchain_address: BlockchainHelper.invalid_erc20_contract_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_erc20"
+
+      assert response["data"]["description"] ==
+               "The provided contract address does not implement the required erc20 functions."
+    end
+
+    test_with_auths "Raises invalid_parameter error if blockchain_address is missing" do
+      response = request("/token.get_erc20_capabilities", %{})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided. `blockchain_address` is required.",
+               "messages" => nil
+             }
+    end
+
+    test_with_auths "Raises `blockchain:invalid_address` error if blockchain_address is in invalid format" do
+      response = request("/token.get_erc20_capabilities", %{blockchain_address: "123"})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "blockchain:invalid_address",
+               "description" => "The given blockchain address is not in a valid format.",
+               "messages" => nil
+             }
+    end
+  end
+
+  describe "/token.set_blockchain_address" do
+    test_with_auths "sets the blockchain address to a valid existing token" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+      address = Crypto.fake_eth_address()
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: address
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+
+      assert response["data"]["blockchain_address"] == address
+
+      assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
+    end
+
+    test_with_auths "fails to update an existing token if blockchain_address is missing" do
+      token = insert(:token)
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` and `blockchain_address` are required."
+    end
+
+    test_with_auths "fails to update an existing token if blockchain_address is invalid" do
+      token = insert(:token)
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: "123"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "blockchain:invalid_address"
+    end
+
+    test_with_auths "fails to update an existing token if id is missing" do
+      response =
+        request("/token.set_blockchain_address", %{
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` and `blockchain_address` are required."
+    end
+
+    test_with_auths "fails to update an existing token if decimals don't match" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1})
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_matching_contract_info"
+
+      assert response["data"]["description"] ==
+               "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    end
+
+    test_with_auths "fails to update an existing token if symbol don't match" do
+      token = insert(:token, %{symbol: "BTC", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:not_matching_contract_info"
+
+      assert response["data"]["description"] ==
+               "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    end
+
+    test_with_auths "Raises 'unauthorized' error if the token can't be found" do
+      response =
+        request("/token.set_blockchain_address", %{
+          id: "fake",
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      refute response["success"]
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "unauthorized"
+    end
+
+    test_with_auths "fails to update a token that is already blockchain enabled." do
+      address_1 = Crypto.fake_eth_address()
+
+      token =
+        insert(:token, %{
+          symbol: "OMG",
+          subunit_to_unit: 1_000_000_000_000_000_000,
+          blockchain_address: address_1
+        })
+
+      address_2 = Crypto.fake_eth_address()
+
+      response =
+        request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: address_2
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "token:already_blockchain_enabled"
+    end
+
+    defp assert_set_blockchain_address_logs(logs, originator, target) do
+      assert Enum.count(logs) == 1
+
+      logs
+      |> Enum.at(0)
+      |> assert_activity_log(
+        action: "update",
+        originator: originator,
+        target: target,
+        changes: %{
+          "blockchain_address" => target.blockchain_address,
+          "blockchain_status" => target.blockchain_status,
+          "blockchain_identifier" => target.blockchain_identifier
+        },
+        encrypted_changes: %{}
+      )
+    end
+
+    test "generates an activity log for an admin request" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        admin_user_request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      assert response["success"] == true
+
+      token = Token.get(token.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_set_blockchain_address_logs(get_test_admin(), token)
+    end
+
+    test "generates an activity log for a provider request" do
+      token = insert(:token, %{symbol: "OMG", subunit_to_unit: 1_000_000_000_000_000_000})
+
+      timestamp = DateTime.utc_now()
+
+      response =
+        provider_request("/token.set_blockchain_address", %{
+          id: token.id,
+          blockchain_address: Crypto.fake_eth_address()
+        })
+
+      assert response["success"] == true
+
+      token = Token.get(token.id)
+
+      timestamp
+      |> get_all_activity_logs_since()
+      |> assert_set_blockchain_address_logs(get_test_key(), token)
     end
   end
 end

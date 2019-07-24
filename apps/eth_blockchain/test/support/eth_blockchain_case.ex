@@ -23,6 +23,7 @@ defmodule EthBlockchain.EthBlockchainCase do
   using do
     quote do
       import EthBlockchain.EthBlockchainCase
+      alias EthBlockchain.DumbAdapter
     end
   end
 

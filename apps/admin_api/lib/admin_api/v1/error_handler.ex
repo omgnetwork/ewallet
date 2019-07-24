@@ -19,8 +19,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
-  alias EWallet.Web.V1.ResponseSerializer
+  alias EWallet.Web.V1.{ErrorHandler, ResponseSerializer}
+  alias EWallet.BlockchainHelper
 
   @errors %{
     invalid_login_credentials: %{
@@ -114,6 +114,20 @@ defmodule AdminAPI.V1.ErrorHandler do
     file_not_found: %{
       code: "file:not_found",
       description: "The file could not be found on the server."
+    },
+    token_not_erc20: %{
+      code: "token:not_erc20",
+      description:
+        "The provided contract address does not implement the required erc20 functions."
+    },
+    token_not_matching_contract_info: %{
+      code: "token:not_matching_contract_info",
+      description:
+        "The decimal count or the symbol obtained from the contract at the specified address don't match the token."
+    },
+    token_already_blockchain_enabled: %{
+      code: "token:already_blockchain_enabled",
+      description: "This token already has a blockchain address."
     }
   }
 
@@ -122,9 +136,9 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Map.merge(EWalletErrorHandler.errors(), @errors, fn _k, _shared, current ->
-      current
-    end)
+    BlockchainHelper.adapter().error_handler.errors()
+    |> Map.merge(ErrorHandler.errors())
+    |> Map.merge(@errors)
   end
 
   @doc """
@@ -132,7 +146,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   def handle_error(conn, code, attrs) do
     code
-    |> EWalletErrorHandler.build_error(attrs, errors())
+    |> ErrorHandler.build_error(attrs, errors())
     |> respond(conn)
   end
 
@@ -142,7 +156,7 @@ defmodule AdminAPI.V1.ErrorHandler do
 
   def handle_error(conn, code) do
     code
-    |> EWalletErrorHandler.build_error(errors())
+    |> ErrorHandler.build_error(errors())
     |> respond(conn)
   end
 

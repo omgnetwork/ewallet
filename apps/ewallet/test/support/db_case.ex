@@ -20,7 +20,7 @@ defmodule EWallet.DBCase do
   import EWalletDB.Factory
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWallet.{MintGate, LocalTransactionGate}
+  alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
   alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
   alias Keychain.Wallet
@@ -77,7 +77,7 @@ defmodule EWallet.DBCase do
       }
     )
 
-    adapter = Application.get_env(:ewallet, :blockchain_adapter)
+    adapter = BlockchainHelper.adapter()
     {:ok, adapter_pid} = adapter.start_link([])
 
     %{
