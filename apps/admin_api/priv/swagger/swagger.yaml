@@ -284,6 +284,8 @@ paths:
     $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.get'
   /blockchain_wallet.all:
     $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.all'
+  /blockchain_wallet.create:
+    $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.create'
 
   # TRANSACTION
   /transaction.all:

@@ -33331,6 +33331,9 @@
                             "type": {
                               "type": "string"
                             },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -33345,6 +33348,7 @@
                             "address",
                             "name",
                             "type",
+                            "blockchain_identifier",
                             "created_at",
                             "updated_at"
                           ]
@@ -33355,6 +33359,7 @@
                           "object": "blockchain_wallet",
                           "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                           "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
                           "type": "hot",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z"
@@ -33714,6 +33719,9 @@
                                       "type": {
                                         "type": "string"
                                       },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -33728,6 +33736,7 @@
                                       "address",
                                       "name",
                                       "type",
+                                      "blockchain_identifier",
                                       "created_at",
                                       "updated_at"
                                     ]
@@ -33747,10 +33756,243 @@
                               "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                               "name": "blockchain_wallet_01",
                               "type": "hot",
+                              "blockchain_identifier": "ethereum",
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z"
                             }
                           ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blockchain_wallet.create": {
+      "post": {
+        "tags": [
+          "Blockchain wallet"
+        ],
+        "summary": "Create a new blockchain wallet.",
+        "operationId": "blockchain_wallet_create",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for creating a blockchain wallet",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "example": {
+                  "name": "Primary cold wallet reference",
+                  "type": "cold",
+                  "address": "0x48b91d5f363892592bf836777dc73b54a10b72ae"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "cold"
+                    ]
+                  },
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a blockchain wallet",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a blockchain wallet",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a blockchain wallet",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "address",
+                            "name",
+                            "type",
+                            "blockchain_identifier",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "blockchain_wallet",
+                          "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
+                          "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
+                          "type": "hot",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
                         }
                       }
                     }

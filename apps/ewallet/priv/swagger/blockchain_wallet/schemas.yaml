@@ -10,6 +10,8 @@ BlockchainWalletSchema:
       type: string
     type:
       type: string
+    blockchain_identifier:
+      type: string
     created_at:
       type: string
       format: date-time
@@ -21,6 +23,7 @@ BlockchainWalletSchema:
     - address
     - name
     - type
+    - blockchain_identifier
     - created_at
     - updated_at
 

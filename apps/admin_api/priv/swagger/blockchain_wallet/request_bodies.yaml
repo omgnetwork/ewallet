@@ -61,3 +61,26 @@ BlockchainWalletAllBody:
             type: string
         example:
           start_by: address
+
+BlockchainWalletCreateBody:
+  description: The parameters to use for creating a blockchain wallet
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        example:
+          name: Primary cold wallet reference
+          type: cold
+          address: "0x48b91d5f363892592bf836777dc73b54a10b72ae"
+        properties:
+          name:
+            type: string
+          type:
+            type: string
+            enum: [cold]
+          address:
+            type: string
+        required:
+          - name
+          - type
+          - address

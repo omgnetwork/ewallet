@@ -37,7 +37,7 @@ defmodule EWalletDB.BlockchainValidator do
         Changeset.add_error(
           changeset,
           field,
-          "invalid blockchain address",
+          "is not a valid blockchain address",
           validation: :invalid_blockchain_address
         )
     end
@@ -59,7 +59,7 @@ defmodule EWalletDB.BlockchainValidator do
         Changeset.add_error(
           changeset,
           field,
-          "invalid blockchain identifier",
+          "is not a valid blockchain identifier",
           validation: :invalid_blockchain_identifier
         )
     end
