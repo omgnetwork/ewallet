@@ -109,9 +109,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
 
   defp paginated_blockchain_tokens(query, attrs) do
-    identifier = BlockchainHelper.identifier()
-
-    identifier
+    BlockchainHelper.identifier()
     |> Token.query_all_blockchain(query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end
