@@ -13,9 +13,9 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
-  alias EWalletDB.BlockchainWallet
+  alias EWalletDB.{BlockchainWallet, Seeder}
   alias Keychain.Wallet
-  alias EWalletDB.Seeder
+  alias EWalletConfig.Config
 
   def seed do
     [
@@ -56,7 +56,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
     }
     case BlockchainWallet.insert_hot(attrs) do
       {:ok, wallet} ->
-        {:ok, [primary_hot_wallet: {:ok, _}]} = EWalletConfig.Config.update(%{
+        {:ok, [primary_hot_wallet: {:ok, _}]} = Config.update(%{
           primary_hot_wallet: wallet.address,
           originator: %Seeder{}
         })
