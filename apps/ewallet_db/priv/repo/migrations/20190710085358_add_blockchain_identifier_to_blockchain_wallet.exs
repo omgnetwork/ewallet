@@ -1,8 +1,9 @@
 defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
   use Ecto.Migration
   alias EWalletDB.Repo
+  alias Ecto.MigrationError
 
-  def change do
+  def up do
     alter table(:blockchain_wallet) do
       add :blockchain_identifier, :string
     end
@@ -18,5 +19,10 @@ defmodule EWalletDB.Repo.Migrations.AddBlockchainIdentifierToBlockchainWallet do
 
     create unique_index(:blockchain_wallet, [:blockchain_identifier, :address])
     create unique_index(:blockchain_wallet, [:blockchain_identifier, :public_key])
+  end
+
+  def down do
+    raise MigrationError, message: "This migration cannot be rolled back due to potential loss
+                                   of data."
   end
 end

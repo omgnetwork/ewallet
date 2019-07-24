@@ -51,11 +51,19 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   end
 
   def create(conn, %{"type" => _}) do
-    handle_error(conn, :invalid_parameter, "The specified `type` is not currently supported.")
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter error. The specified `type` is not currently supported."
+    )
   end
 
   def create(conn, _) do
-    handle_error(conn, :invalid_parameter)
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `type`, `address` and `name` are required."
+    )
   end
 
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
