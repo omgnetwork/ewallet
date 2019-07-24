@@ -1,4 +1,4 @@
-defmodule EWalletDB.Repo.Migrations.AddBlockchainFields1ToToken do
+defmodule EWalletDB.Repo.Migrations.AddERC20DeploymentFieldsToToken do
   use Ecto.Migration
 
   def change do
