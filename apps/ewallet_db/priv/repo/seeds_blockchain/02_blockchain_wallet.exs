@@ -13,9 +13,8 @@
 # limitations under the License.
 
 defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
-  alias EWalletDB.BlockchainWallet
+  alias EWalletDB.{BlockchainWallet, Seeder}
   alias Keychain.Wallet
-  alias EWalletDB.Seeder
   alias EWalletConfig.Config
 
   def seed do
