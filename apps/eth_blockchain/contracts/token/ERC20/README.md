@@ -8,6 +8,7 @@ sections:
   - title: Extensions
     contracts:
       - ERC20Mintable
+      - ERC20MintableLocked
       - ERC20Burnable
       - ERC20Pausable
       - ERC20Capped
@@ -28,6 +29,7 @@ There a few core contracts that implement the behavior specified in the EIP:
 
 Additionally there are multiple custom extensions, including:
 - designation of addresses that can create token supply (`ERC20Mintable`), with an optional maximum cap (`ERC20Capped`)
+- mintable tokens with the possibility to lock further minting (`ERC20MintableLocked`)
 - destruction of own tokens (`ERC20Burnable`)
 - designation of addresses that can pause token operations for all users (`ERC20Pausable`).
 
