@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper}
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -166,8 +166,8 @@ defmodule EthBlockchain.Transaction do
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
     case get_transaction_count(%{address: from}, adapter, pid) do
       {:ok, nonce} ->
-        gas_limit = get_gas_limit_or_default(gas_limit_type, attrs)
-        gas_price = get_gas_price_or_default(attrs)
+        gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
+        gas_price = GasHelper.get_gas_price_or_default(attrs)
 
         {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: int_from_hex(nonce)}}
 
@@ -185,14 +185,6 @@ defmodule EthBlockchain.Transaction do
 
     "0x" <> contract_address
   end
-
-  defp get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
-  defp get_gas_limit_or_default(type, _attrs), do: Application.get_env(:eth_blockchain, type)
-
-  defp get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
-
-  defp get_gas_price_or_default(_attrs),
-    do: Application.get_env(:eth_blockchain, :default_gas_price)
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
     case sign_transaction(transaction_data, from) do
