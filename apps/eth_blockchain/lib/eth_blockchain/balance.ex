@@ -15,6 +15,7 @@
 defmodule EthBlockchain.Balance do
   @moduledoc false
   import Utils.Helpers.Encoding
+  import EthBlockchain.ErrorHandler
 
   alias EthBlockchain.{Adapter, ABIEncoder}
 
@@ -55,14 +56,39 @@ defmodule EthBlockchain.Balance do
        ) do
     case ABIEncoder.balance_of(address) do
       {:ok, encoded_abi_data} ->
-        Adapter.call(
-          {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block},
-          adapter,
-          pid
-        )
+        {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block}
+        |> Adapter.call(adapter, pid)
+        |> parse_response()
+        |> respond(contract_addresses)
 
       error ->
         error
     end
   end
+
+  defp parse_response({:ok, data}) when is_list(data) do
+    balances = Enum.map(data, fn hex_balance -> parse_hex_balance(hex_balance) end)
+    {:ok, balances}
+  end
+
+  defp parse_response({:ok, data}), do: {:ok, parse_hex_balance(data)}
+
+  defp parse_response({:error, error}), do: handle_error(error)
+
+  # function `balanceOf(address)` not found in contract
+  defp parse_hex_balance("0x"), do: nil
+
+  # function `balanceOf(address)` found in contract
+  defp parse_hex_balance(balance), do: int_from_hex(balance)
+
+  defp respond({:ok, balances}, addresses) do
+    response =
+      [addresses, balances]
+      |> Enum.zip()
+      |> Enum.into(%{})
+
+    {:ok, response}
+  end
+
+  defp respond({:error, _error} = error, _addresses), do: error
 end

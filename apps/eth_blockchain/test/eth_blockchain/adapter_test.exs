@@ -34,11 +34,8 @@ defmodule EthBlockchain.AdapterTest do
           state[:pid]
         )
 
-      assert {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}} ==
-               dumb_resp1
-
-      assert {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}} ==
-               dumb_resp2
+      assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp1
+      assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp2
     end
 
     test "shutdowns the worker once finished handling tasks", state do
