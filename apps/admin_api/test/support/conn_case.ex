@@ -34,7 +34,18 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
   alias EWalletConfig.ConfigTestHelper
-  alias EWalletDB.{Account, BlockchainWallet, Membership, GlobalRole, Key, Repo, User}
+
+  alias EWalletDB.{
+    Account,
+    BlockchainWallet,
+    BlockchainHDWallet,
+    Membership,
+    GlobalRole,
+    Key,
+    Repo,
+    User
+  }
+
   alias Utils.{Types.ExternalID, Helpers.Crypto, Helpers.DateFormatter}
   alias ActivityLogger.System
   alias Keychain.Wallet
@@ -135,6 +146,15 @@ defmodule AdminAPI.ConnCase do
       })
 
     config_pid = start_config_server(account, blockchain_wallet)
+
+    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+
+    {:ok, _} =
+      BlockchainHDWallet.insert(%{
+        keychain_uuid: keychain_hd_wallet_uuid,
+        blockchain_identifier: BlockchainHelper.identifier(),
+        originator: %System{}
+      })
 
     # Insert necessary records for making authenticated calls.
     admin =

@@ -18,7 +18,7 @@ defmodule EWalletDB.BlockchainWallet do
   """
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.{BlockchainValidator, Validator}
   import EWalletDB.Helpers.Preloader
 

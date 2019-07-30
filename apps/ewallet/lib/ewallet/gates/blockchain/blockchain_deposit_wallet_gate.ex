@@ -16,7 +16,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
   @moduledoc """
 
   """
-  alias EWallet.AddressTracker
+  alias EWallet.{AddressTracker, BlockchainHelper}
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet
 
@@ -37,7 +37,8 @@ defmodule EWallet.BlockchainDepositWalletGate do
               path_ref: ref,
               wallet_address: wallet.address,
               blockchain_hd_wallet_uuid: hd_wallet.uuid,
-              originator: originator
+              originator: originator,
+              blockchain_identifier: BlockchainHelper.identifier()
             }
             |> BlockchainDepositWallet.insert()
             |> case do

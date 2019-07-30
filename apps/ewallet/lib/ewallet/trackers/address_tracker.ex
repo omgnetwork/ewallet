@@ -36,7 +36,8 @@ defmodule EWallet.AddressTracker do
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50
-  @polling_interval 500 # 15000
+  # 15000
+  @polling_interval 500
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
@@ -72,15 +73,16 @@ defmodule EWallet.AddressTracker do
 
   def handle_call(
         {:register_address, blockchain_address, internal_address},
+        _from,
         %{addresses: addresses} = state
       ) do
     case addresses[blockchain_address] do
       nil ->
-        {:ok, :ok, state}
+        {:reply, :ok, state}
 
       _ ->
         addresses = Map.put(addresses, blockchain_address, internal_address)
-        {:ok, :ok, %{state | addresses: addresses}}
+        {:reply, :ok, %{state | addresses: addresses}}
     end
   end
 

@@ -129,7 +129,8 @@ defmodule AdminAPI.V1.WalletController do
          {:ok, updated} <- BlockchainDepositWalletGate.get_or_generate(wallet, attrs) do
       respond_single(updated, conn, attrs)
     else
-      {:error, error} -> handle_error(conn, error)
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
 

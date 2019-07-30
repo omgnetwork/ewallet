@@ -5,4 +5,7 @@ use Mix.Config
 config :keychain,
   ecto_repos: [Keychain.Repo]
 
+config :block_keys,
+  words_list: "#{File.cwd!()}/assets/english.txt"
+
 import_config "#{Mix.env()}.exs"

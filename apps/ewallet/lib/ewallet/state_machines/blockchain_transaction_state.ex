@@ -57,7 +57,8 @@ defmodule EWallet.BlockchainTransactionState do
         ledger_transaction,
         originator
       ) do
-    Transaction.confirm(transaction, ledger_transaction.uuid, originator)
+    # TODO: change to {:ok, tx} in Transaction?
+    {:ok, Transaction.confirm(transaction, ledger_transaction.uuid, originator)}
   end
 
   def transition_to(

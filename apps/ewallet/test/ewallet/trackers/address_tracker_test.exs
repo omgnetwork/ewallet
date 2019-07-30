@@ -56,7 +56,12 @@ defmodule EWallet.AddressTrackerTest do
     test "inits with addresses" do
       hot_wallet = insert(:blockchain_wallet, type: "hot", blockchain_identifier: "dumb")
       deposit_wallet = insert(:blockchain_deposit_wallet, blockchain_identifier: "dumb")
-      token = insert(:token, blockchain_identifier: "dumb", blockchain_address: Crypto.fake_eth_address())
+
+      token =
+        insert(:token,
+          blockchain_identifier: "dumb",
+          blockchain_address: Crypto.fake_eth_address()
+        )
 
       expected = %{
         addresses: %{
@@ -85,21 +90,20 @@ defmodule EWallet.AddressTrackerTest do
   # run
 
   describe "handle_call/3 with :register_address" do
-
   end
 
   describe "run/1 through polling" do
     test "" do
       transaction = insert(:blockchain_transaction)
+
       assert {:ok, pid} =
                AddressTracker.start_link(
                  name: :test_address_tracker_1,
                  attrs: %{
                    adapter: EthBlockchain.DumbAdapter,
                    blockchain: "dumb"
-                  }
+                 }
                )
-
 
       state = :sys.get_state(pid)
       IO.inspect(state)
