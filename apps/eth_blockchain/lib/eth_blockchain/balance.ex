@@ -15,7 +15,6 @@
 defmodule EthBlockchain.Balance do
   @moduledoc false
   import Utils.Helpers.Encoding
-  import EthBlockchain.ErrorHandler
 
   alias EthBlockchain.{Adapter, ABIEncoder}
 
@@ -73,7 +72,7 @@ defmodule EthBlockchain.Balance do
 
   defp parse_response({:ok, data}), do: {:ok, parse_hex_balance(data)}
 
-  defp parse_response({:error, error}), do: handle_error(error)
+  defp parse_response(error), do: error
 
   # function `balanceOf(address)` not found in contract
   defp parse_hex_balance("0x"), do: nil
