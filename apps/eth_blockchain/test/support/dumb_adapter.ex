@@ -34,12 +34,12 @@ defmodule EthBlockchain.DumbAdapter do
   end
 
   def handle_call({:get_balances, _address, contract_addresses, _abi, _block}, _from, reg) do
-    balances = Map.new(contract_addresses, fn ca -> {ca, 123} end)
+    balances = Enum.into(contract_addresses, [], fn _ -> "0x7B" end)
     {:reply, {:ok, balances}, reg}
   end
 
   def handle_call({:get_transaction_count, _address}, _from, reg) do
-    {:reply, {:ok, "0x1"}, reg}
+    {:reply, {:ok, "0x0"}, reg}
   end
 
   def handle_call({:get_block_number}, _from, reg) do
