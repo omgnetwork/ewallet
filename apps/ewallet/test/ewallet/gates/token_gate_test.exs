@@ -19,6 +19,146 @@ defmodule EWallet.TokenGateTest do
   alias EWalletDB.Token
   alias Utils.Helpers.Crypto
 
+  describe "deploy_erc20" do
+    test "successfuly deploy a locked erc20 contract with the given attributes" do
+      name = "OMGToken"
+      symbol = "OMG"
+      subunit_to_unit = 100
+      amount = 1000
+      locked = true
+
+      {res, attrs} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "symbol" => symbol,
+          "subunit_to_unit" => subunit_to_unit,
+          "amount" => amount,
+          "locked" => locked
+        })
+
+      assert res == :ok
+      assert attrs["blockchain_address"] != nil
+      assert attrs["blockchain_identifier"] == BlockchainHelper.identifier()
+      assert attrs["blockchain_status"] == "pending"
+      assert attrs["contract_uuid"] == "3681491a-e8d0-4219-a40a-53d9a47fe64a"
+      assert attrs["tx_hash"] != nil
+    end
+
+    test "successfuly deploy an unlocked erc20 contract with the given attributes" do
+      name = "OMGToken"
+      symbol = "OMG"
+      subunit_to_unit = 100
+      amount = 1000
+      locked = false
+
+      {res, attrs} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "symbol" => symbol,
+          "subunit_to_unit" => subunit_to_unit,
+          "amount" => amount,
+          "locked" => locked
+        })
+
+      assert res == :ok
+      assert attrs["blockchain_address"] != nil
+      assert attrs["blockchain_identifier"] == BlockchainHelper.identifier()
+      assert attrs["blockchain_status"] == "pending"
+      assert attrs["contract_uuid"] == "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
+      assert attrs["tx_hash"] != nil
+    end
+
+    test "returns an `invalid_parameter` error if name is missing" do
+      symbol = "OMG"
+      subunit_to_unit = 100
+      amount = 1000
+      locked = false
+
+      {res, code, _message} =
+        TokenGate.deploy_erc20(%{
+          "symbol" => symbol,
+          "subunit_to_unit" => subunit_to_unit,
+          "amount" => amount,
+          "locked" => locked
+        })
+
+      assert res == :error
+      assert code == :invalid_parameter
+    end
+
+    test "returns an `invalid_parameter` error if symbol is missing" do
+      name = "OMGToken"
+      subunit_to_unit = 100
+      amount = 1000
+      locked = false
+
+      {res, code, _message} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "subunit_to_unit" => subunit_to_unit,
+          "amount" => amount,
+          "locked" => locked
+        })
+
+      assert res == :error
+      assert code == :invalid_parameter
+    end
+
+    test "returns an `invalid_parameter` error if subunit_to_unit is missing" do
+      name = "OMGToken"
+      symbol = "OMG"
+      amount = 1000
+      locked = false
+
+      {res, code, _message} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "symbol" => symbol,
+          "amount" => amount,
+          "locked" => locked
+        })
+
+      assert res == :error
+      assert code == :invalid_parameter
+    end
+
+    test "returns an `invalid_parameter` error if locked is missing" do
+      name = "OMGToken"
+      symbol = "OMG"
+      amount = 1000
+      subunit_to_unit = 100
+
+      {res, code, _message} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "symbol" => symbol,
+          "amount" => amount,
+          "subunit_to_unit" => subunit_to_unit
+        })
+
+      assert res == :error
+      assert code == :invalid_parameter
+    end
+
+    test "returns an `invalid_parameter` error if amount is missing" do
+      name = "OMGToken"
+      symbol = "OMG"
+      locked = false
+      subunit_to_unit = 100
+
+      {res, code, _message} =
+        TokenGate.deploy_erc20(%{
+          "name" => name,
+          "symbol" => symbol,
+          "locked" => locked,
+          "subunit_to_unit" => subunit_to_unit
+        })
+
+      assert res == :error
+      assert code == :invalid_parameter
+    end
+  end
+
   describe "get_erc20_capabilities/1" do
     test "successfuly get erc20 attributes for a valid contract address" do
       address = Crypto.fake_eth_address()

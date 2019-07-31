@@ -816,11 +816,15 @@ paths:
                                       type: string
                                     blockchain_identifier:
                                       type: string
+                                    tx_hash:
+                                      type: string
                                     metadata:
                                       type: object
                                     encrypted_metadata:
                                       type: object
                                     enabled:
+                                      type: boolean
+                                    locked:
                                       type: boolean
                                   required: &ref_14
                                     - object
@@ -834,7 +838,9 @@ paths:
                                     - blockchain_address
                                     - blockchain_status
                                     - blockchain_identifier
+                                    - tx_hash
                                     - enabled
+                                    - locked
                     example:
                       data:
                         object: list
@@ -849,9 +855,12 @@ paths:
                             avatar:
                               original: file_url
                             enabled: true
+                            locked: true
                             blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
                             blockchain_status: confirmed
                             blockchain_identifier: ethereum
+                            tx_hash: >-
+                              0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41
                             metadata: {}
                             encrypted_metadata: {}
         '500': *ref_7
@@ -903,11 +912,14 @@ paths:
                         created_at: '2018-01-01T00:00:00Z'
                         updated_at: '2018-01-01T10:00:00Z'
                         enabled: true
+                        locked: true
                         avatar:
                           original: file_url
                         blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
                         blockchain_status: confirmed
                         blockchain_identifier: ethereum
+                        tx_hash: >-
+                          0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41
                         metadata: {}
                         encrypted_metadata: {}
         '500': *ref_7
@@ -1145,7 +1157,9 @@ paths:
                       blockchain_address: null
                       blockchain_status: null
                       blockchain_identifier: null
+                      tx_hash: null
                       enabled: true
+                      locked: true
                       metadata: {}
                       encrypted_metadata: {}
         '500': *ref_7
@@ -1472,6 +1486,56 @@ paths:
               example:
                 id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
                 blockchain_address: '0x9080682a37961d3c814464e7ada1c7e1b4638a28'
+      responses:
+        '200': *ref_15
+        '500': *ref_7
+  /token.deploy_erc20:
+    post:
+      tags:
+        - Token
+      summary: Attempts to deploy an ERC20 token with the specified parameters
+      operationId: token_deploy_erc20
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to create a blockchain token.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                symbol:
+                  type: string
+                description:
+                  type: string
+                subunit_to_unit:
+                  type: integer
+                amount:
+                  type: integer
+                locked:
+                  type: boolean
+                metadata:
+                  type: object
+                  additionalProperties: true
+                encrypted_metadata:
+                  type: object
+                  additionalProperties: true
+              required:
+                - name
+                - symbol
+                - subunit_to_unit
+                - amount
+                - locked
+              example:
+                symbol: OMG
+                name: OMGToken
+                description: The OMG ERC20 token
+                subunit_to_unit: 1000000000000000000
+                amount: 50000000000000000000
+                locked: true
       responses:
         '200': *ref_15
         '500': *ref_7

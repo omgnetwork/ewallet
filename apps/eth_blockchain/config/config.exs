@@ -11,6 +11,7 @@ config :eth_blockchain,
   default_gas_price: 20_000_000_000,
   default_eth_transaction_gas_limit: 21_000,
   default_contract_transaction_gas_limit: 90_000,
+  default_contract_creation_gas_limit: 1_500_000,
   # Custom id used for development/testing only, to be updated for production use
   chain_id: 90_325,
   transaction_poll_interval: 5000

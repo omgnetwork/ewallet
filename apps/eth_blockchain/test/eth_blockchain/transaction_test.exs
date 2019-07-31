@@ -27,13 +27,6 @@ defmodule EthBlockchain.TransactionTest do
     |> Map.put(:public_key, public_key)
   end
 
-  defp decode_response(response) do
-    response
-    |> Encoding.from_hex()
-    |> ExRLP.decode()
-    |> Transaction.deserialize()
-  end
-
   defp recover_public_key(trx) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
@@ -43,6 +36,38 @@ defmodule EthBlockchain.TransactionTest do
       |> Signature.recover_public_key(trx.r, trx.s, trx.v, chain_id)
 
     pub_key
+  end
+
+  describe "create_contract/3" do
+    test "generates a contract creation transaction", state do
+      contract_data = "0x" <> "0123456789abcdef"
+
+      {resp, encoded_trx, contract_address} =
+        Transaction.create_contract(
+          %{from: state[:valid_sender], contract_data: contract_data},
+          :dumb,
+          state[:pid]
+        )
+
+      assert resp == :ok
+
+      trx = decode_transaction_response(encoded_trx)
+
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == ""
+      assert trx.init == Encoding.from_hex(contract_data)
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               Application.get_env(:eth_blockchain, :default_contract_creation_gas_limit)
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == "0x"
+
+      assert contract_address != nil
+    end
   end
 
   describe "send/3" do
@@ -56,7 +81,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
 
       assert trx.data == ""
@@ -80,7 +105,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
 
       assert trx.data == ""
@@ -109,7 +134,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
       {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
 
@@ -140,7 +165,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_response(encoded_trx)
+      trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
       {:ok, data} = ABIEncoder.transfer(state[:addr_1], 100)
 
