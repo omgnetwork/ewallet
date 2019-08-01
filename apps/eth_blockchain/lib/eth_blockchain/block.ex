@@ -50,11 +50,11 @@ defmodule EthBlockchain.Block do
        }) do
     Enum.reduce(transactions, [], fn transaction, acc ->
       cond do
-        relevant_eth_transaction?(transaction, addresses) ->
-          [format_eth_transaction(transaction) | acc]
-
         tracked_contract_transaction?(transaction, contract_addresses) ->
           handle_contract_transaction(transaction, addresses, acc)
+
+        relevant_eth_transaction?(transaction, addresses) ->
+          [format_eth_transaction(transaction) | acc]
 
         true ->
           acc
@@ -65,7 +65,7 @@ defmodule EthBlockchain.Block do
   defp handle_contract_transaction(transaction, addresses, acc) do
     case parse_input(transaction["input"]) do
       {to_address, amount} ->
-        case Enum.member?(addresses, to_address) do
+        case Enum.member?(addresses, transaction["from"]) || Enum.member?(addresses, to_address) do
           true ->
             [format_contract_transaction(transaction, to_address, amount) | acc]
 
@@ -80,8 +80,9 @@ defmodule EthBlockchain.Block do
 
   defp relevant_eth_transaction?(transaction, addresses) do
     # TODO: Switch to maps?
-    Enum.member?(addresses, transaction["from"]) ||
-      Enum.member?(addresses, transaction["to"])
+    (Enum.member?(addresses, transaction["from"]) ||
+       Enum.member?(addresses, transaction["to"])) &&
+      transaction["input"] == nil
   end
 
   defp tracked_contract_transaction?(transaction, contract_addresses) do
@@ -90,8 +91,14 @@ defmodule EthBlockchain.Block do
   end
 
   defp parse_input(input) do
-    [to_address, amount] = ABI.decode("transfer(address,uint)", get_data(input))
-    {to_hex(to_address), amount}
+    case get_data(input) do
+      nil ->
+        nil
+
+      data ->
+        [to_address, amount] = ABI.decode("transfer(address,uint)", data)
+        {to_hex(to_address), amount}
+    end
   end
 
   defp get_data("0x" <> <<_function::binary-size(8)>> <> data) do
@@ -123,9 +130,7 @@ defmodule EthBlockchain.Block do
       hash: transaction["hash"],
       index: int_from_hex(transaction["transactionIndex"]),
       nonce: int_from_hex(transaction["nonce"]),
-      input: transaction["input"],
       confirmations_count: get_number() - block_number + 1,
-      original: transaction,
       data: get_data(transaction["input"])
     }
   end

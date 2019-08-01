@@ -62,9 +62,9 @@ defmodule EWallet.TransactionRegistry do
       :ok =
         DynamicSupervisor.terminate_child(EWallet.DynamicListenerSupervisor, registry[uuid][:pid])
 
-      {:reply, :ok, Map.delete(registry, uuid)}
+      {:noreply, Map.delete(registry, uuid)}
     else
-      {:reply, {:error, :entry_not_found}, registry}
+      {:noreply, registry}
     end
   end
 

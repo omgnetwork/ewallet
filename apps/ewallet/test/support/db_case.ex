@@ -21,7 +21,7 @@ defmodule EWallet.DBCase do
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
-  alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
+  alias EWalletDB.{Account, BlockchainWallet, Token, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
   alias Keychain.Wallet
 
@@ -60,6 +60,11 @@ defmodule EWallet.DBCase do
         blockchain_identifier: BlockchainHelper.identifier(),
         originator: %ActivityLogger.System{}
       })
+
+    insert(:token, %{
+      blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
+      blockchain_status: Token.blockchain_status_confirmed()
+    })
 
     config_pid = start_supervised!(EWalletConfig.Config)
 

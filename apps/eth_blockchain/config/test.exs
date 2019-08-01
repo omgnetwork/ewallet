@@ -3,7 +3,8 @@ use Mix.Config
 config :eth_blockchain,
        EthBlockchain.Adapter,
        adapters: [
-         {:dumb, EthBlockchain.DumbAdapter}
+         {:dumb, EthBlockchain.DumbAdapter},
+         {:dumb_receiver, EthBlockchain.DumbReceivingAdapter}
        ],
        default_adapter: :dumb
 
