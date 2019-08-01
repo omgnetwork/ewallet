@@ -17,7 +17,7 @@ defmodule EWallet.LocalTransactionGateTest do
   import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, LocalTransactionGate}
-  alias EWalletDB.{Account, Token, Transaction, User, Wallet}
+  alias EWalletDB.{Account, Token, Transaction, TransactionState,  User, Wallet}
   alias ActivityLogger.System
 
   def init_wallet(address, token, amount \\ 1_000) do
@@ -133,10 +133,10 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: nil,
-          status: Transaction.pending()
+          status: TransactionState.pending()
         })
 
-      assert inserted_transaction.status == Transaction.pending()
+      assert inserted_transaction.status == TransactionState.pending()
       init_wallet(inserted_transaction.from, inserted_transaction.from_token, 1_000)
 
       {status, transaction} = LocalTransactionGate.create(attrs)

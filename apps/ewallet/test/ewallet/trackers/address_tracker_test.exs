@@ -16,7 +16,7 @@ defmodule EWallet.AddressTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   import Ecto.Query
-  alias EWallet.{AddressTracker, BlockchainDepositWalletGate}
+  alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
   alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, Token, Repo}
   alias Keychain.Wallet
   alias ActivityLogger.System
@@ -116,10 +116,11 @@ defmodule EWallet.AddressTrackerTest do
       adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
       blockchain_identifier = adapter.helper().identifier()
 
-      default_token = insert(:token, %{
-        blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
-        blockchain_status: Token.blockchain_status_confirmed()
-      })
+      default_token =
+        insert(:token, %{
+          blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
+          blockchain_status: Token.blockchain_status_confirmed()
+        })
 
       {:ok, {_address, _public_key}} = Wallet.generate()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)

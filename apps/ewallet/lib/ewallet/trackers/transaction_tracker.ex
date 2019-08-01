@@ -21,7 +21,8 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.{BlockchainHelper, BlockchainTransactionState, BlockchainTransactionGate}
+  alias EWallet.{BlockchainHelper, BlockchainTransactionGate}
+  alias EWalletDB.TransactionState
   alias ActivityLogger.System
 
   @backup_confirmations_threshold 10
@@ -32,13 +33,15 @@ defmodule EWallet.TransactionTracker do
     GenServer.start_link(__MODULE__, attrs)
   end
 
-  def init(%{transaction: transaction} = attrs) do
+  def init(%{transaction: transaction, transaction_type: transaction_type} = attrs) do
     adapter = BlockchainHelper.adapter()
     :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
 
     {:ok,
      %{
        transaction: transaction,
+       # for state changes, blockchain, local_blockchain or blockchain_local
+       transaction_type: transaction_type,
        # optional
        registry: attrs[:registry]
      }}
@@ -74,16 +77,19 @@ defmodule EWallet.TransactionTracker do
   # Threshold reached, finalizing the transaction...
   defp update_confirmations_count(
          adapter,
-         %{transaction: transaction} = state,
+         %{transaction: transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          true
        ) do
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(
-        :blockchain_confirmed,
+      TransactionState.transition_to(
+        transaction_type,
+        TransactionState.blockchain_confirmed(),
         transaction,
-        confirmations_count,
-        %System{}
+        %{
+          confirmations_count: confirmations_count,
+          originator: %System{}
+        }
       )
 
     # TODO: handle error
@@ -106,16 +112,19 @@ defmodule EWallet.TransactionTracker do
   # Treshold not reached yet, updating and continuing to track...
   defp update_confirmations_count(
          _adapter,
-         %{transaction: transaction} = state,
+         %{transaction: transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          false
        ) do
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(
+      TransactionState.transition_to(
+        transaction_type,
         :pending_confirmations,
         transaction,
-        confirmations_count,
-        %System{}
+        %{
+          confirmations_count: confirmations_count,
+          originator: %System{}
+        }
       )
 
     {:noreply, Map.put(state, :transaction, transaction)}

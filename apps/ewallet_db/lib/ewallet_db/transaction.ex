@@ -30,38 +30,12 @@ defmodule EWalletDB.Transaction do
     Repo,
     Token,
     Transaction,
+    TransactionState,
     User,
     Wallet
   }
 
-  @pending "pending"
-  @recorded "recorded"
-  @submitted "submitted"
-  @pending_recording "pending_recording"
-  @pending_confirmations "pending_confirmations"
-  @local_confirmed "local_confirmed"
-  @blockchain_confirmed "blockchain_confirmed"
-  @confirmed "confirmed"
-  @failed "failed"
-  @statuses [
-    @pending,
-    @submitted,
-    @pending_recording,
-    @recorded,
-    @pending_confirmations,
-    @local_confirmed,
-    @blockchain_confirmed,
-    @confirmed,
-    @failed
-  ]
-  def pending, do: @pending
-  def pending_recording, do: @pending_recording
-  def pending_confirmations, do: @pending_confirmations
-  def confirmed, do: @confirmed
-  def failed, do: @failed
-
   @internal "internal"
-  # pull this status from the blockchain app?
   @external "external"
   @types [@internal, @external]
   def internal, do: @internal
@@ -77,7 +51,7 @@ defmodule EWalletDB.Transaction do
     field(:from_amount, Utils.Types.Integer)
     field(:to_amount, Utils.Types.Integer)
     # pending -> confirmed
-    field(:status, :string, default: @pending)
+    field(:status, :string, default: TransactionState.pending())
     # internal / external
     field(:type, :string, default: @internal)
     field(:blockchain_tx_hash, :string)
@@ -248,7 +222,7 @@ defmodule EWalletDB.Transaction do
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_from_wallet_identifier()
-    |> validate_inclusion(:status, @statuses)
+    |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive(%{
       from_user_uuid: nil,
@@ -322,7 +296,7 @@ defmodule EWalletDB.Transaction do
     |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_from_wallet_identifier()
-    |> validate_inclusion(:status, @statuses)
+    |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
     |> validate_blockchain()
@@ -334,60 +308,21 @@ defmodule EWalletDB.Transaction do
     |> assoc_constraint(:exchange_account)
   end
 
+  def state_changeset(%Transaction{} = transaction, attrs, cast_fields, required_fields) do
+    transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: cast_fields,
+      required: required_fields
+    )
+    |> validate_inclusion(:status, TransactionState.statuses())
+  end
+
   defp validate_blockchain(changeset) do
     changeset
     |> validate_blockchain_address(:from_blockchain_address)
     |> validate_blockchain_address(:to_blockchain_address)
     |> validate_blockchain_identifier(:blockchain_identifier)
-  end
-
-  def submitted_changeset(%Transaction{} = transaction, attrs) do
-    transaction
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [:status, :blockchain_tx_hash],
-      required: [:status, :blockchain_tx_hash]
-    )
-    |> validate_inclusion(:status, @statuses)
-  end
-
-  def confirmations_changeset(%Transaction{} = transaction, attrs) do
-    transaction
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [:status, :confirmations_count],
-      required: [:status, :confirmations_count]
-    )
-    |> validate_number(:confirmations_count, greater_than_or_equal_to: 0)
-    |> validate_inclusion(:status, @statuses)
-  end
-
-  defp confirm_changeset(%Transaction{} = transaction, attrs) do
-    transaction
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [:status, :local_ledger_uuid],
-      required: [:status, :local_ledger_uuid]
-    )
-    |> validate_inclusion(:status, @statuses)
-  end
-
-  defp fail_changeset(%Transaction{} = transaction, attrs) do
-    transaction
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [
-        :status,
-        :error_code,
-        :error_description,
-        :error_data
-      ],
-      required: [
-        :status,
-        :error_code
-      ]
-    )
-    |> validate_inclusion(:status, @statuses)
   end
 
   def get_last_blk_number(blockchain) do
@@ -569,65 +504,65 @@ defmodule EWalletDB.Transaction do
   @doc """
   Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transaction, local_ledger_uuid, originator) do
-    transaction
-    |> confirm_changeset(%{
-      status: @confirmed,
-      local_ledger_uuid: local_ledger_uuid,
-      originator: originator
-    })
-    |> Repo.update_record_with_activity_log()
-    |> handle_update_result()
-  end
+  # def confirm(transaction, local_ledger_uuid, originator) do
+  #   transaction
+  #   |> confirm_changeset(%{
+  #     status: @confirmed,
+  #     local_ledger_uuid: local_ledger_uuid,
+  #     originator: originator
+  #   })
+  #   |> Repo.update_record_with_activity_log()
+  #   |> handle_update_result()
+  # end
 
-  @doc """
-  Sets a transaction as failed and saves the ledger's response.
-  """
-  def fail(transaction, error_code, error_description, originator)
-      when is_map(error_description) do
-    do_fail(
-      %{
-        status: @failed,
-        error_code: error_code,
-        error_description: nil,
-        error_data: error_description,
-        originator: originator
-      },
-      transaction
-    )
-  end
+  # @doc """
+  # Sets a transaction as failed and saves the ledger's response.
+  # """
+  # def fail(transaction, error_code, error_description, originator)
+  #     when is_map(error_description) do
+  #   do_fail(
+  #     %{
+  #       status: @failed,
+  #       error_code: error_code,
+  #       error_description: nil,
+  #       error_data: error_description,
+  #       originator: originator
+  #     },
+  #     transaction
+  #   )
+  # end
 
-  def fail(transaction, error_code, error_description, originator) do
-    do_fail(
-      %{
-        status: @failed,
-        error_code: error_code,
-        error_description: error_description,
-        error_data: nil,
-        originator: originator
-      },
-      transaction
-    )
-  end
+  # def fail(transaction, error_code, error_description, originator) do
+  #   do_fail(
+  #     %{
+  #       status: @failed,
+  #       error_code: error_code,
+  #       error_description: error_description,
+  #       error_data: nil,
+  #       originator: originator
+  #     },
+  #     transaction
+  #   )
+  # end
 
-  defp do_fail(%{error_code: error_code} = data, transaction) when is_atom(error_code) do
-    data
-    |> Map.put(:error_code, Atom.to_string(error_code))
-    |> do_fail(transaction)
-  end
+  # defp do_fail(%{error_code: error_code} = data, transaction) when is_atom(error_code) do
+  #   data
+  #   |> Map.put(:error_code, Atom.to_string(error_code))
+  #   |> do_fail(transaction)
+  # end
 
-  defp do_fail(data, transaction) do
-    transaction
-    |> fail_changeset(data)
-    |> Repo.update_record_with_activity_log()
-    |> handle_update_result()
-  end
+  # defp do_fail(data, transaction) do
+  #   transaction
+  #   |> fail_changeset(data)
+  #   |> Repo.update_record_with_activity_log()
+  #   |> handle_update_result()
+  # end
 
-  defp handle_update_result({:ok, transaction}) do
-    Repo.preload(transaction, [:from_wallet, :to_wallet, :from_token, :to_token])
-  end
+  # defp handle_update_result({:ok, transaction}) do
+  #   Repo.preload(transaction, [:from_wallet, :to_wallet, :from_token, :to_token])
+  # end
 
-  defp handle_update_result(error), do: error
+  # defp handle_update_result(error), do: error
 
   def get_error(nil), do: nil
 
@@ -636,6 +571,6 @@ defmodule EWalletDB.Transaction do
   end
 
   def failed?(transaction) do
-    transaction.status == @failed
+    transaction.status == TransactionState.failed()
   end
 end

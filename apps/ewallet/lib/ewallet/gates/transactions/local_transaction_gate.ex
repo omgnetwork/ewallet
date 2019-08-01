@@ -23,11 +23,10 @@ defmodule EWallet.LocalTransactionGate do
     AmountFetcher,
     TokenFetcher,
     TransactionFormatter,
-    TransactionSourceFetcher,
-    BlockchainTransactionState
+    TransactionSourceFetcher
   }
 
-  alias EWalletDB.{AccountUser, Transaction}
+  alias EWalletDB.{AccountUser, Transaction, TransactionState}
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -62,18 +61,6 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
-  def process_with_transaction(%Transaction{status: "blockchain_confirmed"} = transaction) do
-    # TODO: better way to handle this?
-    from_blockchain? = is_from_blockchain?(transaction)
-
-    transaction
-    |> set_blockchain_wallets(:from_wallet, :from, from_blockchain?)
-    |> TransactionFormatter.format()
-    |> LedgerTransaction.insert(%{genesis: from_blockchain?})
-    |> update_transaction(transaction)
-    |> process_with_transaction()
-  end
-
   def process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
     {:ok, transaction}
   end
@@ -97,11 +84,6 @@ defmodule EWallet.LocalTransactionGate do
       _ ->
         transaction
     end
-  end
-
-  defp is_from_blockchain?(transaction) do
-    is_nil(transaction.from) && !is_nil(transaction.from_blockchain_address) &&
-      !is_nil(transaction.blockchain_identifier)
   end
 
   def get_or_insert(
@@ -150,21 +132,36 @@ defmodule EWallet.LocalTransactionGate do
     transaction
   end
 
-  def update_transaction({:ok, ledger_transaction}, transaction) do
+  def update_transaction({:ok, ledger_transaction}, %{status: "pending"} = transaction) do
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(
-        :local_confirmed,
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.confirmed(),
         transaction,
-        ledger_transaction,
-        %System{}
+        %{
+          local_ledger_uuid: ledger_transaction.uuid,
+          originator: %System{}
+        }
       )
 
     transaction
   end
 
   def update_transaction({:error, code, description}, transaction) do
+    {description, data} = if(is_map(description), do: {nil, description}, else: {description, nil})
+
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(:failed, transaction, code, description, %System{})
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.failed(),
+        transaction,
+        %{
+          error_code: Atom.to_string(code),
+          error_description: description,
+          error_data: data,
+          originator: %System{}
+        }
+      )
 
     transaction
   end

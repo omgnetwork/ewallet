@@ -28,7 +28,7 @@ defmodule EWallet.AddressTracker do
     BlockchainTransactionGate
   }
 
-  alias EWalletDB.{BlockchainState, Token, Transaction}
+  alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
   alias ActivityLogger.System
 
   # TODO: only starts when blockchain is enabled
@@ -223,7 +223,7 @@ defmodule EWallet.AddressTracker do
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
       to_amount: blockchain_tx.amount,
-      status: Transaction.pending(),
+      status: TransactionState.pending(),
       type: Transaction.external(),
       blockchain_tx_hash: blockchain_tx.hash,
       blockchain_identifier: blockchain_identifier,

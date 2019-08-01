@@ -38,14 +38,18 @@ defmodule EWallet.TransactionRegistry do
   end
 
   @impl true
-  def handle_call({:track, tracker, transaction}, _from, registry) do
+  def handle_call(
+        {:track, tracker, %{transaction: transaction, transaction_type: type}},
+        _from,
+        registry
+      ) do
     if Map.has_key?(registry, transaction.uuid) do
       {:reply, :ok, registry}
     else
       {:ok, pid} =
         DynamicSupervisor.start_child(
           EWallet.DynamicListenerSupervisor,
-          {tracker, %{transaction: transaction, registry: self()}}
+          {tracker, %{transaction: transaction, transaction_type: type, registry: self()}}
         )
 
       {:reply, :ok,
@@ -76,7 +80,7 @@ defmodule EWallet.TransactionRegistry do
     GenServer.call(pid, {:lookup, uuid})
   end
 
-  def start_tracker(tracker, transaction, pid \\ __MODULE__) do
-    GenServer.call(pid, {:track, tracker, transaction})
+  def start_tracker(tracker, attrs, pid \\ __MODULE__) do
+    GenServer.call(pid, {:track, tracker, attrs})
   end
 end
