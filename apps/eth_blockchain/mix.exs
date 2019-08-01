@@ -35,7 +35,11 @@ defmodule EthBlockchain.MixProject do
       {:ex_rlp, "~> 0.5.2"},
       {:utils, in_umbrella: true},
       {:keychain, in_umbrella: true},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      #Tests
+      {:briefly, "~> 0.3", only: [:test]},
+      {:exexec, git: "https://github.com/pthomalla/exexec.git", branch: "add_streams", runtime: true, only: [:test]},
+      {:ex_unit_fixtures, "~> 0.3.1", only: [:test]}
     ]
   end
 end

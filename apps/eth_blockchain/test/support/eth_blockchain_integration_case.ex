@@ -12,7 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ExUnit.configure(exclude: [integration: true])
-ExUnitFixtures.start()
-ExUnitFixtures.load_fixture_files("../**/test/**/fixtures.exs")
-ExUnit.start()
+defmodule EthBlockchain.EthBlockchainIntegrationCase do
+  @moduledoc false
+  use ExUnit.CaseTemplate
+
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Keychain.Repo
+
+  using do
+    quote do
+      import EthBlockchain.EthBlockchainIntegrationCase
+    end
+  end
+
+  setup tags do
+    :ok = Sandbox.checkout(Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(Repo, {:shared, self()})
+    end
+
+    %{}
+  end
+end
