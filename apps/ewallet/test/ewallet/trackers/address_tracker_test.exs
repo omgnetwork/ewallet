@@ -115,8 +115,11 @@ defmodule EWallet.AddressTrackerTest do
     test "processes and stores all relevant transactions" do
       adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
       blockchain_identifier = adapter.helper().identifier()
-      %{address: address} = adapter.helper().default_token()
-      default_token = Token.get_by(blockchain_address: address)
+
+      default_token = insert(:token, %{
+        blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
+        blockchain_status: Token.blockchain_status_confirmed()
+      })
 
       {:ok, {_address, _public_key}} = Wallet.generate()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)

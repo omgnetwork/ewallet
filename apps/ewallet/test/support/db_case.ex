@@ -61,11 +61,6 @@ defmodule EWallet.DBCase do
         originator: %ActivityLogger.System{}
       })
 
-    insert(:token, %{
-      blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
-      blockchain_status: Token.blockchain_status_confirmed()
-    })
-
     config_pid = start_supervised!(EWalletConfig.Config)
 
     ConfigTestHelper.restart_config_genserver(
