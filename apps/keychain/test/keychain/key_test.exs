@@ -40,7 +40,7 @@ defmodule Keychain.KeyTest do
   describe "Key.insert_private_key/2" do
     test "inserts a new private key" do
       assert Repo.all(Key) == []
-      {:ok, key} = Key.insert_private_key("key-1", "private-key-1")
+      {:ok, key} = Key.insert(%{wallet_id: "key-1", encrypted_private_key: "private-key-1", public_key: "public-key-1"})
       assert Repo.all(Key) == [key]
     end
 
@@ -48,7 +48,7 @@ defmodule Keychain.KeyTest do
       key_1 = insert(:key)
 
       assert_raise ConstraintError, fn ->
-        Key.insert_private_key(key_1.wallet_id, "private-key-1")
+        Key.insert(%{wallet_id: key_1.wallet_id, encrypted_private_key: "private-key-1", public_key: "public-key-1"})
       end
     end
   end
