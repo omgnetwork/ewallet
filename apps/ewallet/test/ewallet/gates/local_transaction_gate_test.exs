@@ -17,7 +17,7 @@ defmodule EWallet.LocalTransactionGateTest do
   import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, LocalTransactionGate}
-  alias EWalletDB.{Account, Token, Transaction, TransactionState,  User, Wallet}
+  alias EWalletDB.{Account, Token, Transaction, TransactionState, User, Wallet}
   alias ActivityLogger.System
 
   def init_wallet(address, token, amount \\ 1_000) do

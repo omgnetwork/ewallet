@@ -141,7 +141,9 @@ defmodule EWallet.BlockchainTransactionGate do
     end)
   end
 
-  defp confirm_or_start_listener(%{confirmations_count: confirmations_count, to: to} = transaction) do
+  defp confirm_or_start_listener(
+         %{confirmations_count: confirmations_count, to: to} = transaction
+       ) do
     threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
     flow = if(is_nil(to), do: :from_blockchain_to_ewallet, else: :from_blockchain_to_ledger)
 
@@ -151,7 +153,6 @@ defmodule EWallet.BlockchainTransactionGate do
 
     case is_integer(confirmations_count) && confirmations_count > (threshold || 0) do
       true ->
-
         # TODO: Change originator?
         TransactionState.transition_to(
           flow,
@@ -163,7 +164,7 @@ defmodule EWallet.BlockchainTransactionGate do
           }
         )
 
-        false ->
+      false ->
         :ok =
           TransactionRegistry.start_tracker(TransactionTracker, %{
             transaction: transaction,

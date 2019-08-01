@@ -148,7 +148,8 @@ defmodule EWallet.LocalTransactionGate do
   end
 
   def update_transaction({:error, code, description}, transaction) do
-    {description, data} = if(is_map(description), do: {nil, description}, else: {description, nil})
+    {description, data} =
+      if(is_map(description), do: {nil, description}, else: {description, nil})
 
     {:ok, transaction} =
       TransactionState.transition_to(
