@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DeferredConfig.populate(:ethereumex)
 ExUnit.configure(exclude: [integration: true])
 ExUnitFixtures.start()
 ExUnitFixtures.load_fixture_files("../**/test/**/fixtures.exs")

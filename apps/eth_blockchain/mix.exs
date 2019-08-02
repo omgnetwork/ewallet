@@ -38,7 +38,6 @@ defmodule EthBlockchain.MixProject do
       {:jason, "~> 1.1"},
       #Tests
       {:briefly, "~> 0.3", only: [:test]},
-      {:exexec, git: "https://github.com/pthomalla/exexec.git", branch: "add_streams", runtime: true, only: [:test]},
       {:ex_unit_fixtures, "~> 0.3.1", only: [:test]}
     ]
   end

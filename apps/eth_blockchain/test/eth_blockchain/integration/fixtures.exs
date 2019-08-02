@@ -18,16 +18,27 @@ defmodule EthBlockchain.Integration.Fixtures do
   """
   use ExUnitFixtures.FixtureModule
 
-  alias EthBlockchain.{GethManager, IntegrationHelpers}
+  alias EthBlockchain.{Adapter, IntegrationHelpers}
 
-  deffixture geth do
-    {:ok, exit_fn} = GethManager.start()
+  deffixture node_adapter do
+    updated_env =
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.put(:default_adapter, :geth)
+
+    Application.put_env(:eth_blockchain, EthBlockchain.Adapter, updated_env)
+
+    {:ok, datadir} = Briefly.create(directory: true)
+
+    {:ok, exit_fn} = Adapter.call({:boot_adapter, datadir})
+    # {:ok, exit_fn} = EthGethAdapter.GethManager.start()
     on_exit(exit_fn)
+
     :ok
   end
 
-  deffixture prepare_env(geth) do
-    :ok = geth
+  deffixture prepare_env(node_adapter) do
+    :ok = node_adapter
     :ok = IntegrationHelpers.prepare_env()
   end
 

@@ -29,7 +29,9 @@ defmodule EthGethAdapter.MixProject do
       {:eth_blockchain, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ethereumex, "~> 0.5"},
-      {:abi, "~> 0.1.13"}
+      {:abi, "~> 0.1.13"},
+      # Tests
+      {:exexec, git: "https://github.com/pthomalla/exexec.git", branch: "add_streams", runtime: true, only: [:test]}
     ]
   end
 

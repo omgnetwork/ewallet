@@ -19,8 +19,6 @@ defmodule EthBlockchain.IntegrationHelpers do
   """
   import Utils.Helpers.Encoding
 
-  require Logger
-
   alias Keychain.{Key, Wallet}
   alias Ethereumex.HttpClient
   alias EthBlockchain.{ABIEncoder, Contract, WaitFor}

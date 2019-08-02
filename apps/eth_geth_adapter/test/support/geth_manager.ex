@@ -12,30 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.GethManager do
+defmodule EthGethAdapter.GethManager do
   @moduledoc """
   Helper module for deployment of contracts to dev geth.
   """
   require Logger
 
-  alias EthBlockchain.WaitFor
-
   @doc """
   Run geth in temp dir, kill it with SIGKILL when done.
   """
-  def start do
+  def start(datadir) do
     {:ok, _} = Application.ensure_all_started(:erlexec)
-    DeferredConfig.populate(:ethereumex)
-    {:ok, homedir} = Briefly.create(directory: true)
 
     geth_pid =
       launch(
         "geth --dev --dev.period=0 --rpc --rpc --rpcapi=personal,eth,web3 --nodiscover --datadir #{
-          homedir
+          datadir
         } 2>&1"
       )
-
-    {:ok, :ready} = WaitFor.eth_rpc()
 
     on_exit = fn -> stop(geth_pid) end
 
