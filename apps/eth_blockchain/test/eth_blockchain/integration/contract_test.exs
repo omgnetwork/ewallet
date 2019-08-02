@@ -38,7 +38,6 @@ defmodule EthBlockchain.Integration.ContractTest do
       assert contract_address != nil
       assert contract_uuid == "3681491a-e8d0-4219-a40a-53d9a47fe64a"
 
-
       {res, tx} = WaitFor.eth_receipt(tx_hash)
       assert res == :ok
       assert tx["status"] == "0x1"
@@ -61,7 +60,6 @@ defmodule EthBlockchain.Integration.ContractTest do
       assert tx_hash != nil
       assert contract_address != nil
       assert contract_uuid == "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
-
 
       {res, tx} = WaitFor.eth_receipt(tx_hash)
       assert res == :ok

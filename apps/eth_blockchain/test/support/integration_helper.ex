@@ -119,8 +119,7 @@ defmodule EthBlockchain.IntegrationHelpers do
     {:ok, contract_addr}
   end
 
-  @spec transact_sync!({:ok, Eth.hash()}) :: {:ok, map}
-  defp transact_sync!({:ok, txhash} = _transaction_submission_result) do
+  def transact_sync!({:ok, txhash} = _transaction_submission_result) do
     {:ok, %{"status" => "0x1"} = result} = WaitFor.eth_receipt(txhash, @about_4_blocks_time)
     {:ok, result |> Map.update!("blockNumber", &int_from_hex(&1))}
   end
