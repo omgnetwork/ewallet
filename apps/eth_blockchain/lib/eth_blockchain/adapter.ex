@@ -36,6 +36,7 @@ defmodule EthBlockchain.Adapter do
     Balance,
     Block,
     Contract,
+    Childchain,
     DumbAdapter,
     ErrorHandler,
     Helper,
@@ -218,6 +219,10 @@ defmodule EthBlockchain.Adapter do
 
   def call({:get_field, attrs}, adapter, pid) do
     Token.get_field(attrs, adapter, pid)
+  end
+
+  def call({:deposit_to_childchain, attrs} adapter, pid) do
+    Childchain.deposit(attrs, adapter, pid)
   end
 
   def call({:deploy_erc20, attrs}, adapter, pid) do
