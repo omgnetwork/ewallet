@@ -32,6 +32,16 @@ defmodule EthBlockchain.EthBlockchainIntegrationCase do
       Sandbox.mode(Repo, {:shared, self()})
     end
 
-    %{}
+    original_env = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+    default_integration_adapter = Keyword.get(original_env, :default_test_integration_adapter)
+    updated_env = Keyword.put(original_env, :default_adapter, default_integration_adapter)
+
+    Application.put_env(:eth_blockchain, EthBlockchain.Adapter, updated_env)
+
+    on_exit(fn ->
+      Application.put_env(:eth_blockchain, EthBlockchain.Adapter, original_env)
+    end)
+
+    tags
   end
 end

@@ -21,13 +21,6 @@ defmodule EthBlockchain.Integration.Fixtures do
   alias EthBlockchain.{Adapter, IntegrationHelpers}
 
   deffixture node_adapter do
-    updated_env =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.put(:default_adapter, :geth)
-
-    Application.put_env(:eth_blockchain, EthBlockchain.Adapter, updated_env)
-
     {:ok, datadir} = Briefly.create(directory: true)
 
     {:ok, exit_fn} = Adapter.call({:boot_adapter, datadir})

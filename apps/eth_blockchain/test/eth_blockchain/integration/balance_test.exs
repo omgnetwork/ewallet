@@ -42,8 +42,7 @@ defmodule EthBlockchain.Integration.BalanceTest do
           %{
             address: alice.address,
             contract_addresses: [Helper.default_address(), contract_address]
-          },
-          :geth
+          }
         )
 
       assert resp == {:ok, %{Helper.default_address() => 100_000, contract_address => 50_000}}
