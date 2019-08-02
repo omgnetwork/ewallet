@@ -17,12 +17,13 @@ defmodule EthBlockchain.Integration.BalanceTest do
   use EthBlockchain.EthBlockchainIntegrationCase
 
   alias EthBlockchain.{Balance, Helper, IntegrationHelpers}
+  alias Utils.Helpers.Crypto
 
   @moduletag :integration
 
-  describe "get/1" do
+  describe "get/3" do
     @tag fixtures: [:hot_wallet, :omg_contract, :alice]
-    test "successfuly get wallet balances for an address", %{
+    test "returns the balances for an address and the specified contract addresses", %{
       alice: alice,
       hot_wallet: hot_wallet,
       omg_contract: contract_address
@@ -38,14 +39,41 @@ defmodule EthBlockchain.Integration.BalanceTest do
         })
 
       resp =
-        Balance.get(
-          %{
-            address: alice.address,
-            contract_addresses: [Helper.default_address(), contract_address]
-          }
-        )
+        Balance.get(%{
+          address: alice.address,
+          contract_addresses: [Helper.default_address(), contract_address]
+        })
 
       assert resp == {:ok, %{Helper.default_address() => 100_000, contract_address => 50_000}}
+    end
+
+    @tag fixtures: [:omg_contract, :alice]
+    test "returns a 0 balance if no fund for the given address", %{
+      alice: alice,
+      omg_contract: contract_address
+    } do
+      resp =
+        Balance.get(%{
+          address: alice.address,
+          contract_addresses: [Helper.default_address(), contract_address]
+        })
+
+      assert resp == {:ok, %{Helper.default_address() => 0, contract_address => 0}}
+    end
+
+    @tag fixtures: [:alice]
+    test "returns a nil balance if the given contract address is not an erc20 token", %{
+      alice: alice
+    } do
+      fake_contract = Crypto.fake_eth_address()
+
+      resp =
+        Balance.get(%{
+          address: alice.address,
+          contract_addresses: [fake_contract]
+        })
+
+      assert resp == {:ok, %{fake_contract => nil}}
     end
   end
 end

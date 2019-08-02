@@ -22,11 +22,8 @@ defmodule EthBlockchain.Integration.Fixtures do
 
   deffixture node_adapter do
     {:ok, datadir} = Briefly.create(directory: true)
-
     {:ok, exit_fn} = Adapter.call({:boot_adapter, datadir})
-    # {:ok, exit_fn} = EthGethAdapter.GethManager.start()
     on_exit(exit_fn)
-
     :ok
   end
 
