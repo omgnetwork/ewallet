@@ -23,7 +23,7 @@ defmodule EthBlockchain.Contract do
 
   @doc """
   Format and submit an ERC20 contract creation transaction with the given data
-  Returns {:ok, tx_hash, contract_address} if success,
+  Returns {:ok, tx_hash, contract_address, contract_uuid} if success,
   {:error, code} || {:error, code, message} otherwise
   """
   def deploy_erc20(attrs, adapter \\ nil, pid \\ nil)

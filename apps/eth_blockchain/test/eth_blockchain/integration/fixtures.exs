@@ -41,6 +41,11 @@ defmodule EthBlockchain.Integration.Fixtures do
   deffixture(bob(entities), do: entities.bob)
   deffixture(hot_wallet(entities), do: entities.hot_wallet)
 
+  deffixture funded_hot_wallet(hot_wallet) do
+    {:ok, _} = IntegrationHelpers.fund_account(hot_wallet.address)
+    hot_wallet
+  end
+
   deffixture omg_contract(hot_wallet) do
     {:ok, _} = IntegrationHelpers.fund_account(hot_wallet.address)
     {:ok, contract_addr} = IntegrationHelpers.deploy_omg(hot_wallet.address)
