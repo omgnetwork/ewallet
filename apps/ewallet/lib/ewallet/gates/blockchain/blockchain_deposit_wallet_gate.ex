@@ -42,6 +42,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
             }
             |> BlockchainDepositWallet.insert()
             |> case do
+              # TODO: This is a case within a case, better flatten out.
               {:ok, deposit_wallet} ->
                 :ok =
                   AddressTracker.register_address(
@@ -61,6 +62,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
     end
   end
 
+  # TODO: Handle the possibility of generating clashing numbers
   defp generate_unique_ref do
     :rand.uniform(999_999_999)
   end

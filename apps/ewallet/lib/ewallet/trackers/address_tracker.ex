@@ -33,6 +33,7 @@ defmodule EWallet.AddressTracker do
 
   # TODO: only starts when blockchain is enabled
 
+  # TODO: make these numbers admin-configurable
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50

@@ -151,6 +151,7 @@ defmodule EWallet.BlockchainTransactionGate do
       Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
     end
 
+    # TODO: merge with the logic in TransactionTraker
     case is_integer(confirmations_count) && confirmations_count > (threshold || 0) do
       true ->
         # TODO: Change originator?

@@ -39,6 +39,7 @@ defmodule EWallet.BlockchainAddressFetcher do
     |> Enum.into(%{})
   end
 
+  # TODO: Refactor to a more specific DB select for efficiency
   defp get_all_deposit_wallet_addresses(blockchain_identifier) do
     blockchain_identifier
     |> BlockchainDepositWallet.all()
