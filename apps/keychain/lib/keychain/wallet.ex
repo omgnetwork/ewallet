@@ -16,7 +16,6 @@ defmodule Keychain.Wallet do
   @moduledoc false
 
   alias Keychain.Key
-  alias ExthCrypto.ECIES.ECDH
   alias ExthCrypto.Hash.Keccak
   alias Ecto.UUID
 
@@ -32,7 +31,8 @@ defmodule Keychain.Wallet do
   """
   @spec generate :: resp({:ok, address()})
   def generate do
-    {public_key, private_key} = ECDH.new_ecdh_keypair()
+    {public_key, private_key} =
+      :crypto.generate_key(:ecdh, :secp256k1, :crypto.strong_rand_bytes(32))
 
     <<4::size(8), key::binary-size(64)>> = public_key
     <<_::binary-size(12), wallet_address::binary-size(20)>> = Keccak.kec(key)

@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: handled mintable tokens (locked)
+# - Add ability to finish minting and toggle `locked` when done
+# - Add ability to mint token on blockchain if not `locked`
+
+# TODO: Add listener to change status from `pending` to `confirmed`
+# after X block confirmation + balance > 0 for hot wallet
+
 defmodule EWalletDB.Token do
   @moduledoc """
   Ecto Schema representing tokens.
@@ -72,6 +79,9 @@ defmodule EWalletDB.Token do
     field(:blockchain_address, :string)
     field(:blockchain_status, :string)
     field(:blockchain_identifier, :string)
+    field(:tx_hash, :string)
+    field(:blk_number, :integer)
+    field(:contract_uuid, :string)
 
     belongs_to(
       :account,
@@ -106,6 +116,9 @@ defmodule EWalletDB.Token do
         :blockchain_address,
         :blockchain_status,
         :blockchain_identifier,
+        :tx_hash,
+        :blk_number,
+        :contract_uuid,
         :metadata,
         :encrypted_metadata
       ],
@@ -123,7 +136,6 @@ defmodule EWalletDB.Token do
       less_than_or_equal_to: 1_000_000_000_000_000_000
     )
     |> validate_immutable(:symbol)
-    |> validate_immutable(:blockchain_address)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
@@ -132,6 +144,7 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:blockchain_address,
       name: :token_blockchain_identifier_blockchain_address_index
     )
+    |> unique_constraint(:tx_hash)
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
@@ -160,6 +173,7 @@ defmodule EWalletDB.Token do
         :symbol_first,
         :html_entity,
         :iso_numeric,
+        :locked,
         :metadata,
         :encrypted_metadata
       ],
@@ -195,7 +209,6 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:blockchain_address,
       name: :token_blockchain_identifier_blockchain_address_index
     )
-    |> validate_immutable(:blockchain_address)
     |> validate_blockchain()
     |> merge(blockchain_status_changeset(token, attrs))
   end
@@ -213,6 +226,9 @@ defmodule EWalletDB.Token do
     changeset
     |> validate_blockchain_address(:blockchain_address)
     |> validate_blockchain_identifier(:blockchain_identifer)
+    |> validate_immutable(:blockchain_address)
+    |> validate_immutable(:blockchain_identifer)
+    |> validate_immutable(:tx_hash)
   end
 
   defp set_id(changeset, opts) do

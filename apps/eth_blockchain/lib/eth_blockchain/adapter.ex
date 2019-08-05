@@ -35,6 +35,7 @@ defmodule EthBlockchain.Adapter do
   alias EthBlockchain.{
     Balance,
     Block,
+    Contract,
     DumbAdapter,
     ErrorHandler,
     Helper,
@@ -217,6 +218,10 @@ defmodule EthBlockchain.Adapter do
 
   def call({:get_field, attrs}, adapter, pid) do
     Token.get_field(attrs, adapter, pid)
+  end
+
+  def call({:deploy_erc20, attrs}, adapter, pid) do
+    Contract.deploy_erc20(attrs, adapter, pid)
   end
 
   def call(func_spec, nil, pid) do

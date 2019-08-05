@@ -24,6 +24,13 @@ defmodule EWallet.TokenPolicy do
     Bouncer.bounce(attrs, %Permission{action: :create, target: %Token{account_uuid: account_uuid}})
   end
 
+  def authorize(:deploy_erc20, attrs, %{"account_uuid" => account_uuid}) do
+    Bouncer.bounce(attrs, %Permission{
+      action: :deploy_erc20,
+      target: %Token{account_uuid: account_uuid}
+    })
+  end
+
   def authorize(:set_blockchain_address, attrs, %{"account_uuid" => account_uuid}) do
     Bouncer.bounce(attrs, %Permission{
       action: :set_blockchain_address,

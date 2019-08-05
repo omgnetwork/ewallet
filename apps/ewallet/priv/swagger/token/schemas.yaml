@@ -26,11 +26,15 @@ TokenSchema:
       type: string
     blockchain_identifier:
       type: string
+    tx_hash:
+      type: string
     metadata:
       type: object
     encrypted_metadata:
       type: object
     enabled:
+      type: boolean
+    locked:
       type: boolean
   required:
     - object
@@ -44,7 +48,9 @@ TokenSchema:
     - blockchain_address
     - blockchain_status
     - blockchain_identifier
+    - tx_hash
     - enabled
+    - locked
 
 MintSchema:
   description: The object schema for a mint
