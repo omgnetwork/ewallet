@@ -18,5 +18,7 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainDepositWallet do
     create unique_index(:blockchain_deposit_wallet, [:address])
     create unique_index(:blockchain_deposit_wallet, [:blockchain_hd_wallet_uuid])
     create unique_index(:blockchain_deposit_wallet, [:path_ref])
+
+    create index(:blockchain_deposit_wallet, [:blockchain_identifier])
   end
 end
