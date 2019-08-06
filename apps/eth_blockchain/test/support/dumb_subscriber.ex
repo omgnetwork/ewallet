@@ -35,6 +35,7 @@ defmodule EthBlockchain.DumbSubscriber do
       state
       |> Map.put(:receipt, receipt)
       |> Map.put(:confirmations_count, confirmations_count)
+      |> Map.put(:error, nil)
 
     case count > 1 do
       true ->
@@ -59,6 +60,22 @@ defmodule EthBlockchain.DumbSubscriber do
     end
   end
 
+  def handle_cast(
+        {:not_found},
+        %{count: count, subscriber: pid, retry_not_found_count: retry_not_found_count} = state
+      ) do
+    state = Map.put(state, :error, :not_found)
+
+    case count > retry_not_found_count do
+      true ->
+        Process.send(pid, state, [:noconnect])
+        {:noreply, state}
+
+      _ ->
+        {:noreply, Map.put(state, :count, count + 1)}
+    end
+  end
+
   def handle_cast({:not_found}, %{count: count, subscriber: pid} = state) do
     state = Map.put(state, :error, :not_found)
 
@@ -67,7 +84,7 @@ defmodule EthBlockchain.DumbSubscriber do
         Process.send(pid, state, [:noconnect])
         {:noreply, state}
 
-      false ->
+      _ ->
         {:noreply, Map.put(state, :count, count + 1)}
     end
   end

@@ -26,7 +26,7 @@ defmodule EthGethAdapter.GethManager do
 
     geth_pid =
       launch(
-        "geth --dev --dev.period=0 --rpc --rpc --rpcapi=personal,eth,web3 --nodiscover --datadir #{
+        "geth --dev --dev.period=1 --rpc --rpc --rpcapi=personal,eth,web3 --nodiscover --datadir #{
           datadir
         } 2>&1"
       )

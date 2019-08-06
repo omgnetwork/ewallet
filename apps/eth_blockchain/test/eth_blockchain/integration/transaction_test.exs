@@ -45,7 +45,11 @@ defmodule EthBlockchain.Integration.TransactionTest do
     end
 
     @tag fixtures: [:funded_hot_wallet, :omg_contract, :alice]
-    test "send erc20 successfuly", %{funded_hot_wallet: hot_wallet, omg_contract: contract_address, alice: alice} do
+    test "send erc20 successfuly", %{
+      funded_hot_wallet: hot_wallet,
+      omg_contract: contract_address,
+      alice: alice
+    } do
       {res, tx_hash} =
         Transaction.send(%{
           contract_address: contract_address,
