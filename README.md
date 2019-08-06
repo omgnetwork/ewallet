@@ -10,86 +10,14 @@
 
 ## Getting started
 
-The quickest way to get OmiseGO eWallet Server running on macOS and Linux is to use [Docker-Compose](https://docs.docker.com/compose/install/).
+* [Install quickly on macOS or Linux, or bare metal install on other platforms](https://docs.omisego.co/docs/install-ewallet-server)
+* [Creating the database and populate it with initial data, and update the configuration key](https://docs.omisego.co/docs/install-ewallet-server#section-create-and-update-the-database)
+* [Upgrade eWallet Server](https://docs.omisego.co/docs/upgrade-ewallet-server)
 
-1. Install [Docker](https://docs.docker.com/install/) and [Docker-Compose](https://docs.docker.com/compose/install/)
-
-2. Download OmiseGO eWallet Server's [docker-compose.yml](https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml):
-
-    ```shell
-    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-compose.yml
-    ```
-
-3. Create `docker-compose.override.yml` either [manually](https://docs.docker.com/compose/extends/) or use this auto-configuration script:
-
-    ```
-    curl -O -sSL https://raw.githubusercontent.com/omisego/ewallet/master/docker-gen.sh
-    chmod +x docker-gen.sh
-    ./docker-gen.sh > docker-compose.override.yml
-    ```
-
-4. Initialize the database and start the server:
-
-    ```
-    docker-compose run --rm ewallet initdb
-    docker-compose run --rm ewallet seed
-    docker-compose up -d
-    ```
-
-Encountered a problem during the installation? See the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
-
-For other platforms or a more advanced setup, see alternative installation below.
-
-### Alternative installation
-
--   [Bare metal installation](docs/setup/bare_metal.md)
-
-## Upgrade
-
-- Upgrading from `v1.0`? See [Upgrading from v1.0.0 to v1.1.0](docs/setup/upgrading/v1.1.0.md).
-- Upgrading from other versions? See [Upgrading the eWallet Server](docs/setup/upgrading).
-
-## Commands
-
-Docker image entrypoint is configured to recognize most commands that are used during normal operations. The way to invoke these commands depend on the installation method you choose.
-
--   In case of Docker-Compose, use `docker-compose run --rm ewallet <command>`
--   In case of Docker, use `docker run -it --rm omisego/ewallet <command>`
--   In case of bare metal, see also bare metal installation instruction.
-
-### initdb
-
-For example:
-
--   `docker-compose run --rm ewallet initdb` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:latest initdb` (Docker)
-
-These commands create the database if not already created, or upgrade them if necessary. This command is expected to be run every time you have upgraded the version of OmiseGO eWallet Suite.
-
-### seed
-
-For example:
-
--   `docker-compose run --rm ewallet seed` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:latest seed` (Docker)
-
-These commands create the initial data in the database. If `seed` is run without arguments, the command will seed initial data for production environment. The `seed` command may be configured to seed with other kind of seed data:
-
--   `seed --sample` will seed a sample data suitable for evaluating OmiseGO eWallet Server.
--   `seed --e2e` will seed a data for [end-to-end testing](docs/setup/advanced/env.md).
-
-### config
-
-For example:
-
--   `docker-compose run --rm ewallet config <key> <value>` (Docker-Compose)
--   `docker run -it --rm omisego/ewallet:latest config <key> <value>` (Docker)
-
-These commands will update the configuration key (see also [settings documentation](docs/setup/advanced/settings.md)) in the database. For some keys which require whitespace, such as `gcs_credentials`, you can prevent string splitting by putting them in a single or double-quote, e.g. `config gcs_credentials "gcs configuration"`.
 
 ## Documentation
 
-All documentations can found in the [docs](docs/) directory. It is recommended to take a look at the documentation of the OmiseGO eWallet Server you are running.
+Documentation can found at the OmiseGO developer docs website, and in the [docs](docs/) directory. It is recommended to take a look at the documentation of the OmiseGO eWallet Server you are running.
 
 ### API documentation
 
