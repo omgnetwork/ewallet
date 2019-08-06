@@ -35,7 +35,6 @@ defmodule EthBlockchain.DumbSubscriber do
       state
       |> Map.put(:receipt, receipt)
       |> Map.put(:confirmations_count, confirmations_count)
-      |> Map.put(:error, nil)
 
     case count > 1 do
       true ->
@@ -60,27 +59,24 @@ defmodule EthBlockchain.DumbSubscriber do
     end
   end
 
-  def handle_cast(
-        {:not_found},
-        %{count: count, subscriber: pid, retry_not_found_count: retry_not_found_count} = state
-      ) do
-    state = Map.put(state, :error, :not_found)
+  def handle_cast({:not_found}, %{count: count, subscriber: pid} = state) do
+    # If we have a `retry_not_found_count` in the state, we will increase the count by 1
+    # until we reach this `retry_not_found_count` at which point we send put an error in the
+    # state and we send it back to the subscriber.
+    #
+    # This is especially usefull in integration tests as it follows this flow:
+    # - A transaction is created but not yet included in a block
+    #  -> The TransactionListener will broadcast `:not_found` events when polling for the receipt
+    #     until the transaction is actually included in the block. When testing for a valid
+    #     transaction, we don't want to receive the `:not_found` event, but instead just wait
+    #     until we receive a valid transaction.
+    # - The transaction gets included in a block
+    #  - > The TransactionListener will broadcast `:confirmations_count` events
+    retry_not_found_count = state[:retry_not_found_count] || -1
 
     case count > retry_not_found_count do
       true ->
-        Process.send(pid, state, [:noconnect])
-        {:noreply, state}
-
-      _ ->
-        {:noreply, Map.put(state, :count, count + 1)}
-    end
-  end
-
-  def handle_cast({:not_found}, %{count: count, subscriber: pid} = state) do
-    state = Map.put(state, :error, :not_found)
-
-    case count > -1 do
-      true ->
+        state = Map.put(state, :error, :not_found)
         Process.send(pid, state, [:noconnect])
         {:noreply, state}
 

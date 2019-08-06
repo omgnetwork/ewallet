@@ -19,7 +19,7 @@ defmodule EthBlockchain.WaitFor do
 
   alias Ethereumex.HttpClient
 
-  def eth_rpc(timeout \\ 10_000)) do
+  def eth_rpc(timeout \\ 10_000) do
     f = fn ->
       case HttpClient.eth_syncing() do
         {:ok, false} -> {:ok, :ready}
