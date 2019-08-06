@@ -40,7 +40,7 @@ defmodule EWallet.TokenGateTest do
       assert attrs["blockchain_address"] != nil
       assert attrs["blockchain_identifier"] == BlockchainHelper.identifier()
       assert attrs["blockchain_status"] == "pending"
-      assert attrs["contract_uuid"] == "3681491a-e8d0-4219-a40a-53d9a47fe64a"
+      assert attrs["contract_uuid"] == Contract.locked_contract_uuid()
       assert attrs["tx_hash"] != nil
     end
 
@@ -64,7 +64,7 @@ defmodule EWallet.TokenGateTest do
       assert attrs["blockchain_address"] != nil
       assert attrs["blockchain_identifier"] == BlockchainHelper.identifier()
       assert attrs["blockchain_status"] == "pending"
-      assert attrs["contract_uuid"] == "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
+      assert attrs["contract_uuid"] == Contract.unlocked_contract_uuid()
       assert attrs["tx_hash"] != nil
     end
 

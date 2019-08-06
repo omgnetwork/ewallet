@@ -81,7 +81,7 @@ defmodule EthBlockchain.Integration.TransactionTest do
 
       data =
         "0x" <>
-          Contract.get_binary("3681491a-e8d0-4219-a40a-53d9a47fe64a") <>
+          Contract.get_binary(Contract.locked_contract_uuid()) <>
           ABIEncoder.encode_erc20_attrs(name, symbol, decimals, initial_amount)
 
       {res, tx_hash, contract_address} =

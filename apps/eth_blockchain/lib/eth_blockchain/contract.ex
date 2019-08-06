@@ -21,6 +21,9 @@ defmodule EthBlockchain.Contract do
 
   @erc20_mintable_uuid "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
 
+  def locked_contract_uuid, do: @erc20_uuid
+  def unlocked_contract_uuid, do: @erc20_mintable_uuid
+
   @doc """
   Format and submit an ERC20 contract creation transaction with the given data
   Returns {:ok, tx_hash, contract_address, contract_uuid} if success,
