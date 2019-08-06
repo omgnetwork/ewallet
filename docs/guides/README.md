@@ -10,7 +10,4 @@ Take a deeper dive into the eWallet. Learn more about how to use the eWallet Ser
 - [eWallet API Websockets](/docs/guides/ewallet_api_websockets.md): Learn how to integrate eWallet API websockets into your applications.
 - [Two-factor Authentication](/doc/guides/two_factor_authentication.md): Learn how to use two-factor authentication APIs.
 
-## Glossary
 
-- **The eWallet Suite:** The entire range of server application(s), client application(s), SDKs and toolings that are available for building a complete eWallet solution. The eWallet Suite includes the eWallet Server, the Admin Panel, the AdminAPI and ClientAPI, Point-of-Sale app examples, etc.
-- **The eWallet Server:** The server component of the eWallet Suite. Previously called the "eWallet" and "eWallet server application".
