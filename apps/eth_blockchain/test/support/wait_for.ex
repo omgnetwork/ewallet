@@ -19,7 +19,7 @@ defmodule EthBlockchain.WaitFor do
 
   alias Ethereumex.HttpClient
 
-  def eth_rpc do
+  def eth_rpc(timeout \\ 10_000)) do
     f = fn ->
       case HttpClient.eth_syncing() do
         {:ok, false} -> {:ok, :ready}
@@ -29,7 +29,7 @@ defmodule EthBlockchain.WaitFor do
 
     fn -> repeat_until_ok(f) end
     |> Task.async()
-    |> Task.await(10_000)
+    |> Task.await(timeout)
   end
 
   @doc """
