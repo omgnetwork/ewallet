@@ -22,6 +22,19 @@ defmodule EWalletDB.BlockchainWalletTest do
     test_has_valid_factory(BlockchainWallet)
   end
 
+  describe "get_primary_hot_wallet/1" do
+    test "returns the hot wallet for the given blockchain identifier"
+  end
+
+  describe "get_all_hot/1" do
+    test "returns the list of all hot wallets for the given blockchain identifier"
+  end
+
+  describe "get/3" do
+    test "returns the blockchain wallet with the given address, type and blockchain identifier"
+    test "returns nil if the given address is nil"
+  end
+
   describe "insert/1" do
     test_insert_generate_uuid(BlockchainWallet, :uuid)
     test_insert_generate_timestamps(BlockchainWallet)

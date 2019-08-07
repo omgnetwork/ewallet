@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
+defmodule EWallet.BlockchainAddressFetcherTest do
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
+  alias EWallet.BlockchainAddressFetcher
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
+  describe "get_all_trackable_wallet_addresses/1" do
+    test "returns the list of all trackable wallet addresses"
   end
 
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
-  end
-
-  describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+  describe "get_all_trackable_contract_address/1" do
+    test "returns the list of all trackable contract addresses"
   end
 end

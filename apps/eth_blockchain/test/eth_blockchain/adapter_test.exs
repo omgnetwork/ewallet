@@ -17,7 +17,7 @@ defmodule EthBlockchain.AdapterTest do
   alias EthBlockchain.Adapter
 
   describe "call/3" do
-    test "delegates call to the adapter", state do
+    test "delegates get_balances call to the adapter", state do
       dumb_resp1 =
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
@@ -37,6 +37,11 @@ defmodule EthBlockchain.AdapterTest do
       assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp1
       assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp2
     end
+
+    test "delegates get_transactions call to the adapter"
+    test "delegates get_field call to the adapter"
+    test "delegates deploy_erc20 call to the adapter"
+    test "delegates send call to the adapter"
 
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
@@ -76,5 +81,17 @@ defmodule EthBlockchain.AdapterTest do
                  state[:pid]
                )
     end
+  end
+
+  describe "subscribe/5" do
+    test "subscribes the given subscriber with the registry for the given transaction hash"
+  end
+
+  describe "unsubscribe/3" do
+    test "unsubscribes the given subscriber from the registry for the given transaction hash"
+  end
+
+  describe "lookup_listener/1" do
+    test "returns the list of subscribers for the given transaction hash"
   end
 end

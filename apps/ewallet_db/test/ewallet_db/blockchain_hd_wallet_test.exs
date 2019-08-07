@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
+defmodule EWalletDB.BlockchainHDWalletTest do
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
+  alias EWalletDB.BlockchainHDWallet
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
-  end
-
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
+  describe "get_primary/1" do
+    test "returns an HD wallet"
   end
 
   describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+    test "returns the HD wallet inserted with the given attributes"
+    test "returns :blockchain_hd_wallet_already_exists if an HD wallet already exists"
   end
 end

@@ -12,22 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
+defmodule Keychain.SignatureTest do
   use Keychain.DBCase
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
+  describe "sign_transaction_hash/3" do
+    test "returns an ECDSA signature for the given hash and wallet address"
   end
 
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
+  describe "sign_with_child_key/5" do
+    test "returns an ECDSA signature for the given hash, wallet_uuid and child key specified via account_ref & deposit_ref"
   end
 
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
-  end
-
-  describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+  describe "recover_public_key/5" do
+    test "returns the public key of the given transaction hash and r s v values"
   end
 end

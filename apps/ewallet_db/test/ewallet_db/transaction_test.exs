@@ -25,6 +25,41 @@ defmodule EWalletDB.TransactionTest do
     test_encrypted_map_field(Transaction, "transaction", :payload)
   end
 
+  describe "state_changeset/4" do
+    test "returns a changeset with casted fields"
+    test "returns an error when a required field is missing"
+    test "returns an error when the given status is not a valid status"
+  end
+
+  describe "get_last_blk_number/1" do
+    test "returns the last known block number for the given blockchain identifier"
+  end
+
+  describe "all_for_address/1" do
+    test "returns all transactions from or to the given address"
+  end
+
+  describe "all_for_user/1" do
+    test "returns all transactions associated that are from or to the given user"
+    test "returns all transactions associated that are from or to the given user and in the given queryable"
+  end
+
+  describe "query_all_for_account_uuids_and_users/2" do
+    test "returns a query for transactions between the given accounts and any user"
+  end
+
+  describe "query_all_for_account_uuids/2" do
+    test "returns a query for transactions from or to the given accounts"
+  end
+
+  describe "all_for_account_and_user_uuids/2" do
+    test "returns the list of transactions between the given accounts or users"
+  end
+
+  describe "all_for_account/2" do
+    test "returns the list of transactions from or to the given account"
+  end
+
   describe "get_or_insert/1" do
     test "inserts a new transaction when idempotency token does not exist" do
       {:ok, transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
@@ -49,6 +84,14 @@ defmodule EWalletDB.TransactionTest do
 
       assert transaction.id == inserted_transaction.id
     end
+  end
+
+  describe "get_by/2" do
+    test "returns a transaction by the given fields"
+  end
+
+  describe "get_by_idempotency_token/1" do
+    test "returns a transaction by the given idempotency token"
   end
 
   describe "insert/1" do
@@ -215,5 +258,18 @@ defmodule EWalletDB.TransactionTest do
                   ]}
              ]
     end
+  end
+
+  describe "get_error/1" do
+    test "returns a tuple with code and description when transaction has error code and description"
+    test "returns a tuple with code and data when transaction has error code and data"
+    test "returns the error description when the transaction has both error description and data"
+    test "returns a tuple of nils if no error is associated with the given transaction"
+    test "returns nil if the given nil"
+  end
+
+  describe "failed?/1" do
+    test "returns true if the given transaction is failed"
+    test "returns true if the given transaction is not failed"
   end
 end

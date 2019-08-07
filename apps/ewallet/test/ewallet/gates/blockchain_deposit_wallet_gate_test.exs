@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
+defmodule EWallet.BlockchainDepositWalletGateTest do
+  use EWallet.DBCase, async: true
+  import EWalletDB.Factory
+  alias EWallet.BlockchainDepositWalletGate
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
-  end
-
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
-  end
-
-  describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+  describe "get_or_generate/2" do
+    test "generates a deposit wallet if it is not yet generated for the given wallet"
+    test "returns the existing deposit wallet if it is already generated for the given wallet"
+    test "returns :hd_wallet_not_found error if the primary HD wallet is missing"
   end
 end

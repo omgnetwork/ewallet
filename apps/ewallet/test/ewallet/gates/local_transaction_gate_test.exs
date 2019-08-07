@@ -376,4 +376,22 @@ defmodule EWallet.LocalTransactionGateTest do
       assert transaction.exchange_wallet_address == wallet.address
     end
   end
+
+  describe "process_with_transaction/1" do
+    test "processes for transaction.status==pending"
+    test "returns back the transaction untouched when transaction.status==local_confirmed"
+    test "returns back the transaction untouched when transaction.status==confirmed"
+    test "returns the error when transaction.status==failed"
+  end
+
+  describe "get_or_insert/4" do
+    test "returns the transaction"
+    test "returns :invalid_parameter error when idempotency_token is not given"
+  end
+
+  describe "update_transaction/2" do
+    test "returns the transaction untouched if it's already in local ledger or an error code exists"
+    test "transitions to confirmed if given a ledger_transaction and transaction.status==pending"
+    test "transitions to failed if given an error tuple"
+  end
 end

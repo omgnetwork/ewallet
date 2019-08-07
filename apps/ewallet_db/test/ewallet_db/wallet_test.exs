@@ -24,6 +24,19 @@ defmodule EWalletDB.WalletTest do
     test_encrypted_map_field(Wallet, "wallet", :encrypted_metadata)
   end
 
+  describe "all_for/2" do
+    test "returns a query of wallets associated with the given user"
+    test "returns a query of wallets associated with the given account"
+  end
+
+  describe "query_all_for_account_uuids_and_user/2" do
+    test "returns a query of wallets associated with the given accounts or any user"
+  end
+
+  describe "query_all_for_account_uuids/2"
+    test "returns a query of wallets associated with the given accounts"
+  end
+
   describe "insert/1" do
     test_insert_generate_uuid(Wallet, :uuid)
     test_insert_generate_timestamps(Wallet)
@@ -163,6 +176,11 @@ defmodule EWalletDB.WalletTest do
     end
   end
 
+  describe "insert_secondary_or_burn/1" do
+    test "returns the secondary wallet inserted with the given attributes"
+    test "returns the burn wallet inserted with the given attributes"
+  end
+
   describe "get/1" do
     test "returns an existing wallet using an address" do
       {:ok, inserted} =
@@ -201,5 +219,22 @@ defmodule EWalletDB.WalletTest do
       genesis = Wallet.get_genesis()
       assert inserted_genesis == genesis
     end
+  end
+
+  describe "insert_genesis/0" do
+    test "returns the genesis wallet inserted with the given attributes"
+    test "returns an :error tuple if an error occcured during insert"
+  end
+
+  describe "burn_wallet?/1" do
+    test "returns true if the given wallet is a burn wallet"
+    test "returns false if the given wallet is not a burn wallet"
+    test "returns false if given nil"
+  end
+
+  describe "enable_or_disable/2" do
+    test "returns :primary_wallet_cannot_be_disabled if the given wallet is a primary wallet"
+    test "returns the enabled wallet if given enabled:true"
+    test "returns the disabled wallet if given enabled:false"
   end
 end

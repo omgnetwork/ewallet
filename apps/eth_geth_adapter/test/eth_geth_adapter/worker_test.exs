@@ -1,4 +1,4 @@
-# Copyright 2019 OmiseGO Pte Ltd
+# Copyright 2018-2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
+defmodule EthGethAdapter.WorkerTest do
+  use ExUnit.Case, async: true
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
-  end
-
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
-  end
-
-  describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+  describe "handle_call/3" do
+    test "handles :get_balances calls"
+    test "handles :send_raw calls"
+    test "handles :get_transaction_count calls"
+    test "handles :get_transaction_receipt calls"
+    test "handles :get_block_number calls"
+    test "handles :get_block calls"
+    test "handles :get_field calls"
+    test "handles :get_errors calls"
   end
 end

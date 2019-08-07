@@ -147,4 +147,23 @@ defmodule EWallet.BlockchainTransactionGateTest do
         BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
   end
+
+  describe "create_from_tracker/2" do
+    test "creates the local transaction and starts tracking the blockchain transaction"
+  end
+
+  describe "get_or_insert/1" do
+    test "returns a newly inserted local transaction if the idempotency_token is new"
+    test "returns the existing local transaction if the idempotency_token already exists"
+    test "returns :idempotency_token if the idempotency_token is not given"
+  end
+
+  describe "blockchain_addresses?/1" do
+    test "returns a list of booleans indicating whether each given address is a blockchain address"
+  end
+
+  describe "handle_local_insert/1" do
+    test "transitions the transaction to confirmed if transaction.to is nil"
+    test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil"
+  end
 end
