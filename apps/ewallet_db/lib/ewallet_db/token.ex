@@ -261,7 +261,7 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns a query of Tokens that have a blockchain address for the specified identifier
+  Returns a list of Tokens that have a blockchain address for the specified identifier
   """
   @spec all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
   def all_blockchain(identifier, query \\ Token) do
@@ -271,7 +271,7 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns a query of Tokens that have a blockchain address
+  Returns a query of Tokens that have a blockchain address for the specified identifier
   """
   @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
   def query_all_blockchain(identifier, query \\ Token) do

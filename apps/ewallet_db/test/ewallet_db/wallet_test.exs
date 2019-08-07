@@ -24,7 +24,7 @@ defmodule EWalletDB.WalletTest do
     test_encrypted_map_field(Wallet, "wallet", :encrypted_metadata)
   end
 
-  describe "Wallet.insert/1" do
+  describe "insert/1" do
     test_insert_generate_uuid(Wallet, :uuid)
     test_insert_generate_timestamps(Wallet)
 

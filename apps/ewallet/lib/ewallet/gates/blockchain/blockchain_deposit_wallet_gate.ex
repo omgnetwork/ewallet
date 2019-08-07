@@ -13,9 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.BlockchainDepositWalletGate do
-  @moduledoc """
-
-  """
+  # TODO: add moduledoc
   alias EWallet.{AddressTracker, BlockchainHelper}
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet

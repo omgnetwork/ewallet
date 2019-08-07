@@ -501,69 +501,6 @@ defmodule EWalletDB.Transaction do
     {:error, changeset}
   end
 
-  @doc """
-  Confirms a transaction and saves the ledger's response.
-  """
-  # def confirm(transaction, local_ledger_uuid, originator) do
-  #   transaction
-  #   |> confirm_changeset(%{
-  #     status: @confirmed,
-  #     local_ledger_uuid: local_ledger_uuid,
-  #     originator: originator
-  #   })
-  #   |> Repo.update_record_with_activity_log()
-  #   |> handle_update_result()
-  # end
-
-  # @doc """
-  # Sets a transaction as failed and saves the ledger's response.
-  # """
-  # def fail(transaction, error_code, error_description, originator)
-  #     when is_map(error_description) do
-  #   do_fail(
-  #     %{
-  #       status: @failed,
-  #       error_code: error_code,
-  #       error_description: nil,
-  #       error_data: error_description,
-  #       originator: originator
-  #     },
-  #     transaction
-  #   )
-  # end
-
-  # def fail(transaction, error_code, error_description, originator) do
-  #   do_fail(
-  #     %{
-  #       status: @failed,
-  #       error_code: error_code,
-  #       error_description: error_description,
-  #       error_data: nil,
-  #       originator: originator
-  #     },
-  #     transaction
-  #   )
-  # end
-
-  # defp do_fail(%{error_code: error_code} = data, transaction) when is_atom(error_code) do
-  #   data
-  #   |> Map.put(:error_code, Atom.to_string(error_code))
-  #   |> do_fail(transaction)
-  # end
-
-  # defp do_fail(data, transaction) do
-  #   transaction
-  #   |> fail_changeset(data)
-  #   |> Repo.update_record_with_activity_log()
-  #   |> handle_update_result()
-  # end
-
-  # defp handle_update_result({:ok, transaction}) do
-  #   Repo.preload(transaction, [:from_wallet, :to_wallet, :from_token, :to_token])
-  # end
-
-  # defp handle_update_result(error), do: error
-
   def get_error(nil), do: nil
 
   def get_error(transaction) do
