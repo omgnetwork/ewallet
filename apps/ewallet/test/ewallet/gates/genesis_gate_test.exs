@@ -17,7 +17,7 @@ defmodule EWallet.GenesisGateTest do
   import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.GenesisGate
-  alias EWalletDB.{Account, Transaction}
+  alias EWalletDB.{Account, Transaction, TransactionState}
   alias LocalLedgerDB.Transaction, as: LedgerTransaction
 
   setup do
@@ -88,7 +88,7 @@ defmodule EWallet.GenesisGateTest do
       mint =
         insert(:mint, token_uuid: context.attrs.token.uuid, transaction_uuid: transaction.uuid)
 
-      assert transaction.status == Transaction.pending()
+      assert transaction.status == TransactionState.pending()
       refute mint.confirmed
 
       {res, processed_mint, processed_transaction} =
@@ -98,7 +98,7 @@ defmodule EWallet.GenesisGateTest do
       assert processed_mint.uuid == mint.uuid
       assert processed_mint.confirmed
       assert processed_transaction.uuid == processed_transaction.uuid
-      assert processed_transaction.status == Transaction.confirmed()
+      assert processed_transaction.status == TransactionState.confirmed()
     end
 
     test "inserts a corresponding local ledger transaction", context do
@@ -107,7 +107,7 @@ defmodule EWallet.GenesisGateTest do
       mint =
         insert(:mint, token_uuid: context.attrs.token.uuid, transaction_uuid: transaction.uuid)
 
-      assert transaction.status == Transaction.pending()
+      assert transaction.status == TransactionState.pending()
       refute mint.confirmed
 
       {res, _, _} = GenesisGate.process_with_transaction(transaction, mint)
@@ -128,7 +128,7 @@ defmodule EWallet.GenesisGateTest do
 
       {:ok, mint, transaction} = GenesisGate.process_with_transaction(transaction, mint)
 
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
       assert mint.confirmed
 
       {res, processed_mint, processed_transaction} =
@@ -138,7 +138,7 @@ defmodule EWallet.GenesisGateTest do
       assert processed_mint.uuid == mint.uuid
       assert processed_mint.confirmed
       assert processed_transaction.uuid == processed_transaction.uuid
-      assert processed_transaction.status == Transaction.confirmed()
+      assert processed_transaction.status == TransactionState.confirmed()
     end
   end
 
@@ -151,12 +151,12 @@ defmodule EWallet.GenesisGateTest do
 
       transaction =
         Map.merge(transaction, %{
-          status: Transaction.failed(),
+          status: TransactionState.failed(),
           error_code: :some_error_code,
           error_description: "some error description"
         })
 
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       refute mint.confirmed
 
       {res, code, description, returned_mint} =

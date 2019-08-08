@@ -33,7 +33,7 @@ defmodule EWalletDB.WalletTest do
     test "returns a query of wallets associated with the given accounts or any user"
   end
 
-  describe "query_all_for_account_uuids/2"
+  describe "query_all_for_account_uuids/2" do
     test "returns a query of wallets associated with the given accounts"
   end
 

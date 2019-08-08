@@ -91,17 +91,17 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: %{"local_ledger_uuid" => "from cached ledger"},
-          status: Transaction.confirmed()
+          status: TransactionState.confirmed()
         })
 
-      assert inserted_transaction.status == Transaction.confirmed()
+      assert inserted_transaction.status == TransactionState.confirmed()
 
       {status, transaction} = LocalTransactionGate.create(attrs)
       assert status == :ok
 
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
       assert transaction.local_ledger_uuid == "from cached ledger"
     end
 
@@ -111,10 +111,10 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: %{"code" => "code!", "description" => "description!"},
-          status: Transaction.failed()
+          status: TransactionState.failed()
         })
 
-      assert inserted_transaction.status == Transaction.failed()
+      assert inserted_transaction.status == TransactionState.failed()
 
       {status, transaction, code, description} = LocalTransactionGate.create(attrs)
       assert status == :error
@@ -122,7 +122,7 @@ defmodule EWallet.LocalTransactionGateTest do
       assert description == "description!"
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert transaction.error_code == "code!"
       assert transaction.error_description == "description!"
     end
@@ -144,7 +144,7 @@ defmodule EWallet.LocalTransactionGateTest do
 
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
     end
 
     test "creates and fails a transaction when idempotency token is not present and the ledger
@@ -155,12 +155,12 @@ defmodule EWallet.LocalTransactionGateTest do
 
       {status, transaction, code, _description} = LocalTransactionGate.create(attrs)
       assert status == :error
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert code == "insufficient_funds"
 
       transaction = Transaction.get_by(%{idempotency_token: idempotency_token})
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
 
       assert transaction.payload == %{
                "from_address" => wallet1.address,
@@ -195,7 +195,7 @@ defmodule EWallet.LocalTransactionGateTest do
 
       transaction = Transaction.get_by(%{idempotency_token: idempotency_token})
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
 
       assert transaction.payload == %{
                "from_address" => wallet1.address,
@@ -226,7 +226,7 @@ defmodule EWallet.LocalTransactionGateTest do
         })
 
       assert res == :error
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert code == "amount_is_zero"
     end
 

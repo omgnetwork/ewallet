@@ -16,7 +16,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.BalanceFetcher
-  alias EWalletDB.{Account, Transaction, User}
+  alias EWalletDB.{Account, Transaction, TransactionState, User, Wallet}
 
   # credo:disable-for-next-line
   setup do
@@ -24,51 +24,51 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     wallet_1 = User.get_primary_wallet(user)
     wallet_2 = insert(:wallet)
     wallet_3 = insert(:wallet)
-    wallet_4 = insert(:wallet, user: user, identifier: "secondary")
+    wallet_4 = insert(:wallet, user: user, identifier: Wallet.secondary())
 
     transaction_1 =
       insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
-        status: Transaction.confirmed()
+        status: TransactionState.confirmed()
       })
 
     transaction_2 =
       insert(:transaction, %{
         from_wallet: wallet_2,
         to_wallet: wallet_1,
-        status: Transaction.confirmed()
+        status: TransactionState.confirmed()
       })
 
     transaction_3 =
       insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_3,
-        status: Transaction.confirmed()
+        status: TransactionState.confirmed()
       })
 
     transaction_4 =
       insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
-        status: "pending"
+        status: TransactionState.pending()
       })
 
-    transaction_5 = insert(:transaction, %{status: Transaction.confirmed()})
-    transaction_6 = insert(:transaction, %{status: "pending"})
+    transaction_5 = insert(:transaction, %{status: TransactionState.confirmed()})
+    transaction_6 = insert(:transaction, %{status: TransactionState.pending()})
 
     transaction_7 =
       insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_2,
-        status: Transaction.confirmed()
+        status: TransactionState.confirmed()
       })
 
     transaction_8 =
       insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_3,
-        status: "pending"
+        status: TransactionState.pending()
       })
 
     %{
@@ -610,7 +610,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         target: transaction,
         changes: %{
           "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => Transaction.confirmed()
+          "status" => TransactionState.confirmed()
         },
         encrypted_changes: %{}
       )

@@ -182,7 +182,7 @@ defmodule EWalletDB.TransactionTest do
       local_ledger_uuid = UUID.generate()
       transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid, %System{})
       assert transaction.id == inserted_transaction.id
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
       assert transaction.local_ledger_uuid == local_ledger_uuid
     end
   end
@@ -193,7 +193,7 @@ defmodule EWalletDB.TransactionTest do
       assert inserted_transaction.status == TransactionState.pending()
       transaction = Transaction.fail(inserted_transaction, "error", "desc", %System{})
       assert transaction.id == inserted_transaction.id
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert transaction.error_code == "error"
       assert transaction.error_description == "desc"
       assert transaction.error_data == nil
@@ -204,7 +204,7 @@ defmodule EWalletDB.TransactionTest do
       assert inserted_transaction.status == TransactionState.pending()
       transaction = Transaction.fail(inserted_transaction, :error, "desc", %System{})
       assert transaction.id == inserted_transaction.id
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert transaction.error_code == "error"
       assert transaction.error_description == "desc"
       assert transaction.error_data == nil
@@ -215,7 +215,7 @@ defmodule EWalletDB.TransactionTest do
       assert inserted_transaction.status == TransactionState.pending()
       transaction = Transaction.fail(inserted_transaction, "error", %{}, %System{})
       assert transaction.id == inserted_transaction.id
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert transaction.error_code == "error"
       assert transaction.error_description == nil
       assert transaction.error_data == %{}
