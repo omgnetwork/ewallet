@@ -35,7 +35,7 @@ defmodule EWallet.TransactionRegistryTest do
     test "registers and return a registered tracker" do
       uuid = UUID.generate()
       assert {:ok, pid} = TransactionRegistry.start_link(name: :test_registry)
-      :ok = TransactionRegistry.start_tracker(DumbTracker, %{uuid: uuid}, pid)
+      :ok = TransactionRegistry.start_tracker(DumbTracker, %{transaction: %{uuid: uuid}, transaction_type: :from_blockchain_to_ewallet}, pid)
 
       assert {:ok, %{tracker: DumbTracker, pid: tracker_pid}} =
                TransactionRegistry.lookup(uuid, pid)
@@ -51,8 +51,8 @@ defmodule EWallet.TransactionRegistryTest do
     test "returns :ok when re-registering but skip adding new tracker" do
       uuid = UUID.generate()
       assert {:ok, pid} = TransactionRegistry.start_link(name: :test_registry)
-      :ok = TransactionRegistry.start_tracker(DumbTracker, %{uuid: uuid}, pid)
-      :ok = TransactionRegistry.start_tracker(DumbTracker, %{uuid: uuid}, pid)
+      :ok = TransactionRegistry.start_tracker(DumbTracker, %{transaction: %{uuid: uuid}, transaction_type: :from_blockchain_to_ewallet}, pid)
+      :ok = TransactionRegistry.start_tracker(DumbTracker, %{transaction: %{uuid: uuid}, transaction_type: :from_blockchain_to_ewallet}, pid)
 
       assert {:ok, %{tracker: DumbTracker, pid: tracker_pid}} =
                TransactionRegistry.lookup(uuid, pid)
