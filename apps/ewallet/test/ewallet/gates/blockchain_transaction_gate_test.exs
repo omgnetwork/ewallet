@@ -16,7 +16,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias EWallet.{BlockchainHelper, BlockchainTransactionGate, TransactionRegistry}
-  alias EWalletDB.BlockchainWallet
+  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID
@@ -44,9 +44,9 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
       {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
 
-      assert transaction.status == "submitted"
-      assert transaction.type == "external"
-      assert transaction.blockchain_identifier == "ethereum"
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.external()
+      assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
       {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
