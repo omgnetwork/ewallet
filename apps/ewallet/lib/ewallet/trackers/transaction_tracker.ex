@@ -40,7 +40,7 @@ defmodule EWallet.TransactionTracker do
     {:ok,
      %{
        transaction: transaction,
-       # for state changes, blockchain, local_blockchain or blockchain_local
+       # for state changes, see TransactionState.state()'s map keys
        transaction_type: transaction_type,
        # optional
        registry: attrs[:registry]

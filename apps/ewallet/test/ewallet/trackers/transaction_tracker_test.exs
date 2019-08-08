@@ -31,8 +31,8 @@ defmodule EWallet.TransactionTrackerTest do
     test "inits with transaction" do
       transaction = insert(:blockchain_transaction)
 
-      assert TransactionTracker.init(%{transaction: transaction}) ==
-               {:ok, %{transaction: transaction, registry: nil}}
+      assert TransactionTracker.init(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet}) ==
+               {:ok, %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet, registry: nil}}
     end
   end
 
