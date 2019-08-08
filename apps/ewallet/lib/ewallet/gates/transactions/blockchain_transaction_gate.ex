@@ -70,7 +70,7 @@ defmodule EWallet.BlockchainTransactionGate do
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
-           TransactionState.transition_to(:submitted, transaction, tx_hash, %System{}),
+           TransactionState.transition_to(:from_ewallet_to_blockchain, TransactionState.blockchain_submitted(), transaction, %{blockchain_tx_hash: tx_hash}),
          :ok =
            TransactionRegistry.start_tracker(TransactionTracker, %{
              transaction: transaction,
