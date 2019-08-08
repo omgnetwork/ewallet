@@ -51,7 +51,7 @@ defmodule EWallet.TransactionTracker do
         {:confirmations_count, transaction_receipt, confirmations_count},
         %{transaction: transaction} = state
       ) do
-    case transaction.blockchain_tx_hash == transaction_receipt.transaction_hash do
+    case transaction.blockchain_tx_hash == transaction_receipt do
       true ->
         adapter = BlockchainHelper.adapter()
         threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
@@ -68,8 +68,9 @@ defmodule EWallet.TransactionTracker do
         )
 
       false ->
-        # TODO: Remove this
-        raise "Error! Hashes do not match"
+        Logger.error("Unable to update the confirmation count for #{transaction.blockchain_tx_hash}."
+          <> " The receipt has a mismatched hash: #{transaction_receipt}.")
+
         {:noreply, state}
     end
   end
@@ -119,7 +120,7 @@ defmodule EWallet.TransactionTracker do
     {:ok, transaction} =
       TransactionState.transition_to(
         transaction_type,
-        :pending_confirmations,
+        TransactionState.pending_confirmations(),
         transaction,
         %{
           confirmations_count: confirmations_count,
