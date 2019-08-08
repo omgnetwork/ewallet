@@ -173,53 +173,6 @@ defmodule EWalletDB.TransactionTest do
       assert res == :ok
       assert transaction.to_amount == 99_999_999_999_999_999_999_999_999_999_999_999
     end
-  end
-
-  describe "confirm/2" do
-    test "confirms a transaction" do
-      {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-      assert inserted_transaction.status == TransactionState.pending()
-      local_ledger_uuid = UUID.generate()
-      transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid, %System{})
-      assert transaction.id == inserted_transaction.id
-      assert transaction.status == TransactionState.confirmed()
-      assert transaction.local_ledger_uuid == local_ledger_uuid
-    end
-  end
-
-  describe "fail/2" do
-    test "sets a transaction as failed" do
-      {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-      assert inserted_transaction.status == TransactionState.pending()
-      transaction = Transaction.fail(inserted_transaction, "error", "desc", %System{})
-      assert transaction.id == inserted_transaction.id
-      assert transaction.status == TransactionState.failed()
-      assert transaction.error_code == "error"
-      assert transaction.error_description == "desc"
-      assert transaction.error_data == nil
-    end
-
-    test "sets a transaction as failed with atom error" do
-      {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-      assert inserted_transaction.status == TransactionState.pending()
-      transaction = Transaction.fail(inserted_transaction, :error, "desc", %System{})
-      assert transaction.id == inserted_transaction.id
-      assert transaction.status == TransactionState.failed()
-      assert transaction.error_code == "error"
-      assert transaction.error_description == "desc"
-      assert transaction.error_data == nil
-    end
-
-    test "sets a transaction as failed with error_data" do
-      {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-      assert inserted_transaction.status == TransactionState.pending()
-      transaction = Transaction.fail(inserted_transaction, "error", %{}, %System{})
-      assert transaction.id == inserted_transaction.id
-      assert transaction.status == TransactionState.failed()
-      assert transaction.error_code == "error"
-      assert transaction.error_description == nil
-      assert transaction.error_data == %{}
-    end
 
     test "fails when from_amount is >= 100_000_000_000_000_000_000_000_000_000_000_000 (max 35 digits)" do
       {res, error} =
