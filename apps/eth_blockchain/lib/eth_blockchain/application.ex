@@ -21,6 +21,7 @@ defmodule EthBlockchain.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:eth_blockchain)
 
     adapters =
       :eth_blockchain

@@ -120,23 +120,25 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  def deposit(conn, %{"address" => address} = attrs)
-  when not is_nil(address) and not is_nil(childchain_identifier) do
-    with %BlockchainWallet{} = wallet <-
-           BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
-         {:ok, _} <- authorize(:deposit, conn.assigns, wallet),
-         {:ok, wallet} <- BlockchainWalletGate.deposit(wallet, attrs)
-         {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
-      respond_single(wallet, conn)
-    else
-      {:error, error} -> handle_error(conn, error)
-      {:error, error, description} -> handle_error(conn, error, description)
-    end
-  end
+  # def deposit(conn, %{"address" => address} = attrs)
+  #     when not is_nil(address) and not is_nil(childchain_identifier) do
+  #   with %BlockchainWallet{} = wallet <-
+  #          BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
+  #        {:ok, _} <- authorize(:deposit, conn.assigns, wallet),
+  #        {:ok, wallet} <- BlockchainWalletGate.deposit(wallet, attrs)
 
-  def deposit(conn, _) do
-    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
-  end
+  #   {:ok, wallet} <-
+  #     Orchestrator.one wallet, BlockchainWalletOverlay, attrs do
+  #       respond_single(wallet, conn)
+  #     else
+  #       {:error, error} -> handle_error(conn, error)
+  #       {:error, error, description} -> handle_error(conn, error, description)
+  #     end
+  # end
+
+  # def deposit(conn, _) do
+  #   handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
+  # end
 
   defp respond_single(blockchain_wallet, conn) do
     render(conn, :blockchain_wallet, %{blockchain_wallet: blockchain_wallet})

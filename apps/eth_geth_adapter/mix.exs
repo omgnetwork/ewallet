@@ -27,8 +27,9 @@ defmodule EthGethAdapter.MixProject do
   defp deps do
     [
       {:eth_blockchain, in_umbrella: true},
+      {:deferred_config, "~> 0.1.0"},
       {:ethereumex, "~> 0.5"},
-      {:abi, "~> 0.1.13"}
+      {:ex_abi, "0.2.1"}
     ]
   end
 

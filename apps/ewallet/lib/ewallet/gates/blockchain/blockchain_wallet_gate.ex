@@ -20,17 +20,21 @@ defmodule EWallet.BlockchainWalletGate do
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet
 
-  def deposit(wallet, %{
-    childchain_identifier: childchain_identifier,
-    amount: amount,
-    token_id: token_id,
-  } = attrs) do
+  def deposit(
+        wallet,
+        %{
+          childchain_identifier: childchain_identifier,
+          amount: amount,
+          token_id: token_id
+        } = attrs
+      ) do
     with token = Token.get(token_id) do
-      {:ok, transaction} = BlockchainHelper.call(:deposit_to_childchain, %{
-        childchain_identifier: childchain_identifier,
-        amount: amount,
-        token_contract_address: token.blockchain_address
-      })
+      {:ok, transaction} =
+        BlockchainHelper.call(:deposit_to_childchain, %{
+          childchain_identifier: childchain_identifier,
+          amount: amount,
+          token_contract_address: token.blockchain_address
+        })
 
       # track deposit transaction with transaction tracker
     else

@@ -221,7 +221,7 @@ defmodule EthBlockchain.Adapter do
     Token.get_field(attrs, adapter, pid)
   end
 
-  def call({:deposit_to_childchain, attrs} adapter, pid) do
+  def call({:deposit_to_childchain, attrs}, adapter, pid) do
     Childchain.deposit(attrs, adapter, pid)
   end
 

@@ -47,4 +47,8 @@ defmodule EthBlockchain.ABIEncoder do
     })
     |> Base.encode16(case: :lower)
   end
+
+  def child_chain_deposit(tx_bytes) do
+    {:ok, ABI.encode("deposit(bytes)", [tx_bytes])}
+  end
 end

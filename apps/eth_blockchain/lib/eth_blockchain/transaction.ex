@@ -19,7 +19,9 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper}
+  alias EthBlockchain.{Adapter, Helper, ABIEncoder, GasHelper}
+
+  @eth Helper.default_address()
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -75,11 +77,7 @@ defmodule EthBlockchain.Transaction do
   def send(attrs, adapter \\ nil, pid \\ nil)
 
   # Send ETH
-  def send(
-        %{contract_address: "0x0000000000000000000000000000000000000000"} = attrs,
-        adapter,
-        pid
-      ) do
+  def send(%{contract_address: @eth} = attrs, adapter, pid) do
     send_eth(attrs, adapter, pid)
   end
 
@@ -162,6 +160,36 @@ defmodule EthBlockchain.Transaction do
         error
     end
   end
+
+  def deposit_eth(
+        %{tx_bytes: tx_bytes, from: from, amount: amount, contract: contract_address} = attrs,
+        adapter \\ nil,
+        pid \\ nil
+      ) do
+    with {:ok, meta} <-
+           get_transaction_meta(attrs, :child_chain_deposit_eth_gas_limit, adapter, pid),
+         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_deposit(tx_bytes) do
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data,
+        value: amount
+      }
+      |> Map.merge(meta)
+      |> sign_and_hash(from)
+      |> send_raw(adapter, pid)
+    else
+      error -> error
+    end
+  end
+
+  # TODO
+  # defp do_deposit_from(tx, from, contract \\ nil, opts \\ []) do
+  #   defaults = @tx_defaults |> Keyword.put(:gas, @gas_deposit_from)
+  #   opts = defaults |> Keyword.merge(opts)
+
+  #   contract = contract || from_hex(Application.fetch_env!(:omg_eth, :contract_addr))
+  #   Eth.contract_transact(from, contract, "depositFrom(bytes)", [tx], opts)
+  # end
 
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
     case get_transaction_count(%{address: from}, adapter, pid) do
