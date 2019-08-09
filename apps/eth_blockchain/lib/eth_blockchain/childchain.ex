@@ -52,29 +52,33 @@ defmodule EthBlockchain.Childchain do
   def deposit_to_child_chain(to, amount, token \\ @eth, contract_address, adapter, pid)
 
   def deposit_to_child_chain(to, amount, @eth, contract_address, adapter, pid) do
-    IO.inspect("depositing eth")
-
     tx_bytes =
       []
       |> EthBlockchain.Plasma.Transaction.new([
         {from_hex(to), from_hex(@eth), amount}
       ])
-      |> EthBlockchain.Plasma.Transaction.raw_txbytes()
+      |> EthBlockchain.Plasma.Transaction.encode()
 
-    IO.inspect("encoded tx_bytes")
-    IO.inspect(tx_bytes, limit: :infinity)
+    EthBlockchain.Transaction.deposit_eth(
+      %{tx_bytes: tx_bytes, from: to, amount: amount, contract: contract_address},
+      adapter,
+      pid
+    )
+  end
 
-    a =
-      EthBlockchain.Transaction.deposit_eth(
-        %{tx_bytes: tx_bytes, from: to, amount: amount, contract: contract_address},
-        adapter,
-        pid
-      )
+  def deposit_to_child_chain(to, amount, erc20, contract_address, adapter, pid) do
+    tx_bytes =
+      []
+      |> EthBlockchain.Plasma.Transaction.new([
+        {from_hex(to), from_hex(erc20), amount}
+      ])
+      |> EthBlockchain.Plasma.Transaction.encode()
 
-    # |> Eth.DevHelpers.transact_sync!()
-    IO.inspect(a)
-
-    # process_deposit(receipt)
+    EthBlockchain.Transaction.deposit_erc20(
+      %{tx_bytes: tx_bytes, from: to, amount: amount, contract: contract_address},
+      adapter,
+      pid
+    )
   end
 
   # def deposit_to_child_chain(to, value, token_addr, contract_address, adapter, pid) do

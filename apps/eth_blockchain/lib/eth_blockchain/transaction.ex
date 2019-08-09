@@ -102,13 +102,16 @@ defmodule EthBlockchain.Transaction do
        ) do
     case get_transaction_meta(attrs, :default_eth_transaction_gas_limit, adapter, pid) do
       {:ok, meta} ->
-        %__MODULE__{
-          to: from_hex(to),
-          value: amount
-        }
-        |> Map.merge(meta)
-        |> sign_and_hash(from)
-        |> send_raw(adapter, pid)
+        prepare_and_send(
+          %__MODULE__{
+            to: from_hex(to),
+            value: amount
+          },
+          meta,
+          from,
+          adapter,
+          pid
+        )
 
       error ->
         error
@@ -128,13 +131,16 @@ defmodule EthBlockchain.Transaction do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount) do
-      %__MODULE__{
-        to: from_hex(contract_address),
-        data: encoded_abi_data
-      }
-      |> Map.merge(meta)
-      |> sign_and_hash(from)
-      |> send_raw(adapter, pid)
+      prepare_and_send(
+        %__MODULE__{
+          to: from_hex(contract_address),
+          data: encoded_abi_data
+        },
+        meta,
+        from,
+        adapter,
+        pid
+      )
     else
       error -> error
     end
@@ -151,9 +157,7 @@ defmodule EthBlockchain.Transaction do
         contract_address = get_contract_address(nonce, from)
 
         %__MODULE__{init: from_hex(init)}
-        |> Map.merge(meta)
-        |> sign_and_hash(from)
-        |> send_raw(adapter, pid)
+        |> prepare_and_send(meta, from, adapter, pid)
         |> append_contract_address(contract_address)
 
       error ->
@@ -168,28 +172,73 @@ defmodule EthBlockchain.Transaction do
       ) do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :child_chain_deposit_eth_gas_limit, adapter, pid),
-         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_deposit(tx_bytes) do
-      %__MODULE__{
-        to: from_hex(contract_address),
-        data: encoded_abi_data,
-        value: amount
-      }
-      |> Map.merge(meta)
-      |> sign_and_hash(from)
-      |> send_raw(adapter, pid)
+         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_eth_deposit(tx_bytes) do
+      prepare_and_send(
+        %__MODULE__{
+          to: from_hex(contract_address),
+          data: encoded_abi_data,
+          value: amount
+        },
+        meta,
+        from,
+        adapter,
+        pid
+      )
     else
       error -> error
     end
   end
 
-  # TODO
-  # defp do_deposit_from(tx, from, contract \\ nil, opts \\ []) do
-  #   defaults = @tx_defaults |> Keyword.put(:gas, @gas_deposit_from)
-  #   opts = defaults |> Keyword.merge(opts)
+  def deposit_erc20(
+        %{tx_bytes: tx_bytes, from: from, amount: amount, contract: contract_address} = attrs,
+        adapter \\ nil,
+        pid \\ nil
+      ) do
+    with {:ok, meta} <-
+           get_transaction_meta(attrs, :child_chain_deposit_token_gas_limit, adapter, pid),
+         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_erc20_deposit(tx_bytes) do
+      prepare_and_send(
+        %__MODULE__{
+          to: from_hex(contract_address),
+          data: encoded_abi_data
+        },
+        meta,
+        from,
+        adapter,
+        pid
+      )
+    else
+      error -> error
+    end
+  end
 
-  #   contract = contract || from_hex(Application.fetch_env!(:omg_eth, :contract_addr))
-  #   Eth.contract_transact(from, contract, "depositFrom(bytes)", [tx], opts)
-  # end
+  def approve_erc20(
+        %{
+          from: from,
+          to: to,
+          amount: amount,
+          contract_address: contract_address
+        } = attrs,
+        adapter \\ nil,
+        pid \\ nil
+      ) do
+    with {:ok, meta} <-
+           get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
+         {:ok, encoded_abi_data} <- ABIEncoder.approve(to, amount) do
+      prepare_and_send(
+        %__MODULE__{
+          to: from_hex(contract_address),
+          data: encoded_abi_data
+        },
+        meta,
+        from,
+        adapter,
+        pid
+      )
+    else
+      error -> error
+    end
+  end
 
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
     case get_transaction_count(%{address: from}, adapter, pid) do
@@ -212,6 +261,13 @@ defmodule EthBlockchain.Transaction do
       |> to_hex()
 
     "0x" <> contract_address
+  end
+
+  defp prepare_and_send(%__MODULE__{} = transaction, meta, from, adapter, pid) do
+    transaction
+    |> Map.merge(meta)
+    |> sign_and_hash(from)
+    |> send_raw(adapter, pid)
   end
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
