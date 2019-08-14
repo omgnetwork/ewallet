@@ -72,16 +72,20 @@ export const sendTransaction = ({
 }) =>
   createWeb3Call(async dispatch => {
     const { web3 } = window
-    web3.eth
-      .sendTransaction(transaction)
-      .on('transactionHash', hash => {
-        dispatch({
-          type: 'WEB3/SEND_TRANSACTION/SUCCESS',
-          data: { txHash: hash }
+    try {
+      web3.eth
+        .sendTransaction(transaction)
+        .on('transactionHash', hash => {
+          dispatch({
+            type: 'WEB3/SEND_TRANSACTION/SUCCESS',
+            data: { txHash: hash }
+          })
+          onTransactionHash(hash)
         })
-        onTransactionHash(hash)
-      })
-      .on('receipt', onReceipt)
-      .on('confirmation', onConfirmation)
-      .on('error', onError)
+        .on('receipt', onReceipt)
+        .on('confirmation', onConfirmation)
+        .on('error', onError)
+    } catch (e) {
+      onError(e.message)
+    }
   })

@@ -26,6 +26,7 @@ import {
   Form,
   Title,
   PendingIcon,
+  SuccessIcon,
   ButtonContainer,
   Error,
   FromToContainer,
@@ -216,10 +217,14 @@ class CreateBlockchainTransaction extends Component {
       onTransactionHash: hash => {
         this.setState({ step: 3, txHash: String(hash) })
       },
-      onReceipt: console.log,
-      onConfirmation: console.log,
-      onError: () => {
-        this.setState({ submitting: false })
+      onReceipt: () => {
+        console.log('onReceipt')
+      },
+      onConfirmation: () => {
+        this.setState({ step: 4 })
+      },
+      onError: error => {
+        this.setState({ submitting: false, error })
       }
     })
   }
@@ -476,6 +481,13 @@ class CreateBlockchainTransaction extends Component {
             <div>{this.state.txHash}</div>
           </>
         )}
+        {this.state.step === 4 && (
+          <>
+            <SuccessIcon name='Checked' />
+            <h4>Successful transaction</h4>
+            <div>The transaction was successfull.</div>
+          </>
+        )}
       </Title>
     )
   }
@@ -519,14 +531,14 @@ class CreateBlockchainTransaction extends Component {
               <Button
                 size='small'
                 styleType='secondary'
-                onClick={() => this.setState({ step: 1 })}
+                onClick={() => this.setState({ step: 1, error: null })}
               >
                 <span>Back to Edit</span>
               </Button>
             </ButtonContainer>
           </>
         )}
-        {this.state.step === 3 && (
+        {(this.state.step === 3 || this.state.step === 4) && (
           <ButtonContainer>
             <Button
               size='small'

@@ -35,7 +35,7 @@ const RowInfo = styled.div`
 
 const ConnectedStepContainer = styled.div``
 
-const AccountBlanaceTitle = styled.h4`
+const AccountBalanceTitle = styled.h4`
   display: inline-block;
 `
 function BlockchainConnect () {
@@ -80,7 +80,7 @@ function BlockchainConnect () {
       </RowInfo>
       <RowInfo>
         <div>
-          <AccountBlanaceTitle>Account Balance</AccountBlanaceTitle>{' '}
+          <AccountBalanceTitle>Account Balance</AccountBalanceTitle>{' '}
           {/* <a>add custom token</a> */}
         </div>
         {balance.length &&

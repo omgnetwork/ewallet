@@ -37,6 +37,17 @@ export const PendingIcon = styled(Icon)`
   align-items: center;
   border-radius: 100%;
 `
+export const SuccessIcon = styled(Icon)`
+  color: white;
+  background-color: #0ebf9a;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 100%;
+`
 export const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
