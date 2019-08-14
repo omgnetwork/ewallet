@@ -19,23 +19,25 @@ defmodule EthBlockchain.Childchain do
 
   @eth EthBlockchain.Helper.default_address()
 
-  # All the actual interactions with the childchain in the functions below should be extracted
+  # TODO: All the actual interactions with the childchain in the functions below should be extracted
   # to another subapp: EthElixirOMGAdapter
-
   def deposit(
         %{
-          childchain_identifier: childchain_identifier,
           to: to,
           amount: amount,
-          currency: currency_address
-        },
+          currency: currency_address,
+          childchain_identifier: childchain_identifier
+        } = attrs,
         adapter \\ nil,
         pid \\ nil
       ) do
     # check that childchain identifier is supported
     childchains = Application.get_env(:eth_blockchain, :childchains)
 
-    case childchains[childchain_identifier] do
+    childchain_identifier =
+      childchain_identifier || Application.get_env(:eth_blockchain, :default_childchain)
+
+    case Map.get(childchains, childchain_identifier) do
       nil ->
         {:error, :childchain_not_supported}
 
@@ -75,7 +77,13 @@ defmodule EthBlockchain.Childchain do
       |> EthBlockchain.Plasma.Transaction.encode()
 
     EthBlockchain.Transaction.deposit_erc20(
-      %{tx_bytes: tx_bytes, from: to, amount: amount, contract: contract_address},
+      %{
+        tx_bytes: tx_bytes,
+        from: to,
+        amount: amount,
+        root_chain_contract: contract_address,
+        erc20_contract: erc20
+      },
       adapter,
       pid
     )
@@ -98,15 +106,15 @@ defmodule EthBlockchain.Childchain do
   # process_deposit(receipt)
   # end
 
-  def send() do
+  def send do
   end
 
-  def get_block() do
+  def get_block do
     # TODO: get block and parse transactions to find relevant ones
     # to be used by a childchain AddressTracker
   end
 
-  def get_exitable_utxos() do
+  def get_exitable_utxos do
     # TODO: Check if childchain is supported
     # TODO: Retrieve exitable utxos from Watcher API
   end

@@ -5,8 +5,7 @@ config :eth_blockchain,
        adapters: [
          {:geth, EthGethAdapter.Worker}
        ],
-       default_adapter: :geth,
-       default_child_adapter: :elixir_omg
+       default_adapter: :geth
 
 config :eth_blockchain,
   default_gas_price: 20_000_000_000,
@@ -18,15 +17,16 @@ config :eth_blockchain,
   # Custom id used for development/testing only, to be updated for production use
   chain_id: 1337,
   transaction_poll_interval: 5000,
-  childchains: [
-    elixir_omg: %{
+  childchains: %{
+    "elixir_omg" => %{
       contract_address:
         {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0xd99d842b31c06e31d455f339c57b6c3d1860af39"},
       childchain_url: {:system, "ELIXIR_OMG_CHILDCHAIN_URL", "http://localhost:7434"},
       watcher_url: {:system, "ELIXIR_OMG_WATCHER_URL", "http://localhost:9656"},
       adapter: {:elixir_omg, ElixirOMGAdapter.Worker}
     }
-  ]
+  },
+  default_childchain: "elixir_omg"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

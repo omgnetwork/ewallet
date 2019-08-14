@@ -33771,6 +33771,12 @@
                                       "blockchain_status": {
                                         "type": "string"
                                       },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -33778,6 +33784,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -33790,7 +33799,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -35100,6 +35114,239 @@
                 "required": [
                   "name",
                   "type",
+                  "address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a blockchain wallet",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a blockchain wallet",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a blockchain wallet",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "address",
+                            "name",
+                            "type",
+                            "blockchain_identifier",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "blockchain_wallet",
+                          "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
+                          "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
+                          "type": "hot",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blockchain_wallet.deposit_to_childchain": {
+      "post": {
+        "tags": [
+          "Blockchain wallet"
+        ],
+        "summary": "Deposit the amount to the childchain for the specified address.",
+        "operationId": "blockchain_wallet_deposit_to_childchain",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for depositing to a childchain",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "example": {
+                  "childchain_identifier": "elixir_omg",
+                  "currency": "0x0000000000000000000000000000000000000000",
+                  "amount": 100,
+                  "address": "0x48b91d5f363892592bf836777dc73b54a10b72ae"
+                },
+                "properties": {
+                  "address": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "integer"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "childchain_identifier": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "currency",
                   "address"
                 ]
               }

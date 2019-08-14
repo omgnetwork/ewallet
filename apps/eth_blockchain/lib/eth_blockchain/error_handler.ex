@@ -24,6 +24,10 @@ defmodule EthBlockchain.ErrorHandler do
       description:
         "The provided contract address does not implement the required erc20 functions."
     },
+    childchain_not_supported: %{
+      code: "blockchain:childchain_not_supported",
+      description: "The provided childchain is not currently supported."
+    },
     unknown_error: %{
       code: "blockchain:unknown_error",
       description: "Something went wrong when communicating with the blockchain."

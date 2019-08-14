@@ -84,3 +84,28 @@ BlockchainWalletCreateBody:
           - name
           - type
           - address
+
+BlockchainWalletDepositBody:
+  description: The parameters to use for depositing to a childchain
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        example:
+          childchain_identifier: elixir_omg
+          currency: "0x0000000000000000000000000000000000000000"
+          amount: 100
+          address: "0x48b91d5f363892592bf836777dc73b54a10b72ae"
+        properties:
+          address:
+            type: string
+          amount:
+            type: integer
+          currency:
+            type: string
+          childchain_identifier:
+            type: string
+        required:
+          - amount
+          - currency
+          - address

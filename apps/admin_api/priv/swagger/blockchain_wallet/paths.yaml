@@ -65,3 +65,20 @@ blockchain_wallet.create:
         $ref: 'responses.yaml#/BlockchainWalletResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+blockchain_wallet.deposit_to_childchain:
+  post:
+    tags:
+      - Blockchain wallet
+    summary: Deposit the amount to the childchain for the specified address.
+    operationId: blockchain_wallet_deposit_to_childchain
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/BlockchainWalletDepositBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/BlockchainWalletResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

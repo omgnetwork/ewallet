@@ -4780,6 +4780,42 @@ paths:
       responses:
         '200': *ref_54
         '500': *ref_7
+  /blockchain_wallet.deposit_to_childchain:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: Deposit the amount to the childchain for the specified address.
+      operationId: blockchain_wallet_deposit_to_childchain
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for depositing to a childchain
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              example:
+                childchain_identifier: elixir_omg
+                currency: '0x0000000000000000000000000000000000000000'
+                amount: 100
+                address: '0x48b91d5f363892592bf836777dc73b54a10b72ae'
+              properties:
+                address:
+                  type: string
+                amount:
+                  type: integer
+                currency:
+                  type: string
+                childchain_identifier:
+                  type: string
+              required:
+                - amount
+                - currency
+                - address
+      responses:
+        '200': *ref_54
+        '500': *ref_7
   /transaction.all:
     post:
       tags:

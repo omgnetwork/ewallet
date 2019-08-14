@@ -14,36 +14,45 @@
 
 defmodule EWallet.BlockchainWalletGate do
   @moduledoc """
-
+  Handle logic related to blockchain wallets
   """
   alias EWallet.{AddressTracker, BlockchainHelper}
-  alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
+  alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet, Token}
   alias Keychain.Wallet
 
-  def deposit(
+  def deposit_to_childchain(
         wallet,
         %{
-          childchain_identifier: childchain_identifier,
-          amount: amount,
-          token_id: token_id
+          "amount" => amount,
+          "currency" => currency,
+          "address" => address
         } = attrs
-      ) do
-    with token = Token.get(token_id) do
-      {:ok, transaction} =
-        BlockchainHelper.call(:deposit_to_childchain, %{
-          childchain_identifier: childchain_identifier,
-          amount: amount,
-          token_contract_address: token.blockchain_address
-        })
-
-      # track deposit transaction with transaction tracker
+      )
+      when is_integer(amount) do
+    with :ok <- BlockchainHelper.validate_blockchain_address(currency),
+         # TODO: Also check for status
+         %Token{} = token <-
+           Token.get_by(
+             blockchain_identifier: BlockchainHelper.identifier(),
+             blockchain_address: currency
+           ) || {:error, :unauthorized},
+         {:ok, tx_hash} <-
+           BlockchainHelper.call(:deposit_to_childchain, %{
+             childchain_identifier: attrs["childchain_identifier"],
+             amount: amount,
+             currency: token.blockchain_address,
+             to: address
+           }) do
+      {:ok, tx_hash}
+      # TODO: track deposit transaction with transaction tracker
     else
       error ->
         error
     end
   end
 
-  def deposit(wallet, _) do
-    {:invalid_parameter, "Invalid parameter provided. `address` is required."}
+  def deposit_to_childchain(wallet, _) do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` and `currency` are required."}
   end
 end

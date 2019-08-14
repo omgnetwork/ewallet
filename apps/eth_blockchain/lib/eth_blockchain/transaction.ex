@@ -179,15 +179,29 @@ defmodule EthBlockchain.Transaction do
   end
 
   def deposit_erc20(
-        %{tx_bytes: tx_bytes, from: from, amount: amount, contract: contract_address} = attrs,
+        %{
+          tx_bytes: tx_bytes,
+          from: from,
+          amount: amount,
+          root_chain_contract: root_chain_contract,
+          erc20_contract: erc20_contract
+        } = attrs,
         adapter \\ nil,
         pid \\ nil
       ) do
-    with {:ok, meta} <-
+    # TODO: make sure we have enough gas for both approve and deposit transactions
+    with {:ok, _tx_hash} <-
+           approve_erc20(%{
+             from: from,
+             to: root_chain_contract,
+             amount: amount,
+             contract_address: erc20_contract
+           }),
+         {:ok, meta} <-
            get_transaction_meta(attrs, :child_chain_deposit_token_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.child_chain_erc20_deposit(tx_bytes) do
       %__MODULE__{
-        to: from_hex(contract_address),
+        to: from_hex(root_chain_contract),
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, from, adapter, pid)
