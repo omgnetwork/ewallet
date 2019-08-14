@@ -14,7 +14,7 @@
 
 defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
   alias Ecto.UUID
-  alias EWallet.TransactionGate
+  alias EWallet.LocalTransactionGate
   alias EWalletDB.{Account, AccountUser, Token, User}
   alias EWalletDB.Seeder
 
@@ -87,7 +87,7 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
   defp give_token(user, token, minimum_amount) do
     master_account = Account.get_master_account()
 
-    {:ok, _} = TransactionGate.create(%{
+    {:ok, _} = LocalTransactionGate.create(%{
       "from_address" => Account.get_primary_wallet(master_account).address,
       "to_address" => User.get_primary_wallet(user).address,
       "token_id" => token.id,

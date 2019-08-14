@@ -34,7 +34,9 @@ defmodule EWallet.Application do
 
     # List all child processes to be supervised
     children = [
-      worker(EWallet.Scheduler, [])
+      worker(EWallet.Scheduler, []),
+      {DynamicSupervisor, name: EWallet.DynamicListenerSupervisor, strategy: :one_for_one},
+      {EWallet.TransactionRegistry, name: EWallet.TransactionRegistry, strategy: :one_for_one}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -3,8 +3,10 @@ use Mix.Config
 config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
+  blockchain_adapter: EthBlockchain.Adapter,
   settings: [
     :base_url,
+    :primary_hot_wallet,
     :min_password_length,
     :file_storage_adapter,
     :aws_bucket,
@@ -15,7 +17,8 @@ config :ewallet_db,
     :gcs_credentials,
     :master_account,
     :pre_auth_token_lifetime,
-    :auth_token_lifetime
+    :auth_token_lifetime,
+    :forget_password_request_lifetime
   ]
 
 config :ewallet_db, EWalletDB.Repo,

@@ -17,7 +17,12 @@ TokenResponseSchema:
           created_at: '2018-01-01T00:00:00Z'
           updated_at: '2018-01-01T10:00:00Z'
           enabled: true
+          locked: true
           avatar: {original: file_url}
+          blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
+          blockchain_status: 'confirmed'
+          blockchain_identifier: 'ethereum'
+          tx_hash: '0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41'
           metadata: {}
           encrypted_metadata: {}
 
@@ -49,6 +54,11 @@ TokensResponseSchema:
             updated_at: '2018-01-01T10:00:00Z'
             avatar: {'original': 'file_url'}
             enabled: true
+            locked: true
+            blockchain_address: '0x436dbc182828ccd421238fb622613c953c5e5028'
+            blockchain_status: 'confirmed'
+            blockchain_identifier: 'ethereum'
+            tx_hash: '0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41'
             metadata: {}
             encrypted_metadata: {}
 
@@ -83,7 +93,12 @@ TokenStatsResponseSchema:
         subunit_to_unit: 100
         created_at: '2018-01-01T00:00:00Z'
         updated_at: '2018-01-01T10:00:00Z'
+        blockchain_address: null
+        blockchain_status: null
+        blockchain_identifier: null
+        tx_hash: null
         enabled: true
+        locked: true
         metadata: {}
         encrypted_metadata: {}
 
@@ -144,3 +159,33 @@ MintsResponseSchema:
             transaction: {}
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T00:00:00Z'
+
+TokenERC20CapabilitiesResponseSchema:
+  description: The response schema for the erc20 attrs of a contract address
+  allOf:
+  - $ref: '../../../../ewallet/priv/swagger/shared/schemas.yaml#/BaseResponseSchema'
+  - type: object
+    properties:
+      object:
+        type: string
+      symbol:
+        type: string
+      name:
+        type: string
+      total_supply:
+        type: integer
+      decimals:
+        type: integer
+    required:
+      - object
+      - symbol
+      - name
+      - total_supply
+      - decimals
+    example:
+      data:
+        object: erc20_attrs
+        symbol: OMG
+        name: OMGToken
+        total_supply: 100000
+        decimals: 18

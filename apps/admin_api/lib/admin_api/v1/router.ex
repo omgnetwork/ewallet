@@ -58,6 +58,9 @@ defmodule AdminAPI.V1.Router do
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)
     post("/token.upload_avatar", TokenController, :upload_avatar)
+    post("/token.get_erc20_capabilities", TokenController, :get_erc20_capabilities)
+    post("/token.set_blockchain_address", TokenController, :set_blockchain_address)
+    post("/token.deploy_erc20", TokenController, :deploy_erc20)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)
@@ -170,6 +173,7 @@ defmodule AdminAPI.V1.Router do
     post("/blockchain_wallet.get_balances", BlockchainWalletController, :all_for_wallet)
     post("/blockchain_wallet.get", BlockchainWalletController, :get)
     post("/blockchain_wallet.all", BlockchainWalletController, :all)
+    post("/blockchain_wallet.create", BlockchainWalletController, :create)
 
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)

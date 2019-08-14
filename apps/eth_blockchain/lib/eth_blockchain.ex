@@ -1,6 +1,4 @@
 defmodule EthBlockchain do
-  @eth_address "0x0000000000000000000000000000000000000000"
-
   @moduledoc """
   Documentation for EthBlockchain.
   """
@@ -18,6 +16,4 @@ defmodule EthBlockchain do
   providing just `func` as an atom is suffice.
   """
   @type call :: {atom(), list()} | atom()
-
-  def eth_address, do: @eth_address
 end

@@ -32,6 +32,22 @@ defmodule EthBlockchain.Adapter do
   use GenServer
   require Logger
 
+  alias EthBlockchain.{
+    Balance,
+    Contract,
+    DumbAdapter,
+    ErrorHandler,
+    Helper,
+    Token,
+    Transaction,
+    TransactionListener,
+    BlockchainRegistry
+  }
+
+  def helper, do: Helper
+  def error_handler, do: ErrorHandler
+  def dumb_adapter, do: DumbAdapter
+
   @doc """
   Starts EthBlockchain.Adapter.
   """
@@ -133,7 +149,7 @@ defmodule EthBlockchain.Adapter do
   ##
 
   @doc """
-  Handles the call call from the client API call/4.
+  Handles the call from the client API call/4.
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do
@@ -163,6 +179,22 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
 
+  def call({:send, attrs}, adapter, pid) do
+    Transaction.send(attrs, adapter, pid)
+  end
+
+  def call({:get_balances, attrs}, adapter, pid) do
+    Balance.get(attrs, adapter, pid)
+  end
+
+  def call({:get_field, attrs}, adapter, pid) do
+    Token.get_field(attrs, adapter, pid)
+  end
+
+  def call({:deploy_erc20, attrs}, adapter, pid) do
+    Contract.deploy_erc20(attrs, adapter, pid)
+  end
+
   def call(func_spec, nil, pid) do
     adapter =
       :eth_blockchain
@@ -182,5 +214,31 @@ defmodule EthBlockchain.Adapter do
       error ->
         error
     end
+  end
+
+  def subscribe(
+        :transaction,
+        tx_hash,
+        subscriber_pid,
+        node_adapter \\ nil,
+        blockchain_adapter_pid \\ nil
+      ) do
+    :ok =
+      BlockchainRegistry.start_listener(TransactionListener, %{
+        id: tx_hash,
+        interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
+        blockchain_adapter_pid: blockchain_adapter_pid,
+        node_adapter: node_adapter
+      })
+
+    BlockchainRegistry.subscribe(tx_hash, subscriber_pid)
+  end
+
+  def unsubscribe(:transaction, tx_hash, subscriber_pid) do
+    BlockchainRegistry.unsubscribe(tx_hash, subscriber_pid)
+  end
+
+  def lookup_listener(id) do
+    BlockchainRegistry.lookup(id)
   end
 end

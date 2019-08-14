@@ -19,7 +19,7 @@ defmodule EWalletDB.Vault do
 
   @impl GenServer
   def init(config) do
-    env = Application.get_env(:ewallet, :env)
+    env = Application.get_env(:ewallet_db, :env)
 
     config =
       Keyword.put(

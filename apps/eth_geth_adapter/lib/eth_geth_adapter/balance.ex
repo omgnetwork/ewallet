@@ -14,7 +14,6 @@
 
 defmodule EthGethAdapter.Balance do
   @moduledoc false
-  import Utils.Helpers.Encoding
 
   alias Ethereumex.HttpClient, as: Client
 
@@ -28,11 +27,10 @@ defmodule EthGethAdapter.Balance do
   ```
   {
     :ok,
-    %{
-      "contract_address_1" => integer_balance_1,
-      "contract_address_2" => integer_balance_2
-    }
+    [balance_1, balance_2]
   }
+  Note that the `balance_x` can be "0x" if the specified contract doesn't support the
+  `balanceOf(address)` function.
   ```
   if successful or {:error, error_code} if failed.
   """
@@ -45,22 +43,17 @@ defmodule EthGethAdapter.Balance do
       build_request!(contract_address, address, encoded_abi_data, block)
     end)
     |> request()
-    |> parse_response()
-    |> respond(contract_addresses)
   end
 
   def get(address, contract_address, encoded_abi_data, block) do
     get(address, [contract_address], encoded_abi_data, block)
   end
 
-  # Batch request builders
-
   defp build_request!("0x0000000000000000000000000000000000000000", address, _, block) do
     {:eth_get_balance, [address, block]}
   end
 
-  defp build_request!(contract_address, _address, encoded_abi_data, block)
-       when byte_size(contract_address) == 42 do
+  defp build_request!(contract_address, _address, encoded_abi_data, block) do
     {:eth_call,
      [
        %{
@@ -71,35 +64,7 @@ defmodule EthGethAdapter.Balance do
      ]}
   end
 
-  defp build_request!(contract_address, _address, _encoded_abi_data, _block) do
-    raise ArgumentError, "#{contract_address} is not a valid contract address"
-  end
-
   defp request([]), do: {:ok, []}
 
   defp request(data), do: Client.batch_request(data)
-
-  # Response parsers
-
-  defp parse_response({:ok, data}) when is_list(data) do
-    balances = Enum.map(data, fn hex_balance -> int_from_hex(hex_balance) end)
-    {:ok, balances}
-  end
-
-  defp parse_response({:ok, data}), do: {:ok, int_from_hex(data)}
-
-  defp parse_response({:error, data}), do: {:error, data}
-
-  # Formatters
-
-  defp respond({:ok, balances}, addresses) do
-    response =
-      [addresses, balances]
-      |> Enum.zip()
-      |> Enum.into(%{})
-
-    {:ok, response}
-  end
-
-  defp respond({:error, _error} = error, _addresses), do: error
 end

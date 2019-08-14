@@ -28,7 +28,7 @@ defmodule Mix.Tasks.Omg.Seed do
 
   @shortdoc "Create initial seed data"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
-  @repo_apps [:ewallet_db, :local_ledger_db]
+  @repo_apps [:ewallet_db, :local_ledger_db, :keychain]
   @e2e_disabled_warning """
   Test seeds can only be ran if the environment variable `E2E_ENABLED` is set to `true`
   """
@@ -76,6 +76,10 @@ defmodule Mix.Tasks.Omg.Seed do
     seed_spec(t) ++ [{:ewallet_db, :seeds_sample}]
   end
 
+  defp seed_spec(["--blockchain" | _t]) do
+    [{:ewallet_db, :seeds_blockchain}]
+  end
+
   defp seed_spec(["--test" | _t]) do
     e2e_enabled = System.get_env("E2E_ENABLED") || "false"
 
@@ -94,6 +98,9 @@ defmodule Mix.Tasks.Omg.Seed do
   end
 
   defp assume_yes?([]), do: false
+
+  # disable prompt when running blockchain seeds
+  defp assume_yes?(["--blockchain" | _t]), do: true
 
   defp assume_yes?(["-y" | _t]), do: true
 

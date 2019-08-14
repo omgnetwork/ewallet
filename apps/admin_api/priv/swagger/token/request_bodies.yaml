@@ -74,6 +74,45 @@ TokenCreateBody:
           description: desc
           subunit_to_unit: 100
 
+BlockchainTokenCreateBody:
+  description: The parameters to create a blockchain token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          name:
+            type: string
+          symbol:
+            type: string
+          description:
+            type: string
+          subunit_to_unit:
+            type: integer
+          amount:
+            type: integer
+          locked:
+            type: boolean
+          metadata:
+            type: object
+            additionalProperties: true
+          encrypted_metadata:
+            type: object
+            additionalProperties: true
+        required:
+          - name
+          - symbol
+          - subunit_to_unit
+          - amount
+          - locked
+        example:
+          symbol: OMG
+          name: OMGToken
+          description: The OMG ERC20 token
+          subunit_to_unit: 1000000000000000000
+          amount: 50000000000000000000
+          locked: true
+
 TokenUpdateBody:
   description: The parameters to update a token.
   required: true
@@ -181,3 +220,35 @@ TokenUploadBody:
         example:
           id: tok_ABC_01ce846km1syzwezxfmgdn7dt7
           avatar: /path/to/file
+
+TokenERC20Capabilities:
+  description: The parameters to verify the erc20 capabilities of a contract address.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          blockchain_address:
+            type: string
+        required:
+          - blockchain_address
+        example:
+          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+
+TokenSetBlockchainAddress:
+  description: The parameters to set a blockchain address to a token.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          id:
+            type: string
+          blockchain_address:
+            type: string
+        required:
+          - id
+          - blockchain_address
+        example:
+          id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a28"

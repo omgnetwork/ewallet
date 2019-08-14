@@ -3652,6 +3652,18 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -3659,6 +3671,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -3671,7 +3686,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   }
                                 }
@@ -3696,6 +3716,11 @@
                                 "original": "file_url"
                               },
                               "enabled": true,
+                              "locked": true,
+                              "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                              "blockchain_status": "confirmed",
+                              "blockchain_identifier": "ethereum",
+                              "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                               "metadata": {},
                               "encrypted_metadata": {}
                             }
@@ -3901,6 +3926,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -3908,6 +3945,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -3920,7 +3960,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -3934,9 +3979,14 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4187,6 +4237,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4194,6 +4256,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -4206,7 +4271,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4220,9 +4290,14 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4457,6 +4532,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4464,6 +4551,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -4476,7 +4566,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4490,9 +4585,14 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4702,6 +4802,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4709,6 +4821,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -4721,7 +4836,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4735,9 +4855,14 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -4946,6 +5071,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -4953,6 +5090,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -4965,7 +5105,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -4979,9 +5124,14 @@
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z",
                           "enabled": true,
+                          "locked": true,
                           "avatar": {
                             "original": "file_url"
                           },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
                           "metadata": {},
                           "encrypted_metadata": {}
                         }
@@ -5164,6 +5314,18 @@
                           "type": "string",
                           "format": "date-time"
                         },
+                        "blockchain_address": {
+                          "type": "string"
+                        },
+                        "blockchain_status": {
+                          "type": "string"
+                        },
+                        "blockchain_identifier": {
+                          "type": "string"
+                        },
+                        "tx_hash": {
+                          "type": "string"
+                        },
                         "metadata": {
                           "type": "object"
                         },
@@ -5171,6 +5333,9 @@
                           "type": "object"
                         },
                         "enabled": {
+                          "type": "boolean"
+                        },
+                        "locked": {
                           "type": "boolean"
                         }
                       },
@@ -5183,7 +5348,12 @@
                         "avatar",
                         "created_at",
                         "updated_at",
-                        "enabled"
+                        "blockchain_address",
+                        "blockchain_status",
+                        "blockchain_identifier",
+                        "tx_hash",
+                        "enabled",
+                        "locked"
                       ]
                     },
                     "total_supply": {
@@ -5209,7 +5379,12 @@
                         "subunit_to_unit": 100,
                         "created_at": "2018-01-01T00:00:00Z",
                         "updated_at": "2018-01-01T10:00:00Z",
+                        "blockchain_address": null,
+                        "blockchain_status": null,
+                        "blockchain_identifier": null,
+                        "tx_hash": null,
                         "enabled": true,
+                        "locked": true,
                         "metadata": {},
                         "encrypted_metadata": {}
                       }
@@ -5607,6 +5782,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -5614,6 +5801,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -5626,7 +5816,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "account_id": {
@@ -5911,6 +6106,18 @@
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_identifier": {
+                                                    "type": "string"
+                                                  },
+                                                  "tx_hash": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -5918,6 +6125,9 @@
                                                     "type": "object"
                                                   },
                                                   "enabled": {
+                                                    "type": "boolean"
+                                                  },
+                                                  "locked": {
                                                     "type": "boolean"
                                                   }
                                                 },
@@ -5930,7 +6140,12 @@
                                                   "avatar",
                                                   "created_at",
                                                   "updated_at",
-                                                  "enabled"
+                                                  "blockchain_address",
+                                                  "blockchain_status",
+                                                  "blockchain_identifier",
+                                                  "tx_hash",
+                                                  "enabled",
+                                                  "locked"
                                                 ]
                                               }
                                             }
@@ -5977,6 +6192,18 @@
                                                     "type": "string",
                                                     "format": "date-time"
                                                   },
+                                                  "blockchain_address": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_status": {
+                                                    "type": "string"
+                                                  },
+                                                  "blockchain_identifier": {
+                                                    "type": "string"
+                                                  },
+                                                  "tx_hash": {
+                                                    "type": "string"
+                                                  },
                                                   "metadata": {
                                                     "type": "object"
                                                   },
@@ -5984,6 +6211,9 @@
                                                     "type": "object"
                                                   },
                                                   "enabled": {
+                                                    "type": "boolean"
+                                                  },
+                                                  "locked": {
                                                     "type": "boolean"
                                                   }
                                                 },
@@ -5996,7 +6226,12 @@
                                                   "avatar",
                                                   "created_at",
                                                   "updated_at",
-                                                  "enabled"
+                                                  "blockchain_address",
+                                                  "blockchain_status",
+                                                  "blockchain_identifier",
+                                                  "tx_hash",
+                                                  "enabled",
+                                                  "locked"
                                                 ]
                                               }
                                             }
@@ -6304,6 +6539,18 @@
                               "type": "string",
                               "format": "date-time"
                             },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
                             "metadata": {
                               "type": "object"
                             },
@@ -6311,6 +6558,9 @@
                               "type": "object"
                             },
                             "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
                               "type": "boolean"
                             }
                           },
@@ -6323,7 +6573,12 @@
                             "avatar",
                             "created_at",
                             "updated_at",
-                            "enabled"
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
                           ]
                         }
                       },
@@ -6342,6 +6597,772 @@
                           "transaction": {},
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T00:00:00Z"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.get_erc20_capabilities": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Get the erc20 capabilities of a contract address",
+        "operationId": "token_get_erc20_capabilities",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to verify the erc20 capabilities of a contract address.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "blockchain_address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "blockchain_address"
+                ],
+                "example": {
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a list of erc20 attributes",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for the erc20 attrs of a contract address",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "object": {
+                          "type": "string"
+                        },
+                        "symbol": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "total_supply": {
+                          "type": "integer"
+                        },
+                        "decimals": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "object",
+                        "symbol",
+                        "name",
+                        "total_supply",
+                        "decimals"
+                      ],
+                      "example": {
+                        "data": {
+                          "object": "erc20_attrs",
+                          "symbol": "OMG",
+                          "name": "OMGToken",
+                          "total_supply": 100000,
+                          "decimals": 18
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.set_blockchain_address": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Attempts to set a blockchain address to the specified tokeen",
+        "operationId": "token_set_blockchain_address",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to set a blockchain address to a token.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "blockchain_address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "blockchain_address"
+                ],
+                "example": {
+                  "id": "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
+                  "blockchain_address": "0x9080682a37961d3c814464e7ada1c7e1b4638a28"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single tokens",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a token",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a token",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "subunit_to_unit": {
+                              "type": "integer"
+                            },
+                            "avatar": {
+                              "type": "object"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "symbol",
+                            "name",
+                            "subunit_to_unit",
+                            "avatar",
+                            "created_at",
+                            "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "token",
+                          "id": "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3",
+                          "symbol": "ABC",
+                          "name": "ABC Point",
+                          "subunit_to_unit": 100,
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z",
+                          "enabled": true,
+                          "locked": true,
+                          "avatar": {
+                            "original": "file_url"
+                          },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
+                          "metadata": {},
+                          "encrypted_metadata": {}
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/token.deploy_erc20": {
+      "post": {
+        "tags": [
+          "Token"
+        ],
+        "summary": "Attempts to deploy an ERC20 token with the specified parameters",
+        "operationId": "token_deploy_erc20",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to create a blockchain token.",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "symbol": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "subunit_to_unit": {
+                    "type": "integer"
+                  },
+                  "amount": {
+                    "type": "integer"
+                  },
+                  "locked": {
+                    "type": "boolean"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  },
+                  "encrypted_metadata": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                },
+                "required": [
+                  "name",
+                  "symbol",
+                  "subunit_to_unit",
+                  "amount",
+                  "locked"
+                ],
+                "example": {
+                  "symbol": "OMG",
+                  "name": "OMGToken",
+                  "description": "The OMG ERC20 token",
+                  "subunit_to_unit": 1000000000000000000,
+                  "amount": 50000000000000000000,
+                  "locked": true
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a single tokens",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a token",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a token",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "symbol": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "subunit_to_unit": {
+                              "type": "integer"
+                            },
+                            "avatar": {
+                              "type": "object"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "blockchain_address": {
+                              "type": "string"
+                            },
+                            "blockchain_status": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "tx_hash": {
+                              "type": "string"
+                            },
+                            "metadata": {
+                              "type": "object"
+                            },
+                            "encrypted_metadata": {
+                              "type": "object"
+                            },
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "locked": {
+                              "type": "boolean"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "id",
+                            "symbol",
+                            "name",
+                            "subunit_to_unit",
+                            "avatar",
+                            "created_at",
+                            "updated_at",
+                            "blockchain_address",
+                            "blockchain_status",
+                            "blockchain_identifier",
+                            "tx_hash",
+                            "enabled",
+                            "locked"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "token",
+                          "id": "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3",
+                          "symbol": "ABC",
+                          "name": "ABC Point",
+                          "subunit_to_unit": 100,
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z",
+                          "enabled": true,
+                          "locked": true,
+                          "avatar": {
+                            "original": "file_url"
+                          },
+                          "blockchain_address": "0x436dbc182828ccd421238fb622613c953c5e5028",
+                          "blockchain_status": "confirmed",
+                          "blockchain_identifier": "ethereum",
+                          "tx_hash": "0x3c33b1d726d2e8a23e8265a6582101cdbe1fa64adc5f77ddfb7ae801d9f4ae41",
+                          "metadata": {},
+                          "encrypted_metadata": {}
                         }
                       }
                     }
@@ -6720,6 +7741,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -6727,6 +7760,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -6739,7 +7775,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -6775,6 +7816,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -6782,6 +7835,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -6794,7 +7850,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -7092,6 +8153,18 @@
                                   "type": "string",
                                   "format": "date-time"
                                 },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
+                                },
+                                "blockchain_identifier": {
+                                  "type": "string"
+                                },
+                                "tx_hash": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7099,6 +8172,9 @@
                                   "type": "object"
                                 },
                                 "enabled": {
+                                  "type": "boolean"
+                                },
+                                "locked": {
                                   "type": "boolean"
                                 }
                               },
@@ -7111,7 +8187,12 @@
                                 "avatar",
                                 "created_at",
                                 "updated_at",
-                                "enabled"
+                                "blockchain_address",
+                                "blockchain_status",
+                                "blockchain_identifier",
+                                "tx_hash",
+                                "enabled",
+                                "locked"
                               ]
                             },
                             "to_token_id": {
@@ -7147,6 +8228,18 @@
                                   "type": "string",
                                   "format": "date-time"
                                 },
+                                "blockchain_address": {
+                                  "type": "string"
+                                },
+                                "blockchain_status": {
+                                  "type": "string"
+                                },
+                                "blockchain_identifier": {
+                                  "type": "string"
+                                },
+                                "tx_hash": {
+                                  "type": "string"
+                                },
                                 "metadata": {
                                   "type": "object"
                                 },
@@ -7154,6 +8247,9 @@
                                   "type": "object"
                                 },
                                 "enabled": {
+                                  "type": "boolean"
+                                },
+                                "locked": {
                                   "type": "boolean"
                                 }
                               },
@@ -7166,7 +8262,12 @@
                                 "avatar",
                                 "created_at",
                                 "updated_at",
-                                "enabled"
+                                "blockchain_address",
+                                "blockchain_status",
+                                "blockchain_identifier",
+                                "tx_hash",
+                                "enabled",
+                                "locked"
                               ]
                             },
                             "rate": {
@@ -7573,6 +8674,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7580,6 +8693,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -7592,7 +8708,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -7628,6 +8749,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -7635,6 +8768,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -7647,7 +8783,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -8054,6 +9195,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8061,6 +9214,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -8073,7 +9229,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -8109,6 +9270,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8116,6 +9289,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -8128,7 +9304,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -8518,6 +9699,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8525,6 +9718,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -8537,7 +9733,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "to_token_id": {
@@ -8573,6 +9774,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -8580,6 +9793,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -8592,7 +9808,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "rate": {
@@ -15144,6 +16365,18 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -15151,6 +16384,9 @@
                                                   "type": "object"
                                                 },
                                                 "enabled": {
+                                                  "type": "boolean"
+                                                },
+                                                "locked": {
                                                   "type": "boolean"
                                                 }
                                               },
@@ -15163,7 +16399,12 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
-                                                "enabled"
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
+                                                "tx_hash",
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -15934,6 +17175,18 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -15941,6 +17194,9 @@
                                                   "type": "object"
                                                 },
                                                 "enabled": {
+                                                  "type": "boolean"
+                                                },
+                                                "locked": {
                                                   "type": "boolean"
                                                 }
                                               },
@@ -15953,7 +17209,12 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
-                                                "enabled"
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
+                                                "tx_hash",
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -16421,6 +17682,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -16428,6 +17701,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -16440,7 +17716,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -16487,6 +17768,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -16494,6 +17787,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -16506,7 +17802,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -26714,6 +28015,18 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -26721,6 +28034,9 @@
                                                   "type": "object"
                                                 },
                                                 "enabled": {
+                                                  "type": "boolean"
+                                                },
+                                                "locked": {
                                                   "type": "boolean"
                                                 }
                                               },
@@ -26733,7 +28049,12 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
-                                                "enabled"
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
+                                                "tx_hash",
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -27209,6 +28530,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -27216,6 +28549,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -27228,7 +28564,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -27275,6 +28616,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -27282,6 +28635,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -27294,7 +28650,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -28887,6 +30248,18 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_identifier": {
+                                                  "type": "string"
+                                                },
+                                                "tx_hash": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -28894,6 +30267,9 @@
                                                   "type": "object"
                                                 },
                                                 "enabled": {
+                                                  "type": "boolean"
+                                                },
+                                                "locked": {
                                                   "type": "boolean"
                                                 }
                                               },
@@ -28906,7 +30282,12 @@
                                                 "avatar",
                                                 "created_at",
                                                 "updated_at",
-                                                "enabled"
+                                                "blockchain_address",
+                                                "blockchain_status",
+                                                "blockchain_identifier",
+                                                "tx_hash",
+                                                "enabled",
+                                                "locked"
                                               ]
                                             },
                                             "amount": {
@@ -29558,6 +30939,18 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -29565,6 +30958,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -29577,7 +30973,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -30157,6 +31558,18 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -30164,6 +31577,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -30176,7 +31592,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -31126,6 +32547,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -31133,6 +32566,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -31145,7 +32581,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "amount": {
@@ -31705,6 +33146,18 @@
                                         "type": "string",
                                         "format": "date-time"
                                       },
+                                      "blockchain_address": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_status": {
+                                        "type": "string"
+                                      },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -31712,6 +33165,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -31724,7 +33180,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -32203,6 +33664,18 @@
                                             "type": "string",
                                             "format": "date-time"
                                           },
+                                          "blockchain_address": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_status": {
+                                            "type": "string"
+                                          },
+                                          "blockchain_identifier": {
+                                            "type": "string"
+                                          },
+                                          "tx_hash": {
+                                            "type": "string"
+                                          },
                                           "metadata": {
                                             "type": "object"
                                           },
@@ -32210,6 +33683,9 @@
                                             "type": "object"
                                           },
                                           "enabled": {
+                                            "type": "boolean"
+                                          },
+                                          "locked": {
                                             "type": "boolean"
                                           }
                                         },
@@ -32222,7 +33698,12 @@
                                           "avatar",
                                           "created_at",
                                           "updated_at",
-                                          "enabled"
+                                          "blockchain_address",
+                                          "blockchain_status",
+                                          "blockchain_identifier",
+                                          "tx_hash",
+                                          "enabled",
+                                          "locked"
                                         ]
                                       },
                                       "amount": {
@@ -32442,6 +33923,9 @@
                             "type": {
                               "type": "string"
                             },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
                             "created_at": {
                               "type": "string",
                               "format": "date-time"
@@ -32456,6 +33940,7 @@
                             "address",
                             "name",
                             "type",
+                            "blockchain_identifier",
                             "created_at",
                             "updated_at"
                           ]
@@ -32466,6 +33951,7 @@
                           "object": "blockchain_wallet",
                           "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                           "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
                           "type": "hot",
                           "created_at": "2018-01-01T00:00:00Z",
                           "updated_at": "2018-01-01T10:00:00Z"
@@ -32825,6 +34311,9 @@
                                       "type": {
                                         "type": "string"
                                       },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
                                       "created_at": {
                                         "type": "string",
                                         "format": "date-time"
@@ -32839,6 +34328,7 @@
                                       "address",
                                       "name",
                                       "type",
+                                      "blockchain_identifier",
                                       "created_at",
                                       "updated_at"
                                     ]
@@ -32858,10 +34348,243 @@
                               "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
                               "name": "blockchain_wallet_01",
                               "type": "hot",
+                              "blockchain_identifier": "ethereum",
                               "created_at": "2018-01-01T00:00:00Z",
                               "updated_at": "2018-01-01T10:00:00Z"
                             }
                           ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Returns an internal server error",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for an error",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "description": "The object schema for an error",
+                          "type": "object",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "code": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "messages": {
+                              "type": "object"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "code",
+                            "description",
+                            "messages"
+                          ],
+                          "example": {
+                            "object": "error",
+                            "code": "server:internal_server_error",
+                            "description": "Something went wrong on the server",
+                            "messages": {
+                              "error_key": "error_reason"
+                            }
+                          }
+                        }
+                      },
+                      "required": [
+                        "data"
+                      ],
+                      "example": {
+                        "success": false,
+                        "data": {
+                          "object": "error",
+                          "code": "server:internal_server_error",
+                          "description": "Something went wrong on the server",
+                          "messages": {
+                            "error_key": "error_reason"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blockchain_wallet.create": {
+      "post": {
+        "tags": [
+          "Blockchain wallet"
+        ],
+        "summary": "Create a new blockchain wallet.",
+        "operationId": "blockchain_wallet_create",
+        "security": [
+          {
+            "ProviderAuth": []
+          },
+          {
+            "AdminAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "The parameters to use for creating a blockchain wallet",
+          "required": true,
+          "content": {
+            "application/vnd.omisego.v1+json": {
+              "schema": {
+                "example": {
+                  "name": "Primary cold wallet reference",
+                  "type": "cold",
+                  "address": "0x48b91d5f363892592bf836777dc73b54a10b72ae"
+                },
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "cold"
+                    ]
+                  },
+                  "address": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name",
+                  "type",
+                  "address"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns a blockchain wallet",
+            "content": {
+              "application/vnd.omisego.v1+json": {
+                "schema": {
+                  "description": "The response schema for a blockchain wallet",
+                  "allOf": [
+                    {
+                      "description": "The response schema for a successful operation",
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "string"
+                        },
+                        "success": {
+                          "type": "boolean"
+                        },
+                        "data": {
+                          "type": "object"
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "success",
+                        "data"
+                      ],
+                      "example": {
+                        "version": "1",
+                        "success": true,
+                        "data": {}
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "data": {
+                          "type": "object",
+                          "description": "The object schema for a blockchain wallet",
+                          "properties": {
+                            "object": {
+                              "type": "string"
+                            },
+                            "address": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "blockchain_identifier": {
+                              "type": "string"
+                            },
+                            "created_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time"
+                            }
+                          },
+                          "required": [
+                            "object",
+                            "address",
+                            "name",
+                            "type",
+                            "blockchain_identifier",
+                            "created_at",
+                            "updated_at"
+                          ]
+                        }
+                      },
+                      "example": {
+                        "data": {
+                          "object": "blockchain_wallet",
+                          "address": "0x54e0588607dcec6c0b36fca1154a57814a913591",
+                          "name": "blockchain_wallet_01",
+                          "blockchain_identifier": "ethereum",
+                          "type": "hot",
+                          "created_at": "2018-01-01T00:00:00Z",
+                          "updated_at": "2018-01-01T10:00:00Z"
                         }
                       }
                     }
@@ -33246,6 +34969,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -33253,6 +34988,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -33265,7 +35003,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -33312,6 +35055,18 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_identifier": {
+                                                "type": "string"
+                                              },
+                                              "tx_hash": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -33319,6 +35074,9 @@
                                                 "type": "object"
                                               },
                                               "enabled": {
+                                                "type": "boolean"
+                                              },
+                                              "locked": {
                                                 "type": "boolean"
                                               }
                                             },
@@ -33331,7 +35089,12 @@
                                               "avatar",
                                               "created_at",
                                               "updated_at",
-                                              "enabled"
+                                              "blockchain_address",
+                                              "blockchain_status",
+                                              "blockchain_identifier",
+                                              "tx_hash",
+                                              "enabled",
+                                              "locked"
                                             ]
                                           }
                                         }
@@ -33970,6 +35733,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -33977,6 +35752,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -33989,7 +35767,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -34036,6 +35819,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34043,6 +35838,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -34055,7 +35853,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -34444,6 +36247,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34451,6 +36266,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -34463,7 +36281,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -34510,6 +36333,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34517,6 +36352,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -34529,7 +36367,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 }
                               }
@@ -34877,6 +36720,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34884,6 +36739,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -34896,7 +36754,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 },
                                 "to_token_id": {
@@ -34932,6 +36795,18 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_identifier": {
+                                      "type": "string"
+                                    },
+                                    "tx_hash": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -34939,6 +36814,9 @@
                                       "type": "object"
                                     },
                                     "enabled": {
+                                      "type": "boolean"
+                                    },
+                                    "locked": {
                                       "type": "boolean"
                                     }
                                   },
@@ -34951,7 +36829,12 @@
                                     "avatar",
                                     "created_at",
                                     "updated_at",
-                                    "enabled"
+                                    "blockchain_address",
+                                    "blockchain_status",
+                                    "blockchain_identifier",
+                                    "tx_hash",
+                                    "enabled",
+                                    "locked"
                                   ]
                                 },
                                 "rate": {

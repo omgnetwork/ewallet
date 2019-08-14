@@ -121,6 +121,7 @@ defmodule EWalletDB.Factory do
   def blockchain_wallet_factory do
     %BlockchainWallet{
       address: Crypto.fake_eth_address(),
+      blockchain_identifier: "ethereum",
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",
@@ -339,6 +340,25 @@ defmodule EWalletDB.Factory do
       to_user_uuid: to_wallet.user_uuid,
       to_account_uuid: to_wallet.account_uuid,
       exchange_account: nil,
+      type: "internal",
+      originator: %System{}
+    }
+  end
+
+  def blockchain_transaction_factory do
+    token = insert(:token)
+
+    %Transaction{
+      idempotency_token: UUID.generate(),
+      payload: %{example: "Payload"},
+      metadata: %{some: "metadata"},
+      from_amount: 100,
+      from_token: token,
+      to_token: token,
+      from_blockchain_address: insert(:blockchain_wallet).address,
+      to_blockchain_address: insert(:blockchain_wallet).address,
+      to_amount: 100,
+      type: "external",
       originator: %System{}
     }
   end

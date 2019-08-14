@@ -14,8 +14,9 @@
 
 defmodule EthBlockchain.ABIEncoder do
   @moduledoc false
-
   import Utils.Helpers.Encoding
+
+  alias ABI.{TypeEncoder, FunctionSelector}
 
   def balance_of("0x" <> _ = address) do
     {:ok, ABI.encode("balanceOf(address)", [from_hex(address)])}
@@ -33,4 +34,17 @@ defmodule EthBlockchain.ABIEncoder do
   end
 
   def transfer(_to_address, _amount), do: {:error, :invalid_input}
+
+  def get_field(field) do
+    {:ok, ABI.encode("#{field}()", [])}
+  end
+
+  def encode_erc20_attrs(name, symbol, decimals, initial_amount) do
+    [{name, symbol, decimals, initial_amount}]
+    |> TypeEncoder.encode(%FunctionSelector{
+      function: nil,
+      types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
+    })
+    |> Base.encode16(case: :lower)
+  end
 end

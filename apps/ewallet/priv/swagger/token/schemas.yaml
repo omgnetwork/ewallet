@@ -20,11 +20,21 @@ TokenSchema:
     updated_at:
       type: string
       format: date-time
+    blockchain_address: 
+      type: string
+    blockchain_status: 
+      type: string
+    blockchain_identifier:
+      type: string
+    tx_hash:
+      type: string
     metadata:
       type: object
     encrypted_metadata:
       type: object
     enabled:
+      type: boolean
+    locked:
       type: boolean
   required:
     - object
@@ -35,7 +45,12 @@ TokenSchema:
     - avatar
     - created_at
     - updated_at
+    - blockchain_address
+    - blockchain_status
+    - blockchain_identifier
+    - tx_hash
     - enabled
+    - locked
 
 MintSchema:
   description: The object schema for a mint

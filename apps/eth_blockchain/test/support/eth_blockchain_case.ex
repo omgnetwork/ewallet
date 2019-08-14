@@ -15,14 +15,16 @@
 defmodule EthBlockchain.EthBlockchainCase do
   @moduledoc false
   use ExUnit.CaseTemplate
-  alias EthBlockchain.{Adapter, DumbAdapter}
+  alias EthBlockchain.{Adapter, DumbAdapter, Transaction}
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias Keychain.Repo
+  alias Utils.Helpers.Encoding
 
   using do
     quote do
       import EthBlockchain.EthBlockchainCase
+      alias EthBlockchain.DumbAdapter
     end
   end
 
@@ -57,5 +59,12 @@ defmodule EthBlockchain.EthBlockchainCase do
       addr_2: "0x0000000000000000000000000000000000000002",
       addr_3: "0x0000000000000000000000000000000000000003"
     }
+  end
+
+  def decode_transaction_response(response) do
+    response
+    |> Encoding.from_hex()
+    |> ExRLP.decode()
+    |> Transaction.deserialize()
   end
 end

@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: handled mintable tokens (locked)
+# - Add ability to finish minting and toggle `locked` when done
+# - Add ability to mint token on blockchain if not `locked`
+
+# TODO: Add listener to change status from `pending` to `confirmed`
+# after X block confirmation + balance > 0 for hot wallet
+
 defmodule EWalletDB.Token do
   @moduledoc """
   Ecto Schema representing tokens.
@@ -22,13 +29,19 @@ defmodule EWalletDB.Token do
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.Validator
+  import EWalletDB.{Validator, BlockchainValidator}
   alias Ecto.UUID
   alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+  @blockchain_status_pending "pending"
+  @blockchain_status_confirmed "confirmed"
+  @blockchain_status [@blockchain_status_pending, @blockchain_status_confirmed]
+
+  def blockchain_status_pending, do: @blockchain_status_pending
+  def blockchain_status_confirmed, do: @blockchain_status_confirmed
 
   schema "token" do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
@@ -64,6 +77,11 @@ defmodule EWalletDB.Token do
 
     field(:enabled, :boolean)
     field(:blockchain_address, :string)
+    field(:blockchain_status, :string)
+    field(:blockchain_identifier, :string)
+    field(:tx_hash, :string)
+    field(:blk_number, :integer)
+    field(:contract_uuid, :string)
 
     belongs_to(
       :account,
@@ -96,6 +114,11 @@ defmodule EWalletDB.Token do
         :locked,
         :account_uuid,
         :blockchain_address,
+        :blockchain_status,
+        :blockchain_identifier,
+        :tx_hash,
+        :blk_number,
+        :contract_uuid,
         :metadata,
         :encrypted_metadata
       ],
@@ -118,7 +141,10 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
-    |> unique_constraint(:blockchain_address)
+    |> unique_constraint(:blockchain_address,
+      name: :token_blockchain_identifier_blockchain_address_index
+    )
+    |> unique_constraint(:tx_hash)
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
@@ -128,6 +154,8 @@ defmodule EWalletDB.Token do
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
+    |> validate_inclusion(:blockchain_status, @blockchain_status)
+    |> validate_blockchain()
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
@@ -145,7 +173,7 @@ defmodule EWalletDB.Token do
         :symbol_first,
         :html_entity,
         :iso_numeric,
-        :blockchain_address,
+        :locked,
         :metadata,
         :encrypted_metadata
       ],
@@ -161,7 +189,6 @@ defmodule EWalletDB.Token do
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
-    |> unique_constraint(:blockchain_address)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
@@ -171,6 +198,37 @@ defmodule EWalletDB.Token do
   defp enable_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(attrs, cast: [:enabled], required: [:enabled])
+  end
+
+  defp blockchain_changeset(%Token{} = token, attrs) do
+    token
+    |> cast_and_validate_required_for_activity_log(attrs,
+      cast: [:blockchain_address, :blockchain_identifier],
+      required: [:blockchain_address, :blockchain_identifier]
+    )
+    |> unique_constraint(:blockchain_address,
+      name: :token_blockchain_identifier_blockchain_address_index
+    )
+    |> validate_blockchain()
+    |> merge(blockchain_status_changeset(token, attrs))
+  end
+
+  defp blockchain_status_changeset(%Token{} = token, attrs) do
+    token
+    |> cast_and_validate_required_for_activity_log(attrs,
+      cast: [:blockchain_status],
+      required: [:blockchain_status]
+    )
+    |> validate_inclusion(:blockchain_status, @blockchain_status)
+  end
+
+  defp validate_blockchain(changeset) do
+    changeset
+    |> validate_blockchain_address(:blockchain_address)
+    |> validate_blockchain_identifier(:blockchain_identifer)
+    |> validate_immutable(:blockchain_address)
+    |> validate_immutable(:blockchain_identifer)
+    |> validate_immutable(:tx_hash)
   end
 
   defp set_id(changeset, opts) do
@@ -203,21 +261,25 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns a query of Tokens that have a blockchain address
+  Returns a query of Tokens that have a blockchain address for the specified identifier
   """
-  @spec query_all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
-  def query_all_blockchain(query \\ Token) do
-    where(query, [t], not is_nil(t.blockchain_address))
+  @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
+  def query_all_blockchain(identifier, query \\ Token) do
+    where(query, [t], not is_nil(t.blockchain_address) and t.blockchain_identifier == ^identifier)
   end
 
   @doc """
-  Returns a query of Tokens that have an address matching in the provided list
+  Returns a query of Tokens that have an address matching in the provided list for the specified identifier
   """
-  @spec query_all_by_blockchain_addresses([String.t()], Ecto.Queryable.t()) :: [
+  @spec query_all_by_blockchain_addresses([String.t()], String.t(), Ecto.Queryable.t()) :: [
           Ecto.Queryable.t()
         ]
-  def query_all_by_blockchain_addresses(addresses, query \\ Token) do
-    where(query, [t], t.blockchain_address in ^addresses)
+  def query_all_by_blockchain_addresses(addresses, identifier, query \\ Token) do
+    where(
+      query,
+      [t],
+      t.blockchain_address in ^addresses and t.blockchain_identifier == ^identifier
+    )
   end
 
   @doc """
@@ -316,6 +378,12 @@ defmodule EWalletDB.Token do
   def enable_or_disable(token, attrs) do
     token
     |> enable_changeset(attrs)
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def set_blockchain_address(token, attrs) do
+    token
+    |> blockchain_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
 end

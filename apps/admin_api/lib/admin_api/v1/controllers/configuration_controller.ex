@@ -18,8 +18,8 @@ defmodule AdminAPI.V1.ConfigurationController do
 
   alias EWallet.Web.{Orchestrator, Originator, V1.ConfigurationOverlay}
   alias EWalletConfig.{Config, Repo, StoredSetting}
-  alias EWallet.ConfigurationPolicy
-  alias EWalletDB.Account
+  alias EWallet.{BlockchainHelper, ConfigurationPolicy}
+  alias EWalletDB.{Account, BlockchainWallet}
   alias Ecto.Changeset
 
   def all(conn, attrs) do
@@ -39,44 +39,82 @@ defmodule AdminAPI.V1.ConfigurationController do
   def update(conn, attrs) do
     with {:ok, _} <- authorize(:update, conn.assigns),
          attrs <- put_originator(conn, attrs),
-         {attrs, error} <- validate_master_account(attrs),
+         {attrs, errors} <- validate(attrs),
          {:ok, settings} <- Config.update(attrs),
-         settings <- add_master_account_error(settings, error) do
+         settings <- add_errors(settings, errors) do
       render(conn, :settings_with_errors, %{settings: settings})
     else
       {:error, code} -> handle_error(conn, code)
     end
   end
 
-  defp validate_master_account(%{"master_account" => master_account_id} = attrs) do
+  defp validate(attrs) do
+    {attrs, []}
+    |> validate_master_account()
+    |> validate_primary_hot_wallet()
+  end
+
+  defp validate_master_account({%{"master_account" => master_account_id} = attrs, errors}) do
     case Account.get(master_account_id) do
       nil ->
         {
           Map.delete(attrs, "master_account"),
-          {:master_account, {:error, prepare_error(master_account_id)}}
+          [{:master_account, {:error, prepare_account_error(master_account_id)}} | errors]
         }
 
       _ ->
-        {attrs, nil}
+        {attrs, errors}
     end
   end
 
-  defp validate_master_account(attrs), do: {attrs, nil}
+  defp validate_master_account(attrs), do: attrs
 
-  defp prepare_error(master_account_id) do
-    %StoredSetting{}
-    |> Changeset.change(%{value: master_account_id})
-    |> Changeset.add_error(:value, "must match an existing account",
-      validation: :account_not_found
+  defp validate_primary_hot_wallet(
+         {%{"primary_hot_wallet" => primary_hot_wallet_address} = attrs, errors}
+       ) do
+    identifier = BlockchainHelper.identifier()
+
+    case BlockchainWallet.get(primary_hot_wallet_address, "hot", identifier) do
+      nil ->
+        {
+          Map.delete(attrs, "primary_hot_wallet"),
+          [
+            {:primary_hot_wallet, {:error, prepare_hot_wallet_error(primary_hot_wallet_address)}}
+            | errors
+          ]
+        }
+
+      _ ->
+        {attrs, errors}
+    end
+  end
+
+  defp validate_primary_hot_wallet(attrs), do: attrs
+
+  defp prepare_hot_wallet_error(primary_hot_wallet_address) do
+    prepare_error(
+      primary_hot_wallet_address,
+      "must match an existing hot wallet",
+      :hot_wallet_not_found
     )
   end
 
-  defp add_master_account_error(settings, nil) do
+  defp prepare_account_error(master_account_id) do
+    prepare_error(master_account_id, "must match an existing account", :account_not_found)
+  end
+
+  defp prepare_error(field, description, validation) do
+    %StoredSetting{}
+    |> Changeset.change(%{value: field})
+    |> Changeset.add_error(:value, description, validation: validation)
+  end
+
+  defp add_errors(settings, []) do
     settings
   end
 
-  defp add_master_account_error(settings, master_account_setting_error) do
-    [master_account_setting_error | settings]
+  defp add_errors(settings, errors) do
+    errors ++ settings
   end
 
   defp put_originator(conn, attrs) when is_list(attrs) do

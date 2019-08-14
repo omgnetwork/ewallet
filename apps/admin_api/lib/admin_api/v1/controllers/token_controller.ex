@@ -19,7 +19,17 @@ defmodule AdminAPI.V1.TokenController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
-  alias EWallet.{Helper, MintGate, TokenPolicy, MintPolicy, AdapterHelper}
+
+  alias EWallet.{
+    Helper,
+    MintGate,
+    TokenGate,
+    TokenPolicy,
+    MintPolicy,
+    AdapterHelper,
+    BlockchainHelper
+  }
+
   alias EWallet.Web.{Orchestrator, Originator, Paginator, V1.TokenOverlay}
   alias EWalletDB.{Account, Mint, Token}
 
@@ -79,6 +89,20 @@ defmodule AdminAPI.V1.TokenController do
 
   def stats(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @spec deploy_erc20(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def deploy_erc20(conn, attrs) do
+    with attrs <- Map.put(attrs, "account_uuid", Account.get_master_account().uuid),
+         {:ok, _} <- authorize(:deploy_erc20, conn.assigns, attrs),
+         {:ok, attrs} <- TokenGate.deploy_erc20(attrs),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, token} <- Token.insert(attrs) do
+      respond_single(token, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
   @doc """
   Creates a new Token.
   """
@@ -91,6 +115,28 @@ defmodule AdminAPI.V1.TokenController do
     else
       {:error, code} ->
         handle_error(conn, code)
+    end
+  end
+
+  defp do_create(conn, %{"amount" => _, "blockchain_address" => _}) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `blockchain_address` and `amount` cannot be both specified."
+    )
+  end
+
+  defp do_create(conn, %{"blockchain_address" => blockchain_address} = attrs) do
+    with {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, attrs),
+         :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
+         {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, attrs),
+         attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
+         attrs <- Map.put(attrs, "blockchain_status", status),
+         {:ok, token} <- Token.insert(attrs) do
+      respond_single(token, conn)
+    else
+      error ->
+        respond_single(error, conn)
     end
   end
 
@@ -159,7 +205,55 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def update(conn, _) do
-    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+    handle_error(conn, :missing_id)
+  end
+
+  def get_erc20_capabilities(conn, %{"blockchain_address" => blockchain_address}) do
+    with :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
+         {:ok, _} <- authorize(:get_erc20_capabilities, conn.assigns, nil),
+         {:ok, erc20_attrs} <- TokenGate.get_erc20_capabilities(blockchain_address) do
+      render(conn, :erc20_attrs, %{erc20_attrs: erc20_attrs})
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  def get_erc20_capabilities(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `blockchain_address` is required."
+    )
+  end
+
+  def set_blockchain_address(
+        conn,
+        %{"id" => id, "blockchain_address" => blockchain_address} = attrs
+      ) do
+    with %Token{} = token <- Token.get(id) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, token),
+         :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
+         true <- is_nil(token.blockchain_address) || {:error, :token_already_blockchain_enabled},
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, blockchain_status} <-
+           TokenGate.validate_erc20_readiness(blockchain_address, token),
+         attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
+         attrs <- Map.put(attrs, "blockchain_status", blockchain_status),
+         {:ok, updated} <- Token.set_blockchain_address(token, attrs) do
+      respond_single(updated, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  def set_blockchain_address(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `id` and `blockchain_address` are required."
+    )
   end
 
   @doc """
@@ -179,7 +273,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def enable_or_disable(conn, _),
-    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+    do: handle_error(conn, :missing_id)
 
   @doc """
   Uploads an image as avatar for a specific token.
@@ -231,6 +325,10 @@ defmodule AdminAPI.V1.TokenController do
 
   defp respond_single({:error, code}, conn) do
     handle_error(conn, code)
+  end
+
+  defp respond_single({:error, code, message}, conn) do
+    handle_error(conn, code, message)
   end
 
   defp respond_single({:ok, _mint, token}, conn) do

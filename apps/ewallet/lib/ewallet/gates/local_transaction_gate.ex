@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.TransactionGate do
+defmodule EWallet.LocalTransactionGate do
   @moduledoc """
   Handles the logic for a transaction of value from an account to a user. Delegates the
-  actual transaction to EWallet.TransactionGate once the wallets have been loaded.
+  actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
   """
   alias EWallet.{
+    TransactionPolicy,
     AccountFetcher,
     AmountFetcher,
     TokenFetcher,
@@ -28,6 +29,14 @@ defmodule EWallet.TransactionGate do
   alias EWalletDB.{AccountUser, Transaction}
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
+
+  def create(actor, attrs) do
+    with {:ok, _} <- TransactionPolicy.authorize(:create, actor, attrs) do
+      create(attrs)
+    else
+      error -> error
+    end
+  end
 
   def create(attrs) do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),

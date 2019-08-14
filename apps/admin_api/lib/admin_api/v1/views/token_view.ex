@@ -14,7 +14,13 @@
 
 defmodule AdminAPI.V1.TokenView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, TokenSerializer, TokenStatsSerializer}
+
+  alias EWallet.Web.V1.{
+    ResponseSerializer,
+    TokenSerializer,
+    TokenStatsSerializer,
+    ERC20AttributesSerializer
+  }
 
   def render("token.json", %{token: token}) do
     token
@@ -31,6 +37,12 @@ defmodule AdminAPI.V1.TokenView do
   def render("stats.json", %{stats: stats}) do
     stats
     |> TokenStatsSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
+
+  def render("erc20_attrs.json", %{erc20_attrs: attrs}) do
+    attrs
+    |> ERC20AttributesSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 end

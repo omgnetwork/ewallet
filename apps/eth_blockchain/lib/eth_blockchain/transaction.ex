@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper}
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -74,6 +74,7 @@ defmodule EthBlockchain.Transaction do
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
   def send(attrs, adapter \\ nil, pid \\ nil)
 
+  # Send ETH
   def send(
         %{contract_address: "0x0000000000000000000000000000000000000000"} = attrs,
         adapter,
@@ -82,19 +83,13 @@ defmodule EthBlockchain.Transaction do
     send_eth(attrs, adapter, pid)
   end
 
-  def send(
-        %{contract_address: _} = attrs,
-        adapter,
-        pid
-      ) do
+  # Send token
+  def send(%{contract_address: _} = attrs, adapter, pid) do
     send_token(attrs, adapter, pid)
   end
 
-  def send(
-        attrs,
-        adapter,
-        pid
-      ) do
+  # Send eth by default
+  def send(attrs, adapter, pid) do
     send_eth(attrs, adapter, pid)
   end
 
@@ -107,18 +102,13 @@ defmodule EthBlockchain.Transaction do
          adapter,
          pid
        ) do
-    gas_limit = Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
-    gas_price = get_gas_price_or_default(attrs)
-
-    case get_transaction_count(%{address: from}, adapter, pid) do
-      {:ok, nonce} ->
+    case get_transaction_meta(attrs, :default_eth_transaction_gas_limit, adapter, pid) do
+      {:ok, meta} ->
         %__MODULE__{
-          gas_limit: gas_limit,
-          gas_price: gas_price,
-          nonce: int_from_hex(nonce),
           to: from_hex(to),
           value: amount
         }
+        |> Map.merge(meta)
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
 
@@ -137,18 +127,14 @@ defmodule EthBlockchain.Transaction do
          adapter,
          pid
        ) do
-    with {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount),
-         {:ok, nonce} <- get_transaction_count(%{address: from}, adapter, pid) do
-      gas_limit = Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
-      gas_price = get_gas_price_or_default(attrs)
-
+    with {:ok, meta} <-
+           get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
+         {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount) do
       %__MODULE__{
-        gas_limit: gas_limit,
-        gas_price: gas_price,
-        nonce: int_from_hex(nonce),
         to: from_hex(contract_address),
         data: encoded_abi_data
       }
+      |> Map.merge(meta)
       |> sign_and_hash(from)
       |> send_raw(adapter, pid)
     else
@@ -156,10 +142,48 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  defp get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
+  @doc """
+  Submit a contract creation transaction with the given data
+  Returns {:ok, tx_hash, contract_address} if success,
+  {:error, code} || {:error, code, message} otherwise
+  """
+  def create_contract(%{from: from, contract_data: init} = attrs, adapter, pid) do
+    case get_transaction_meta(attrs, :default_contract_creation_gas_limit, adapter, pid) do
+      {:ok, %{nonce: nonce} = meta} ->
+        contract_address = get_contract_address(nonce, from)
 
-  defp get_gas_price_or_default(_attrs) do
-    Application.get_env(:eth_blockchain, :default_gas_price)
+        %__MODULE__{init: from_hex(init)}
+        |> Map.merge(meta)
+        |> sign_and_hash(from)
+        |> send_raw(adapter, pid)
+        |> append_contract_address(contract_address)
+
+      error ->
+        error
+    end
+  end
+
+  defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
+    case get_transaction_count(%{address: from}, adapter, pid) do
+      {:ok, nonce} ->
+        gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
+        gas_price = GasHelper.get_gas_price_or_default(attrs)
+
+        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: int_from_hex(nonce)}}
+
+      error ->
+        error
+    end
+  end
+
+  defp get_contract_address(nonce, sender) do
+    "0x" <> <<_::bytes-size(24)>> <> contract_address =
+      [from_hex(sender), encode_unsigned(nonce)]
+      |> ExRLP.encode()
+      |> Keccak.kec()
+      |> to_hex()
+
+    "0x" <> contract_address
   end
 
   defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
@@ -201,6 +225,12 @@ defmodule EthBlockchain.Transaction do
       error -> error
     end
   end
+
+  defp append_contract_address({:ok, _} = t, contract_address) do
+    Tuple.append(t, contract_address)
+  end
+
+  defp append_contract_address(error, _), do: error
 
   @doc """
   Serialize, encode and returns a hash of a given transaction

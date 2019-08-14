@@ -456,6 +456,31 @@ defmodule EWallet.Web.V1.ErrorHandler do
     end_user_exchanges_not_allowed: %{
       code: "config:end_user_exchanges_not_allowed",
       description: "End user exchanges are not allowed for this exchange pair."
+    },
+    from_blockchain_address_is_not_primary_hot_wallet: %{
+      code: "blockchain:from_is_not_primary_hot_wallet",
+      description:
+        "Only the primary hot wallet can be used currently to make blockchain transactions."
+    },
+    invalid_to_address_for_blockchain_transaction: %{
+      code: "blockchain:invalid_to_address",
+      description: "The 'to' address is not a blockchain address."
+    },
+    not_implemented: %{
+      code: "status:not_implemented",
+      description: "This feature hasn't been implemented yet."
+    },
+    token_not_blockchain_enabled: %{
+      code: "token:not_blockchain_enabled",
+      description: "This token isn't configured to be used with the blockchain."
+    },
+    blockchain_exchange_not_allowed: %{
+      code: "blockchain:exchange_not_allowed",
+      description: "Blockchain exchanges aren't currently allowed."
+    },
+    invalid_blockchain_address: %{
+      code: "blockchain:invalid_address",
+      description: "The given blockchain address is not in a valid format."
     }
   }
 

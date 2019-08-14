@@ -32,3 +32,10 @@ MintsResponse:
     application/vnd.omisego.v1+json:
       schema:
         $ref: 'response_schemas.yaml#/MintsResponseSchema'
+
+TokenERC20CapabilitiesResponse:
+  description: Returns a list of erc20 attributes
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        $ref: 'response_schemas.yaml#/TokenERC20CapabilitiesResponseSchema'
