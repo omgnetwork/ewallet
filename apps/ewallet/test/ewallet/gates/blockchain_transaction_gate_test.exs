@@ -79,7 +79,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:error, :blockchain_exchange_not_allowed} =
+      assert {:error, :blockchain_exchange_not_allowed} ==
         BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -102,7 +102,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:error, :amounts_missing_or_invalid} =
+      assert {:error, :amounts_missing_or_invalid} ==
         BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -124,7 +124,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:error, :insufficient_funds} = BlockchainTransactionGate.create(admin, attrs, {true, true})
+      assert {:error, :insufficient_funds} == BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error if the token is not a blockchain token" do
@@ -143,7 +143,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:error, :token_not_blockchain_enabled} =
+      assert {:error, :token_not_blockchain_enabled} ==
         BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
   end
