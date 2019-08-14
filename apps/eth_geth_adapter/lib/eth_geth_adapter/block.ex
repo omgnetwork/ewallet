@@ -19,8 +19,14 @@ defmodule EthGethAdapter.Block do
   alias Ethereumex.HttpClient, as: Client
 
   def get_number do
-    parse(Client.eth_block_number())
+    parse_number(Client.eth_block_number())
   end
 
-  defp parse({:ok, number}), do: int_from_hex(number)
+  def get(number) do
+    number
+    |> to_hex()
+    |> Client.eth_get_block_by_number(true)
+  end
+
+  defp parse_number({:ok, number}), do: int_from_hex(number)
 end

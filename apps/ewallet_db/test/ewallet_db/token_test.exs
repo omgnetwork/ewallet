@@ -167,6 +167,10 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
+  describe "all_blockchain/2" do
+    test "returns the list of tokens that have a blockchain address for the given blockchain identifier"
+  end
+
   describe "query_all_blockchain/1" do
     test "returns a query of tokens that have a blockchain address for the specified identifier" do
       assert Enum.empty?(Token.all())

@@ -15,13 +15,14 @@
 defmodule EWallet.TransactionTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
+  import ExUnit.CaptureLog
   alias EWallet.TransactionTracker
   alias EWalletDB.Transaction
 
   describe "start_link/1" do
     test "starts a new server" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet})
       assert is_pid(pid)
       assert GenServer.stop(pid) == :ok
     end
@@ -31,19 +32,20 @@ defmodule EWallet.TransactionTrackerTest do
     test "inits with transaction" do
       transaction = insert(:blockchain_transaction)
 
-      assert TransactionTracker.init(%{transaction: transaction}) ==
-               {:ok, %{transaction: transaction, registry: nil}}
+      assert TransactionTracker.init(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet}) ==
+               {:ok, %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet, registry: nil}}
     end
   end
 
   describe "handle_cast/2 with :confirmations_count" do
     test "handles confirmations count when lower than minimum" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
+      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet})
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 2})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 2})
 
-      %{transaction: transaction} = :sys.get_state(pid)
+      %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet} = :sys.get_state(pid)
       assert %{confirmations_count: 2, status: "pending_confirmations"} = transaction
 
       assert GenServer.stop(pid) == :ok
@@ -51,9 +53,10 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles confirmations count when higher than minimum" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
+      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet})
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
 
       ref = Process.monitor(pid)
 
@@ -68,11 +71,14 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles invalid tx_hash" do
       transaction = insert(:blockchain_transaction)
-      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction})
+      transaction_receipt = %{transaction_hash: "fake"}
+      assert {:ok, pid} = TransactionTracker.start_link(%{transaction: transaction, transaction_type: :from_blockchain_to_ewallet})
 
-      :ok = GenServer.cast(pid, {:confirmations_count, "fake", 12})
+      assert capture_log(fn ->
+        :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
+      end) =~ "The receipt has a mismatched hash"
 
-      %{transaction: transaction} = :sys.get_state(pid)
+      %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet} = :sys.get_state(pid)
       assert %{confirmations_count: nil, status: "pending"} = transaction
 
       assert GenServer.stop(pid) == :ok

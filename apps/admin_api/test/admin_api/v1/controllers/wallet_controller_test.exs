@@ -606,4 +606,42 @@ defmodule AdminAPI.V1.WalletControllerTest do
       |> assert_enable_logs(get_test_key(), wallet)
     end
   end
+
+  describe "/wallet.generate_deposit_address" do
+    test_with_auths "generates a new deposit address" do
+      account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(account)
+
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet.address
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet.address
+      assert response["data"]["blockchain_deposit_address"] != nil
+    end
+
+    test_with_auths "returns an existing deposit address" do
+      account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(account)
+
+      response_1 =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet.address
+        })
+
+      assert response_1["success"] == true
+
+      response_2 =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet.address
+        })
+
+      assert response_2["success"] == true
+
+      assert response_1["data"]["blockchain_deposit_address"] ==
+               response_2["data"]["blockchain_deposit_address"]
+    end
+  end
 end

@@ -16,7 +16,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias EWallet.{BlockchainHelper, BlockchainTransactionGate, TransactionRegistry}
-  alias EWalletDB.BlockchainWallet
+  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID
@@ -44,9 +44,9 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
       {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
 
-      assert transaction.status == "submitted"
-      assert transaction.type == "external"
-      assert transaction.blockchain_identifier == "ethereum"
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.external()
+      assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
       {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
@@ -146,5 +146,24 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:error, :token_not_blockchain_enabled} =
         BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
+  end
+
+  describe "create_from_tracker/2" do
+    test "creates the local transaction and starts tracking the blockchain transaction"
+  end
+
+  describe "get_or_insert/1" do
+    test "returns a newly inserted local transaction if the idempotency_token is new"
+    test "returns the existing local transaction if the idempotency_token already exists"
+    test "returns :idempotency_token if the idempotency_token is not given"
+  end
+
+  describe "blockchain_addresses?/1" do
+    test "returns a list of booleans indicating whether each given address is a blockchain address"
+  end
+
+  describe "handle_local_insert/1" do
+    test "transitions the transaction to confirmed if transaction.to is nil"
+    test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil"
   end
 end

@@ -89,10 +89,10 @@ defmodule EthBlockchain.BlockchainRegistry do
             registry[id][:pid]
           )
 
-        {:reply, :ok, Map.delete(registry, id)}
+        {:noreply, Map.delete(registry, id)}
 
       false ->
-        {:reply, {:error, :entry_not_found}, registry}
+        {:noreply, registry}
     end
   end
 

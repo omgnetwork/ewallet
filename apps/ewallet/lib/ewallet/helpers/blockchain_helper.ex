@@ -39,8 +39,8 @@ defmodule EWallet.BlockchainHelper do
   Call the default blockchain adapter with the specifed function spec
   and the default node adapter
   """
-  def call(func_name, func_attrs \\ %{}, pid \\ nil) do
-    node_adapter = Application.get_env(:ewallet, :node_adapter)
+  def call(func_name, func_attrs \\ %{}, pid \\ nil, node_adapter \\ nil) do
+    node_adapter = node_adapter || Application.get_env(:ewallet, :node_adapter)
     adapter().call({func_name, func_attrs}, node_adapter, pid)
   end
 

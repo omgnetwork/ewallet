@@ -162,6 +162,7 @@ defmodule AdminAPI.V1.Router do
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
     post("/wallet.enable_or_disable", WalletController, :enable_or_disable)
+    post("/wallet.generate_deposit_address", WalletController, :generate_deposit_address)
 
     post(
       "/wallet.get_transaction_consumptions",

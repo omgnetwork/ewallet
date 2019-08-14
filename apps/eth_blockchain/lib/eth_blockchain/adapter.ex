@@ -34,6 +34,7 @@ defmodule EthBlockchain.Adapter do
 
   alias EthBlockchain.{
     Balance,
+    Block,
     Contract,
     DumbAdapter,
     ErrorHandler,
@@ -121,6 +122,30 @@ defmodule EthBlockchain.Adapter do
     ensure_adapter_started({adapter, nil}, state)
   end
 
+  defp ensure_adapter_started({adapter, id, args}, {supervisor, handlers}) do
+    case handlers do
+      %{^adapter => mfargs} ->
+        retval =
+          DynamicSupervisor.start_child(supervisor, %{
+            id: adapter_name({adapter, id}),
+            start: Kernel.put_elem(mfargs, 2, args),
+            restart: :temporary
+          })
+
+        case retval do
+          {:ok, pid} ->
+            {:ok, pid}
+
+          error ->
+            :ok = Logger.error("Failed to start adapter for #{adapter}: #{inspect(error)}")
+            {:error, :start_failed}
+        end
+
+      _ ->
+        {:error, :no_handler}
+    end
+  end
+
   defp ensure_adapter_started({adapter, _id} = adapter_spec, {supervisor, handlers}) do
     case handlers do
       %{^adapter => mfargs} ->
@@ -178,6 +203,10 @@ defmodule EthBlockchain.Adapter do
   @spec call(call(), atom() | adapter() | nil) :: resp({:ok, any()})
   @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
   def call(func_spec, adapter_spec \\ nil, pid \\ nil)
+
+  def call({:get_transactions, attrs}, adapter, pid) do
+    Block.get_transactions(attrs, adapter, pid)
+  end
 
   def call({:send, attrs}, adapter, pid) do
     Transaction.send(attrs, adapter, pid)

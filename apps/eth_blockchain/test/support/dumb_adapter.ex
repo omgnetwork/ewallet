@@ -46,6 +46,18 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, 14, reg}
   end
 
+  def handle_call({:get_block, 0}, _from, reg) do
+    {:reply,
+     {:ok,
+      %{
+        "transactions" => []
+      }}, reg}
+  end
+
+  def handle_call({:get_block, 1}, _from, reg) do
+    {:reply, {:ok, nil}, reg}
+  end
+
   def handle_call({:get_transaction_receipt, "not_found"}, _from, reg) do
     {:reply, {:ok, :not_found, nil}, reg}
   end

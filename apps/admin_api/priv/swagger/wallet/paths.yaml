@@ -99,3 +99,20 @@ wallet.enable_or_disable:
         $ref: 'responses.yaml#/WalletResponse'
       '500':
         $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'
+
+wallet.generate_deposit_address:
+  post:
+    tags:
+      - Wallet
+    summary: Generate a blockchain deposit address
+    operationId: wallet_generate_deposit_address
+    security:
+      - ProviderAuth: []
+      - AdminAuth: []
+    requestBody:
+      $ref: 'request_bodies.yaml#/WalletGenerateDepositAddressBody'
+    responses:
+      '200':
+        $ref: 'responses.yaml#/WalletResponse'
+      '500':
+        $ref: '../../../../ewallet/priv/swagger/shared/responses.yaml#/InternalServerError'

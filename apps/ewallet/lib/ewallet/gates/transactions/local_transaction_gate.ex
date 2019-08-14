@@ -26,7 +26,7 @@ defmodule EWallet.LocalTransactionGate do
     TransactionSourceFetcher
   }
 
-  alias EWalletDB.{AccountUser, Transaction}
+  alias EWalletDB.{AccountUser, Transaction, TransactionState}
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -61,6 +61,10 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
+  def process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
+    {:ok, transaction}
+  end
+
   def process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
     {:ok, transaction}
   end
@@ -68,6 +72,18 @@ defmodule EWallet.LocalTransactionGate do
   def process_with_transaction(%Transaction{status: "failed"} = transaction) do
     {:error, transaction, transaction.error_code,
      transaction.error_description || transaction.error_data}
+  end
+
+  defp set_blockchain_wallets(transaction, _, _, false), do: transaction
+
+  defp set_blockchain_wallets(transaction, assoc, field, true) do
+    case Map.get(transaction, field) do
+      nil ->
+        Map.put(transaction, assoc, %{address: transaction.blockchain_identifier, metadata: %{}})
+
+      _ ->
+        transaction
+    end
   end
 
   def get_or_insert(
@@ -116,12 +132,39 @@ defmodule EWallet.LocalTransactionGate do
     transaction
   end
 
-  def update_transaction({:ok, ledger_transaction}, transaction) do
-    Transaction.confirm(transaction, ledger_transaction.uuid, %System{})
+  def update_transaction({:ok, ledger_transaction}, %{status: "pending"} = transaction) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.confirmed(),
+        transaction,
+        %{
+          local_ledger_uuid: ledger_transaction.uuid,
+          originator: %System{}
+        }
+      )
+
+    transaction
   end
 
   def update_transaction({:error, code, description}, transaction) do
-    Transaction.fail(transaction, code, description, %System{})
+    {description, data} =
+      if(is_map(description), do: {nil, description}, else: {description, nil})
+
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.failed(),
+        transaction,
+        %{
+          error_code: Atom.to_string(code),
+          error_description: description,
+          error_data: data,
+          originator: %System{}
+        }
+      )
+
+    transaction
   end
 
   defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid} = transaction)
