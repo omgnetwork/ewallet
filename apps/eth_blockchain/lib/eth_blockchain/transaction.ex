@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, Helper, ABIEncoder, GasHelper}
+  alias EthBlockchain.{Adapter, Helper, ABIEncoder, GasHelper, Nonce}
 
   @eth Helper.default_address()
 
@@ -102,16 +102,12 @@ defmodule EthBlockchain.Transaction do
        ) do
     case get_transaction_meta(attrs, :default_eth_transaction_gas_limit, adapter, pid) do
       {:ok, meta} ->
-        prepare_and_send(
-          %__MODULE__{
-            to: from_hex(to),
-            value: amount
-          },
-          meta,
-          from,
-          adapter,
-          pid
-        )
+        %__MODULE__{
+          to: from_hex(to),
+          value: amount
+        }
+        |> prepare_and_send(meta, from, adapter, pid)
+        |> respond(from, adapter, pid)
 
       error ->
         error
@@ -131,16 +127,12 @@ defmodule EthBlockchain.Transaction do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount) do
-      prepare_and_send(
-        %__MODULE__{
-          to: from_hex(contract_address),
-          data: encoded_abi_data
-        },
-        meta,
-        from,
-        adapter,
-        pid
-      )
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> prepare_and_send(meta, from, adapter, pid)
+      |> respond(from, adapter, pid)
     else
       error -> error
     end
@@ -159,6 +151,7 @@ defmodule EthBlockchain.Transaction do
         %__MODULE__{init: from_hex(init)}
         |> prepare_and_send(meta, from, adapter, pid)
         |> append_contract_address(contract_address)
+        |> respond(from, adapter, pid)
 
       error ->
         error
@@ -173,17 +166,13 @@ defmodule EthBlockchain.Transaction do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :child_chain_deposit_eth_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.child_chain_eth_deposit(tx_bytes) do
-      prepare_and_send(
-        %__MODULE__{
-          to: from_hex(contract_address),
-          data: encoded_abi_data,
-          value: amount
-        },
-        meta,
-        from,
-        adapter,
-        pid
-      )
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data,
+        value: amount
+      }
+      |> prepare_and_send(meta, from, adapter, pid)
+      |> respond(from, adapter, pid)
     else
       error -> error
     end
@@ -197,16 +186,12 @@ defmodule EthBlockchain.Transaction do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :child_chain_deposit_token_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.child_chain_erc20_deposit(tx_bytes) do
-      prepare_and_send(
-        %__MODULE__{
-          to: from_hex(contract_address),
-          data: encoded_abi_data
-        },
-        meta,
-        from,
-        adapter,
-        pid
-      )
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> prepare_and_send(meta, from, adapter, pid)
+      |> respond(from, adapter, pid)
     else
       error -> error
     end
@@ -225,28 +210,24 @@ defmodule EthBlockchain.Transaction do
     with {:ok, meta} <-
            get_transaction_meta(attrs, :default_contract_transaction_gas_limit, adapter, pid),
          {:ok, encoded_abi_data} <- ABIEncoder.approve(to, amount) do
-      prepare_and_send(
-        %__MODULE__{
-          to: from_hex(contract_address),
-          data: encoded_abi_data
-        },
-        meta,
-        from,
-        adapter,
-        pid
-      )
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> prepare_and_send(meta, from, adapter, pid)
+      |> respond(from, adapter, pid)
     else
       error -> error
     end
   end
 
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
-    case get_transaction_count(%{address: from}, adapter, pid) do
+    case Nonce.next_nonce(from, adapter, pid) do
       {:ok, nonce} ->
         gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
         gas_price = GasHelper.get_gas_price_or_default(attrs)
 
-        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: int_from_hex(nonce)}}
+        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: nonce}}
 
       error ->
         error
@@ -292,10 +273,6 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _adapter, _pid), do: error
 
-  defp get_transaction_count(%{address: address}, adapter, pid) do
-    Adapter.call({:get_transaction_count, address}, adapter, pid)
-  end
-
   defp sign_transaction(transaction, wallet_address) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
@@ -315,6 +292,18 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp append_contract_address(error, _), do: error
+
+  # The nonce used in the transaction was too low, meaning that a transaction with a higher
+  # nonce was already mined.
+  # We force the refresh of the nonce generator which will reset the nonce to the current
+  # transaction count. This way we avoid having failed transaction until we reach the
+  # correct nonce
+  defp respond({:error, _, [error_message: "nonce too low"]} = error, from, adapter, pid) do
+    Nonce.force_refresh(from, adapter, pid)
+    error
+  end
+
+  defp respond(response, _from, _adapter, _pid), do: response
 
   @doc """
   Serialize, encode and returns a hash of a given transaction

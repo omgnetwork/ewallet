@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainRegistryTest do
+defmodule EthBlockchain.BlockchainRegistryTest do
   use EthBlockchain.EthBlockchainCase
   alias EthBlockchain.{BlockchainRegistry, DumbListener}
 
