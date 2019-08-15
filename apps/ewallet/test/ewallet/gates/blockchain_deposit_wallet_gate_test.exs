@@ -15,11 +15,56 @@
 defmodule EWallet.BlockchainDepositWalletGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.BlockchainDepositWalletGate
+  alias ActivityLogger.System
+  alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper}
+  alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet, Repo}
+  alias Keychain.Wallet
+
+ # Generates an HD wallet so deposit wallets can be derived
+  defp generate_hd_wallet do
+    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+
+    {:ok, _} =
+      BlockchainHDWallet.insert(%{
+        keychain_uuid: keychain_hd_wallet_uuid,
+        blockchain_identifier: BlockchainHelper.identifier(),
+        originator: %System{}
+      })
+  end
 
   describe "get_or_generate/2" do
-    test "generates a deposit wallet if it is not yet generated for the given wallet"
-    test "returns the existing deposit wallet if it is already generated for the given wallet"
-    test "returns :hd_wallet_not_found error if the primary HD wallet is missing"
+    test "generates a deposit wallet if it is not yet generated for the given wallet" do
+      _ = generate_hd_wallet()
+
+      wallet = insert(:wallet) |> Repo.preload(:blockchain_deposit_wallets)
+      assert wallet.blockchain_deposit_wallets == []
+
+      {res, updated} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      assert res == :ok
+      assert Enum.all?(updated.blockchain_deposit_wallets, fn w -> %BlockchainDepositWallet{} = w end)
+    end
+
+    test "returns the existing deposit wallet if it is already generated for the given wallet" do
+      _ = generate_hd_wallet()
+      wallet = insert(:wallet)
+
+      {:ok, original} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+      {res, updated} = BlockchainDepositWalletGate.get_or_generate(original, %{"originator" => %System{}})
+
+      updated = Repo.preload(updated, :blockchain_deposit_wallets)
+
+      assert res == :ok
+      assert length(updated.blockchain_deposit_wallets) == 1
+      assert hd(updated.blockchain_deposit_wallets).uuid == hd(original.blockchain_deposit_wallets).uuid
+    end
+
+    test "returns :hd_wallet_not_found error if the primary HD wallet is missing" do
+      wallet = insert(:wallet)
+      {res, error} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      assert res == :error
+      assert error == :hd_wallet_not_found
+    end
   end
 end

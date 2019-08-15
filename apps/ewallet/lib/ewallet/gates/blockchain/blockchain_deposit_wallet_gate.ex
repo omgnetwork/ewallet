@@ -48,7 +48,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
                     deposit_wallet.wallet_address
                   )
 
-                {:ok, Map.put(wallet, :blockchain_deposit_wallet, deposit_wallet)}
+                {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
 
               error ->
                 error
@@ -56,7 +56,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
         end
 
       deposit_wallet ->
-        {:ok, Map.put(wallet, :blockchain_deposit_wallet, deposit_wallet)}
+        {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
     end
   end
 
