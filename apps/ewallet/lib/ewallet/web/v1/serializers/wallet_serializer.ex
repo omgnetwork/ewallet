@@ -58,7 +58,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account: AccountSerializer.serialize(wallet.account),
       balances: serialize_balances(wallet),
       enabled: wallet.enabled,
-      blockchain_deposit_address: Assoc.get(wallet, [:deposit_wallet, :address]),
+      blockchain_deposit_address: Assoc.get(wallet, [:blockchain_deposit_wallet, :address]),
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
