@@ -15,6 +15,7 @@
 defmodule EWalletDB.WalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
+  alias ActivityLogger.System
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
   alias EWalletDB.{Account, User, Wallet}
@@ -22,19 +23,6 @@ defmodule EWalletDB.WalletTest do
   describe "Wallet factory" do
     test_has_valid_factory(Wallet)
     test_encrypted_map_field(Wallet, "wallet", :encrypted_metadata)
-  end
-
-  describe "all_for/2" do
-    test "returns a query of wallets associated with the given user"
-    test "returns a query of wallets associated with the given account"
-  end
-
-  describe "query_all_for_account_uuids_and_user/2" do
-    test "returns a query of wallets associated with the given accounts or any user"
-  end
-
-  describe "query_all_for_account_uuids/2" do
-    test "returns a query of wallets associated with the given accounts"
   end
 
   describe "insert/1" do
@@ -177,8 +165,27 @@ defmodule EWalletDB.WalletTest do
   end
 
   describe "insert_secondary_or_burn/1" do
-    test "returns the secondary wallet inserted with the given attributes"
-    test "returns the burn wallet inserted with the given attributes"
+    test "returns the secondary wallet inserted with the given attributes" do
+      {res, wallet} =
+        :wallet
+        |> string_params_for(account: insert(:account), user: nil, identifier: Wallet.secondary())
+        |> Map.put("originator", %System{})
+        |> Wallet.insert_secondary_or_burn()
+
+      assert res == :ok
+      assert String.starts_with?(wallet.identifier, "#{Wallet.secondary()}_")
+    end
+
+    test "returns the burn wallet inserted with the given attributes" do
+      {res, wallet} =
+        :wallet
+        |> string_params_for(account: insert(:account), user: nil, identifier: Wallet.burn())
+        |> Map.put("originator", %System{})
+        |> Wallet.insert_secondary_or_burn()
+
+      assert res == :ok
+      assert String.starts_with?(wallet.identifier, "#{Wallet.burn()}_")
+    end
   end
 
   describe "get/1" do
@@ -222,19 +229,75 @@ defmodule EWalletDB.WalletTest do
   end
 
   describe "insert_genesis/0" do
-    test "returns the genesis wallet inserted with the given attributes"
-    test "returns an :error tuple if an error occcured during insert"
+    test "returns the inserted genesis wallet" do
+      {res, wallet} = Wallet.insert_genesis()
+
+      assert res == :ok
+      assert wallet.identifier == Wallet.genesis()
+    end
   end
 
   describe "burn_wallet?/1" do
-    test "returns true if the given wallet is a burn wallet"
-    test "returns false if the given wallet is not a burn wallet"
-    test "returns false if given nil"
+    test "returns true if the given wallet is a burn wallet" do
+      {:ok, wallet} =
+        :wallet
+        |> string_params_for(account: insert(:account), user: nil, identifier: Wallet.burn())
+        |> Map.put("originator", %System{})
+        |> Wallet.insert_secondary_or_burn()
+
+      assert Wallet.burn_wallet?(wallet)
+    end
+
+    test "returns false if the given wallet is not a burn wallet" do
+      {:ok, wallet} =
+        :wallet
+        |> string_params_for(%{account: insert(:account), user: nil, identifier: Wallet.secondary()})
+        |> Map.put("originator", %System{})
+        |> Wallet.insert_secondary_or_burn()
+
+      refute Wallet.burn_wallet?(wallet)
+    end
+
+    test "returns false if given nil" do
+      refute Wallet.burn_wallet?(nil)
+    end
   end
 
   describe "enable_or_disable/2" do
-    test "returns :primary_wallet_cannot_be_disabled if the given wallet is a primary wallet"
-    test "returns the enabled wallet if given enabled:true"
-    test "returns the disabled wallet if given enabled:false"
+    test "returns :primary_wallet_cannot_be_disabled if the given wallet is a primary wallet" do
+      {:ok, wallet} =
+        :wallet
+        |> params_for(identifier: Wallet.primary())
+        |> Wallet.insert()
+
+      {res, error} = Wallet.enable_or_disable(wallet, %{enabled: false, originator: %System{}})
+
+      assert res == :error
+      assert error == :primary_wallet_cannot_be_disabled
+    end
+
+    test "returns the enabled wallet if given enabled:true" do
+      {:ok, wallet} =
+        :wallet
+        |> params_for(account: insert(:account), user: nil, identifier: "#{Wallet.secondary()}_1")
+        |> Wallet.insert()
+
+      {res, wallet} = Wallet.enable_or_disable(wallet, %{enabled: true, originator: %System{}})
+
+      assert res == :ok
+      assert wallet.enabled
+    end
+
+    test "returns the disabled wallet if given enabled:false" do
+      {:ok, wallet} =
+        :wallet
+        |> params_for(account: insert(:account), user: nil, identifier: "#{Wallet.secondary()}_1")
+        |> Wallet.insert()
+
+      {res, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false, originator: %System{}})
+
+      assert res == :ok
+      refute wallet.enabled
+    end
   end
 end

@@ -83,7 +83,7 @@ defmodule EWalletDB.Wallet do
     )
 
     has_many(
-      :blockchain_deposit_wallet,
+      :blockchain_deposit_wallets,
       BlockchainDepositWallet,
       foreign_key: :wallet_address,
       references: :address
