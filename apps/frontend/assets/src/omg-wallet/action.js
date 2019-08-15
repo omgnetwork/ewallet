@@ -79,3 +79,10 @@ export const createWallet = ({ name, identifier, accountId }) =>
       accountId
     })
   })
+
+export const generateDepositAddress = address =>
+  createActionCreator({
+    actionName: 'DEPOSIT_ADDRESS',
+    action: 'CREATE',
+    service: async () => walletService.generateDepositAddress(address)
+  })

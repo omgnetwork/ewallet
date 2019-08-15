@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
 
+import { generateDepositAddress } from '../omg-wallet/action'
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
@@ -53,11 +55,18 @@ const MenuContainer = styled.div`
   }
 `
 
-const enhance = compose(withRouter)
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { generateDepositAddress }
+  )
+)
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    generateDepositAddress: PropTypes.func
   }
   renderTopBar = wallet => {
     return (
@@ -103,6 +112,19 @@ class WalletDetaillPage extends Component {
             </Link>
           </DetailGroup>
         )}
+        <DetailGroup>
+          <b>Blockchain Address:</b>{' '}
+          {wallet.blockchain_deposit_address && (
+            <>
+              <span>{wallet.blockchain_deposit_address}</span> <Copy data={wallet.blockchain_deposit_address} />
+            </>
+          )}
+          {!wallet.blockchain_deposit_address && (
+            <a onClick={() => this.props.generateDepositAddress(wallet.address)}>
+              Generate deposit address
+            </a>
+          )}
+        </DetailGroup>
         <DetailGroup>
           <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>

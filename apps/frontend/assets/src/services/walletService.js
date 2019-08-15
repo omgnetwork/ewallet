@@ -87,3 +87,12 @@ export function createWallet ({ name, identifier, accountId }) {
     }
   })
 }
+
+export function generateDepositAddress (address) {
+  return authenticatedRequest({
+    path: '/wallet.generate_deposit_address',
+    data: {
+      address
+    }
+  })
+}
