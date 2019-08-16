@@ -57,6 +57,19 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Enum.at(wallets, 2)["address"] == "aaaa111111111111"
     end
 
+    test_with_auths "returns the blockchain_deposit_address if available" do
+      wallet = insert(:wallet, address: "aaaa111111111111")
+      deposit_wallet = insert(:blockchain_deposit_wallet, wallet_address: wallet.address)
+
+      response = request("/wallet.all")
+      wallets = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.any?(wallets, fn w ->
+        w["address"] == wallet.address && w["blockchain_deposit_address"] == deposit_wallet.address
+      end)
+    end
+
     test_supports_match_any("/wallet.all", :wallet, :name)
     test_supports_match_all("/wallet.all", :wallet, :name)
   end
@@ -169,7 +182,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
              end)
     end
 
-    test_with_auths "Get all user wallets with an invalid parameter should fail" do
+    test_with_auths "gets all user wallets with an invalid parameter should fail" do
       request_data = %{some_invalid_param: "some_invalid_value"}
       response = request("/user.get_wallets", request_data)
 

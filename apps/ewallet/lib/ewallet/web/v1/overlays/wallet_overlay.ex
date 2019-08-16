@@ -26,13 +26,15 @@ defmodule EWallet.Web.V1.WalletOverlay do
   def preload_assocs,
     do: [
       :user,
-      :account
+      :account,
+      :blockchain_deposit_wallets
     ]
 
   def default_preload_assocs,
     do: [
       :user,
-      :account
+      :account,
+      :blockchain_deposit_wallets
     ]
 
   def search_fields,
