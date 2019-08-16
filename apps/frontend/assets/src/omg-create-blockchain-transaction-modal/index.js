@@ -122,7 +122,6 @@ class CreateBlockchainTransaction extends Component {
   onChangeInputToAddress = e => {
     this.setState({
       toAddress: e.target.value,
-      toTokenSelected: null,
       toTokenSearchToken: ''
     })
   }
@@ -145,19 +144,13 @@ class CreateBlockchainTransaction extends Component {
   onSelectToAddressSelect = item => {
     if (item) {
       this.setState({
-        toAddress: item.key,
-        toAddressSelect: true,
-        toTokenSelected: this.state.toTokenSelected
-          ? item.balances.find(
-            b => b.token.id === _.get(this.state.toTokenSelected, 'token.id')
-          )
-          : null
+        toAddress: item.blockchain_deposit_address,
+        toAddressSelect: true
       })
     } else {
       this.setState({
         toAddress: '',
         toAddressSelect: false,
-        toTokenSelected: null,
         toTokenSearchToken: ''
       })
     }
@@ -321,13 +314,15 @@ class CreateBlockchainTransaction extends Component {
 
   rendreToSelectWalletOption = data => {
     return data
-      ? data.map(d => {
-        return {
-          key: d.address,
-          value: <WalletSelect wallet={d} />,
-          ...d
-        }
-      })
+      ? data
+        .filter(d => d.blockchain_deposit_address)
+        .map(d => {
+          return {
+            key: d.address,
+            value: <WalletSelect wallet={d} />,
+            ...d
+          }
+        })
       : []
   }
 
@@ -350,7 +345,7 @@ class CreateBlockchainTransaction extends Component {
             return (
               <StyledSelectInput
                 selectProps={{
-                  label: 'Wallet Address',
+                  label: 'Ethereum Address',
                   clearable: true,
                   disabled: !!this.props.fromAddress || this.state.step !== 1,
                   onSelectItem: this.onSelectFromAddressSelect,

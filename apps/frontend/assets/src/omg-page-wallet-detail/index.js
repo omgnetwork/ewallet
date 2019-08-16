@@ -112,19 +112,21 @@ class WalletDetaillPage extends Component {
             </Link>
           </DetailGroup>
         )}
-        <DetailGroup>
-          <b>Blockchain Address:</b>{' '}
-          {wallet.blockchain_deposit_address && (
-            <>
-              <span>{wallet.blockchain_deposit_address}</span> <Copy data={wallet.blockchain_deposit_address} />
-            </>
-          )}
-          {!wallet.blockchain_deposit_address && (
-            <a onClick={() => this.props.generateDepositAddress(wallet.address)}>
-              Generate deposit address
-            </a>
-          )}
-        </DetailGroup>
+        {!wallet.identifier.includes('burn') && (
+          <DetailGroup>
+            <b>Blockchain Address:</b>{' '}
+            {wallet.blockchain_deposit_address && (
+              <>
+                <span>{wallet.blockchain_deposit_address}</span> <Copy data={wallet.blockchain_deposit_address} />
+              </>
+            )}
+            {!wallet.blockchain_deposit_address && (
+              <a onClick={() => this.props.generateDepositAddress(wallet.address)}>
+                Generate deposit address
+              </a>
+            )}
+          </DetailGroup>
+        )}
         <DetailGroup>
           <b>Created At:</b> <span>{moment(wallet.created_at).format()}</span>
         </DetailGroup>
