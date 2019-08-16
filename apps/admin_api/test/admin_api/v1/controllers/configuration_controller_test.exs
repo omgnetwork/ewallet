@@ -231,7 +231,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
         request("/configuration.update", %{
           primary_hot_wallet: wallet.address,
           config_pid: context[:config_pid]
-        }) |> IO.inspect()
+        })
 
       assert response["success"] == true
       assert response["data"]["data"]["primary_hot_wallet"]["value"] == wallet.address
