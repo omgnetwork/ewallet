@@ -44,16 +44,11 @@ defmodule EthBlockchain.Childchain do
       %{contract_address: contract_address} ->
         deposit_to_child_chain(to, amount, currency_address, contract_address, adapter, pid)
     end
-
-    # TODO: deposit to rootchain
-    # TODO: handle both ETH & ERC-20
-    # https://github.com/omisego/plasma-contracts/blob/master/contracts/RootChain.sol
-    # TODO: return transaction hash
   end
 
-  def deposit_to_child_chain(to, amount, token \\ @eth, contract_address, adapter, pid)
+  defp deposit_to_child_chain(to, amount, token \\ @eth, contract_address, adapter, pid)
 
-  def deposit_to_child_chain(to, amount, @eth, contract_address, adapter, pid) do
+  defp deposit_to_child_chain(to, amount, @eth, contract_address, adapter, pid) do
     tx_bytes =
       []
       |> EthBlockchain.Plasma.Transaction.new([
@@ -68,7 +63,7 @@ defmodule EthBlockchain.Childchain do
     )
   end
 
-  def deposit_to_child_chain(to, amount, erc20, contract_address, adapter, pid) do
+  defp deposit_to_child_chain(to, amount, erc20, contract_address, adapter, pid) do
     tx_bytes =
       []
       |> EthBlockchain.Plasma.Transaction.new([
@@ -89,24 +84,74 @@ defmodule EthBlockchain.Childchain do
     )
   end
 
-  # def deposit_to_child_chain(to, value, token_addr, contract_address, adapter, pid) do
-  # TODO
+  def send(%{
+    from: from,
+    to: to,
+    amount: amount,
+    currency: currency_address,
+    childchain_identifier: childchain_identifier
+  } = attrs,
+  adapter \\ nil,
+  pid \\ nil) do
+    #TODO: extract this in function
+    # check that childchain identifier is supported
+    childchains = Application.get_env(:eth_blockchain, :childchains)
 
-  # contract_addr = Eth.Encoding.from_hex(Application.fetch_env!(:omg_eth, :contract_addr))
+    childchain_identifier =
+      childchain_identifier || Application.get_env(:eth_blockchain, :default_childchain)
 
-  # to |> Eth.Token.mint(value, token_addr) |> Eth.DevHelpers.transact_sync!()
-  # to |> Eth.Token.approve(contract_addr, value, token_addr) |> Eth.DevHelpers.transact_sync!()
+    case Map.get(childchains, childchain_identifier) do
+      nil ->
+        {:error, :childchain_not_supported}
 
-  # {:ok, receipt} =
-  #   Transaction.new([], [{to, token_addr, value}])
-  #   |> Transaction.encode()
-  #   |> do_deposit_from(to)
-  #   |> Eth.DevHelpers.transact_sync!()
+      config ->
+        do_send(from, to, amount, currency_address, config, adapter, pid)
+    end
+  end
 
-  # process_deposit(receipt)
-  # end
+  defp do_send(from, to, amount, currency_address, config, adapter, pid) do
+    case prepare_transaction(from, to, amount, currency_address, config, adapter, pid) do
+      # Handling only complete transactions
+      {:ok, %{"result" => "complete", "transactions" => [%{"sign_hash" => sign_hash, "typed_data" => typed_data} | _]}} ->
+        sign_hash
+        |> sign(from)
+        |> submit_typed(typed_data, config)
+      {:ok, %{"result" => "intermediate"}} -> {:error, :todo} #TODO Handle intermediate transactions
+      {:ok, _} -> {:error, :unhandled}
+      error -> error
+    end
+  end
 
-  def send do
+  defp prepare_transaction(from, to, amount, currency_address, %{watcher_url: watcher_url}, adapter, pid) do
+    # TODO: Fee?
+    %{
+      owner: from,
+      payments: [
+        %{
+          amount: amount,
+          currency: currency_address,
+          owner: to
+        }
+      ],
+      fee: %{
+        amount: 5,
+        currency: "0x0000000000000000000000000000000000000000"
+      }
+    }
+    |> Jason.encode!()
+    |> EthBlockchain.Plasma.HttpClient.post_request(watcher_url <> "/transaction.create")
+  end
+
+  defp sign(sign_hash, from) do
+    {:ok, {v, r, s}} = Keychain.Signature.sign_transaction_hash(from_hex(sign_hash), from)
+    to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
+  end
+
+  defp submit_typed(signature, typed_data, %{watcher_url: watcher_url}) do
+    typed_data
+    |> Map.put_new("signatures", [signature])
+    |> Jason.encode!()
+    |> EthBlockchain.Plasma.HttpClient.post_request(watcher_url <> "/transaction.submit_typed")
   end
 
   def get_block do

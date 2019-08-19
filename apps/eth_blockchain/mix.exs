@@ -36,7 +36,8 @@ defmodule EthBlockchain.MixProject do
       {:ex_rlp, "~> 0.5.2"},
       {:utils, in_umbrella: true},
       {:keychain, in_umbrella: true},
-      {:jason, "~> 1.1"}
+      {:jason, "~> 1.1"},
+      {:httpoison, "~> 1.4.0"}
     ]
   end
 end

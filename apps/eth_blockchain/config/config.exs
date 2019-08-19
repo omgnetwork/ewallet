@@ -20,13 +20,13 @@ config :eth_blockchain,
   childchains: %{
     "elixir_omg" => %{
       contract_address:
-        {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0xd99d842b31c06e31d455f339c57b6c3d1860af39"},
-      childchain_url: {:system, "ELIXIR_OMG_CHILDCHAIN_URL", "http://localhost:7434"},
-      watcher_url: {:system, "ELIXIR_OMG_WATCHER_URL", "http://localhost:9656"},
+        {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0x7d812d4c8017468d8102bd5e64af0d431c77f86a"},
+      childchain_url: {:system, "ELIXIR_OMG_CHILDCHAIN_URL", "http://localhost:9656"},
+      watcher_url: {:system, "ELIXIR_OMG_WATCHER_URL", "http://localhost:7434"},
       adapter: {:elixir_omg, ElixirOMGAdapter.Worker}
     }
   },
-  default_childchain: "elixir_omg"
+  default_childchain: "elixir_omg",
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
