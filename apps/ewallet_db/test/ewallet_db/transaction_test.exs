@@ -41,6 +41,7 @@ defmodule EWalletDB.TransactionTest do
 
   describe "all_for_user/1" do
     test "returns all transactions associated that are from or to the given user"
+
     test "returns all transactions associated that are from or to the given user and in the given queryable"
   end
 

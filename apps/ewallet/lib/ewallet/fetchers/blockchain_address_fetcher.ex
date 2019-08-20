@@ -35,15 +35,15 @@ defmodule EWallet.BlockchainAddressFetcher do
   defp get_all_hot_wallet_addresses(blockchain_identifier) do
     blockchain_identifier
     |> BlockchainWallet.get_all_hot()
-    |> Enum.map(fn wallet -> {wallet.address, nil} end)
-    |> Enum.into(%{})
+    |> Enum.into(%{}, fn wallet -> {wallet.address, nil} end)
   end
 
   # TODO: Refactor to a more specific DB select for efficiency
   defp get_all_deposit_wallet_addresses(blockchain_identifier) do
     blockchain_identifier
     |> BlockchainDepositWallet.all()
-    |> Enum.map(fn deposit_wallet -> {deposit_wallet.address, deposit_wallet.wallet_address} end)
-    |> Enum.into(%{})
+    |> Enum.into(%{}, fn deposit_wallet ->
+      {deposit_wallet.address, deposit_wallet.wallet_address}
+    end)
   end
 end

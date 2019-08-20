@@ -17,7 +17,16 @@ defmodule EWallet.AddressTrackerTest do
   import EWalletDB.Factory
   import Ecto.Query
   alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
-  alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, TransactionState, Token, Repo}
+
+  alias EWalletDB.{
+    BlockchainWallet,
+    BlockchainHDWallet,
+    Transaction,
+    TransactionState,
+    Token,
+    Repo
+  }
+
   alias Keychain.Wallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -331,6 +340,8 @@ defmodule EWallet.AddressTrackerTest do
     end
   end
 
+  # It's a private helper function and we're doing a lot of assertions
+  # credo:disable-for-next-line Credo.Check.Refactor.Nesting
   defp assert_transaction(
          transaction,
          from_bc,

@@ -15,6 +15,7 @@
 defmodule EWallet.Application do
   @moduledoc false
   use Application
+  alias EWallet.BlockchainHelper
   alias EWalletConfig.Config
 
   @decimal_precision 38
@@ -33,7 +34,7 @@ defmodule EWallet.Application do
     })
 
     address_tracker_attrs = %{
-      blockchain_identifier: EWallet.BlockchainHelper.identifier()
+      blockchain_identifier: BlockchainHelper.identifier()
     }
 
     # List all child processes to be supervised

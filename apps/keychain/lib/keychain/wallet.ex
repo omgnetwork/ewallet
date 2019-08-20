@@ -18,6 +18,7 @@ defmodule Keychain.Wallet do
   alias Keychain.Key
   alias ExthCrypto.Hash.Keccak
   alias Ecto.UUID
+  alias BlockKeys.{CKD, Ethereum, Ethereum.Address}
 
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
@@ -56,8 +57,8 @@ defmodule Keychain.Wallet do
   @spec generate_hd :: {:ok, <<_::288>>}
   def generate_hd do
     %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
-    public_key = BlockKeys.CKD.derive(root_key, @pub_root_derivation_path)
-    wallet_address = BlockKeys.Ethereum.Address.from_xpub(public_key)
+    public_key = CKD.derive(root_key, @pub_root_derivation_path)
+    wallet_address = Ethereum.Address.from_xpub(public_key)
     uuid = UUID.generate()
 
     {:ok, _} =
@@ -79,7 +80,7 @@ defmodule Keychain.Wallet do
 
       public_key ->
         path = "M/#{account_ref}/#{deposit_ref}"
-        BlockKeys.Ethereum.address(public_key, path)
+        Ethereum.address(public_key, path)
     end
   end
 end

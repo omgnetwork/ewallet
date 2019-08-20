@@ -251,7 +251,11 @@ defmodule EWalletDB.WalletTest do
     test "returns false if the given wallet is not a burn wallet" do
       {:ok, wallet} =
         :wallet
-        |> string_params_for(%{account: insert(:account), user: nil, identifier: Wallet.secondary()})
+        |> string_params_for(%{
+          account: insert(:account),
+          user: nil,
+          identifier: Wallet.secondary()
+        })
         |> Map.put("originator", %System{})
         |> Wallet.insert_secondary_or_burn()
 

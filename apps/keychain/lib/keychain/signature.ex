@@ -20,6 +20,7 @@ defmodule Keychain.Signature do
   alias Keychain.Key
   alias ExthCrypto.Hash.Keccak
   alias ExthCrypto.Signature
+  alias BlockKeys.{CKD, Encoding}
 
   @type recovery_id :: <<_::8>>
   @type hash_v :: integer()
@@ -58,10 +59,9 @@ defmodule Keychain.Signature do
         {:error, :invalid_uuid}
 
       xprv ->
-        child_xprv =
-          BlockKeys.CKD.derive(xprv, @priv_derivation_path <> "/#{account_ref}/#{deposit_ref}")
+        child_xprv = CKD.derive(xprv, @priv_derivation_path <> "/#{account_ref}/#{deposit_ref}")
 
-        decoded = BlockKeys.Encoding.decode_extended_key(child_xprv)
+        decoded = Encoding.decode_extended_key(child_xprv)
         <<_prefix::binary-1, pkey::binary-32>> = decoded[:key]
         do_sign(pkey, hash, chain_id)
     end

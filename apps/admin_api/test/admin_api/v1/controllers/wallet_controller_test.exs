@@ -65,9 +65,11 @@ defmodule AdminAPI.V1.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
+
       assert Enum.any?(wallets, fn w ->
-        w["address"] == wallet.address && w["blockchain_deposit_address"] == deposit_wallet.address
-      end)
+               w["address"] == wallet.address &&
+                 w["blockchain_deposit_address"] == deposit_wallet.address
+             end)
     end
 
     test_supports_match_any("/wallet.all", :wallet, :name)
@@ -638,7 +640,10 @@ defmodule AdminAPI.V1.WalletControllerTest do
     test_with_auths "generates new deposit addresses for different wallets" do
       account = insert(:account)
       wallet_primary = insert(:wallet, identifier: Wallet.primary(), account: account, user: nil)
-      wallet_secondary = insert(:wallet, identifier: Wallet.secondary(), account: account, user: nil)
+
+      wallet_secondary =
+        insert(:wallet, identifier: Wallet.secondary(), account: account, user: nil)
+
       wallet_burn = insert(:wallet, identifier: Wallet.burn(), account: account, user: nil)
 
       # Generate for primary wallet
