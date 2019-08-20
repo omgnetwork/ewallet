@@ -5,6 +5,7 @@
 1. **Backup the existing the database:** Always keep a working database backup so that you can restore the system
 to the previous state when needed.
 2. **Read the version-specific upgrade notes:** You may need to perform some tasks before or after the upgrade.
+    - [Upgrading to `v1.3.0`](v1.3.0.md)
     - [Upgrading to `v1.2.0`](v1.2.0.md)
     - [Upgrading to `v1.1.0`](v1.1.0.md)
     - [Upgrading to `v1.0.0`](v1.0.0.md)
