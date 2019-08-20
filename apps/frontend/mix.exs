@@ -4,7 +4,7 @@ defmodule Frontend.Mixfile do
   def project do
     [
       app: :frontend,
-      version: "1.3.0",
+      version: "1.3.1",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",

@@ -4,7 +4,7 @@ defmodule DB.Mixfile do
   def project do
     [
       app: :db,
-      version: "1.3.0",
+      version: "1.3.1",
       elixir: "~> 1.8",
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
