@@ -156,7 +156,7 @@ defmodule EWallet.AddressTrackerTest do
                       [
                         %{
                           hot_wallet_address: hot_wallet.address,
-                          deposit_wallet_address: wallet.deposit_wallet.address,
+                          deposit_wallet_address: hd(wallet.blockchain_deposit_wallets).address,
                           erc20_address: erc20_token.blockchain_address,
                           other_address: other_address
                         }
@@ -171,7 +171,7 @@ defmodule EWallet.AddressTrackerTest do
 
       assert state[:addresses] == %{
                hot_wallet.address => nil,
-               wallet.deposit_wallet.address => wallet.address
+               hd(wallet.blockchain_deposit_wallets).address => wallet.address
              }
 
       # Because we're passing stop_once_synced: true, the tracker will
@@ -237,7 +237,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(3)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             0,
@@ -255,7 +255,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(4)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             1,
@@ -283,7 +283,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(6)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             1,
@@ -303,7 +303,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(7)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             2,
@@ -317,7 +317,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(8)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             2,

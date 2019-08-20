@@ -17,6 +17,7 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper}
+  alias EWalletDB.Wallet, as: DBWallet
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet, Repo}
   alias Keychain.Wallet
 
@@ -42,7 +43,19 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       {res, updated} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       assert res == :ok
-      assert Enum.all?(updated.blockchain_deposit_wallets, fn w -> %BlockchainDepositWallet{} = w end)
+      assert [%BlockchainDepositWallet{}] = updated.blockchain_deposit_wallets
+    end
+
+    test "generates a deposit wallet for a secondary wallet" do
+      _ = generate_hd_wallet()
+
+      wallet = insert(:wallet, identifier: DBWallet.secondary()) |> Repo.preload(:blockchain_deposit_wallets)
+      assert wallet.blockchain_deposit_wallets == []
+
+      {res, updated} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      assert res == :ok
+      assert [%BlockchainDepositWallet{}] = updated.blockchain_deposit_wallets
     end
 
     test "returns the existing deposit wallet if it is already generated for the given wallet" do
@@ -57,6 +70,18 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       assert res == :ok
       assert length(updated.blockchain_deposit_wallets) == 1
       assert hd(updated.blockchain_deposit_wallets).uuid == hd(original.blockchain_deposit_wallets).uuid
+    end
+
+    test "returns an error when generating a deposit wallet for a burn wallet" do
+      _ = generate_hd_wallet()
+
+      wallet = insert(:wallet, identifier: DBWallet.burn()) |> Repo.preload(:blockchain_deposit_wallets)
+      assert wallet.blockchain_deposit_wallets == []
+
+      {res, error} = BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      assert res == :error
+      assert error == :blockchain_deposit_wallet_for_burn_wallet_not_allowed
     end
 
     test "returns :hd_wallet_not_found error if the primary HD wallet is missing" do

@@ -64,6 +64,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
     }
   end
 
+  defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: %NotLoaded{}}), do: nil
+
   defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: []}), do: nil
 
   defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: deposit_wallets}) do
