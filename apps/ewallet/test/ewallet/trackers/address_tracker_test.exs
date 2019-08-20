@@ -17,7 +17,7 @@ defmodule EWallet.AddressTrackerTest do
   import EWalletDB.Factory
   import Ecto.Query
   alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
-  alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, Token, Repo}
+  alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, TransactionState, Token, Repo}
   alias Keychain.Wallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -343,7 +343,7 @@ defmodule EWallet.AddressTrackerTest do
          amount
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
-    assert transaction.status == "confirmed"
+    assert transaction.status == TransactionState.confirmed()
     assert transaction.confirmations_count == 13
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc

@@ -55,8 +55,15 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
       assert %{listener: _, pid: blockchain_listener_pid} = res
 
-      :sys.get_state(pid)
-      :sys.get_state(blockchain_listener_pid)
+      assert Process.alive?(pid)
+      assert Process.alive?(blockchain_listener_pid)
+
+      # Turn off the listeners before exiting so it does not try
+      # to update the transactions after the test is done.
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
     end
 
     test "returns an error when trying to exchange" do
