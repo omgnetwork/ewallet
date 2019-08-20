@@ -54,13 +54,11 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
         :exchange_wallet,
         :from_account,
         :to_account,
+        :exchange_account,
         exchange_pair: [
           :to_token,
           :from_token
         ],
-        exchange_account: [
-          :blockchain_deposit_wallets
-        ]
       ],
       transaction_request: [
         :consumptions,

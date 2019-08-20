@@ -116,7 +116,8 @@ defmodule EWalletDB.Factory do
       user: insert(:user),
       enabled: true,
       metadata: %{},
-      originator: %System{}
+      originator: %System{},
+      blockchain_deposit_wallets: []
     }
   end
 
