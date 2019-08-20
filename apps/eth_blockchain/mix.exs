@@ -4,7 +4,7 @@ defmodule EthBlockchain.MixProject do
   def project do
     [
       app: :eth_blockchain,
-      version: "1.2.0-dev",
+      version: "2.0.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
