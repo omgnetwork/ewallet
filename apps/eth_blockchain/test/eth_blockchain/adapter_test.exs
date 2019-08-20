@@ -38,11 +38,6 @@ defmodule EthBlockchain.AdapterTest do
       assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp2
     end
 
-    test "delegates get_transactions call to the adapter"
-    test "delegates get_field call to the adapter"
-    test "delegates deploy_erc20 call to the adapter"
-    test "delegates send call to the adapter"
-
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
         Adapter.call(
