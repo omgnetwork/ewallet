@@ -172,6 +172,12 @@ export const alertsReducer = createReducer([], {
     }
     return state
   },
+  'DEPOSIT_ADDRESS/CREATE/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState('Generated deposit address successfully.', 'success')
+    ]
+  },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (
       data.status === 'confirmed' &&
