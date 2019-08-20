@@ -635,6 +635,50 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response["data"]["blockchain_deposit_address"] != nil
     end
 
+    test_with_auths "generates new deposit addresses for different wallets" do
+      account = insert(:account)
+      wallet_primary = insert(:wallet, identifier: Wallet.primary(), account: account, user: nil)
+      wallet_secondary = insert(:wallet, identifier: Wallet.secondary(), account: account, user: nil)
+      wallet_burn = insert(:wallet, identifier: Wallet.burn(), account: account, user: nil)
+
+      # Generate for primary wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_primary.address
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet_primary.address
+      assert response["data"]["blockchain_deposit_address"] != nil
+
+      # Generate for secondary wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_secondary.address
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet_secondary.address
+      assert response["data"]["blockchain_deposit_address"] != nil
+
+      # Generate for burn wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_burn.address
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => false,
+               "data" => %{
+                 "object" => "error",
+                 "code" => "blockchain:deposit_wallet_for_burn_wallet_not_allowed",
+                 "description" => "Generating a deposit wallet for a burn wallet is not allowed.",
+                 "messages" => nil
+               }
+             }
+    end
+
     test_with_auths "returns an existing deposit address" do
       account = Account.get_master_account()
       wallet = Account.get_primary_wallet(account)
