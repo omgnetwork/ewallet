@@ -40,11 +40,11 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, balances}, reg}
   end
 
-  def handle_call({:get_transaction_count, @high_transaction_count_address}, _from, reg) do
+  def handle_call({:get_transaction_count, @high_transaction_count_address, _block}, _from, reg) do
     {:reply, {:ok, "0x64"}, reg}
   end
 
-  def handle_call({:get_transaction_count, _address}, _from, reg) do
+  def handle_call({:get_transaction_count, _address, _block}, _from, reg) do
     {:reply, {:ok, "0x0"}, reg}
   end
 

@@ -25,8 +25,8 @@ defmodule EthGethAdapter.Transaction do
     |> parse_response()
   end
 
-  def get_transaction_count(address) do
-    Client.eth_get_transaction_count(address)
+  def get_transaction_count(address, block \\ "latest") do
+    Client.eth_get_transaction_count(address, block)
   end
 
   defp parse_response({:ok, _data} = response), do: response

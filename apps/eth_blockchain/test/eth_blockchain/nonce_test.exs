@@ -18,7 +18,15 @@ defmodule EthBlockchain.NonceTest do
 
   describe "start_link/1" do
     test "starts a new nonce handler" do
-      assert {:ok, pid} = Nonce.start_link(name: :test_nonce)
+      assert {:ok, pid} =
+               Nonce.start_link(
+                 args: %{
+                   address: nil,
+                   node_adapter: nil,
+                   blockchain_adapter_pid: nil
+                 }
+               )
+
       assert is_pid(pid)
       assert GenServer.stop(pid) == :ok
     end
@@ -26,28 +34,48 @@ defmodule EthBlockchain.NonceTest do
 
   describe "init/1" do
     test "inits with empty map" do
-      assert Nonce.init(:ok) == {:ok, %{}}
+      assert Nonce.init(%{
+               address: DumbAdapter.high_transaction_count_address(),
+               node_adapter: nil,
+               blockchain_adapter_pid: nil
+             }) ==
+               {:ok,
+                %{
+                  address: DumbAdapter.high_transaction_count_address(),
+                  node_adapter: nil,
+                  blockchain_adapter_pid: nil,
+                  nonce: 100
+                }}
     end
   end
 
   describe "next_nonce/4" do
     test "returns the current transaction count if not in state" do
-      assert {:ok, pid} = Nonce.start_link(name: :test_nonce)
+      assert {:ok, pid} =
+               Nonce.start_link(
+                 args: %{
+                   address: DumbAdapter.high_transaction_count_address(),
+                   node_adapter: nil,
+                   blockchain_adapter_pid: nil
+                 }
+               )
 
-      assert {:ok, 100} =
-               Nonce.next_nonce(DumbAdapter.high_transaction_count_address(), nil, nil, pid)
-
+      assert {:ok, 100} = Nonce.next_nonce(pid)
       assert GenServer.stop(pid) == :ok
     end
 
     test "returns the next nonce to use if in state" do
-      assert {:ok, pid} = Nonce.start_link(name: :test_nonce)
+      assert {:ok, pid} =
+               Nonce.start_link(
+                 args: %{
+                   address: DumbAdapter.high_transaction_count_address(),
+                   node_adapter: nil,
+                   blockchain_adapter_pid: nil
+                 }
+               )
 
-      assert {:ok, 100} =
-               Nonce.next_nonce(DumbAdapter.high_transaction_count_address(), nil, nil, pid)
-
-      assert {:ok, 101} =
-               Nonce.next_nonce(DumbAdapter.high_transaction_count_address(), nil, nil, pid)
+      assert {:ok, 100} = Nonce.next_nonce(pid)
+      assert {:ok, 101} = Nonce.next_nonce(pid)
 
       assert GenServer.stop(pid) == :ok
     end
@@ -56,10 +84,19 @@ defmodule EthBlockchain.NonceTest do
   describe "force_refresh/4" do
     test "refresh the nonce from the transaction count" do
       address = DumbAdapter.high_transaction_count_address()
-      assert {:ok, pid} = Nonce.start_link(name: :test_nonce)
-      assert {:ok, 100} = Nonce.next_nonce(address, nil, nil, pid)
-      assert {:ok, 100} = Nonce.force_refresh(address, nil, nil, pid)
-      assert {:ok, 100} = Nonce.next_nonce(address, nil, nil, pid)
+
+      assert {:ok, pid} =
+               Nonce.start_link(
+                 args: %{
+                   address: address,
+                   node_adapter: nil,
+                   blockchain_adapter_pid: nil
+                 }
+               )
+
+      assert {:ok, 100} = Nonce.next_nonce(pid)
+      assert {:ok, 100} = Nonce.force_refresh(pid)
+      assert {:ok, 100} = Nonce.next_nonce(pid)
 
       assert GenServer.stop(pid) == :ok
     end

@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper, Nonce}
+  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper, Nonce, NonceRegistry}
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -167,15 +167,12 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
-    case Nonce.next_nonce(from, adapter, pid) do
-      {:ok, nonce} ->
-        gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
-        gas_price = GasHelper.get_gas_price_or_default(attrs)
+    with {:ok, nonce_handler_pid} <- NonceRegistry.lookup(from, adapter, pid),
+         {:ok, nonce} <- Nonce.next_nonce(nonce_handler_pid) do
+      gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
+      gas_price = GasHelper.get_gas_price_or_default(attrs)
 
-        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: nonce}}
-
-      error ->
-        error
+      {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: nonce}}
     end
   end
 
@@ -237,8 +234,10 @@ defmodule EthBlockchain.Transaction do
   # transaction count. This way we avoid having failed transaction until we reach the
   # correct nonce
   defp respond({:error, _, [error_message: "nonce too low"]} = error, from, adapter, pid) do
-    Nonce.force_refresh(from, adapter, pid)
-    error
+    with {:ok, nonce_handler_pid} <- NonceRegistry.lookup(from, adapter, pid),
+         {:ok, _nonce} <- Nonce.force_refresh(nonce_handler_pid) do
+      error
+    end
   end
 
   defp respond(response, _from, _adapter, _pid), do: response
