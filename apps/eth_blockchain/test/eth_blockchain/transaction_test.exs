@@ -189,4 +189,16 @@ defmodule EthBlockchain.TransactionTest do
                )
     end
   end
+
+  describe "transaction_hash/2" do
+    test "returns the hash of the given transaction"
+  end
+
+  describe "serialize/2" do
+    test "returns the RLP-encoded transaction"
+  end
+
+  describe "deserialize/2" do
+    test "returns the decoded RLP-encoded transaction"
+  end
 end

@@ -27,6 +27,7 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   }
 
   alias EWalletDB.{AccountUser, Transaction, TransactionState}
+  alias EWalletDB.Helpers.Preloader
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -35,6 +36,7 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     from_blockchain? = is_from_blockchain?(transaction)
 
     transaction
+    |> Preloader.preload([:from_token, :to_token, :from_wallet, :to_wallet])
     |> set_blockchain_wallets(:from_wallet, :from, from_blockchain?)
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: from_blockchain?})

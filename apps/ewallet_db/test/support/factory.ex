@@ -116,7 +116,8 @@ defmodule EWalletDB.Factory do
       user: insert(:user),
       enabled: true,
       metadata: %{},
-      originator: %System{}
+      originator: %System{},
+      blockchain_deposit_wallets: []
     }
   end
 
@@ -377,6 +378,7 @@ defmodule EWalletDB.Factory do
       to_token: token,
       from_blockchain_address: insert(:blockchain_wallet).address,
       to_blockchain_address: insert(:blockchain_wallet).address,
+      blockchain_tx_hash: sequence("0xabcdefabcdef"),
       to_amount: 100,
       type: "external",
       originator: %System{}

@@ -4,7 +4,7 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  version: "1.2.2-dev",
+  version: "2.0.0-dev",
   cors_origin: {:system, "CORS_ORIGIN", nil},
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
   cc_node_adapter: {:elixir_omg, EthElixirOmgAdapterr.Worker},

@@ -17,7 +17,16 @@ defmodule EWallet.AddressTrackerTest do
   import EWalletDB.Factory
   import Ecto.Query
   alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
-  alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, Token, Repo}
+
+  alias EWalletDB.{
+    BlockchainWallet,
+    BlockchainHDWallet,
+    Transaction,
+    TransactionState,
+    Token,
+    Repo
+  }
+
   alias Keychain.Wallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -156,7 +165,7 @@ defmodule EWallet.AddressTrackerTest do
                       [
                         %{
                           hot_wallet_address: hot_wallet.address,
-                          deposit_wallet_address: wallet.deposit_wallet.address,
+                          deposit_wallet_address: hd(wallet.blockchain_deposit_wallets).address,
                           erc20_address: erc20_token.blockchain_address,
                           other_address: other_address
                         }
@@ -171,7 +180,7 @@ defmodule EWallet.AddressTrackerTest do
 
       assert state[:addresses] == %{
                hot_wallet.address => nil,
-               wallet.deposit_wallet.address => wallet.address
+               hd(wallet.blockchain_deposit_wallets).address => wallet.address
              }
 
       # Because we're passing stop_once_synced: true, the tracker will
@@ -237,7 +246,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(3)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             0,
@@ -255,7 +264,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(4)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             1,
@@ -283,7 +292,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(6)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             1,
@@ -303,7 +312,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(7)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             2,
@@ -317,7 +326,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(8)
           |> assert_transaction(
             other_address,
-            wallet.deposit_wallet.address,
+            hd(wallet.blockchain_deposit_wallets).address,
             nil,
             wallet.address,
             2,
@@ -331,6 +340,8 @@ defmodule EWallet.AddressTrackerTest do
     end
   end
 
+  # It's a private helper function and we're doing a lot of assertions
+  # credo:disable-for-next-line Credo.Check.Refactor.Nesting
   defp assert_transaction(
          transaction,
          from_bc,
@@ -343,7 +354,7 @@ defmodule EWallet.AddressTrackerTest do
          amount
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
-    assert transaction.status == "confirmed"
+    assert transaction.status == TransactionState.confirmed()
     assert transaction.confirmations_count == 13
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc

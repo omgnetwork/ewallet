@@ -14,6 +14,7 @@
 
 defmodule AdminAPI.V1.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWallet.BlockchainHelper
   alias EWalletConfig.{Config, StoredSetting}
 
   describe "/configuration.all" do
@@ -224,7 +225,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
     end
 
     test_with_auths "updates the primary hot wallet address setting", context do
-      wallet = insert(:blockchain_wallet)
+      wallet = insert(:blockchain_wallet, blockchain_identifier: BlockchainHelper.identifier())
 
       response =
         request("/configuration.update", %{

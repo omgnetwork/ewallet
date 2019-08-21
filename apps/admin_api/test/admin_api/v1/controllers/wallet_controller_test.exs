@@ -57,6 +57,21 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Enum.at(wallets, 2)["address"] == "aaaa111111111111"
     end
 
+    test_with_auths "returns the blockchain_deposit_address if available" do
+      wallet = insert(:wallet, address: "aaaa111111111111")
+      deposit_wallet = insert(:blockchain_deposit_wallet, wallet_address: wallet.address)
+
+      response = request("/wallet.all")
+      wallets = response["data"]["data"]
+
+      assert response["success"]
+
+      assert Enum.any?(wallets, fn w ->
+               w["address"] == wallet.address &&
+                 w["blockchain_deposit_address"] == deposit_wallet.address
+             end)
+    end
+
     test_supports_match_any("/wallet.all", :wallet, :name)
     test_supports_match_all("/wallet.all", :wallet, :name)
   end
@@ -169,7 +184,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
              end)
     end
 
-    test_with_auths "Get all user wallets with an invalid parameter should fail" do
+    test_with_auths "gets all user wallets with an invalid parameter should fail" do
       request_data = %{some_invalid_param: "some_invalid_value"}
       response = request("/user.get_wallets", request_data)
 
@@ -620,6 +635,53 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response["success"] == true
       assert response["data"]["address"] == wallet.address
       assert response["data"]["blockchain_deposit_address"] != nil
+    end
+
+    test_with_auths "generates new deposit addresses for different wallets" do
+      account = insert(:account)
+      wallet_primary = insert(:wallet, identifier: Wallet.primary(), account: account, user: nil)
+
+      wallet_secondary =
+        insert(:wallet, identifier: Wallet.secondary(), account: account, user: nil)
+
+      wallet_burn = insert(:wallet, identifier: Wallet.burn(), account: account, user: nil)
+
+      # Generate for primary wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_primary.address
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet_primary.address
+      assert response["data"]["blockchain_deposit_address"] != nil
+
+      # Generate for secondary wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_secondary.address
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet_secondary.address
+      assert response["data"]["blockchain_deposit_address"] != nil
+
+      # Generate for burn wallet
+      response =
+        request("/wallet.generate_deposit_address", %{
+          address: wallet_burn.address
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => false,
+               "data" => %{
+                 "object" => "error",
+                 "code" => "blockchain:deposit_wallet_for_burn_wallet_not_allowed",
+                 "description" => "Generating a deposit wallet for a burn wallet is not allowed.",
+                 "messages" => nil
+               }
+             }
     end
 
     test_with_auths "returns an existing deposit address" do

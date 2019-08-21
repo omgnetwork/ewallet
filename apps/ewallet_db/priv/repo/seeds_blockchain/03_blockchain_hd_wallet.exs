@@ -36,10 +36,14 @@ defmodule EWalletDB.Repo.Seeds.BlockchainHDWallet do
   end
 
   defp insert(writer) do
+    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
+    identifier = adapter.helper().identifier()
+
     {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
 
     attrs = %{
       keychain_uuid: keychain_hd_wallet_uuid,
+      blockchain_identifier: identifier,
       originator: %Seeder{}
     }
     case BlockchainHDWallet.insert(attrs) do

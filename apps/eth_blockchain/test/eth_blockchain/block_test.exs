@@ -36,4 +36,13 @@ defmodule EthBlockchain.BlockTest do
                )
     end
   end
+
+  describe "get_number/2" do
+    test "returns the latest block number"
+  end
+
+  describe "get_transactions/3" do
+    test "returns the list of transactions for the given block number"
+    test "returns :block_not_found error if the block number is invalid"
+  end
 end

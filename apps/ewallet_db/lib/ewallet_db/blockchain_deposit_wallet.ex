@@ -87,11 +87,14 @@ defmodule EWalletDB.BlockchainDepositWallet do
   @doc """
   Retrieves a blockchain wallet using its address.
   """
-  @spec get(String.t(), String.t()) :: %BlockchainDepositWallet{} | nil | no_return()
+  @spec get(String.t()) :: %BlockchainDepositWallet{} | nil
+  @spec get(String.t(), keyword()) :: %BlockchainDepositWallet{} | nil
+  def get(address, opts \\ [])
+
   def get(nil, _), do: nil
 
-  def get(address) do
-    get_by(%{address: address})
+  def get(address, opts) do
+    get_by(%{address: address}, opts)
   end
 
   def get_last_for(wallet) do

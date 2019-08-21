@@ -22,7 +22,7 @@ defmodule EWallet.TransactionTracker do
   require Logger
 
   alias EWallet.{BlockchainHelper, BlockchainTransactionGate}
-  alias EWalletDB.TransactionState
+  alias EWalletDB.{Transaction, TransactionState}
   alias ActivityLogger.System
 
   @backup_confirmations_threshold 10
@@ -40,7 +40,7 @@ defmodule EWallet.TransactionTracker do
     {:ok,
      %{
        transaction: transaction,
-       # for state changes, blockchain, local_blockchain or blockchain_local
+       # for state changes, see TransactionState.state()'s map keys
        transaction_type: transaction_type,
        # optional
        registry: attrs[:registry]
@@ -68,8 +68,11 @@ defmodule EWallet.TransactionTracker do
         )
 
       false ->
-        # TODO: Remove this
-        raise "Error! Hashes do not match"
+        Logger.error(
+          "Unable to update the confirmation count for #{transaction.blockchain_tx_hash}." <>
+            " The receipt has a mismatched hash: #{transaction_receipt.transaction_hash}."
+        )
+
         {:noreply, state}
     end
   end
@@ -81,6 +84,10 @@ defmodule EWallet.TransactionTracker do
          confirmations_count,
          true
        ) do
+    # The transaction may have staled as it may took time before this function is invoked.
+    # So we'll re-retrieve the transaction from the database before transitioning.
+    transaction = Transaction.get(transaction.id)
+
     {:ok, transaction} =
       TransactionState.transition_to(
         transaction_type,
@@ -116,10 +123,14 @@ defmodule EWallet.TransactionTracker do
          confirmations_count,
          false
        ) do
+    # The transaction may have staled as it may took time before this function is invoked.
+    # So we'll re-retrieve the transaction from the database before transitioning.
+    transaction = Transaction.get(transaction.id)
+
     {:ok, transaction} =
       TransactionState.transition_to(
         transaction_type,
-        :pending_confirmations,
+        TransactionState.pending_confirmations(),
         transaction,
         %{
           confirmations_count: confirmations_count,

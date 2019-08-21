@@ -13,19 +13,22 @@
 # limitations under the License.
 
 defmodule EWallet.BlockchainDepositWalletGate do
-  @moduledoc """
-
-  """
+  # TODO: add moduledoc
   alias EWallet.{AddressTracker, BlockchainHelper}
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet
+
+  @burn_identifier EWalletDB.Wallet.burn()
+
+  def get_or_generate(%{identifier: @burn_identifier}, _) do
+    {:error, :blockchain_deposit_wallet_for_burn_wallet_not_allowed}
+  end
 
   def get_or_generate(wallet, %{"originator" => originator}) do
     case BlockchainDepositWallet.get_last_for(wallet) do
       nil ->
         case BlockchainHDWallet.get_primary() do
           nil ->
-            # TODO: Handle error in ErrorHandler
             {:error, :hd_wallet_not_found}
 
           hd_wallet ->
@@ -50,7 +53,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
                     deposit_wallet.wallet_address
                   )
 
-                {:ok, Map.put(wallet, :deposit_wallet, deposit_wallet)}
+                {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
 
               error ->
                 error
@@ -58,7 +61,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
         end
 
       deposit_wallet ->
-        {:ok, Map.put(wallet, :deposit_wallet, deposit_wallet)}
+        {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
     end
   end
 

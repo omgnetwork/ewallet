@@ -21,7 +21,7 @@ defmodule EWallet.DBCase do
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
-  alias EWalletDB.{Account, BlockchainWallet, Token, Repo, Role}
+  alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
   alias Keychain.Wallet
 

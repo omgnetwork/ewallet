@@ -35,7 +35,7 @@ defmodule Keychain.Key do
   @doc """
   Validates the keychain.
   """
-  def changeset(changeset, attrs) do
+  defp changeset(changeset, attrs) do
     changeset
     |> cast(attrs, [:wallet_id, :encrypted_private_key, :public_key, :uuid])
     |> validate_required([:wallet_id, :encrypted_private_key, :public_key])

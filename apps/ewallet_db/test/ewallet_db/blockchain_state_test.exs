@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
+defmodule EWalletDB.BlockchainStateTest do
+  use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
+  alias EWalletDB.BlockchainState
 
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
-  end
-
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
+  describe "get/2" do
+    test "returns the blockchain state for the given identifier"
+    test "returns the blockchain state for the given identifier and queryable"
   end
 
   describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
+    test "returns the blockchain state inserted with the given attributes"
+  end
+
+  describe "update/2" do
+    test "returns the blockchain state updated with the given identifier and block number"
+    test "returns a :not_found error if the given identifier is not found"
   end
 end
