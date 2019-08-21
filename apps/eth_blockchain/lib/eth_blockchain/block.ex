@@ -82,7 +82,7 @@ defmodule EthBlockchain.Block do
     # TODO: Switch to maps?
     (Enum.member?(addresses, transaction["from"]) ||
        Enum.member?(addresses, transaction["to"])) &&
-      transaction["input"] == nil
+      (transaction["input"] == nil || transaction["input"] == "0x")
   end
 
   defp tracked_contract_transaction?(transaction, contract_addresses) do
