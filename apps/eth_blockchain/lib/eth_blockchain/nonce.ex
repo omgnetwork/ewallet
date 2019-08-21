@@ -23,82 +23,83 @@ defmodule EthBlockchain.Nonce do
   return a count of 52 transactions, next_nonce/4 will then return this count with {:ok, 52} and
   will set the next nonce to use for Alice in its state (53).
   """
-  use GenServer
+  use GenServer, restart: :temporary
 
   import Utils.Helpers.Encoding
 
   alias EthBlockchain.Adapter
 
   def start_link(opts) do
-    name = Keyword.get(opts, :name, __MODULE__)
-    GenServer.start_link(__MODULE__, %{}, name: name)
+    args = Keyword.get(opts, :args, %{})
+    GenServer.start_link(__MODULE__, args)
   end
 
-  def init(_args) do
-    {:ok, %{}}
-  end
+  def init(%{
+        address: address,
+        node_adapter: node_adapter,
+        blockchain_adapter_pid: blockchain_adapter_pid
+      }) do
+    case get_nonce(address, node_adapter, blockchain_adapter_pid) do
+      {:ok, nonce} ->
+        {:ok,
+         %{
+           address: address,
+           nonce: nonce,
+           node_adapter: node_adapter,
+           blockchain_adapter_pid: blockchain_adapter_pid
+         }}
 
-  def handle_call({:next_nonce, address, opts}, _from, state) do
-    case Map.get(state, address) do
-      nil ->
-        refresh_nonce(address, true, opts, state)
-
-      nonce ->
-        {:reply, {:ok, nonce}, Map.put(state, address, nonce + 1)}
+      {:error, error} ->
+        {:stop, error}
     end
   end
 
-  def handle_call({:force_refresh, address, opts}, _from, state) do
-    refresh_nonce(address, false, opts, state)
+  def handle_call(:next_nonce, _from, %{nonce: nonce} = state) do
+    {:reply, {:ok, nonce}, Map.put(state, :nonce, nonce + 1)}
+  end
+
+  def handle_call(
+        :force_refresh,
+        _from,
+        %{
+          address: address,
+          node_adapter: node_adapter,
+          blockchain_adapter_pid: blockchain_adapter_pid
+        } = state
+      ) do
+    case get_nonce(address, node_adapter, blockchain_adapter_pid) do
+      {:ok, nonce} ->
+        {:reply, {:ok, nonce}, Map.put(state, :nonce, nonce)}
+
+      {:error, error} ->
+        {:stop, error}
+    end
   end
 
   # Client API
   @doc """
   Get the nonce to use for the next transaction.
-  If the address is not found in the state, query the RPC API to get the current transaction count
-  for this address and returns it.
-  Save the next nonce to use in the state when called.
   """
-  def next_nonce(address, opts \\ [], pid \\ __MODULE__) do
-    GenServer.call(pid, {:next_nonce, address, opts})
+  def next_nonce(pid \\ __MODULE__) do
+    GenServer.call(pid, :next_nonce)
   end
 
   @doc """
-  Force the refresh of a nonce for the given address by checkcing the current transaction count
+  Force the refresh of a nonce for the given address by checking the current transaction count
   for the address.
   """
-  def force_refresh(
-        address,
-        opts \\ [],
-        pid \\ __MODULE__
-      ) do
-    GenServer.call(pid, {:force_refresh, address, opts})
+  def force_refresh(pid \\ __MODULE__) do
+    GenServer.call(pid, :force_refresh)
   end
 
-  # Private functions
-  defp refresh_nonce(address, increment_nonce, opts, state) do
-    case get_transaction_count(address, opts) do
-      {:ok, nonce} ->
-        state_nonce =
-          case increment_nonce do
-            true -> nonce + 1
-            false -> nonce
-          end
-
-        {:reply, {:ok, nonce}, Map.put(state, address, state_nonce)}
-
-      error ->
-        {:reply, error, state}
-    end
-  end
-
-  defp get_transaction_count(address, opts) do
-    case Adapter.call({:get_transaction_count, address}, opts) do
-      {:ok, nonce} ->
-        {:ok, int_from_hex(nonce)}
-
-      error ->
-        error
+  defp get_nonce(address, eth_node_adapter, eth_node_adapter_pid) do
+    with {:ok, nonce} <-
+           Adapter.call(
+             {:get_transaction_count, address, "pending"},
+             eth_node_adapter: eth_node_adapter,
+             eth_node_adapter_pid: eth_node_adapter_pid
+           ) do
+      {:ok, int_from_hex(nonce)}
     end
   end
 end
