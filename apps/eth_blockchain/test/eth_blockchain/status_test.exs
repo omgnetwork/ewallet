@@ -24,8 +24,8 @@ defmodule EthBlockchain.StatusTest do
                   eth_syncing: false,
                   client_version: "DumbAdapter/v4.2.0-c999068/linux/go1.9.2",
                   network_id: "99",
-                  peer_count: "0x2a",
-                  last_seen_eth_block_number: "0xe"
+                  peer_count: 14,
+                  last_seen_eth_block_number: 42
                 }}
     end
   end
