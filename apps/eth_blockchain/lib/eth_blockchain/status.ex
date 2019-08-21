@@ -44,5 +44,5 @@ defmodule EthBlockchain.Status do
   end
 
   defp data_or_nil({:error, _, _}), do: nil
-  defp data_or_nil(data), do: data
+  defp data_or_nil({:ok, data}), do: data
 end

@@ -15,32 +15,25 @@
 defmodule EthGethAdapter.Client do
   @moduledoc false
   import EthGethAdapter.ErrorHandler
-  import Utils.Helpers.Encoding
   alias Ethereumex.HttpClient, as: Client
 
   def get_eth_syncing do
-    case Client.eth_syncing() do
-      {:ok, %{}} -> true
-      {:ok, false} -> false
-      {:error, error} -> handle_error(error)
-    end
+    handle_if_error(Client.eth_syncing())
   end
 
   def get_client_version do
-    parse_through(Client.web3_client_version())
+    handle_if_error(Client.web3_client_version())
   end
 
   def get_network_id do
-    parse_through(Client.net_version())
+    handle_if_error(Client.net_version())
   end
 
   def get_peer_count do
-    parse_to_int(Client.net_peer_count())
+    handle_if_error(Client.net_peer_count())
   end
 
-  defp parse_through({:ok, data}), do: data
-  defp parse_through({:error, error}), do: handle_error(error)
-
-  defp parse_to_int({:ok, number}), do: int_from_hex(number)
-  defp parse_to_int({:error, error}), do: handle_error(error)
+  # Normalize the adapter error (if any) before returning the response.
+  defp handle_if_error({:ok, _} = resp), do: resp
+  defp handle_if_error({:error, error}), do: handle_error(error)
 end

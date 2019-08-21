@@ -53,7 +53,7 @@ defmodule EthBlockchain.ClientTest do
   describe "get_peer_count/0" do
     test "returns the number of peers", state do
       # The result is mocked in EthBlockchain.DumbAdapter.handle_call({:get_peer_count},...)
-      assert Client.get_peer_count(:dumb, state[:pid]) == {:ok, "0xe"}
+      assert Client.get_peer_count(:dumb, state[:pid]) == {:ok, 42}
     end
 
     test "returns an error if no such adapter is registered", state do
