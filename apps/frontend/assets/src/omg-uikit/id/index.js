@@ -34,7 +34,7 @@ Id.propTypes = {
   maxWidth: PropTypes.number,
   maxChar: PropTypes.number,
   withCopy: PropTypes.bool,
-  children: PropTypes.node.isRequired
+  children: PropTypes.node
 }
 
 export default Id

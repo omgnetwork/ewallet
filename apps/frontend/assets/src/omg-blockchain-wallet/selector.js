@@ -2,6 +2,10 @@ export const selectBlockchainWallets = state => {
   return _.values(state.blockchainWallets) || []
 }
 
+export const selectBlockchainWalletBalance = state => address => {
+  return state.blockchainWalletBalance[address] || []
+}
+
 export const selectBlockchainWalletsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(id => {
     return selectBlockchainWalletById(state)(id)

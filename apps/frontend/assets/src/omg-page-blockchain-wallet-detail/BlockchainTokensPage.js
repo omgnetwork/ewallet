@@ -6,7 +6,7 @@ import queryString from 'query-string'
 
 import TabMenu from './TabMenu'
 import SortableTable from '../omg-table'
-import { Button, Icon, SearchBar, Avatar } from '../omg-uikit'
+import { Button, Icon, Avatar } from '../omg-uikit'
 import { BlockchainWalletBalanceFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import AdvancedFilter from '../omg-advanced-filter'
@@ -62,6 +62,7 @@ const SortableTableContainer = styled.div`
 const TokenColumn = styled.div`
   display: flex;
   flex-direction: row;
+  align-items: center;
   > span {
     margin-left: 10px;
   }
@@ -72,13 +73,13 @@ const TopRow = styled.div`
   justify-content: space-between;
   margin-bottom: 10px;
 `
-const ActionButtons = styled.div`
-  display: flex;
-  flex-direction: row;
-  button {
-    margin-left: 20px;
-  }
-`
+// const ActionButtons = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   button {
+//     margin-left: 20px;
+//   }
+// `
 class BlockchainTokensPage extends Component {
   static propTypes = {
     history: PropTypes.object,
@@ -97,20 +98,17 @@ class BlockchainTokensPage extends Component {
     matchAll: [],
     matchAny: []
   }
-  onClickRow = (data, index) => e => {
-    console.log('row clicked')
-  }
   rowRenderer = (key, data, rows) => {
     if (key === 'name') {
       return (
         <TokenColumn>
-          <Avatar image={rows.avatar} name={data.slice(0, 3)} />
-          <span>{data}</span>
+          <Avatar name={rows.token.symbol} />
+          <span>{rows.token.name}</span>
         </TokenColumn>
       )
     }
     if (key === 'balance') {
-      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+      return `${formatReceiveAmountToTotal(rows.amount, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     return data
   }
@@ -127,19 +125,18 @@ class BlockchainTokensPage extends Component {
     )
   }
   renderBlockchainTokenpage = ({
-    data: blockchainTokens,
+    data,
     individualLoadingStatus,
-    pagination,
-    fetch
+    pagination
   }) => {
     return (
       <BlockchainTokensPageContainer>
         <TopRow>
           <TabMenu />
-          <ActionButtons>
+          {/* <ActionButtons>
             <SearchBar placeholder='Search token' />
             {this.renderAdvancedFilterButton()}
-          </ActionButtons>
+          </ActionButtons> */}
         </TopRow>
         <AdvancedFilter
           title='Filter Tokens'
@@ -153,11 +150,10 @@ class BlockchainTokensPage extends Component {
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
-            rows={blockchainTokens}
+            rows={data}
             columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation

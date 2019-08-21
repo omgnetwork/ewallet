@@ -37,7 +37,6 @@ const BlockchainWalletsPage = ({ match, history }) => {
     if (key === 'address') {
       return <Id withCopy>{data}</Id>
     }
-    return data
   }
 
   const columns = [
