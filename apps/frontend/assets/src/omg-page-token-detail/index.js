@@ -168,7 +168,7 @@ class TokenDetailPage extends Component {
   }
   renderDetail = token => {
     return (
-      <Section title={{ text: 'Details', icon: 'Portfolio' }}>
+      <Section title={{ text: 'Details', icon: 'Option-Horizontal' }}>
         <DetailGroup>
           <b>ID:</b><Id>{token.id}</Id>
         </DetailGroup>
