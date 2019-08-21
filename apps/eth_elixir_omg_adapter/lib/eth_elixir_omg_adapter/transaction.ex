@@ -51,7 +51,9 @@ defmodule EthElixirOmgAdapter.Transaction do
       {:ok,
        %{
          "result" => "complete",
-         "transactions" => [%{"sign_hash" => sign_hash, "typed_data" => typed_data, "inputs" => inputs} | _]
+         "transactions" => [
+           %{"sign_hash" => sign_hash, "typed_data" => typed_data, "inputs" => inputs} | _
+         ]
        }} ->
         sign_hash
         |> sign(from, inputs)

@@ -274,12 +274,12 @@ defmodule EthBlockchain.Adapter do
   end
 
   defp process_adapter_opts(opts) do
-    adapter_config = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+    conf = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
 
     opts
-    |> Keyword.put_new(:eth_node_adapter, Keyword.get(adapter_config, :default_eth_node_adapter))
-    |> Keyword.put_new(:eth_node_adapter_pid, __MODULE__)
-    |> Keyword.put_new(:cc_node_adapter, Keyword.get(adapter_config, :default_cc_node_adapter))
-    |> Keyword.put_new(:cc_node_adapter_pid, __MODULE__)
+    |> Keyword.put(:eth_node_adapter, opts[:eth_node_adapter] || conf[:default_eth_node_adapter])
+    |> Keyword.put(:eth_node_adapter_pid, opts[:eth_node_adapter_pid] || __MODULE__)
+    |> Keyword.put(:cc_node_adapter, opts[:cc_node_adapter] || conf[:default_cc_node_adapter])
+    |> Keyword.put(:cc_node_adapter_pid, opts[:cc_node_adapter_pid] || __MODULE__)
   end
 end

@@ -61,7 +61,7 @@ defmodule EWallet.AddressTracker do
        blk_retries: 0,
        blk_syncing_save_count: 0,
        blk_syncing_save_interval: @blk_syncing_save_interval,
-       node_adapter: attrs[:node_adapter] || Application.get_env(:ewallet, :eth_node_adapter),
+       node_adapter: attrs[:node_adapter],
        stop_once_synced: attrs[:stop_once_synced] || false
      }, {:continue, :start_polling}}
   end
