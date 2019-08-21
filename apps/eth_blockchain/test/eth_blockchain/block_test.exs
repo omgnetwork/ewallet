@@ -21,8 +21,8 @@ defmodule EthBlockchain.BlockTest do
     test "get wallet balances with the given adapter spec", state do
       res =
         Block.get_number(
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert res == 14
@@ -31,8 +31,8 @@ defmodule EthBlockchain.BlockTest do
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                Block.get_number(
-                 :blah,
-                 state[:pid]
+                 eth_node_adapter: :blah,
+                 eth_node_adapter_pid: state[:pid]
                )
     end
   end

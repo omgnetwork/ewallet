@@ -38,18 +38,18 @@ defmodule EthBlockchain.Nonce do
     {:ok, %{}}
   end
 
-  def handle_call({:next_nonce, address, node_adapter, blockchain_adapter_pid}, _from, state) do
+  def handle_call({:next_nonce, address, opts}, _from, state) do
     case Map.get(state, address) do
       nil ->
-        refresh_nonce(address, true, node_adapter, blockchain_adapter_pid, state)
+        refresh_nonce(address, true, opts, state)
 
       nonce ->
         {:reply, {:ok, nonce}, Map.put(state, address, nonce + 1)}
     end
   end
 
-  def handle_call({:force_refresh, address, node_adapter, blockchain_adapter_pid}, _from, state) do
-    refresh_nonce(address, false, node_adapter, blockchain_adapter_pid, state)
+  def handle_call({:force_refresh, address, opts}, _from, state) do
+    refresh_nonce(address, false, opts, state)
   end
 
   # Client API
@@ -59,8 +59,8 @@ defmodule EthBlockchain.Nonce do
   for this address and returns it.
   Save the next nonce to use in the state when called.
   """
-  def next_nonce(address, node_adapter \\ nil, blockchain_adapter_pid \\ nil, pid \\ __MODULE__) do
-    GenServer.call(pid, {:next_nonce, address, node_adapter, blockchain_adapter_pid})
+  def next_nonce(address, opts \\ [], pid \\ __MODULE__) do
+    GenServer.call(pid, {:next_nonce, address, opts})
   end
 
   @doc """
@@ -69,16 +69,15 @@ defmodule EthBlockchain.Nonce do
   """
   def force_refresh(
         address,
-        node_adapter \\ nil,
-        blockchain_adapter_pid \\ nil,
+        opts \\ [],
         pid \\ __MODULE__
       ) do
-    GenServer.call(pid, {:force_refresh, address, node_adapter, blockchain_adapter_pid})
+    GenServer.call(pid, {:force_refresh, address, opts})
   end
 
   # Private functions
-  defp refresh_nonce(address, increment_nonce, node_adapter, blockchain_adapter_pid, state) do
-    case get_transaction_count(address, node_adapter, blockchain_adapter_pid) do
+  defp refresh_nonce(address, increment_nonce, opts, state) do
+    case get_transaction_count(address, opts) do
       {:ok, nonce} ->
         state_nonce =
           case increment_nonce do
@@ -93,8 +92,8 @@ defmodule EthBlockchain.Nonce do
     end
   end
 
-  defp get_transaction_count(address, node_adapter, blockchain_adapter_pid) do
-    case Adapter.call({:get_transaction_count, address}, node_adapter, blockchain_adapter_pid) do
+  defp get_transaction_count(address, opts) do
+    case Adapter.call({:get_transaction_count, address}, opts) do
       {:ok, nonce} ->
         {:ok, int_from_hex(nonce)}
 

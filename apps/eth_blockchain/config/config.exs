@@ -2,14 +2,14 @@ use Mix.Config
 
 config :eth_blockchain,
        EthBlockchain.Adapter,
-       eth_adapters: [
+       eth_node_adapters: [
          {:geth, EthGethAdapter.Worker}
        ],
-       childchain_adapters: [
+       cc_node_adapters: [
          {:elixir_omg, EthElixirOmgAdapter.Worker}
        ],
-       default_eth_adapter: :geth,
-       default_childchain_adapter: :elixir_omg
+       default_eth_node_adapter: :geth,
+       default_cc_node_adapter: :elixir_omg
 
 config :eth_blockchain,
   default_gas_price: 20_000_000_000,

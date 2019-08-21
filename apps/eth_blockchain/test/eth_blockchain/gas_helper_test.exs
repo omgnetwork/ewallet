@@ -27,7 +27,11 @@ defmodule EthBlockchain.GasHelperTest do
 
     test "returns the default gas limit for the specified type if not present" do
       gas_limit = GasHelper.get_gas_limit_or_default(:default_eth_transaction_gas_limit, %{})
-      assert gas_limit == Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+
+      assert gas_limit ==
+               :eth_blockchain
+               |> Application.get_env(:gas_limit)
+               |> Keyword.get(:default_eth_transaction_gas_limit)
     end
   end
 

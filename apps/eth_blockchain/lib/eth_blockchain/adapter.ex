@@ -201,89 +201,65 @@ defmodule EthBlockchain.Adapter do
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
-  @spec call(call(), atom() | adapter() | nil) :: resp({:ok, any()})
-  @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
-  def call(func_spec, adapter_spec \\ nil, pid \\ nil)
+  @spec call(call(), list()) :: resp({:ok, any()})
+  def call(func_spec, opts \\ [])
 
-  def call({:get_transactions, attrs}, adapter, pid) do
-    Block.get_transactions(attrs, adapter, pid)
+  def call({:get_transactions, attrs}, opts) do
+    Block.get_transactions(attrs, opts)
   end
 
-  def call({:send, attrs}, adapter, pid) do
-    Transaction.send(attrs, adapter, pid)
+  def call({:send, attrs}, opts) do
+    Transaction.send(attrs, opts)
   end
 
-  def call({:get_balances, attrs}, adapter, pid) do
-    Balance.get(attrs, adapter, pid)
+  def call({:get_balances, attrs}, opts) do
+    Balance.get(attrs, opts)
   end
 
-  def call({:get_field, attrs}, adapter, pid) do
-    Token.get_field(attrs, adapter, pid)
+  def call({:get_field, attrs}, opts) do
+    Token.get_field(attrs, opts)
   end
 
-  def call({:deposit_to_childchain, attrs}, adapter, pid) do
-    Childchain.deposit(attrs, adapter, pid)
+  def call({:deposit_to_childchain, attrs}, opts) do
+    Childchain.deposit(attrs, opts)
   end
 
-  def call({:deploy_erc20, attrs}, adapter, pid) do
-    Contract.deploy_erc20(attrs, adapter, pid)
+  def call({:deploy_erc20, attrs}, opts) do
+    Contract.deploy_erc20(attrs, opts)
   end
 
-  def call(func_spec, nil, pid) do
-    adapter =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:default_eth_adapter)
-
-    call(func_spec, adapter, pid)
-  end
-
-  def call(func_spec, adapter_spec, pid) do
-    pid = pid || __MODULE__
-
-    case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
-      {:ok, resp} ->
-        resp
-
-      error ->
-        error
+  def call(func_spec, opts) do
+    with opts <- process_adapter_opts(opts),
+         {:ok, resp} <-
+           GenServer.call(
+             opts[:eth_node_adapter_pid],
+             {:call, opts[:eth_node_adapter], func_spec}
+           ) do
+      resp
     end
   end
 
-  def childchain_call(func_spec, nil, pid) do
-    adapter =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:default_childchain_adapter)
-
-    childchain_call(func_spec, adapter, pid)
-  end
-
-  def childchain_call(func_spec, adapter_spec, pid) do
-    pid = pid || __MODULE__
-
-    case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
-      {:ok, resp} ->
-        resp
-
-      error ->
-        error
+  def childchain_call(func_spec, opts) do
+    with opts <- process_adapter_opts(opts),
+         {:ok, resp} <-
+           GenServer.call(opts[:cc_node_adapter_pid], {:call, opts[:cc_node_adapter], func_spec}) do
+      resp
     end
   end
 
+  # TODO: change adapter / pid to opts
   def subscribe(
         :transaction,
         tx_hash,
         subscriber_pid,
-        node_adapter \\ nil,
-        blockchain_adapter_pid \\ nil
+        opts \\ []
       ) do
     :ok =
       BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
         interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
-        blockchain_adapter_pid: blockchain_adapter_pid,
-        node_adapter: node_adapter
+        blockchain_adapter_pid: opts[:cc_node_adapter_pid],
+        node_adapter: opts[:cc_node_adapter]
       })
 
     BlockchainRegistry.subscribe(tx_hash, subscriber_pid)
@@ -295,5 +271,15 @@ defmodule EthBlockchain.Adapter do
 
   def lookup_listener(id) do
     BlockchainRegistry.lookup(id)
+  end
+
+  defp process_adapter_opts(opts) do
+    adapter_config = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+
+    opts
+    |> Keyword.put_new(:eth_node_adapter, Keyword.get(adapter_config, :default_eth_node_adapter))
+    |> Keyword.put_new(:eth_node_adapter_pid, __MODULE__)
+    |> Keyword.put_new(:cc_node_adapter, Keyword.get(adapter_config, :default_cc_node_adapter))
+    |> Keyword.put_new(:cc_node_adapter_pid, __MODULE__)
   end
 end

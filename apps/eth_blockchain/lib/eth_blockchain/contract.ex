@@ -26,14 +26,14 @@ defmodule EthBlockchain.Contract do
   Returns {:ok, tx_hash, contract_address} if success,
   {:error, code} || {:error, code, message} otherwise
   """
-  def deploy_erc20(attrs, adapter \\ nil, pid \\ nil)
+  def deploy_erc20(attrs, opts \\ [])
 
-  def deploy_erc20(%{locked: false} = attrs, adapter, pid) do
-    do_deploy(attrs, @erc20_mintable_uuid, adapter, pid)
+  def deploy_erc20(%{locked: false} = attrs, opts) do
+    do_deploy(attrs, @erc20_mintable_uuid, opts)
   end
 
-  def deploy_erc20(attrs, adapter, pid) do
-    do_deploy(attrs, @erc20_uuid, adapter, pid)
+  def deploy_erc20(attrs, opts) do
+    do_deploy(attrs, @erc20_uuid, opts)
   end
 
   defp do_deploy(
@@ -45,8 +45,7 @@ defmodule EthBlockchain.Contract do
            initial_amount: initial_amount
          },
          contract_uuid,
-         adapter,
-         pid
+         opts
        ) do
     data =
       "0x" <>
@@ -54,7 +53,7 @@ defmodule EthBlockchain.Contract do
         ABIEncoder.encode_erc20_attrs(name, symbol, decimals, initial_amount)
 
     %{from: from, contract_data: data}
-    |> Transaction.create_contract(adapter, pid)
+    |> Transaction.create_contract(opts)
     |> respond(contract_uuid)
   end
 

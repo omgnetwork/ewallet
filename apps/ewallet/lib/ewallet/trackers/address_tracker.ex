@@ -61,7 +61,7 @@ defmodule EWallet.AddressTracker do
        blk_retries: 0,
        blk_syncing_save_count: 0,
        blk_syncing_save_interval: @blk_syncing_save_interval,
-       node_adapter: attrs[:node_adapter],
+       node_adapter: attrs[:node_adapter] || Application.get_env(:ewallet, :eth_node_adapter),
        stop_once_synced: attrs[:stop_once_synced] || false
      }, {:continue, :start_polling}}
   end
@@ -119,8 +119,7 @@ defmodule EWallet.AddressTracker do
       contract_addresses: contract_addresses
     }
 
-    # TODO: change the .call last argument to a map of options?
-    case BlockchainHelper.call(:get_transactions, attrs, nil, node_adapter) do
+    case BlockchainHelper.call(:get_transactions, attrs, eth_node_adapter: node_adapter) do
       {:error, :block_not_found} ->
         case stop_once_synced do
           false ->

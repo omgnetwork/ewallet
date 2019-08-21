@@ -15,11 +15,12 @@
 defmodule EthElixirOmgAdapter.HttpClient do
   @moduledoc false
 
+  alias EthElixirOmgAdapter.Config
+
   @spec post_request(binary(), []) :: {:ok | :error, any()}
   def post_request(payload, action) do
     headers = [{"Content-Type", "application/json"}, {"accept", "application/json"}]
-    url = Application.get_env(:eth_elixir_omg_adapter, :watcher_url)
-    path = url <> "/" <> action
+    path = Config.get_watcher_url() <> "/" <> action
 
     with {:ok, response} <- HTTPoison.post(path, payload, headers),
          %HTTPoison.Response{body: body, status_code: code} = response do

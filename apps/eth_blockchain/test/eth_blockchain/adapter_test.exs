@@ -22,16 +22,16 @@ defmodule EthBlockchain.AdapterTest do
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       dumb_resp2 =
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          {:dumb, "balance"},
-          state[:pid]
+          eth_node_adapter: {:dumb, "balance"},
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp1
@@ -43,24 +43,24 @@ defmodule EthBlockchain.AdapterTest do
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          {:dumb, "balance"},
-          state[:pid]
+          eth_node_adapter: {:dumb, "balance"},
+          eth_node_adapter_pid: state[:pid]
         )
 
       {:ok, _} =
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       childrens = DynamicSupervisor.which_children(state[:supervisor])
@@ -72,8 +72,8 @@ defmodule EthBlockchain.AdapterTest do
                Adapter.call(
                  {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]],
                   nil, "latest"},
-                 :foobar,
-                 state[:pid]
+                 eth_node_adapter: :foobar,
+                 eth_node_adapter_pid: state[:pid]
                )
     end
   end

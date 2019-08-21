@@ -19,4 +19,8 @@ defmodule EthElixirOmgAdapter.Config do
   def get_contract_address do
     Application.get_env(:eth_elixir_omg_adapter, :contract_address)
   end
+
+  def get_watcher_url do
+    Application.get_env(:eth_elixir_omg_adapter, :watcher_url)
+  end
 end

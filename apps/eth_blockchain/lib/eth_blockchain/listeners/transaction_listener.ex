@@ -66,7 +66,10 @@ defmodule EthBlockchain.TransactionListener do
            node_adapter: node_adapter
          } = state
        ) do
-    case TransactionReceipt.get(%{tx_hash: tx_hash}, node_adapter, blockchain_adapter_pid) do
+    case TransactionReceipt.get(%{tx_hash: tx_hash},
+           eth_node_adapter: node_adapter,
+           eth_node_adapter_pid: blockchain_adapter_pid
+         ) do
       {:ok, :success, receipt} ->
         confirmations_count = Block.get_number() - receipt.block_number + 1
         broadcast({:confirmations_count, receipt, confirmations_count}, state)

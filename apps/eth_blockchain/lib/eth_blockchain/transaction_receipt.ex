@@ -17,7 +17,7 @@ defmodule EthBlockchain.TransactionReceipt do
 
   alias EthBlockchain.Adapter
 
-  def get(%{tx_hash: tx_hash}, adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_transaction_receipt, tx_hash}, adapter, pid)
+  def get(%{tx_hash: tx_hash}, opts \\ []) do
+    Adapter.call({:get_transaction_receipt, tx_hash}, opts)
   end
 end

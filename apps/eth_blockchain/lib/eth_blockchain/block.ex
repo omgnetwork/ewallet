@@ -17,22 +17,21 @@ defmodule EthBlockchain.Block do
   import Utils.Helpers.Encoding
   alias EthBlockchain.{Adapter, Helper}
 
-  def get_number(adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_block_number}, adapter, pid)
+  def get_number(opts \\ []) do
+    Adapter.call({:get_block_number}, opts)
   end
 
-  def get(number, adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_block, number}, adapter, pid)
+  def get(number, opts \\ []) do
+    Adapter.call({:get_block, number}, opts)
   end
 
   def get_transactions(
         %{
           blk_number: blk_number
         } = attrs,
-        adapter \\ nil,
-        pid \\ nil
+        opts \\ []
       ) do
-    case get(blk_number, adapter, pid) do
+    case get(blk_number, opts) do
       {:ok, nil} ->
         {:error, :block_not_found}
 

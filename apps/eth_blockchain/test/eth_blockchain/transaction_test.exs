@@ -45,8 +45,8 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx, contract_address} =
         Transaction.create_contract(
           %{from: state[:valid_sender], contract_data: contract_data},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert resp == :ok
@@ -75,8 +75,8 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert resp == :ok
@@ -99,8 +99,8 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100, gas_price: 50_000},
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert resp == :ok
@@ -128,8 +128,8 @@ defmodule EthBlockchain.TransactionTest do
             amount: 100,
             contract_address: state[:addr_2]
           },
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert resp == :ok
@@ -159,8 +159,8 @@ defmodule EthBlockchain.TransactionTest do
             contract_address: state[:addr_2],
             gas_price: 50_000
           },
-          :dumb,
-          state[:pid]
+          eth_node_adapter: :dumb,
+          eth_node_adapter_pid: state[:pid]
         )
 
       assert resp == :ok
@@ -184,8 +184,8 @@ defmodule EthBlockchain.TransactionTest do
       assert {:error, :no_handler} ==
                Transaction.send(
                  %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-                 :blah,
-                 state[:pid]
+                 eth_node_adapter: :blah,
+                 eth_node_adapter_pid: state[:pid]
                )
     end
   end

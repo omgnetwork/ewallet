@@ -26,31 +26,27 @@ defmodule EthBlockchain.Childchain do
           currency: currency,
           childchain_identifier: childchain_identifier
         } = attrs,
-        eth_adapter \\ nil,
-        eth_pid \\ nil,
-        cc_adapter \\ nil,
-        cc_pid \\ nil
+        opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier) do
-      contract_address = Adapter.childchain_call({:get_contract_address}, cc_adapter, cc_pid)
+      contract_address = Adapter.childchain_call({:get_contract_address}, opts)
 
       {:get_deposit_tx_bytes, to, amount, currency}
-      |> Adapter.childchain_call(cc_adapter, cc_pid)
-      |> submit_deposit(to, amount, currency, contract_address, eth_adapter, eth_pid)
+      |> Adapter.childchain_call(opts)
+      |> submit_deposit(to, amount, currency, contract_address, opts)
     end
   end
 
-  defp submit_deposit(tx_bytes, to, amount, token \\ @eth, adapter, pid)
+  defp submit_deposit(tx_bytes, to, amount, token \\ @eth, opts)
 
-  defp submit_deposit(tx_bytes, to, amount, @eth, contract_address, adapter, pid) do
+  defp submit_deposit(tx_bytes, to, amount, @eth, contract_address, opts) do
     Transaction.deposit_eth(
       %{tx_bytes: tx_bytes, from: to, amount: amount, contract_address: contract_address},
-      adapter,
-      pid
+      opts
     )
   end
 
-  defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, eth_adapter, eth_pid) do
+  defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, opts) do
     with {:ok, _tx_hash} <-
            Transaction.approve_erc20(
              %{
@@ -59,8 +55,7 @@ defmodule EthBlockchain.Childchain do
                amount: amount,
                contract_address: erc20
              },
-             eth_adapter,
-             eth_pid
+             opts
            ),
          {:ok, _tx_hash} = response <-
            Transaction.deposit_erc20(
@@ -71,8 +66,7 @@ defmodule EthBlockchain.Childchain do
                root_chain_contract: root_chain_contract,
                erc20_contract: erc20
              },
-             eth_adapter,
-             eth_pid
+             opts
            ) do
       response
     end
@@ -86,18 +80,17 @@ defmodule EthBlockchain.Childchain do
           currency: currency,
           childchain_identifier: childchain_identifier
         } = attrs,
-        cc_adapter \\ nil,
-        cc_pid \\ nil
+        opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier) do
-      Adapter.childchain_call({:send, from, to, amount, currency}, cc_adapter, cc_pid)
+      Adapter.childchain_call({:send, from, to, amount, currency}, opts)
     end
   end
 
   defp check_childchain(childchain_identifier) do
     case :eth_blockchain
          |> Application.get_env(EthBlockchain.Adapter)
-         |> Keyword.get(:childchain_adapters)
+         |> Keyword.get(:cc_node_adapters)
          |> Enum.find(fn {id, _} -> id == childchain_identifier end) do
       nil ->
         {:error, :childchain_not_supported}
@@ -119,8 +112,7 @@ defmodule EthBlockchain.Childchain do
 
   def exit(
         %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
-        adapter \\ nil,
-        pid \\ nil
+        opts \\ []
       ) do
     # TODO: 1. Check if childchain is supported
     # TODO: 2. Attempt to exit all given utxos

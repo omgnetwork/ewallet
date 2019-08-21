@@ -216,7 +216,6 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp enough_funds?(address, token, amount) do
     blockchain_adapter = BlockchainHelper.adapter()
-    node_adapter = Application.get_env(:ewallet, :node_adapter)
 
     # TODO: handle errors
     {:ok, balances} =
@@ -225,8 +224,7 @@ defmodule EWallet.BlockchainTransactionGate do
          %{
            address: address,
            contract_addresses: [token.blockchain_address]
-         }},
-        node_adapter
+         }}
       )
 
     (balances[token.blockchain_address] || 0) > amount
@@ -255,7 +253,6 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp submit(transaction) do
     blockchain_adapter = BlockchainHelper.adapter()
-    node_adapter = Application.get_env(:ewallet, :node_adapter)
 
     attrs = %{
       from: transaction.from_blockchain_address,
@@ -264,6 +261,6 @@ defmodule EWallet.BlockchainTransactionGate do
       contract_address: transaction.from_token.blockchain_address
     }
 
-    blockchain_adapter.call({:send, attrs}, node_adapter)
+    blockchain_adapter.call({:send, attrs})
   end
 end
