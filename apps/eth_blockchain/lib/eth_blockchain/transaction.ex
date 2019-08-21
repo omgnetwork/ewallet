@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper}
+  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper, Nonce, NonceRegistry}
 
   defstruct nonce: 0,
             gas_price: 0,
@@ -111,6 +111,7 @@ defmodule EthBlockchain.Transaction do
         |> Map.merge(meta)
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
+        |> respond(from, adapter, pid)
 
       error ->
         error
@@ -137,6 +138,7 @@ defmodule EthBlockchain.Transaction do
       |> Map.merge(meta)
       |> sign_and_hash(from)
       |> send_raw(adapter, pid)
+      |> respond(from, adapter, pid)
     else
       error -> error
     end
@@ -157,6 +159,7 @@ defmodule EthBlockchain.Transaction do
         |> sign_and_hash(from)
         |> send_raw(adapter, pid)
         |> append_contract_address(contract_address)
+        |> respond(from, adapter, pid)
 
       error ->
         error
@@ -164,15 +167,12 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, adapter, pid) do
-    case get_transaction_count(%{address: from}, adapter, pid) do
-      {:ok, nonce} ->
-        gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
-        gas_price = GasHelper.get_gas_price_or_default(attrs)
+    with {:ok, nonce_handler_pid} <- NonceRegistry.lookup(from, adapter, pid),
+         {:ok, nonce} <- Nonce.next_nonce(nonce_handler_pid) do
+      gas_limit = GasHelper.get_gas_limit_or_default(gas_limit_type, attrs)
+      gas_price = GasHelper.get_gas_price_or_default(attrs)
 
-        {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: int_from_hex(nonce)}}
-
-      error ->
-        error
+      {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: nonce}}
     end
   end
 
@@ -208,10 +208,6 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _adapter, _pid), do: error
 
-  defp get_transaction_count(%{address: address}, adapter, pid) do
-    Adapter.call({:get_transaction_count, address}, adapter, pid)
-  end
-
   defp sign_transaction(transaction, wallet_address) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
@@ -231,6 +227,20 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp append_contract_address(error, _), do: error
+
+  # The nonce used in the transaction was too low, meaning that a transaction with a higher
+  # nonce was already mined.
+  # We force the refresh of the nonce generator which will reset the nonce to the current
+  # transaction count. This way we avoid having failed transaction until we reach the
+  # correct nonce
+  defp respond({:error, _, [error_message: "nonce too low"]} = error, from, adapter, pid) do
+    with {:ok, nonce_handler_pid} <- NonceRegistry.lookup(from, adapter, pid),
+         {:ok, _nonce} <- Nonce.force_refresh(nonce_handler_pid) do
+      error
+    end
+  end
+
+  defp respond(response, _from, _adapter, _pid), do: response
 
   @doc """
   Serialize, encode and returns a hash of a given transaction
