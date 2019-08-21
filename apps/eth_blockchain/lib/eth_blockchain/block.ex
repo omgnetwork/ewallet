@@ -14,10 +14,13 @@
 
 defmodule EthBlockchain.Block do
   @moduledoc false
-
+  import Utils.Helpers.Encoding
   alias EthBlockchain.Adapter
 
   def get_number(adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_block_number}, adapter, pid)
+    case Adapter.call({:get_block_number}, adapter, pid) do
+      {:ok, number} -> {:ok, int_from_hex(number)}
+      error -> error
+    end
   end
 end

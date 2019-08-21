@@ -17,7 +17,7 @@ defmodule EthBlockchain.BlockTest do
 
   alias EthBlockchain.Block
 
-  describe "get/1" do
+  describe "get_number/2" do
     test "get wallet balances with the given adapter spec", state do
       res =
         Block.get_number(
@@ -25,7 +25,7 @@ defmodule EthBlockchain.BlockTest do
           state[:pid]
         )
 
-      assert res == {:ok, "0xe"}
+      assert res == {:ok, 14}
     end
 
     test "returns an error if no such adapter is registered", state do
