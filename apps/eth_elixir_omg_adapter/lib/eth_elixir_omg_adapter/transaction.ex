@@ -51,10 +51,10 @@ defmodule EthElixirOmgAdapter.Transaction do
       {:ok,
        %{
          "result" => "complete",
-         "transactions" => [%{"sign_hash" => sign_hash, "typed_data" => typed_data} | _]
+         "transactions" => [%{"sign_hash" => sign_hash, "typed_data" => typed_data, "inputs" => inputs} | _]
        }} ->
         sign_hash
-        |> sign(from)
+        |> sign(from, inputs)
         |> submit_typed(typed_data)
 
       # TODO Handle intermediate transactions
@@ -81,7 +81,7 @@ defmodule EthElixirOmgAdapter.Transaction do
         }
       ],
       fee: %{
-        amount: 0,
+        amount: 1,
         currency: "0x0000000000000000000000000000000000000000"
       }
     }
@@ -89,14 +89,15 @@ defmodule EthElixirOmgAdapter.Transaction do
     |> HttpClient.post_request("transaction.create")
   end
 
-  defp sign(sign_hash, from) do
+  defp sign(sign_hash, from, inputs) do
     {:ok, {v, r, s}} = Keychain.Signature.sign_transaction_hash(from_hex(sign_hash), from)
-    to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
+    sig = to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
+    List.duplicate(sig, length(inputs))
   end
 
-  defp submit_typed(signature, typed_data) do
+  defp submit_typed(signatures, typed_data) do
     typed_data
-    |> Map.put_new("signatures", [signature])
+    |> Map.put_new("signatures", signatures)
     |> Jason.encode!()
     |> HttpClient.post_request("transaction.submit_typed")
   end
