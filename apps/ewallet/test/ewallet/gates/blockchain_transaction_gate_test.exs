@@ -55,8 +55,15 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
       assert %{listener: _, pid: blockchain_listener_pid} = res
 
-      :sys.get_state(pid)
-      :sys.get_state(blockchain_listener_pid)
+      assert Process.alive?(pid)
+      assert Process.alive?(blockchain_listener_pid)
+
+      # Turn off the listeners before exiting so it does not try
+      # to update the transactions after the test is done.
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
     end
 
     test "returns an error when trying to exchange" do
@@ -80,7 +87,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :blockchain_exchange_not_allowed} ==
-        BlockchainTransactionGate.create(admin, attrs, {true, true})
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error when amounts are not valid" do
@@ -103,7 +110,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :amounts_missing_or_invalid} ==
-        BlockchainTransactionGate.create(admin, attrs, {true, true})
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error when the hot wallet doesn't have enough funds" do
@@ -124,7 +131,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_funds} == BlockchainTransactionGate.create(admin, attrs, {true, true})
+      assert {:error, :insufficient_funds} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
     test "returns an error if the token is not a blockchain token" do
@@ -144,7 +152,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :token_not_blockchain_enabled} ==
-        BlockchainTransactionGate.create(admin, attrs, {true, true})
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
   end
 
@@ -164,6 +172,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
   describe "handle_local_insert/1" do
     test "transitions the transaction to confirmed if transaction.to is nil"
+
     test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil"
   end
 end

@@ -59,9 +59,14 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
       deposit_wallet_2 = insert(:blockchain_deposit_wallet)
       deposit_wallet_3 = insert(:blockchain_deposit_wallet)
 
-      assert BlockchainDepositWallet.get_by(uuid: deposit_wallet_1.uuid).uuid == deposit_wallet_1.uuid
-      assert BlockchainDepositWallet.get_by(address: deposit_wallet_2.address).uuid == deposit_wallet_2.uuid
-      assert BlockchainDepositWallet.get_by(public_key: deposit_wallet_3.public_key).uuid == deposit_wallet_3.uuid
+      assert BlockchainDepositWallet.get_by(uuid: deposit_wallet_1.uuid).uuid ==
+               deposit_wallet_1.uuid
+
+      assert BlockchainDepositWallet.get_by(address: deposit_wallet_2.address).uuid ==
+               deposit_wallet_2.uuid
+
+      assert BlockchainDepositWallet.get_by(public_key: deposit_wallet_3.public_key).uuid ==
+               deposit_wallet_3.uuid
     end
   end
 

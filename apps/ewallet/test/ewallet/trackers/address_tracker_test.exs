@@ -16,8 +16,18 @@ defmodule EWallet.AddressTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   import Ecto.Query
-  alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
-  alias EWalletDB.{BlockchainWallet, BlockchainHDWallet, Transaction, Token, Repo}
+  alias EWallet.{AddressTracker, BalanceFetcher, BlockchainHelper, BlockchainDepositWalletGate}
+
+  alias EWalletDB.{
+    BlockchainDepositWallet,
+    BlockchainWallet,
+    BlockchainHDWallet,
+    Transaction,
+    TransactionState,
+    Token,
+    Repo
+  }
+
   alias Keychain.Wallet
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -139,6 +149,8 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
+      deposit_wallet = BlockchainDepositWallet.get_last_for(wallet)
+
       erc20_token =
         insert(:token,
           blockchain_address: Crypto.fake_eth_address(),
@@ -156,7 +168,7 @@ defmodule EWallet.AddressTrackerTest do
                       [
                         %{
                           hot_wallet_address: hot_wallet.address,
-                          deposit_wallet_address: hd(wallet.blockchain_deposit_wallets).address,
+                          deposit_wallet_address: deposit_wallet.address,
                           erc20_address: erc20_token.blockchain_address,
                           other_address: other_address
                         }
@@ -171,7 +183,7 @@ defmodule EWallet.AddressTrackerTest do
 
       assert state[:addresses] == %{
                hot_wallet.address => nil,
-               hd(wallet.blockchain_deposit_wallets).address => wallet.address
+               deposit_wallet.address => wallet.address
              }
 
       # Because we're passing stop_once_synced: true, the tracker will
@@ -237,7 +249,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(3)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             0,
@@ -255,7 +267,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(4)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             1,
@@ -283,7 +295,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(6)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             1,
@@ -303,7 +315,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(7)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             2,
@@ -317,7 +329,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(8)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             2,
@@ -325,12 +337,26 @@ defmodule EWallet.AddressTrackerTest do
             erc20_token.uuid,
             25_000
           )
+
+          # Check the balance of the deposit wallet to ensure the
+          # funds have been received internally
+          {:ok, %{balances: balances} = _wallet} = BalanceFetcher.all(%{"wallet" => wallet})
+
+          balances =
+            Enum.map(balances, fn balance ->
+              {balance[:amount], balance[:token].uuid}
+            end)
+
+          assert Enum.member?(balances, {1_000 + 1_337_000 + 1_000, default_token.uuid})
+          assert Enum.member?(balances, {1_000 + 25_000, erc20_token.uuid})
       end
 
       refute Process.alive?(pid)
     end
   end
 
+  # It's a private helper function and we're doing a lot of assertions
+  # credo:disable-for-next-line Credo.Check.Refactor.Nesting
   defp assert_transaction(
          transaction,
          from_bc,
@@ -343,7 +369,7 @@ defmodule EWallet.AddressTrackerTest do
          amount
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
-    assert transaction.status == "confirmed"
+    assert transaction.status == TransactionState.confirmed()
     assert transaction.confirmations_count == 13
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc
