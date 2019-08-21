@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.StatusTest do
+defmodule EthBlockchain.ClientTest do
   use EthBlockchain.EthBlockchainCase, async: true
   alias EthBlockchain.Client
 
