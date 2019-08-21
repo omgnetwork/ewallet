@@ -25,7 +25,7 @@ defmodule EthBlockchain.BlockTest do
           state[:pid]
         )
 
-      assert res == 14
+      assert res == {:ok, "0xe"}
     end
 
     test "returns an error if no such adapter is registered", state do
