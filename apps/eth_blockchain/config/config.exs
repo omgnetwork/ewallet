@@ -2,10 +2,14 @@ use Mix.Config
 
 config :eth_blockchain,
        EthBlockchain.Adapter,
-       adapters: [
+       eth_adapters: [
          {:geth, EthGethAdapter.Worker}
        ],
-       default_adapter: :geth
+       childchain_adapters: [
+         {:elixir_omg, EthElixirOmgAdapter.Worker}
+       ],
+       default_eth_adapter: :geth,
+       default_childchain_adapter: :elixir_omg
 
 config :eth_blockchain,
   default_gas_price: 20_000_000_000,
@@ -16,17 +20,18 @@ config :eth_blockchain,
   child_chain_deposit_token_gas_limit: 250_000,
   # Custom id used for development/testing only, to be updated for production use
   chain_id: 1337,
-  transaction_poll_interval: 5000,
-  childchains: %{
-    "elixir_omg" => %{
-      contract_address:
-        {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0x7d812d4c8017468d8102bd5e64af0d431c77f86a"},
-      childchain_url: {:system, "ELIXIR_OMG_CHILDCHAIN_URL", "http://localhost:9656"},
-      watcher_url: {:system, "ELIXIR_OMG_WATCHER_URL", "http://localhost:7434"},
-      adapter: {:elixir_omg, ElixirOMGAdapter.Worker}
-    }
-  },
-  default_childchain: "elixir_omg",
+  transaction_poll_interval: 5000
+
+config :eth_blockchain,
+  default_gas_price: 20_000_000_000
+
+config :eth_blockchain,
+       :gas_limit,
+       eth_transaction: 21_000,
+       contract_transaction: 90_000,
+       contract_creation: 1_500_000,
+       child_chain_deposit_eth: 180_000,
+       child_chain_deposit_token: 250_000
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

@@ -1,0 +1,45 @@
+--- Plasma setup ---
+"Getting primary hot wallet..."
+address = EWalletDB.BlockchainWallet.get_primary_hot_wallet("ethereum").address
+private_key =  Keychain.Key.private_key_for_wallet(address)
+funding_amount = trunc(:math.pow(10, 18) * 100)
+
+"Funding wallet on ethereum..."
+{:ok, _addr} = Ethereumex.HttpClient.request("personal_importRawKey", [private_key, "password"], [])
+{:ok, [default_faucet | _]} = Ethereumex.HttpClient.eth_accounts()
+Ethereumex.HttpClient.eth_send_transaction(%{from: default_faucet, to: address, value: Utils.Helpers.Encoding.to_hex(funding_amount)})
+-----
+Then
+-----
+"Deploying an ERC20"
+{:ok, _tx_hash, erc20_address, _contract_uuid} = EthBlockchain.Contract.deploy_erc20(%{locked: true, from: address, name: "OMGToken", symbol: "OMG", decimals: 18, initial_amount: funding_amount})
+
+"Depositing to plasma"
+EthBlockchain.Childchain.deposit(%{childchain_identifier: elixir_omg, to: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", amount: 1000, currency: "0x0000000000000000000000000000000000000000"})
+EthBlockchain.Childchain.deposit(%{childchain_identifier: elixir_omg, to: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", amount: 1000, currency: erc20_address})
+----------------
+
+EthBlockchain.Transaction.send(%{from: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", to: "0x811ae0a85d3f86824da3abe49a2407ea55a8b052", amount: 1})
+
+
+
+Ethereumex.HttpClient.eth_get_transaction_by_hash("0xa03103871e386996f6e463ae199fac1ade01af435709b0f73e8eee0de1106e43")
+EthBlockchain.TransactionReceipt.get(%{tx_hash: "0xa03103871e386996f6e463ae199fac1ade01af435709b0f73e8eee0de1106e43"})
+
+
+
+OMG deployed contract: 0x975700d0cbf45444d4a6127d53634bb408004df8
+
+EthBlockchain.Transaction.approve_erc20(%{from: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", to: "0xe7ee9432e3a191f5cb64cc34099a125f09fe4e1b", contract_address: "0x2860e87e8b8eee97480f326a0a50dac22193af18", amount: 100})
+
+import Utils.Helpers.Encoding
+"0x" <> sign_hash = "0x48f63906689205c506877ffe297252dbb0e21b6296671a0fb121b70b8def876a"
+sign_hash_byte = Base.decode16!(sign_hash, case: :lower)
+{:ok, {v, r, s}} = Keychain.Signature.sign_transaction_hash(sign_hash_byte, "0x811ae0a85d3f86824da3abe49a2407ea55a8b053")
+signature = to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
+
+"0x0f7b7d32e8cbdcd27f7dd0c4d3d44184e0abd5e85c1fb76f2bfe8993e010263b412b3e68fbf769a963d23cbacd077ff7d0141f096cd322635705cb71f9edfa5e1b"
+
+
+EthBlockchain.Childchain.deposit(%{childchain_identifier: elixir_omg, to: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", amount: 1000, currency: "0x0000000000000000000000000000000000000000"})
+EthBlockchain.Childchain.send(%{from: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053", to: "0x811ae0a85d3f86824da3abe49a2407ea55a8b052", amount: 10, currency: "0x0000000000000000000000000000000000000000", childchain_identifier: elixir_omg})

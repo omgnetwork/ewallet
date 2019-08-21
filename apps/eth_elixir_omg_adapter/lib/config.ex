@@ -12,19 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.GasHelper do
+# TODO: Move in new subapp
+defmodule EthElixirOmgAdapter.Config do
   @moduledoc false
 
-  def get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
-
-  def get_gas_limit_or_default(type, _attrs) do
-    :eth_blockchain
-    |> Application.get_env(:gas_limit)
-    |> Keyword.get(type)
+  def get_contract_address do
+    Application.get_env(:eth_elixir_omg_adapter, :contract_address)
   end
-
-  def get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
-
-  def get_gas_price_or_default(_attrs),
-    do: Application.get_env(:eth_blockchain, :default_gas_price)
 end

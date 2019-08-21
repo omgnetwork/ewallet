@@ -15,143 +15,96 @@
 defmodule EthBlockchain.Childchain do
   @moduledoc false
   import Utils.Helpers.Encoding
-  alias EthBlockchain.{Adapter, Helper}
+  alias EthBlockchain.{Adapter, Helper, Transaction}
 
   @eth EthBlockchain.Helper.default_address()
 
-  # TODO: All the actual interactions with the childchain in the functions below should be extracted
-  # to another subapp: EthElixirOMGAdapter
   def deposit(
         %{
           to: to,
           amount: amount,
-          currency: currency_address,
+          currency: currency,
           childchain_identifier: childchain_identifier
         } = attrs,
-        adapter \\ nil,
-        pid \\ nil
+        eth_adapter \\ nil,
+        eth_pid \\ nil,
+        cc_adapter \\ nil,
+        cc_pid \\ nil
       ) do
-    # check that childchain identifier is supported
-    childchains = Application.get_env(:eth_blockchain, :childchains)
+    with :ok <- check_childchain(childchain_identifier) do
+      contract_address = Adapter.childchain_call({:get_contract_address}, cc_adapter, cc_pid)
 
-    childchain_identifier =
-      childchain_identifier || Application.get_env(:eth_blockchain, :default_childchain)
-
-    case Map.get(childchains, childchain_identifier) do
-      nil ->
-        {:error, :childchain_not_supported}
-
-      %{contract_address: contract_address} ->
-        deposit_to_child_chain(to, amount, currency_address, contract_address, adapter, pid)
+      {:get_deposit_tx_bytes, to, amount, currency}
+      |> Adapter.childchain_call(cc_adapter, cc_pid)
+      |> submit_deposit(to, amount, currency, contract_address, eth_adapter, eth_pid)
     end
   end
 
-  defp deposit_to_child_chain(to, amount, token \\ @eth, contract_address, adapter, pid)
+  defp submit_deposit(tx_bytes, to, amount, token \\ @eth, adapter, pid)
 
-  defp deposit_to_child_chain(to, amount, @eth, contract_address, adapter, pid) do
-    tx_bytes =
-      []
-      |> EthBlockchain.Plasma.Transaction.new([
-        {from_hex(to), from_hex(@eth), amount}
-      ])
-      |> EthBlockchain.Plasma.Transaction.encode()
-
-    EthBlockchain.Transaction.deposit_eth(
-      %{tx_bytes: tx_bytes, from: to, amount: amount, contract: contract_address},
+  defp submit_deposit(tx_bytes, to, amount, @eth, contract_address, adapter, pid) do
+    Transaction.deposit_eth(
+      %{tx_bytes: tx_bytes, from: to, amount: amount, contract_address: contract_address},
       adapter,
       pid
     )
   end
 
-  defp deposit_to_child_chain(to, amount, erc20, contract_address, adapter, pid) do
-    tx_bytes =
-      []
-      |> EthBlockchain.Plasma.Transaction.new([
-        {from_hex(to), from_hex(erc20), amount}
-      ])
-      |> EthBlockchain.Plasma.Transaction.encode()
-
-    EthBlockchain.Transaction.deposit_erc20(
-      %{
-        tx_bytes: tx_bytes,
-        from: to,
-        amount: amount,
-        root_chain_contract: contract_address,
-        erc20_contract: erc20
-      },
-      adapter,
-      pid
-    )
-  end
-
-  def send(%{
-    from: from,
-    to: to,
-    amount: amount,
-    currency: currency_address,
-    childchain_identifier: childchain_identifier
-  } = attrs,
-  adapter \\ nil,
-  pid \\ nil) do
-    #TODO: extract this in function
-    # check that childchain identifier is supported
-    childchains = Application.get_env(:eth_blockchain, :childchains)
-
-    childchain_identifier =
-      childchain_identifier || Application.get_env(:eth_blockchain, :default_childchain)
-
-    case Map.get(childchains, childchain_identifier) do
-      nil ->
-        {:error, :childchain_not_supported}
-
-      config ->
-        do_send(from, to, amount, currency_address, config, adapter, pid)
+  defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, eth_adapter, eth_pid) do
+    with {:ok, _tx_hash} <-
+           Transaction.approve_erc20(
+             %{
+               from: to,
+               to: root_chain_contract,
+               amount: amount,
+               contract_address: erc20
+             },
+             eth_adapter,
+             eth_pid
+           ),
+         {:ok, _tx_hash} = response <-
+           Transaction.deposit_erc20(
+             %{
+               tx_bytes: tx_bytes,
+               from: to,
+               amount: amount,
+               root_chain_contract: root_chain_contract,
+               erc20_contract: erc20
+             },
+             eth_adapter,
+             eth_pid
+           ) do
+      response
     end
   end
 
-  defp do_send(from, to, amount, currency_address, config, adapter, pid) do
-    case prepare_transaction(from, to, amount, currency_address, config, adapter, pid) do
-      # Handling only complete transactions
-      {:ok, %{"result" => "complete", "transactions" => [%{"sign_hash" => sign_hash, "typed_data" => typed_data} | _]}} ->
-        sign_hash
-        |> sign(from)
-        |> submit_typed(typed_data, config)
-      {:ok, %{"result" => "intermediate"}} -> {:error, :todo} #TODO Handle intermediate transactions
-      {:ok, _} -> {:error, :unhandled}
-      error -> error
-    end
-  end
-
-  defp prepare_transaction(from, to, amount, currency_address, %{watcher_url: watcher_url}, adapter, pid) do
-    # TODO: Fee?
-    %{
-      owner: from,
-      payments: [
+  def send(
         %{
+          from: from,
+          to: to,
           amount: amount,
-          currency: currency_address,
-          owner: to
-        }
-      ],
-      fee: %{
-        amount: 5,
-        currency: "0x0000000000000000000000000000000000000000"
-      }
-    }
-    |> Jason.encode!()
-    |> EthBlockchain.Plasma.HttpClient.post_request(watcher_url <> "/transaction.create")
+          currency: currency,
+          childchain_identifier: childchain_identifier
+        } = attrs,
+        cc_adapter \\ nil,
+        cc_pid \\ nil
+      ) do
+    with :ok <- check_childchain(childchain_identifier) do
+      Adapter.childchain_call({:send, from, to, amount, currency}, cc_adapter, cc_pid)
+    end
   end
 
-  defp sign(sign_hash, from) do
-    {:ok, {v, r, s}} = Keychain.Signature.sign_transaction_hash(from_hex(sign_hash), from)
-    to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
-  end
+  defp check_childchain(childchain_identifier) do
+    case :eth_blockchain
+         |> Application.get_env(EthBlockchain.Adapter)
+         |> Keyword.get(:childchain_adapters)
+         |> Enum.find(fn {id, _} -> id == childchain_identifier end) do
+      nil ->
+        {:error, :childchain_not_supported}
 
-  defp submit_typed(signature, typed_data, %{watcher_url: watcher_url}) do
-    typed_data
-    |> Map.put_new("signatures", [signature])
-    |> Jason.encode!()
-    |> EthBlockchain.Plasma.HttpClient.post_request(watcher_url <> "/transaction.submit_typed")
+      cc ->
+        :ok
+    end
   end
 
   def get_block do

@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.Plasma.HttpClient do
+defmodule EthElixirOmgAdapter.HttpClient do
   @moduledoc false
 
   @spec post_request(binary(), []) :: {:ok | :error, any()}
-  def post_request(payload, url) do
+  def post_request(payload, action) do
     headers = [{"Content-Type", "application/json"}, {"accept", "application/json"}]
-    #TODO: get URL from config. --- url = url || Application.get_env(:..., ...)
+    url = Application.get_env(:eth_elixir_omg_adapter, :watcher_url)
+    path = url <> "/" <> action
 
-    with {:ok, response} <- HTTPoison.post(url, payload, headers),
+    with {:ok, response} <- HTTPoison.post(path, payload, headers),
          %HTTPoison.Response{body: body, status_code: code} = response do
       decode_body(body, code)
     else
-
-      #TODO: handle error
+      # TODO: handle error
       {:error, %HTTPoison.Error{reason: reason}} -> {:error, reason}
       e -> {:error, e}
     end
@@ -35,13 +35,20 @@ defmodule EthBlockchain.Plasma.HttpClient do
   defp decode_body(body, code) do
     with {:ok, decoded_body} <- Jason.decode(body) do
       case {code, decoded_body} do
-        {200, %{"success" => false, "data" => %{"object" => "error", "code" => code, "description" => description}}} = a ->
+        {200,
+         %{
+           "success" => false,
+           "data" => %{"object" => "error", "code" => code, "description" => description}
+         }} = a ->
           IO.inspect(a)
           {:error, :bad_request, code}
+
         {200, %{"success" => true, "data" => data}} = a ->
           IO.inspect(a)
           {:ok, data}
-        _ -> {:error, decoded_body}
+
+        _ ->
+          {:error, decoded_body}
       end
     else
       {:error, %Jason.DecodeError{data: ""}} -> {:error, :empty_response}

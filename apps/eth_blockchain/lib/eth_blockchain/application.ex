@@ -23,13 +23,12 @@ defmodule EthBlockchain.Application do
     import Supervisor.Spec
     DeferredConfig.populate(:eth_blockchain)
 
-    adapters =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:adapters)
+    config = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+    eth_adapters = Keyword.get(config, :eth_adapters)
+    childchain_adapters = Keyword.get(config, :childchain_adapters)
 
     adapter_opts = [
-      adapters: adapters,
+      adapters: eth_adapters ++ childchain_adapters,
       named: true,
       supervisor: EthBlockchain.DynamicSupervisor
     ]

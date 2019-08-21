@@ -233,12 +233,33 @@ defmodule EthBlockchain.Adapter do
     adapter =
       :eth_blockchain
       |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:default_adapter)
+      |> Keyword.get(:default_eth_adapter)
 
     call(func_spec, adapter, pid)
   end
 
   def call(func_spec, adapter_spec, pid) do
+    pid = pid || __MODULE__
+
+    case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
+      {:ok, resp} ->
+        resp
+
+      error ->
+        error
+    end
+  end
+
+  def childchain_call(func_spec, nil, pid) do
+    adapter =
+      :eth_blockchain
+      |> Application.get_env(EthBlockchain.Adapter)
+      |> Keyword.get(:default_childchain_adapter)
+
+    childchain_call(func_spec, adapter, pid)
+  end
+
+  def childchain_call(func_spec, adapter_spec, pid) do
     pid = pid || __MODULE__
 
     case GenServer.call(pid, {:call, adapter_spec, func_spec}) do

@@ -1,9 +1,9 @@
-defmodule EthBlockchain.MixProject do
+defmodule EthElixirOmgAdapter.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :eth_blockchain,
+      app: :eth_elixir_omg_adapter,
       version: "1.2.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
@@ -19,23 +19,21 @@ defmodule EthBlockchain.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
-      mod: {EthBlockchain.Application, []}
+      extra_applications: [:logger]
     ]
   end
-
-  # Specifies which paths to compile per environment.
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_),     do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:exth_crypto, "~> 0.1.6"},
+      {:utils, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ex_rlp, "~> 0.5.2"},
-      {:utils, in_umbrella: true},
-      {:keychain, in_umbrella: true}
+      {:jason, "~> 1.1"},
+      {:httpoison, "~> 1.4.0"}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
