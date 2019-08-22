@@ -21,7 +21,7 @@ defmodule EthElixirOmgAdapter.Transaction do
 
   alias EthElixirOmgAdapter.HttpClient
 
-  @eth EthBlockchain.Helper.default_address()
+  @eth "0x0000000000000000000000000000000000000000"
   @max_inputs 4
   @max_outputs 4
 
@@ -47,7 +47,6 @@ defmodule EthElixirOmgAdapter.Transaction do
 
   def send(from, to, amount, currency_address) do
     case prepare_transaction(from, to, amount, currency_address) do
-      # Handling only complete transactions
       {:ok,
        %{
          "result" => "complete",
@@ -84,7 +83,7 @@ defmodule EthElixirOmgAdapter.Transaction do
       ],
       fee: %{
         amount: 1,
-        currency: "0x0000000000000000000000000000000000000000"
+        currency: @eth
       }
     }
     |> Jason.encode!()

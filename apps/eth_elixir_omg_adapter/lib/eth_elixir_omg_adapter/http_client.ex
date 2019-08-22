@@ -16,6 +16,7 @@ defmodule EthElixirOmgAdapter.HttpClient do
   @moduledoc false
 
   alias EthElixirOmgAdapter.Config
+  alias HTTPoison.Response
 
   @spec post_request(binary(), []) :: {:ok | :error, any()}
   def post_request(payload, action) do
@@ -23,12 +24,10 @@ defmodule EthElixirOmgAdapter.HttpClient do
     path = Config.get_watcher_url() <> "/" <> action
 
     with {:ok, response} <- HTTPoison.post(path, payload, headers),
-         %HTTPoison.Response{body: body, status_code: code} = response do
+         %Response{body: body, status_code: code} = response do
       decode_body(body, code)
     else
-      # TODO: handle error
-      {:error, %HTTPoison.Error{reason: reason}} -> {:error, reason}
-      e -> {:error, e}
+      _error -> {:error, :elixir_omg_connection_error}
     end
   end
 
@@ -39,21 +38,18 @@ defmodule EthElixirOmgAdapter.HttpClient do
         {200,
          %{
            "success" => false,
-           "data" => %{"object" => "error", "code" => code, "description" => description}
-         }} = a ->
-          IO.inspect(a)
-          {:error, :bad_request, code}
+           "data" => %{"object" => "error", "code" => code}
+         }} ->
+          {:error, :elixir_omg_bad_request, error_code: code}
 
-        {200, %{"success" => true, "data" => data}} = a ->
-          IO.inspect(a)
+        {200, %{"success" => true, "data" => data}} ->
           {:ok, data}
 
         _ ->
-          {:error, decoded_body}
+          {:error, :elixir_omg_bad_request, error_code: inspect(decoded_body)}
       end
     else
-      {:error, %Jason.DecodeError{data: ""}} -> {:error, :empty_response}
-      {:error, error} -> {:error, :invalid_json}
+      {:error, error} -> {:error, :elixir_omg_bad_request, error_code: inspect(error)}
     end
   end
 end

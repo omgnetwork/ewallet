@@ -14,10 +14,9 @@
 
 defmodule EthBlockchain.Childchain do
   @moduledoc false
-  import Utils.Helpers.Encoding
   alias EthBlockchain.{Adapter, Helper, Transaction}
 
-  @eth EthBlockchain.Helper.default_address()
+  @eth Helper.default_address()
 
   def deposit(
         %{
@@ -25,7 +24,7 @@ defmodule EthBlockchain.Childchain do
           amount: amount,
           currency: currency,
           childchain_identifier: childchain_identifier
-        } = attrs,
+        },
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier) do
@@ -37,11 +36,9 @@ defmodule EthBlockchain.Childchain do
     end
   end
 
-  defp submit_deposit(tx_bytes, to, amount, token \\ @eth, opts)
-
-  defp submit_deposit(tx_bytes, to, amount, @eth, contract_address, opts) do
+  defp submit_deposit(tx_bytes, to, amount, @eth, root_chain_contract, opts) do
     Transaction.deposit_eth(
-      %{tx_bytes: tx_bytes, from: to, amount: amount, contract_address: contract_address},
+      %{tx_bytes: tx_bytes, from: to, amount: amount, root_chain_contract: root_chain_contract},
       opts
     )
   end
@@ -62,9 +59,7 @@ defmodule EthBlockchain.Childchain do
              %{
                tx_bytes: tx_bytes,
                from: to,
-               amount: amount,
-               root_chain_contract: root_chain_contract,
-               erc20_contract: erc20
+               root_chain_contract: root_chain_contract
              },
              opts
            ) do
@@ -79,7 +74,7 @@ defmodule EthBlockchain.Childchain do
           amount: amount,
           currency: currency,
           childchain_identifier: childchain_identifier
-        } = attrs,
+        },
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier) do
@@ -95,26 +90,26 @@ defmodule EthBlockchain.Childchain do
       nil ->
         {:error, :childchain_not_supported}
 
-      cc ->
+      _cc ->
         :ok
     end
   end
 
-  def get_block do
+  # def get_block do
     # TODO: get block and parse transactions to find relevant ones
     # to be used by a childchain AddressTracker
-  end
+  # end
 
-  def get_exitable_utxos do
+  # def get_exitable_utxos do
     # TODO: Check if childchain is supported
     # TODO: Retrieve exitable utxos from Watcher API
-  end
+  # end
 
-  def exit(
-        %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
-        opts \\ []
-      ) do
+  # def exit(
+        # %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
+        # opts \\ []
+      # ) do
     # TODO: 1. Check if childchain is supported
     # TODO: 2. Attempt to exit all given utxos
-  end
+  # end
 end

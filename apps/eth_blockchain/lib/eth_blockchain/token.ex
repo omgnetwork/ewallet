@@ -38,7 +38,7 @@ defmodule EthBlockchain.Token do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
         {:get_field, contract_address, to_hex(encoded_abi_data)}
-        |> Adapter.call(opts)
+        |> Adapter.eth_call(opts)
         |> parse_response(field, opts)
 
       error ->

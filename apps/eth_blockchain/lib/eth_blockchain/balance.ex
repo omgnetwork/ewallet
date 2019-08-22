@@ -55,7 +55,7 @@ defmodule EthBlockchain.Balance do
     case ABIEncoder.balance_of(address) do
       {:ok, encoded_abi_data} ->
         {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block}
-        |> Adapter.call(opts)
+        |> Adapter.eth_call(opts)
         |> parse_response()
         |> respond(contract_addresses)
 

@@ -41,8 +41,10 @@ defmodule EthBlockchain.ErrorHandler do
           required(atom()) => %{code: String.t(), description: String.t()}
         }
   def errors(opts \\ []) do
+    eth_errors = Adapter.eth_call({:get_errors}, opts)
     {:get_errors}
-    |> Adapter.call(opts)
+    |> Adapter.childchain_call(opts)
+    |> Map.merge(eth_errors)
     |> Map.merge(@errors)
   end
 

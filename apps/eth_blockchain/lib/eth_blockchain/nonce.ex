@@ -94,7 +94,7 @@ defmodule EthBlockchain.Nonce do
 
   defp get_nonce(address, eth_node_adapter, eth_node_adapter_pid) do
     with {:ok, nonce} <-
-           Adapter.call(
+           Adapter.eth_call(
              {:get_transaction_count, address, "pending"},
              eth_node_adapter: eth_node_adapter,
              eth_node_adapter_pid: eth_node_adapter_pid

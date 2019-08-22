@@ -175,7 +175,7 @@ defmodule EthBlockchain.Adapter do
   ##
 
   @doc """
-  Handles the call from the client API call/4.
+  Handles the call from the client API.
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do
@@ -228,7 +228,7 @@ defmodule EthBlockchain.Adapter do
     Contract.deploy_erc20(attrs, opts)
   end
 
-  def call(func_spec, opts) do
+  def eth_call(func_spec, opts) do
     with opts <- process_adapter_opts(opts),
          {:ok, resp} <-
            GenServer.call(

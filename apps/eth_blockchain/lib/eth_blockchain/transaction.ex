@@ -97,7 +97,7 @@ defmodule EthBlockchain.Transaction do
            to: to,
            amount: amount
          } = attrs,
-         opts \\ []
+         opts
        ) do
     with {:ok, meta} <- get_transaction_meta(attrs, :eth_transaction, opts) do
       %__MODULE__{
@@ -146,17 +146,17 @@ defmodule EthBlockchain.Transaction do
   end
 
   @doc """
-  Submit a deposit eth transaction to the specified childchain contract
+  Submit a deposit eth transaction to the specified root chain contract
   """
   def deposit_eth(
-        %{tx_bytes: tx_bytes, from: from, amount: amount, contract_address: contract_address} =
+        %{tx_bytes: tx_bytes, from: from, amount: amount, root_chain_contract: root_chain_contract} =
           attrs,
         opts \\ []
       ) do
     with {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_eth, opts),
          {:ok, encoded_abi_data} <- ABIEncoder.child_chain_eth_deposit(tx_bytes) do
       %__MODULE__{
-        to: from_hex(contract_address),
+        to: from_hex(root_chain_contract),
         data: encoded_abi_data,
         value: amount
       }
@@ -172,9 +172,7 @@ defmodule EthBlockchain.Transaction do
         %{
           tx_bytes: tx_bytes,
           from: from,
-          amount: amount,
-          root_chain_contract: root_chain_contract,
-          erc20_contract: erc20_contract
+          root_chain_contract: root_chain_contract
         } = attrs,
         opts \\ []
       ) do
@@ -253,7 +251,7 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp send_raw({:ok, transaction_data}, opts) do
-    Adapter.call({:send_raw, transaction_data}, opts)
+    Adapter.eth_call({:send_raw, transaction_data}, opts)
   end
 
   defp send_raw(error, _opts), do: error

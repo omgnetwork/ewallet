@@ -16,10 +16,10 @@ defmodule EthBlockchain.AdapterTest do
   use EthBlockchain.EthBlockchainCase
   alias EthBlockchain.Adapter
 
-  describe "call/3" do
+  describe "eth_call/2" do
     test "delegates get_balances call to the adapter", state do
       dumb_resp1 =
-        Adapter.call(
+        Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
           eth_node_adapter: :dumb,
@@ -27,7 +27,7 @@ defmodule EthBlockchain.AdapterTest do
         )
 
       dumb_resp2 =
-        Adapter.call(
+        Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
           eth_node_adapter: {:dumb, "balance"},
@@ -40,7 +40,7 @@ defmodule EthBlockchain.AdapterTest do
 
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
-        Adapter.call(
+        Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
           eth_node_adapter: :dumb,
@@ -48,7 +48,7 @@ defmodule EthBlockchain.AdapterTest do
         )
 
       {:ok, _} =
-        Adapter.call(
+        Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
           eth_node_adapter: {:dumb, "balance"},
@@ -56,7 +56,7 @@ defmodule EthBlockchain.AdapterTest do
         )
 
       {:ok, _} =
-        Adapter.call(
+        Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
           eth_node_adapter: :dumb,
@@ -69,7 +69,7 @@ defmodule EthBlockchain.AdapterTest do
 
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
-               Adapter.call(
+               Adapter.eth_call(
                  {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]],
                   nil, "latest"},
                  eth_node_adapter: :foobar,

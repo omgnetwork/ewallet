@@ -18,11 +18,11 @@ defmodule EthBlockchain.Block do
   alias EthBlockchain.{Adapter, Helper}
 
   def get_number(opts \\ []) do
-    Adapter.call({:get_block_number}, opts)
+    Adapter.eth_call({:get_block_number}, opts)
   end
 
   def get(number, opts \\ []) do
-    Adapter.call({:get_block, number}, opts)
+    Adapter.eth_call({:get_block, number}, opts)
   end
 
   def get_transactions(
