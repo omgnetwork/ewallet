@@ -5,6 +5,9 @@ import createReducer from '../reducer/createReducer'
 export const blockchainWalletReducer = createReducer(
   {},
   {
+    'BLOCKCHAIN_WALLET/CREATE/SUCCESS': (state, action) => {
+      return { ...state, [action.data.address]: action.data }
+    },
     'BLOCKCHAIN_WALLET/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ..._.keyBy(action.data, 'address') }
     },

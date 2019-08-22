@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
@@ -88,8 +88,8 @@ const BlockchainWalletsPage = ({ match, history }) => {
                 loadingStatus={individualLoadingStatus}
                 rowRenderer={rowRenderer}
                 onClickRow={onClickRow}
-                isFirstPage={pagination.is_first_page}
-                isLastPage={pagination.is_last_page}
+                isFirstPage={_.get(pagination, 'is_first_page', true)}
+                isLastPage={_.get(pagination, 'is_last_page', true)}
                 navigation
               />
             </SortableTableContainer>

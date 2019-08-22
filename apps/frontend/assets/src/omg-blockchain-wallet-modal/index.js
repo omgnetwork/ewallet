@@ -40,7 +40,7 @@ const BlockchainWalletModal = ({ createBlockchainWallet, open, onRequestClose })
     await createBlockchainWallet({
       name,
       type: 'cold',
-      address
+      address: address.toLowerCase()
     })
     setLoading(false)
     handleClose()

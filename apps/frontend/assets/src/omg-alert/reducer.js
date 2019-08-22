@@ -282,6 +282,9 @@ export const alertsReducer = createReducer([], {
   'INVITE_ADMIN/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited admin successfully.', 'success')]
   },
+  'BLOCKCHAIN_WALLET/CREATE/SUCCESS': state => {
+    return [...state, createAlertState('Created cold wallet reference successfully.', 'success')]
+  },
   'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
   'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
   'PASSWORD/UPDATE/FAILED': errorStateHandler,
@@ -307,5 +310,6 @@ export const alertsReducer = createReducer([], {
   'ADMIN/UPDATE/FAILED': errorStateHandler,
   'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler,
   'ADMIN/INVITE/FAILED': errorStateHandler,
-  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler
+  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler,
+  'BLOCKCHAIN_WALLET/CREATE/FAILED': errorStateHandler
 })

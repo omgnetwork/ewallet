@@ -154,8 +154,8 @@ class BlockchainTokensPage extends Component {
             columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            isFirstPage={pagination.is_first_page}
-            isLastPage={pagination.is_last_page}
+            isFirstPage={_.get(pagination, 'is_first_page', true)}
+            isLastPage={_.get(pagination, 'is_last_page', true)}
             navigation
           />
         </SortableTableContainer>
