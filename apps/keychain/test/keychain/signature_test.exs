@@ -16,7 +16,8 @@ defmodule Keychain.SignatureTest do
   use Keychain.DBCase
 
   describe "sign_transaction_hash/3" do
-    test "returns an ECDSA signature for the given hash and wallet address"
+    test "returns an ECDSA signature for the given hash and wallet address" do
+    end
   end
 
   describe "sign_with_child_key/5" do

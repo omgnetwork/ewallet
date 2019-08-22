@@ -157,7 +157,7 @@ defmodule EWallet.BlockchainTransactionGate do
     end
 
     # TODO: merge with the logic in TransactionTraker
-    case is_integer(confirmations_count) && confirmations_count > (threshold || 0) do
+    case is_integer(confirmations_count) && confirmations_count > (threshold || 10) do
       true ->
         # TODO: Change originator?
         TransactionState.transition_to(

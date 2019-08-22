@@ -15,7 +15,15 @@
 defmodule EWallet.BlockchainTransactionGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
-  alias EWallet.{BlockchainHelper, BlockchainTransactionGate, TransactionRegistry}
+
+  alias EWallet.{
+    BlockchainHelper,
+    BalanceFetcher,
+    BlockchainDepositWalletGate,
+    BlockchainTransactionGate,
+    TransactionRegistry
+  }
+
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -157,22 +165,335 @@ defmodule EWallet.BlockchainTransactionGateTest do
   end
 
   describe "create_from_tracker/2" do
-    test "creates the local transaction and starts tracking the blockchain transaction"
+    test "creates the blockchain transaction and tracks it" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        idempotency_token: tx_hash,
+        from_amount: 1,
+        to_amount: 1,
+        status: TransactionState.pending(),
+        type: Transaction.external(),
+        blockchain_tx_hash: tx_hash,
+        blockchain_identifier: identifier,
+        confirmations_count: 0,
+        blk_number: 1,
+        payload: %{},
+        blockchain_metadata: %{},
+        from_token_uuid: token.uuid,
+        to_token_uuid: token.uuid,
+        to: nil,
+        from: nil,
+        from_blockchain_address: Crypto.fake_eth_address(),
+        to_blockchain_address: hot_wallet.address,
+        from_account: nil,
+        to_account: nil,
+        from_user: nil,
+        to_user: nil,
+        originator: %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+
+      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+      assert is_pid(pid)
+
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.status == "confirmed"
+      end
+    end
+
+    test "creates the local transaction and starts tracking the blockchain transaction" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      wallet = insert(:wallet)
+
+      {:ok, wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        idempotency_token: tx_hash,
+        from_amount: 1,
+        to_amount: 1,
+        status: TransactionState.pending(),
+        type: Transaction.external(),
+        blockchain_tx_hash: tx_hash,
+        blockchain_identifier: identifier,
+        confirmations_count: 0,
+        blk_number: 1,
+        payload: %{},
+        blockchain_metadata: %{},
+        from_token_uuid: token.uuid,
+        to_token_uuid: token.uuid,
+        to: wallet.address,
+        from: nil,
+        from_blockchain_address: Crypto.fake_eth_address(),
+        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        from_account: nil,
+        to_account: nil,
+        from_user: nil,
+        to_user: nil,
+        originator: %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+
+      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+      assert is_pid(pid)
+
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.status == "confirmed"
+          # Check balance
+          {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
+          assert balance[:amount] == 1
+          assert balance[:token].uuid == token.uuid
+      end
+    end
+
+    test "creates the local transaction and confirms it right away when enough confirmations" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      wallet = insert(:wallet)
+
+      {:ok, wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        idempotency_token: tx_hash,
+        from_amount: 1,
+        to_amount: 1,
+        status: TransactionState.pending(),
+        type: Transaction.external(),
+        blockchain_tx_hash: tx_hash,
+        blockchain_identifier: identifier,
+        confirmations_count: 11,
+        blk_number: 1,
+        payload: %{},
+        blockchain_metadata: %{},
+        from_token_uuid: token.uuid,
+        to_token_uuid: token.uuid,
+        to: wallet.address,
+        from: nil,
+        from_blockchain_address: Crypto.fake_eth_address(),
+        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        from_account: nil,
+        to_account: nil,
+        from_user: nil,
+        to_user: nil,
+        originator: %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+
+      # We can't find the listener because there shouldn't be one
+      assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
+
+      transaction = Transaction.get(transaction.id)
+      assert transaction.status == "confirmed"
+      # Check balance
+      {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
+      assert balance[:amount] == 1
+      assert balance[:token].uuid == token.uuid
+    end
   end
 
   describe "get_or_insert/1" do
-    test "returns a newly inserted local transaction if the idempotency_token is new"
-    test "returns the existing local transaction if the idempotency_token already exists"
-    test "returns :idempotency_token if the idempotency_token is not given"
+    test "returns a newly inserted local transaction if the idempotency_token is new" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      wallet = insert(:wallet)
+
+      {:ok, wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        "idempotency_token" => tx_hash,
+        "from_amount" => 1,
+        "to_amount" => 1,
+        "status" => TransactionState.pending(),
+        "type" => Transaction.external(),
+        "blockchain_tx_hash" => tx_hash,
+        "blockchain_identifier" => identifier,
+        "confirmations_count" => 0,
+        "blk_number" => 1,
+        "payload" => %{},
+        "blockchain_metadata" => %{},
+        "from_token_uuid" => token.uuid,
+        "to_token_uuid" => token.uuid,
+        "to" => wallet.address,
+        "from" => nil,
+        "from_blockchain_address" => Crypto.fake_eth_address(),
+        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "from_account" => nil,
+        "to_account" => nil,
+        "from_user" => nil,
+        "to_user" => nil,
+        "originator" => %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.get_or_insert(attrs)
+      assert transaction.idempotency_token == tx_hash
+    end
+
+    test "returns the existing local transaction if the idempotency_token already exists" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      wallet = insert(:wallet)
+
+      {:ok, wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        "idempotency_token" => tx_hash,
+        "from_amount" => 1,
+        "to_amount" => 1,
+        "status" => TransactionState.pending(),
+        "type" => Transaction.external(),
+        "blockchain_tx_hash" => tx_hash,
+        "blockchain_identifier" => identifier,
+        "confirmations_count" => 0,
+        "blk_number" => 1,
+        "payload" => %{},
+        "blockchain_metadata" => %{},
+        "from_token_uuid" => token.uuid,
+        "to_token_uuid" => token.uuid,
+        "to" => wallet.address,
+        "from" => nil,
+        "from_blockchain_address" => Crypto.fake_eth_address(),
+        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "from_account" => nil,
+        "to_account" => nil,
+        "from_user" => nil,
+        "to_user" => nil,
+        "originator" => %System{}
+      }
+
+      {:ok, transaction_1} = BlockchainTransactionGate.get_or_insert(attrs)
+      {:ok, transaction_2} = BlockchainTransactionGate.get_or_insert(attrs)
+
+      assert transaction_1.idempotency_token == tx_hash
+      assert transaction_1.idempotency_token == transaction_2.idempotency_token
+    end
+
+    test "returns :idempotency_token if the idempotency_token is not given" do
+      assert BlockchainTransactionGate.get_or_insert(%{}) ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. `idempotency_token` is required."}
+    end
   end
 
   describe "blockchain_addresses?/1" do
-    test "returns a list of booleans indicating whether each given address is a blockchain address"
+    test "returns a list of booleans indicating whether each given address is a blockchain address" do
+      assert BlockchainTransactionGate.blockchain_addresses?([
+               "abc",
+               "0x",
+               Crypto.fake_eth_address()
+             ]) == [
+               false,
+               false,
+               true
+             ]
+    end
   end
 
   describe "handle_local_insert/1" do
-    test "transitions the transaction to confirmed if transaction.to is nil"
+    test "transitions the transaction to confirmed if transaction.to is nil" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      tx_hash = Crypto.fake_eth_address()
 
-    test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil"
+      attrs = %{
+        idempotency_token: tx_hash,
+        from_amount: 1,
+        to_amount: 1,
+        status: TransactionState.blockchain_confirmed(),
+        type: Transaction.external(),
+        blockchain_tx_hash: tx_hash,
+        blockchain_identifier: identifier,
+        confirmations_count: 0,
+        blk_number: 1,
+        payload: %{},
+        blockchain_metadata: %{},
+        from_token_uuid: token.uuid,
+        to_token_uuid: token.uuid,
+        to: nil,
+        from: nil,
+        from_blockchain_address: Crypto.fake_eth_address(),
+        to_blockchain_address: hot_wallet.address,
+        from_account: nil,
+        to_account: nil,
+        from_user: nil,
+        to_user: nil,
+        originator: %System{}
+      }
+
+      {:ok, transaction} = Transaction.insert(attrs)
+      assert transaction.status == TransactionState.blockchain_confirmed()
+
+      {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+      assert transaction.status == TransactionState.confirmed()
+    end
+
+    test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil" do
+      token = insert(:token)
+      identifier = BlockchainHelper.identifier()
+      wallet = insert(:wallet)
+
+      {:ok, wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      tx_hash = Crypto.fake_eth_address()
+
+      attrs = %{
+        idempotency_token: tx_hash,
+        from_amount: 1,
+        to_amount: 1,
+        status: TransactionState.blockchain_confirmed(),
+        type: Transaction.external(),
+        blockchain_tx_hash: tx_hash,
+        blockchain_identifier: identifier,
+        confirmations_count: 11,
+        blk_number: 1,
+        payload: %{},
+        blockchain_metadata: %{},
+        from_token_uuid: token.uuid,
+        to_token_uuid: token.uuid,
+        to: wallet.address,
+        from: nil,
+        from_blockchain_address: Crypto.fake_eth_address(),
+        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        from_account: nil,
+        to_account: nil,
+        from_user: nil,
+        to_user: nil,
+        originator: %System{}
+      }
+
+      {:ok, transaction} = Transaction.insert(attrs)
+      assert transaction.status == TransactionState.blockchain_confirmed()
+
+      {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+      assert transaction.status == TransactionState.confirmed()
+    end
   end
 end

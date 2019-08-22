@@ -135,15 +135,6 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, {_address, _public_key}} = Wallet.generate()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
 
-      {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
-
-      {:ok, _} =
-        BlockchainHDWallet.insert(%{
-          keychain_uuid: keychain_hd_wallet_uuid,
-          originator: %System{},
-          blockchain_identifier: blockchain_identifier
-        })
-
       wallet = insert(:wallet)
 
       {:ok, wallet} =
