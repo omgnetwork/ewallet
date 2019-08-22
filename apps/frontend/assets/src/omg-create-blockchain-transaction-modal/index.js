@@ -283,13 +283,15 @@ class CreateBlockchainTransaction extends Component {
     const { fromAddress } = this.state
     if (web3Utils.isAddress(this.state.fromAddress)) {
       const balances = this.props.selectBlockchainBalanceByAddress(fromAddress)
-      return blockchainTokens.map(token => ({
-        key: `${token.name}${token.symbol}${token.id}`,
-        value: (
-          <TokenSelect balance={balances[token.symbol].balance} token={token} />
-        ),
-        ...token
-      }))
+      return blockchainTokens.map(token => {
+        return {
+          key: `${token.name}${token.symbol}${token.id}`,
+          value: (
+            <TokenSelect balance={balances[token.symbol].balance} token={token} />
+          ),
+          ...token
+        }
+      })
     }
     return fromWallet
       ? fromWallet.balances.map(b => ({
