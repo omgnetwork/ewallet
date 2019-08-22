@@ -1,11 +1,13 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import { useDispatch } from 'react-redux'
 
-import { Id, Icon } from '../omg-uikit'
+import { Id, Icon, Button } from '../omg-uikit'
 import SortableTable from '../omg-table'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { AllBlockchainWalletsFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
+import { openModal } from '../omg-modal/action'
 
 const SortableTableContainer = styled.div`
   position: relative;
@@ -25,6 +27,24 @@ const WalletAddressContainer = styled.div`
 `
 
 const BlockchainWalletsPage = ({ match, history }) => {
+  const dispatch = useDispatch()
+
+  const onClickCreateWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
+
+  const renderCreateWalletButton = () => {
+    return (
+      <Button
+        key='create-wallet-button'
+        size='small'
+        styleType='secondary'
+        onClick={onClickCreateWallet}
+      >
+        <Icon name='Plus' />
+        <span>Create Wallet</span>
+      </Button>
+    )
+  }
+
   const rowRenderer = (key, data, rows) => {
     if (key === 'name') {
       return (
@@ -53,9 +73,9 @@ const BlockchainWalletsPage = ({ match, history }) => {
       <TopNavigation
         divider
         title='Blockchain Wallets'
-        description='These are all blockchain wallets associated to you. Click one to view their details.'
-        types={false}
+        description='These are your blockchain wallets. Click one to view its details.'
         searchBar={false}
+        buttons={[renderCreateWalletButton()]}
       />
       <AllBlockchainWalletsFetcher
         query={{ perPage: Math.floor(window.innerHeight / 65) }}

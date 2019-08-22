@@ -26,3 +26,14 @@ export function getAllBlockchainWallets ({ perPage, sort, matchAll, matchAny }) 
     }
   })
 }
+
+export function createBlockchainWallet ({ name, type, address }) {
+  return authenticatedRequest({
+    path: '/blockchain_wallet.create',
+    data: {
+      name,
+      type,
+      address
+    }
+  })
+}

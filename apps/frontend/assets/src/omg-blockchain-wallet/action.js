@@ -36,3 +36,19 @@ export const getAllBlockchainWallets = ({
       }),
     cacheKey
   })
+
+export const createBlockchainWallet = ({
+  name,
+  type,
+  address
+}) =>
+  createActionCreator({
+    actionName: 'BLOCKCHAIN_WALLET',
+    action: 'CREATE',
+    service: () =>
+      blockchainWalletService.createBlockchainWallet({
+        name,
+        type,
+        address
+      })
+  })

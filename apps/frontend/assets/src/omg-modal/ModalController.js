@@ -9,6 +9,7 @@ import Enable2FaModal from '../omg-2fa-modal/Enable2FaModal'
 import Enter2FaModal from '../omg-2fa-modal/Enter2FaModal'
 import Disable2FaModal from '../omg-2fa-modal/Disable2FaModal'
 import BlockchainDepositModal from '../omg-blockchain-deposit-modal'
+import BlockchainWalletModal from '../omg-blockchain-wallet-modal'
 
 // ADD YOUR NEW MODAL HERE
 const modals = [
@@ -17,7 +18,8 @@ const modals = [
   { id: 'enable2FaModal', modal: Enable2FaModal },
   { id: 'enter2FaModal', modal: Enter2FaModal },
   { id: 'disable2FaModal', modal: Disable2FaModal },
-  { id: 'blockchainDepositModal', modal: BlockchainDepositModal }
+  { id: 'blockchainDepositModal', modal: BlockchainDepositModal },
+  { id: 'blockchainWalletModal', modal: BlockchainWalletModal }
 ]
 
 function ModalController (props) {
