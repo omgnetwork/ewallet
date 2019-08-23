@@ -11,6 +11,7 @@ TransactionResponseSchema:
       data:
         object: transaction
         id: txn_01ce840q5svw6058r8yk6jzf65
+        type: internal
         idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
         from:
           object: transaction_source
@@ -66,6 +67,7 @@ TransactionsResponseSchema:
         data:
           - object: transaction
             id: txn_01ce842dxrrprkak0rzq716ax1
+            type: internal
             from:
               object: transaction_source
               address: bec66785-f0d8-416c-a650-2859aa680166

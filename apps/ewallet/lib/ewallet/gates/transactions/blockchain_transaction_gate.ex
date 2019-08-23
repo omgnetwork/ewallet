@@ -68,22 +68,10 @@ defmodule EWallet.BlockchainTransactionGate do
          %{} = attrs <- check_amount(attrs),
          true <-
            enough_funds?(from, attrs["from_token"], attrs["from_amount"]) ||
-             {:error, :insufficient_funds},
+             {:error, :insufficient_blockchain_funds},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
-         {:ok, tx_hash} <- submit(transaction),
-         {:ok, transaction} <-
-           TransactionState.transition_to(
-             :from_ewallet_to_blockchain,
-             TransactionState.blockchain_submitted(),
-             transaction,
-             %{blockchain_tx_hash: tx_hash, originator: %System{}}
-           ),
-         :ok =
-           TransactionRegistry.start_tracker(TransactionTracker, %{
-             transaction: transaction,
-             transaction_type: :from_ewallet_to_blockchain
-           }) do
+         {:ok, transaction} <- submit_if_needed(transaction) do
       {:ok, transaction}
     else
       error when is_atom(error) ->
@@ -223,17 +211,12 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp enough_funds?(address, token, amount) do
-    blockchain_adapter = BlockchainHelper.adapter()
-
     # TODO: handle errors
     {:ok, balances} =
-      blockchain_adapter.call(
-        {:get_balances,
-         %{
-           address: address,
-           contract_addresses: [token.blockchain_address]
-         }}
-      )
+      BlockchainHelper.call(:get_balances, %{
+        address: address,
+        contract_addresses: [token.blockchain_address]
+      })
 
     (balances[token.blockchain_address] || 0) > amount
   end
@@ -258,6 +241,26 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp check_amount(_), do: {:error, :amounts_missing_or_invalid}
+
+  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction) do
+    with {:ok, tx_hash} <- submit(transaction),
+         {:ok, transaction} <-
+           TransactionState.transition_to(
+             :from_ewallet_to_blockchain,
+             TransactionState.blockchain_submitted(),
+             transaction,
+             %{blockchain_tx_hash: tx_hash, originator: %System{}}
+           ),
+         :ok =
+           TransactionRegistry.start_tracker(TransactionTracker, %{
+             transaction: transaction,
+             transaction_type: :from_ewallet_to_blockchain
+           }) do
+      {:ok, transaction}
+    end
+  end
+
+  defp submit_if_needed(transaction), do: {:ok, transaction}
 
   defp submit(%{type: @external_transaction} = transaction) do
     attrs = %{

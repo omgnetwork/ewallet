@@ -1244,6 +1244,8 @@ paths:
                                           type: string
                                         id:
                                           type: string
+                                        type:
+                                          type: string
                                         from:
                                           type: object
                                           properties:
@@ -1298,6 +1300,7 @@ paths:
                                       required: &ref_35
                                         - object
                                         - id
+                                        - type
                                         - idempotency_token
                                         - from
                                         - to
@@ -2648,6 +2651,7 @@ paths:
                         data:
                           - object: transaction
                             id: txn_01ce842dxrrprkak0rzq716ax1
+                            ype: internal
                             from:
                               object: transaction_source
                               address: bec66785-f0d8-416c-a650-2859aa680166
@@ -4974,6 +4978,7 @@ paths:
                     example:
                       data:
                         object: transaction
+                        type: internal
                         id: txn_01ce840q5svw6058r8yk6jzf65
                         idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
                         from:

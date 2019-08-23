@@ -489,6 +489,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     blockchain_deposit_wallet_for_burn_wallet_not_allowed: %{
       code: "blockchain:deposit_wallet_for_burn_wallet_not_allowed",
       description: "Generating a deposit wallet for a burn wallet is not allowed."
+    },
+    insufficient_blockchain_funds: %{
+      code: "blockchain:insufficient_funds",
+      description: "Not enough funds to perfom this operation."
     }
   }
 

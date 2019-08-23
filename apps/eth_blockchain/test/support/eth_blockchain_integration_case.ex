@@ -34,7 +34,9 @@ defmodule EthBlockchain.EthBlockchainIntegrationCase do
 
     original_env = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
     default_integration_adapter = Keyword.get(original_env, :default_eth_test_integration_adapter)
-    updated_env = Keyword.put(original_env, :default_eth_node_adapter, default_integration_adapter)
+
+    updated_env =
+      Keyword.put(original_env, :default_eth_node_adapter, default_integration_adapter)
 
     Application.put_env(:eth_blockchain, EthBlockchain.Adapter, updated_env)
 
