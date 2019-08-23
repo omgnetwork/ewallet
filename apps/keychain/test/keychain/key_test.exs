@@ -23,7 +23,7 @@ defmodule Keychain.KeyTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  describe "Key.private_key_for_wallet/1" do
+  describe "private_key_for_wallet/1" do
     test "retrieves a private key for wallet" do
       key_1 = insert(:key)
       key_2 = insert(:key)
@@ -37,7 +37,15 @@ defmodule Keychain.KeyTest do
     end
   end
 
-  describe "Key.insert_private_key/2" do
+  describe "private_key_for_uuid/1" do
+    test "returns the private key for the given wallet uuid"
+  end
+
+  describe "public_key_for_uuid/1" do
+    test "returns the public key for the given wallet uuid"
+  end
+
+  describe "insert/1" do
     test "inserts a new private key" do
       assert Repo.all(Key) == []
 
