@@ -57,11 +57,17 @@ const BlockchainWalletsPage = ({ match, history }) => {
     if (key === 'address') {
       return <Id withCopy>{data}</Id>
     }
+    if (key === 'type') {
+      return (
+        <span>{data}</span>
+      )
+    }
   }
 
   const columns = [
-    { key: 'name', title: 'WALLET NAME', sort: true },
-    { key: 'address', title: 'ADDRESS', sort: false }
+    { key: 'name', title: 'NAME', sort: true },
+    { key: 'address', title: 'ADDRESS', sort: false },
+    { key: 'type', title: 'TYPE', sort: true }
   ]
 
   const onClickRow = (data, index) => e => {

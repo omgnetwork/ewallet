@@ -71,6 +71,13 @@ export const FromToContainer = styled.div`
     padding: 5px 10px;
     border-radius: 2px;
   }
+  i[name='Wallet'] {
+    color: ${props => props.theme.colors.B100};
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid ${props => props.theme.colors.S400};
+    margin-right: 10px;
+  }
 `
 export const InnerTransferContainer = styled.div`
   max-width: 600px;

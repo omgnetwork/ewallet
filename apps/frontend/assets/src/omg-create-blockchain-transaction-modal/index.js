@@ -13,7 +13,7 @@ import { getWalletById } from '../omg-wallet/action'
 import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import WalletSelect from '../omg-wallet-select'
+import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { createSearchAddressQuery } from '../omg-wallet/searchField'
@@ -59,7 +59,6 @@ class CreateBlockchainTransaction extends Component {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
     selectWalletById: PropTypes.func,
-    match: PropTypes.object,
     selectBlockchainBalanceByAddress: PropTypes.func,
     sendTransaction: PropTypes.func,
     estimateGasFromTransaction: PropTypes.func,
@@ -217,7 +216,7 @@ class CreateBlockchainTransaction extends Component {
         this.setState({ step: 4 })
       },
       onError: error => {
-        this.setState({ submitting: false, error })
+        this.setState({ submitting: false, error: _.get(error, 'message') })
       }
     })
   }
@@ -233,29 +232,6 @@ class CreateBlockchainTransaction extends Component {
       )
       : '-'
   }
-
-  renderFromSelectWalletValue = data => {
-    return this.state.fromAddress
-      ? value => {
-        const wallet = _.find(data, i => i.address === value)
-        return wallet ? <WalletSelect wallet={wallet} /> : value
-      }
-      : null
-  }
-  renderFromSelectWalletOptions = data => {
-    return data
-      ? data
-        .filter(w => w.identifier !== 'burn')
-        .map(d => {
-          return {
-            key: d.address,
-            value: <WalletSelect wallet={d} />,
-            ...d
-          }
-        })
-      : []
-  }
-
   renderFromSelectTokenValue = fromWallet => {
     const { fromAddress } = this.state
     const blockchain = web3Utils.isAddress(fromAddress)
@@ -268,7 +244,7 @@ class CreateBlockchainTransaction extends Component {
         token => token.name.toLowerCase() === value.toLowerCase()
       )
       const balance = blockchain
-        ? balances[foundToken.symbol].balance
+        ? _.get(balances, [foundToken.symbol].balance, 0)
         : foundToken.balance
 
       return foundToken ? (
@@ -287,7 +263,7 @@ class CreateBlockchainTransaction extends Component {
         return {
           key: `${token.name}${token.symbol}${token.id}`,
           value: (
-            <TokenSelect balance={balances[token.symbol].balance} token={token} />
+            <TokenSelect balance={_.get(balances, [token.symbol].balance, 0)} token={token} />
           ),
           ...token
         }
@@ -303,25 +279,38 @@ class CreateBlockchainTransaction extends Component {
   }
 
   renderToSelectWalletValue = data => {
-    const blockchain = web3Utils.isAddress(this.state.toAddress)
-    if (blockchain) return value => value
-    if (this.state.toAddressSelect) {
-      return value => {
-        const wallet = _.find(data, i => i.address === value)
-        return wallet ? <WalletSelect wallet={wallet} /> : value
-      }
+    // const isBlockchain = web3Utils.isAddress(this.state.toAddress)
+    console.log('data: ', data)
+
+    return value => {
+      console.log('value: ', value)
+
+      const wallet = _.find(data, i => i.blockchain_deposit_address === value)
+      console.log('wallet: ', wallet)
+      return wallet ? (
+        <BlockchainWalletSelect
+          icon='Wallet'
+          topRow={wallet.blockchain_deposit_address}
+          bottomRow={`${wallet.account.name} | ${wallet.name} | ${wallet.address}`}
+        />
+      ) : value
     }
-    return null
   }
 
-  rendreToSelectWalletOption = data => {
+  renderToSelectWalletOption = data => {
     return data
       ? data
         .filter(d => d.blockchain_deposit_address)
         .map(d => {
           return {
             key: d.address,
-            value: <WalletSelect wallet={d} />,
+            value: (
+              <BlockchainWalletSelect
+                icon='Wallet'
+                topRow={d.blockchain_deposit_address}
+                bottomRow={`${d.account.name} | ${d.name} | ${d.address}`}
+              />
+            ),
             ...d
           }
         })
@@ -335,29 +324,12 @@ class CreateBlockchainTransaction extends Component {
     return (
       <FromToContainer>
         <h5>From</h5>
-        <AllWalletsFetcher
-          accountId={this.props.match.params.accountId}
-          owned={false}
-          query={createSearchAddressQuery(this.state.fromAddress)}
-          shouldFetch={
-            !!this.props.match.params.accountId ||
-            (fromWallet && !!fromWallet.account_id)
-          }
-          render={({ data }) => {
-            return (
-              <StyledSelectInput
-                selectProps={{
-                  label: 'Ethereum Address',
-                  clearable: true,
-                  disabled: !!this.props.fromAddress || this.state.step !== 1,
-                  onSelectItem: this.onSelectFromAddressSelect,
-                  value: this.state.fromAddress,
-                  onChange: this.onChangeInputFromAddress,
-                  valueRenderer: this.renderFromSelectWalletValue(data),
-                  options: this.renderFromSelectWalletOptions(data)
-                }}
-              />
-            )
+        <StyledSelectInput
+          selectProps={{
+            label: 'Wallet Address',
+            disabled: !!this.props.fromAddress,
+            value: this.state.fromAddress,
+            prefix: <Icon name='Wallet' />
           }}
         />
         {this.state.step === 1 && (
@@ -427,7 +399,7 @@ class CreateBlockchainTransaction extends Component {
                   value: this.state.toAddress,
                   onChange: this.onChangeInputToAddress,
                   valueRenderer: this.renderToSelectWalletValue(data),
-                  options: this.rendreToSelectWalletOption(data)
+                  options: this.renderToSelectWalletOption(data)
                 }}
               />
             )
