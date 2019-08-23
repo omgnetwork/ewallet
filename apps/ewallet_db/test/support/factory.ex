@@ -29,6 +29,7 @@ defmodule EWalletDB.Factory do
     BlockchainDepositWallet,
     BlockchainHDWallet,
     BlockchainWallet,
+    BlockchainState,
     PreAuthToken,
     Category,
     Export,
@@ -136,6 +137,13 @@ defmodule EWalletDB.Factory do
     %BlockchainHDWallet{
       blockchain_identifier: "dumb",
       keychain_uuid: UUID.generate()
+    }
+  end
+
+  def blockchain_state_factory do
+    %BlockchainState{
+      identifier: "ethereum",
+      blk_number: 1
     }
   end
 

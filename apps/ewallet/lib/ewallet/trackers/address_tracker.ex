@@ -124,6 +124,7 @@ defmodule EWallet.AddressTracker do
         case stop_once_synced do
           false ->
             # We've reached the end of the chain, switching to a slower polling interval
+            # TODO: Make this less spammy
             # Logger.info("Block #{blk_number} not found, retrying in #{@polling_interval}ms...")
 
             state

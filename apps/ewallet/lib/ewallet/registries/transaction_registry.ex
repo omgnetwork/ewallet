@@ -34,7 +34,13 @@ defmodule EWallet.TransactionRegistry do
   end
 
   def handle_call({:lookup, uuid}, _from, registry) do
-    {:reply, Map.fetch(registry, uuid), registry}
+    case Map.fetch(registry, uuid) do
+      :error ->
+        {:reply, {:error, :not_found}, registry}
+
+      res ->
+        {:reply, res, registry}
+    end
   end
 
   @impl true

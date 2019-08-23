@@ -27,7 +27,7 @@ defmodule EthBlockchain.ContractTest do
 
   describe "deploy_erc20/3" do
     test "deploys a non mintable contract successfuly when given locked `true`", state do
-      expected_contract_uuid = "3681491a-e8d0-4219-a40a-53d9a47fe64a"
+      expected_contract_uuid = Contract.locked_contract_uuid()
       expected_contract_binary = Contract.get_binary(expected_contract_uuid)
       expected_contract_attributes = ABIEncoder.encode_erc20_attrs("OMGToken", "OMG", 18, 100)
       expected_contract_data = "0x" <> expected_contract_binary <> expected_contract_attributes
@@ -56,7 +56,7 @@ defmodule EthBlockchain.ContractTest do
     end
 
     test "deploys a mintable contract successfuly when given locked `true`", state do
-      expected_contract_uuid = "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
+      expected_contract_uuid = Contract.unlocked_contract_uuid()
       expected_contract_binary = Contract.get_binary(expected_contract_uuid)
       expected_contract_attributes = ABIEncoder.encode_erc20_attrs("OMGToken", "OMG", 18, 100)
       expected_contract_data = "0x" <> expected_contract_binary <> expected_contract_attributes

@@ -12,19 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Keychain.SignatureTest do
-  use Keychain.DBCase
+defmodule EthBlockchain.Integration.BlockTest do
+  use ExUnitFixtures
+  use EthBlockchain.EthBlockchainIntegrationCase
 
-  describe "sign_transaction_hash/3" do
-    test "returns an ECDSA signature for the given hash and wallet address" do
+  alias EthBlockchain.Block
+
+  @moduletag :integration
+
+  describe "get_number/3" do
+    @tag fixtures: [:prepare_env]
+    test "returns the current block number" do
+      assert Block.get_number() >= 0
     end
-  end
-
-  describe "sign_with_child_key/5" do
-    test "returns an ECDSA signature for the given hash, wallet_uuid and child key specified via account_ref & deposit_ref"
-  end
-
-  describe "recover_public_key/5" do
-    test "returns the public key of the given transaction hash and r s v values"
   end
 end

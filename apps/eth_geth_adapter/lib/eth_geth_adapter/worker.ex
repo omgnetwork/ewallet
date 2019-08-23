@@ -15,7 +15,15 @@
 defmodule EthGethAdapter.Worker do
   @moduledoc false
 
-  alias EthGethAdapter.{Balance, Block, Transaction, Token, ErrorHandler, TransactionReceipt}
+  alias EthGethAdapter.{
+    Balance,
+    Block,
+    GethManager,
+    Transaction,
+    Token,
+    ErrorHandler,
+    TransactionReceipt
+  }
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -97,5 +105,9 @@ defmodule EthGethAdapter.Worker do
 
   def handle_call({:get_errors}, _from, reg) do
     {:reply, ErrorHandler.errors(), reg}
+  end
+
+  def handle_call({:boot_adapter, datadir}, _from, reg) do
+    {:reply, GethManager.start(datadir), reg}
   end
 end

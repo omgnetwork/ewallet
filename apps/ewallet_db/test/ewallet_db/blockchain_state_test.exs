@@ -18,16 +18,42 @@ defmodule EWalletDB.BlockchainStateTest do
   alias EWalletDB.BlockchainState
 
   describe "get/2" do
-    test "returns the blockchain state for the given identifier"
-    test "returns the blockchain state for the given identifier and queryable"
+    test "returns the blockchain state for the given identifier" do
+      state = insert(:blockchain_state, identifier: "test", blk_number: 1)
+      stored_state = BlockchainState.get("test")
+      assert stored_state.uuid == state.uuid
+    end
+
+    test "returns the blockchain state for the given identifier and queryable" do
+      state = insert(:blockchain_state, identifier: "test", blk_number: 1)
+      stored_state = BlockchainState.get("test", BlockchainState)
+      assert stored_state.uuid == state.uuid
+    end
   end
 
   describe "insert/1" do
-    test "returns the blockchain state inserted with the given attributes"
+    test "returns the blockchain state inserted with the given attributes" do
+      {:ok, state} =
+        BlockchainState.insert(%{
+          identifier: "ethereum_test",
+          blk_number: 1
+        })
+
+      assert state.identifier == "ethereum_test"
+      assert state.blk_number == 1
+    end
   end
 
   describe "update/2" do
-    test "returns the blockchain state updated with the given identifier and block number"
-    test "returns a :not_found error if the given identifier is not found"
+    test "returns the blockchain state updated with the given identifier and block number" do
+      state = insert(:blockchain_state, identifier: "ethereum_test")
+      assert state.blk_number == 1
+      {:ok, state} = BlockchainState.update("ethereum_test", 2)
+      assert state.blk_number == 2
+    end
+
+    test "returns a :not_found error if the given identifier is not found" do
+      assert BlockchainState.update("not_found", 2) == {:error, :not_found}
+    end
   end
 end

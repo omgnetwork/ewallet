@@ -279,7 +279,8 @@ defmodule EWalletDB.Transaction do
         :error_code,
         :error_description,
         :exchange_pair_uuid,
-        :calculated_at
+        :calculated_at,
+        :confirmations_count
       ],
       required: [
         :idempotency_token,

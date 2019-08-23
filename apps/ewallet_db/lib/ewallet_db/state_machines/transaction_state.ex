@@ -68,7 +68,7 @@ defmodule EWalletDB.TransactionState do
     # pending -> pending_confirmations ||> blockchain_confirmed -> confirmed || failed
     from_blockchain_to_ledger: %{
       @pending => [@pending_confirmations, @blockchain_confirmed],
-      @pending_confirmations => [@blockchain_confirmed],
+      @pending_confirmations => [@pending_confirmations, @blockchain_confirmed],
       @blockchain_confirmed => [@confirmed, @failed],
       @confirmed => [],
       @failed => []

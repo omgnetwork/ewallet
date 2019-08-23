@@ -9,7 +9,8 @@ config :eth_blockchain,
          {:elixir_omg, EthElixirOmgAdapter.Worker}
        ],
        default_eth_node_adapter: :geth,
-       default_cc_node_adapter: :elixir_omg
+       default_cc_node_adapter: :elixir_omg,
+       default_eth_test_integration_adapter: :geth
 
 config :eth_blockchain,
   default_gas_price: 20_000_000_000,

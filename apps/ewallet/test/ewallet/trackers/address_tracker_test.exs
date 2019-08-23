@@ -16,9 +16,10 @@ defmodule EWallet.AddressTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   import Ecto.Query
-  alias EWallet.{AddressTracker, BlockchainHelper, BlockchainDepositWalletGate}
+  alias EWallet.{AddressTracker, BalanceFetcher, BlockchainHelper, BlockchainDepositWalletGate}
 
   alias EWalletDB.{
+    BlockchainDepositWallet,
     BlockchainWallet,
     BlockchainHDWallet,
     Transaction,
@@ -134,19 +135,12 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, {_address, _public_key}} = Wallet.generate()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
 
-      {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
-
-      {:ok, _} =
-        BlockchainHDWallet.insert(%{
-          keychain_uuid: keychain_hd_wallet_uuid,
-          originator: %System{},
-          blockchain_identifier: blockchain_identifier
-        })
-
       wallet = insert(:wallet)
 
       {:ok, wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      deposit_wallet = BlockchainDepositWallet.get_last_for(wallet)
 
       erc20_token =
         insert(:token,
@@ -165,7 +159,7 @@ defmodule EWallet.AddressTrackerTest do
                       [
                         %{
                           hot_wallet_address: hot_wallet.address,
-                          deposit_wallet_address: hd(wallet.blockchain_deposit_wallets).address,
+                          deposit_wallet_address: deposit_wallet.address,
                           erc20_address: erc20_token.blockchain_address,
                           other_address: other_address
                         }
@@ -180,7 +174,7 @@ defmodule EWallet.AddressTrackerTest do
 
       assert state[:addresses] == %{
                hot_wallet.address => nil,
-               hd(wallet.blockchain_deposit_wallets).address => wallet.address
+               deposit_wallet.address => wallet.address
              }
 
       # Because we're passing stop_once_synced: true, the tracker will
@@ -246,7 +240,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(3)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             0,
@@ -264,7 +258,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(4)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             1,
@@ -292,7 +286,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(6)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             1,
@@ -312,7 +306,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(7)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             2,
@@ -326,7 +320,7 @@ defmodule EWallet.AddressTrackerTest do
           |> Enum.at(8)
           |> assert_transaction(
             other_address,
-            hd(wallet.blockchain_deposit_wallets).address,
+            deposit_wallet.address,
             nil,
             wallet.address,
             2,
@@ -334,6 +328,18 @@ defmodule EWallet.AddressTrackerTest do
             erc20_token.uuid,
             25_000
           )
+
+          # Check the balance of the deposit wallet to ensure the
+          # funds have been received internally
+          {:ok, %{balances: balances} = _wallet} = BalanceFetcher.all(%{"wallet" => wallet})
+
+          balances =
+            Enum.map(balances, fn balance ->
+              {balance[:amount], balance[:token].uuid}
+            end)
+
+          assert Enum.member?(balances, {1_000 + 1_337_000 + 1_000, default_token.uuid})
+          assert Enum.member?(balances, {1_000 + 25_000, erc20_token.uuid})
       end
 
       refute Process.alive?(pid)
