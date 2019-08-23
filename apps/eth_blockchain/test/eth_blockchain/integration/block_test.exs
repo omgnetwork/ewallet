@@ -12,24 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Transaction do
-  @moduledoc false
+defmodule EthBlockchain.Integration.BlockTest do
+  use ExUnitFixtures
+  use EthBlockchain.EthBlockchainIntegrationCase
 
-  import EthGethAdapter.ErrorHandler
+  alias EthBlockchain.Block
 
-  alias Ethereumex.HttpClient, as: Client
+  @moduletag :integration
 
-  def send_raw(transaction_data) do
-    transaction_data
-    |> Client.eth_send_raw_transaction()
-    |> parse_response()
+  describe "get_number/3" do
+    @tag fixtures: [:prepare_env]
+    test "returns the current block number" do
+      assert Block.get_number() >= 0
+    end
   end
-
-  def get_transaction_count(address, block \\ "latest") do
-    Client.eth_get_transaction_count(address, block)
-  end
-
-  defp parse_response({:ok, _data} = response), do: response
-
-  defp parse_response({:error, error}), do: handle_error(error)
 end

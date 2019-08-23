@@ -5,7 +5,8 @@ config :eth_blockchain,
        adapters: [
          {:geth, EthGethAdapter.Worker}
        ],
-       default_adapter: :geth
+       default_adapter: :geth,
+       default_test_integration_adapter: :geth
 
 config :eth_blockchain,
   default_gas_price: 20_000_000_000,
