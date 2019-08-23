@@ -12,8 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-DeferredConfig.populate(:ethereumex)
-ExUnit.configure(exclude: [integration: true])
-ExUnitFixtures.start()
-ExUnitFixtures.load_fixture_files("../**/test/**/fixtures.exs")
-ExUnit.start()
+defmodule EthBlockchain.Integration.BlockTest do
+  use ExUnitFixtures
+  use EthBlockchain.EthBlockchainIntegrationCase
+
+  alias EthBlockchain.Block
+
+  @moduletag :integration
+
+  describe "get_number/3" do
+    @tag fixtures: [:prepare_env]
+    test "returns the current block number" do
+      assert Block.get_number() >= 0
+    end
+  end
+end

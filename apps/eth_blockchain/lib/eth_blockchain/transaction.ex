@@ -149,7 +149,7 @@ defmodule EthBlockchain.Transaction do
   Returns {:ok, tx_hash, contract_address} if success,
   {:error, code} || {:error, code, message} otherwise
   """
-  def create_contract(%{from: from, contract_data: init} = attrs, adapter, pid) do
+  def create_contract(%{from: from, contract_data: init} = attrs, adapter \\ nil, pid \\ nil) do
     case get_transaction_meta(attrs, :default_contract_creation_gas_limit, adapter, pid) do
       {:ok, %{nonce: nonce} = meta} ->
         contract_address = get_contract_address(nonce, from)
