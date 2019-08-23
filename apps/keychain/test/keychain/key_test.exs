@@ -28,8 +28,8 @@ defmodule Keychain.KeyTest do
       key_1 = insert(:key)
       key_2 = insert(:key)
 
-      assert Key.private_key_for_wallet(key_1.wallet_id) == key_1.encrypted_private_key
-      assert Key.private_key_for_wallet(key_2.wallet_id) == key_2.encrypted_private_key
+      assert Key.private_key_for_wallet(key_1.wallet_id) == key_1.private_key
+      assert Key.private_key_for_wallet(key_2.wallet_id) == key_2.private_key
     end
 
     test "returns nil for non-existing wallet" do
@@ -42,8 +42,8 @@ defmodule Keychain.KeyTest do
       key_1 = insert(:key)
       key_2 = insert(:key)
 
-      assert Key.private_key_for_uuid(key_1.uuid) == key_1.encrypted_private_key
-      assert Key.private_key_for_uuid(key_2.uuid) == key_2.encrypted_private_key
+      assert Key.private_key_for_uuid(key_1.uuid) == key_1.private_key
+      assert Key.private_key_for_uuid(key_2.uuid) == key_2.private_key
     end
   end
 
@@ -64,7 +64,7 @@ defmodule Keychain.KeyTest do
       {:ok, key} =
         Key.insert(%{
           wallet_id: "key-1",
-          encrypted_private_key: "private-key-1",
+          private_key: "private-key-1",
           public_key: "public-key-1"
         })
 
@@ -77,7 +77,7 @@ defmodule Keychain.KeyTest do
       assert_raise ConstraintError, fn ->
         Key.insert(%{
           wallet_id: key_1.wallet_id,
-          encrypted_private_key: "private-key-1",
+          private_key: "private-key-1",
           public_key: "public-key-1"
         })
       end

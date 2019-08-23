@@ -46,7 +46,7 @@ defmodule Keychain.Wallet do
       Key.insert(%{
         wallet_id: wallet_address,
         public_key: public_key_encoded,
-        encrypted_private_key: private_key_encoded
+        private_key: private_key_encoded
       })
 
     {:ok, {wallet_address, public_key_encoded}}
@@ -68,7 +68,7 @@ defmodule Keychain.Wallet do
       Key.insert(%{
         wallet_id: wallet_address,
         public_key: public_key,
-        encrypted_private_key: root_key,
+        private_key: root_key,
         uuid: uuid
       })
 

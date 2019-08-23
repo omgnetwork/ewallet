@@ -26,7 +26,7 @@ defmodule Keychain.Factory do
 
     %Key{
       wallet_id: sequence(:email, &"wallet-id-#{&1}"),
-      encrypted_private_key: Base.encode16(private_key, case: :lower),
+      private_key: Base.encode16(private_key, case: :lower),
       public_key: Base.encode16(public_key, case: :lower),
       uuid: UUID.generate()
     }
@@ -39,7 +39,7 @@ defmodule Keychain.Factory do
 
     %Key{
       wallet_id: wallet_address,
-      encrypted_private_key: root_key,
+      private_key: root_key,
       public_key: public_key,
       uuid: UUID.generate()
     }
