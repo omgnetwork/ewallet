@@ -32,9 +32,7 @@ defmodule Keychain.Key do
     timestamps()
   end
 
-  @doc """
-  Validates the keychain.
-  """
+  # Validates the keychain record.
   defp changeset(changeset, attrs) do
     changeset
     |> cast(attrs, [:wallet_id, :encrypted_private_key, :public_key, :uuid])

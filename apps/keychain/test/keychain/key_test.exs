@@ -38,11 +38,23 @@ defmodule Keychain.KeyTest do
   end
 
   describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
+    test "returns the private key for the given wallet uuid" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      assert Key.private_key_for_uuid(key_1.uuid) == key_1.encrypted_private_key
+      assert Key.private_key_for_uuid(key_2.uuid) == key_2.encrypted_private_key
+    end
   end
 
   describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
+    test "returns the public key for the given wallet uuid" do
+      key_1 = insert(:key)
+      key_2 = insert(:key)
+
+      assert Key.public_key_for_uuid(key_1.uuid) == key_1.public_key
+      assert Key.public_key_for_uuid(key_2.uuid) == key_2.public_key
+    end
   end
 
   describe "insert/1" do

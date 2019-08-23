@@ -31,6 +31,7 @@ defmodule Keychain.MixProject do
       {:cloak, "~> 0.9.1"},
       {:deferred_config, "~> 0.1.0"},
       {:block_keys, git: "https://github.com/omisego/block_keys.git"},
+      {:ecto, "~> 3.0"},
       {:ecto_sql, "~> 3.0"},
       {:ex_machina, "~> 2.2", only: :test},
       {:postgrex, ">= 0.0.0"},
