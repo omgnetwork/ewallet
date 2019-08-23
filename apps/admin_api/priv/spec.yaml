@@ -4796,23 +4796,22 @@ paths:
           application/vnd.omisego.v1+json:
             schema:
               example:
-                childchain_identifier: elixir_omg
-                currency: '0x0000000000000000000000000000000000000000'
+                token_id: tok_ETH_01dft2tk077p5chqx1d05v3epz
                 amount: 100
                 address: '0x48b91d5f363892592bf836777dc73b54a10b72ae'
+                idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
               properties:
                 address:
                   type: string
                 amount:
                   type: integer
-                currency:
-                  type: string
-                childchain_identifier:
+                token_id:
                   type: string
               required:
                 - amount
-                - currency
+                - token_id
                 - address
+                - idempotency_token
       responses:
         '200': *ref_54
         '500': *ref_7

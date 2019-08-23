@@ -228,6 +228,10 @@ defmodule EthBlockchain.Adapter do
     Contract.deploy_erc20(attrs, opts)
   end
 
+  def call({:get_childchain_contract_address, _attrs}, opts) do
+    childchain_call({:get_contract_address}, opts)
+  end
+
   def eth_call(func_spec, opts) do
     with opts <- process_adapter_opts(opts),
          {:ok, resp} <-

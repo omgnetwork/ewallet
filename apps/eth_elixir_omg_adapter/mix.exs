@@ -27,6 +27,7 @@ defmodule EthElixirOmgAdapter.MixProject do
   defp deps do
     [
       {:utils, in_umbrella: true},
+      {:keychain, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ex_rlp, "~> 0.5.2"},
       {:jason, "~> 1.1"},

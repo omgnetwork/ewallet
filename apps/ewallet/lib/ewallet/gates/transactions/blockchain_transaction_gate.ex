@@ -37,6 +37,9 @@ defmodule EWallet.BlockchainTransactionGate do
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
 
+  @external_transaction Transaction.external()
+  @deposit_transaction Transaction.deposit()
+
   # TODO: Check if blockchain is enabled
   # TODO: Check if blockchain is available
   # TODO: Add tests at the controller level
@@ -238,7 +241,7 @@ defmodule EWallet.BlockchainTransactionGate do
   defp set_blockchain(attrs) do
     attrs
     |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
-    |> Map.put("type", Transaction.external())
+    |> Map.put("type", attrs["type"] || @external_transaction)
   end
 
   defp set_payload(attrs) do
@@ -256,9 +259,7 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp check_amount(_), do: {:error, :amounts_missing_or_invalid}
 
-  defp submit(transaction) do
-    blockchain_adapter = BlockchainHelper.adapter()
-
+  defp submit(%{type: @external_transaction} = transaction) do
     attrs = %{
       from: transaction.from_blockchain_address,
       to: transaction.to_blockchain_address,
@@ -266,6 +267,19 @@ defmodule EWallet.BlockchainTransactionGate do
       contract_address: transaction.from_token.blockchain_address
     }
 
-    blockchain_adapter.call({:send, attrs})
+    BlockchainHelper.call(:send, attrs)
+  end
+
+  defp submit(%{type: @deposit_transaction} = transaction) do
+    {cc_id, _} = Application.get_env(:ewallet, :cc_node_adapter)
+
+    attrs = %{
+      childchain_identifier: cc_id,
+      amount: transaction.from_amount,
+      currency: transaction.from_token.blockchain_address,
+      to: transaction.from_blockchain_address
+    }
+
+    BlockchainHelper.call(:deposit_to_childchain, attrs)
   end
 end

@@ -27,9 +27,8 @@ defmodule EthBlockchain.Childchain do
         },
         opts \\ []
       ) do
-    with :ok <- check_childchain(childchain_identifier) do
-      contract_address = Adapter.childchain_call({:get_contract_address}, opts)
-
+    with :ok <- check_childchain(childchain_identifier),
+         {:ok, contract_address} = Adapter.childchain_call({:get_contract_address}, opts) do
       {:get_deposit_tx_bytes, to, amount, currency}
       |> Adapter.childchain_call(opts)
       |> submit_deposit(to, amount, currency, contract_address, opts)
@@ -96,20 +95,20 @@ defmodule EthBlockchain.Childchain do
   end
 
   # def get_block do
-    # TODO: get block and parse transactions to find relevant ones
-    # to be used by a childchain AddressTracker
+  # TODO: get block and parse transactions to find relevant ones
+  # to be used by a childchain AddressTracker
   # end
 
   # def get_exitable_utxos do
-    # TODO: Check if childchain is supported
-    # TODO: Retrieve exitable utxos from Watcher API
+  # TODO: Check if childchain is supported
+  # TODO: Retrieve exitable utxos from Watcher API
   # end
 
   # def exit(
-        # %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
-        # opts \\ []
-      # ) do
-    # TODO: 1. Check if childchain is supported
-    # TODO: 2. Attempt to exit all given utxos
+  # %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
+  # opts \\ []
+  # ) do
+  # TODO: 1. Check if childchain is supported
+  # TODO: 2. Attempt to exit all given utxos
   # end
 end

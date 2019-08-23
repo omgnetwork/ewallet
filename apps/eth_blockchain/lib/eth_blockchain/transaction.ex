@@ -149,8 +149,12 @@ defmodule EthBlockchain.Transaction do
   Submit a deposit eth transaction to the specified root chain contract
   """
   def deposit_eth(
-        %{tx_bytes: tx_bytes, from: from, amount: amount, root_chain_contract: root_chain_contract} =
-          attrs,
+        %{
+          tx_bytes: tx_bytes,
+          from: from,
+          amount: amount,
+          root_chain_contract: root_chain_contract
+        } = attrs,
         opts \\ []
       ) do
     with {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_eth, opts),

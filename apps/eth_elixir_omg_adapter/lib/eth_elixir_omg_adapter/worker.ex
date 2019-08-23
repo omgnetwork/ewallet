@@ -15,7 +15,7 @@
 defmodule EthElixirOmgAdapter.Worker do
   @moduledoc false
 
-  alias EthElixirOmgAdapter.{Config, Transaction}
+  alias EthElixirOmgAdapter.{Config, Transaction, ErrorHandler}
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -68,7 +68,11 @@ defmodule EthElixirOmgAdapter.Worker do
   end
 
   def handle_call({:get_contract_address}, _from, state) do
-    {:reply, Config.get_contract_address(), state}
+    {:reply, {:ok, Config.get_contract_address()}, state}
+  end
+
+  def handle_call({:get_errors}, _from, state) do
+    {:reply, ErrorHandler.errors(), state}
   end
 
   def handle_call({:send, from, to, amount, currency}, _from, state) do

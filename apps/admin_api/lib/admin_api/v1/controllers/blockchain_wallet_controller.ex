@@ -18,9 +18,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{BlockchainHelper, BlockchainWalletGate, BlockchainWalletPolicy}
-  alias EWalletDB.{BlockchainWallet, Token}
-  alias AdminAPI.V1.BalanceView
+  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy, ChildchainTransactionGate}
+  alias EWalletDB.{BlockchainWallet, Token, Transaction}
+  alias AdminAPI.V1.{BalanceView, TransactionView}
 
   alias EWallet.Web.{
     Orchestrator,
@@ -124,10 +124,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     with %BlockchainWallet{} = wallet <-
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:deposit_to_childchain, conn.assigns, wallet),
-         :ok <- BlockchainHelper.validate_blockchain_address(address),
-         {:ok, _tx_hash} <- BlockchainWalletGate.deposit_to_childchain(wallet, attrs),
-         {:ok, wallet} <- Orchestrator.one(wallet, BlockchainWalletOverlay, attrs) do
-      respond_single(wallet, conn)
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, transaction} <- ChildchainTransactionGate.deposit(conn.assigns, attrs) do
+      respond_single(transaction, conn)
     else
       {:error, error} -> handle_error(conn, error)
       {:error, error, description} -> handle_error(conn, error, description)
@@ -142,8 +141,12 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     )
   end
 
-  defp respond_single(blockchain_wallet, conn) do
+  defp respond_single(%BlockchainWallet{} = blockchain_wallet, conn) do
     render(conn, :blockchain_wallet, %{blockchain_wallet: blockchain_wallet})
+  end
+
+  defp respond_single(%Transaction{} = transaction, conn) do
+    render(conn, TransactionView, :transaction, %{transaction: transaction})
   end
 
   defp respond_multiple(%Paginator{} = paged_wallets, conn) do

@@ -26,7 +26,8 @@ defmodule EthGethAdapter.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:eth_blockchain, in_umbrella: true},
+      {:utils, in_umbrella: true},
+      {:keychain, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ethereumex, "~> 0.5"},
       {:ex_abi, "0.2.1"}

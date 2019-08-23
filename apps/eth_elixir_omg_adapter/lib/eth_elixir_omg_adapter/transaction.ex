@@ -129,18 +129,12 @@ defmodule EthElixirOmgAdapter.Transaction do
     %__MODULE__{inputs: inputs, outputs: outputs}
   end
 
-  @doc """
-  Returns the encoded bytes of the raw transaction
-  """
   defp encode(%__MODULE__{} = transaction) do
     transaction
     |> get_data_for_rlp()
     |> ExRLP.encode()
   end
 
-  @doc """
-  Turns a structure instance into a structure of RLP items, ready to be RLP encoded, for a raw transaction
-  """
   defp get_data_for_rlp(%__MODULE__{inputs: inputs, outputs: outputs}) do
     [
       # contract expects 4 inputs and outputs
