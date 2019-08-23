@@ -21,9 +21,11 @@ defmodule EWalletDB.TransactionState do
   @pending "pending"
   @confirmed "confirmed"
   @failed "failed"
+  @blockchain_failed "blockchain_failed"
   @blockchain_submitted "blockchain_submitted"
   @ledger_pending "ledger_pending"
   @pending_confirmations "pending_confirmations"
+  @ledger_blockchain_confirmed "ledger_blockchain_confirmed"
   @blockchain_confirmed "blockchain_confirmed"
   @ledger_confirmed "ledger_confirmed"
 
@@ -32,9 +34,11 @@ defmodule EWalletDB.TransactionState do
     @pending => {[], []},
     @confirmed => {[:local_ledger_uuid], []},
     @failed => {[:error_code, :error_description, :error_data], [:error_code]},
+    @blockchain_failed => {[:error_code, :error_description, :error_data], [:error_code]},
     @blockchain_submitted => {[:blockchain_tx_hash], [:blockchain_tx_hash]},
     @ledger_pending => {[], []},
     @pending_confirmations => {[:confirmations_count], [:confirmations_count]},
+    @ledger_blockchain_confirmed => {[:confirmations_count], [:confirmations_count]},
     @blockchain_confirmed => {[:confirmations_count], [:confirmations_count]},
     @ledger_confirmed => {[:ledger_ledger_uuid], [:ledger_ledger_uuid]}
   }
@@ -78,10 +82,10 @@ defmodule EWalletDB.TransactionState do
     # -> blockchain_confirmed -> confirmed
     from_ledger_to_blockchain: %{
       @pending => [@ledger_pending, @failed],
-      @ledger_pending => [@blockchain_submitted],
-      @blockchain_submitted => [@pending_confirmations],
-      @pending_confirmations => [@blockchain_confirmed],
-      @blockchain_confirmed => [@confirmed],
+      @ledger_pending => [@blockchain_submitted, @blockchain_failed],
+      @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed, @blockchain_failed],
+      @pending_confirmations => [@pending_confirmations, @ledger_blockchain_confirmed, @blockchain_failed],
+      @ledger_blockchain_confirmed => [@confirmed],
       @confirmed => []
     }
   }
@@ -94,6 +98,7 @@ defmodule EWalletDB.TransactionState do
     @ledger_pending,
     @pending_confirmations,
     @blockchain_confirmed,
+    @ledger_blockchain_confirmed,
     @ledger_confirmed
   ]
 

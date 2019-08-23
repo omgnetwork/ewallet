@@ -17,7 +17,7 @@ defmodule LocalLedger.Transaction do
   This module is an interface to the LocalLedgerDB schemas and contains the logic
   needed to insert valid transactions and entries.
   """
-  alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction}
+  alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction, Entry}
 
   alias LocalLedger.{
     Entry,
@@ -97,15 +97,15 @@ defmodule LocalLedger.Transaction do
           "entries" => entries,
           "idempotency_token" => idempotency_token
         },
-        %{genesis: genesis},
+        %{genesis: genesis} = opts,
         callback \\ nil
       ) do
     entries
     |> Validator.validate_different_addresses()
     |> Validator.validate_positive_amounts()
     |> Validator.validate_zero_sum()
-    |> Entry.build_all()
-    |> locked_insert(metadata, idempotency_token, genesis, callback)
+    |> Entry.build_all(opts)
+    |> locked_insert(metadata, idempotency_token, genesis, callback, opts)
   rescue
     e in SameAddressError ->
       {:error, :same_address, e.message}
@@ -120,11 +120,46 @@ defmodule LocalLedger.Transaction do
       {:error, :insufficient_funds, e.message}
   end
 
+
+  def confirm(transaction_uuid) do
+    with %Transaction{} = transaction <- Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
+      entries = Enum.map(transaction.entries, fn entry ->
+        %{
+          uuid: entry.uuid,
+          status: LocalLedgerDB.Entry.confirmed()
+        }
+      end)
+
+      Transaction.update(%{
+        uuid: transaction.uuid,
+        status: Transaction.confirmed(),
+        entries: entries
+      })
+    end
+  end
+
+  def fail(transaction_uuid) do
+    with %Transaction{} = transaction <- Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
+      entries = Enum.map(transaction.entries, fn entry ->
+        %{
+          uuid: entry.uuid,
+          status: LocalLedgerDB.Entry.failed()
+        }
+      end)
+
+      Transaction.update(%{
+        uuid: transaction.uuid,
+        status: Transaction.failed(),
+        entries: entries
+      })
+    end
+  end
+
   # Lock all the DEBIT addresses to ensure the truthness of the wallets
   # amounts, before inserting one transaction and the associated entries.
   # If the genesis argument is passed as true, the balance check will be
   # skipped.
-  defp locked_insert(entries, metadata, idempotency_token, genesis, callback) do
+  defp locked_insert(entries, metadata, idempotency_token, genesis, callback, opts) do
     addresses = Entry.get_addresses(entries)
 
     Wallet.lock(addresses, fn ->
@@ -135,7 +170,8 @@ defmodule LocalLedger.Transaction do
       %{
         idempotency_token: idempotency_token,
         entries: entries,
-        metadata: metadata
+        metadata: metadata,
+        status: opts[:status] || Transaction.confirmed()
       }
       |> Transaction.get_or_insert()
       |> case do

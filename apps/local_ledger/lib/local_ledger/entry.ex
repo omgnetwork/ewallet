@@ -23,7 +23,7 @@ defmodule LocalLedger.Entry do
   Get or insert the given token and all the given addresses before
   building a map representation usable by the LocalLedgerDB schemas.
   """
-  def build_all(entries) do
+  def build_all(entries, opts) do
     Enum.map(entries, fn attrs ->
       {:ok, token} = Token.get_or_insert(attrs["token"])
       {:ok, wallet} = Wallet.get_or_insert(attrs)
@@ -32,7 +32,8 @@ defmodule LocalLedger.Entry do
         type: attrs["type"],
         amount: attrs["amount"],
         token_id: token.id,
-        wallet_address: wallet.address
+        wallet_address: wallet.address,
+        status: opts[:status] || Entry.confirmed()
       }
     end)
   end
