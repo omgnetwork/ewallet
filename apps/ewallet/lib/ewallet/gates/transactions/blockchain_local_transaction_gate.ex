@@ -53,18 +53,18 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   end
 
   defp update_transaction(
-        _,
-        %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction
-      )
-      when local_ledger_uuid != nil
-      when error_code != nil do
+         _,
+         %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction
+       )
+       when local_ledger_uuid != nil
+       when error_code != nil do
     {:ok, transaction}
   end
 
   defp update_transaction(
-        {:ok, ledger_transaction},
-        transaction
-      ) do
+         {:ok, ledger_transaction},
+         transaction
+       ) do
     {:ok, transaction} =
       TransactionState.transition_to(
         :from_blockchain_to_ledger,

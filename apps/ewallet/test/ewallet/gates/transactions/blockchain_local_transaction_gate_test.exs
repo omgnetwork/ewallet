@@ -53,7 +53,8 @@ defmodule EWallet.BlockchainLocalTransactionGateTest do
           %{confirmations_count: 100, originator: %System{}}
         )
 
-      {res, txn_processed} = BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+      {res, txn_processed} =
+        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
 
       assert res == :ok
       assert txn_processed == txn_blockchain_confirmed
@@ -70,7 +71,8 @@ defmodule EWallet.BlockchainLocalTransactionGateTest do
           %{confirmations_count: 100, originator: %System{}}
         )
 
-      {res, txn_processed} = BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+      {res, txn_processed} =
+        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
 
       assert res == :ok
       assert txn_processed == txn_blockchain_confirmed
