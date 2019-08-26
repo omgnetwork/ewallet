@@ -75,7 +75,9 @@ defmodule EWallet.UserGateTest do
 
     test "returns {:error, :prohibited_url, _} when the given redirect_url is not allowed" do
       url = "http://some-suspicious-url.com" <> "/some_redirect_url"
-      assert UserGate.validate_redirect_url(url) == {:error, :prohibited_url, param_name: "redirect_url", url: url}
+
+      assert UserGate.validate_redirect_url(url) ==
+               {:error, :prohibited_url, param_name: "redirect_url", url: url}
     end
   end
 
@@ -100,7 +102,8 @@ defmodule EWallet.UserGateTest do
       account = insert(:account)
       role = Role.get_by(name: "admin")
 
-      {res, invite} = UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
+      {res, invite} =
+        UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
 
       assert res == :ok
       assert invite.user.email == email
@@ -111,7 +114,8 @@ defmodule EWallet.UserGateTest do
       account = insert(:account)
       role = Role.get_by(name: "admin")
 
-      assert UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{}) == {:error, :invalid_email}
+      assert UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{}) ==
+               {:error, :invalid_email}
     end
 
     test "returns {:ok, invite} when the given user's status is pending_confirmation", context do
@@ -119,8 +123,11 @@ defmodule EWallet.UserGateTest do
       account = insert(:account)
       role = Role.get_by(name: "admin")
 
-      {:ok, invite} = UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
-      {res, re_invite} = UserGate.assign_or_invite(invite.user, account, role, context.redirect_url, %System{})
+      {:ok, invite} =
+        UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
+
+      {res, re_invite} =
+        UserGate.assign_or_invite(invite.user, account, role, context.redirect_url, %System{})
 
       assert res == :ok
       assert re_invite.user_uuid == invite.user_uuid
@@ -132,7 +139,8 @@ defmodule EWallet.UserGateTest do
       account = insert(:account)
       role = Role.get_by(name: "admin")
 
-      {res, membership} = UserGate.assign_or_invite(user, account, role, context.redirect_url, %System{})
+      {res, membership} =
+        UserGate.assign_or_invite(user, account, role, context.redirect_url, %System{})
 
       assert res == :ok
       assert %Membership{} = membership
