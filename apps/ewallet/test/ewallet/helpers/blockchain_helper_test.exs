@@ -24,7 +24,9 @@ defmodule EWallet.BlockchainHelperTest do
 
     test "returns an :invalid_blockchain_address error when given an invalid address" do
       address = "0xinvalid"
-      assert BlockchainHelper.validate_blockchain_address(address) == {:error, :invalid_blockchain_address}
+
+      assert BlockchainHelper.validate_blockchain_address(address) ==
+               {:error, :invalid_blockchain_address}
     end
   end
 
@@ -48,7 +50,8 @@ defmodule EWallet.BlockchainHelperTest do
 
   describe "invalid_erc20_contract_address/0" do
     test "returns an invalid erc20 contract address" do
-      assert BlockchainHelper.invalid_erc20_contract_address() == "0x9080682a37961d3c814464e7ada1c7e1b4638a27"
+      assert BlockchainHelper.invalid_erc20_contract_address() ==
+               "0x9080682a37961d3c814464e7ada1c7e1b4638a27"
     end
   end
 end

@@ -58,7 +58,9 @@ defmodule Keychain.WalletTest do
 
   describe "derive_child_address/3" do
     test "returns the address for the given account_ref and deposit_ref" do
-      public_key = "xpub6EGmE1yp5TMVqfoZwbQLDvSu411rZejQoGUCqFfuC71XNXN2ddMHxWqFUTtQEbL3ksL3dgDjqjTcFxFkuZ3mecaNdjvqYNWQbq3EoQCeuT5"
+      public_key =
+        "xpub6EGmE1yp5TMVqfoZwbQLDvSu411rZejQoGUCqFfuC71XNXN2ddMHxWqFUTtQEbL3ksL3dgDjqjTcFxFkuZ3mecaNdjvqYNWQbq3EoQCeuT5"
+
       key = insert(:hd_key, public_key: public_key)
       address = Wallet.derive_child_address(key.uuid, 0, 0)
 

@@ -75,13 +75,13 @@ defmodule EWallet.LocalTransactionGate do
   end
 
   defp get_or_insert(
-        from,
-        to,
-        exchange,
-        %{
-          "idempotency_token" => idempotency_token
-        } = attrs
-      ) do
+         from,
+         to,
+         exchange,
+         %{
+           "idempotency_token" => idempotency_token
+         } = attrs
+       ) do
     Transaction.get_or_insert(%{
       originator: attrs["originator"],
       idempotency_token: idempotency_token,

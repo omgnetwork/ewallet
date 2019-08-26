@@ -381,7 +381,9 @@ defmodule EWallet.LocalTransactionGateTest do
   describe "update_transaction/2" do
     test "returns the transaction untouched if it's already in local ledger or an error code exists" do
       ledger_transaction = LedgerFactory.insert(:transaction)
-      transaction = :transaction |> insert() |> Map.put(:local_ledger_uuid, ledger_transaction.uuid)
+
+      transaction =
+        :transaction |> insert() |> Map.put(:local_ledger_uuid, ledger_transaction.uuid)
 
       result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
       assert result == transaction
@@ -409,7 +411,12 @@ defmodule EWallet.LocalTransactionGateTest do
     test "transitions to failed if given an error tuple" do
       transaction = insert(:transaction)
       assert transaction.status == TransactionState.pending()
-      result = LocalTransactionGate.update_transaction({:error, :some_code, "some_description"}, transaction)
+
+      result =
+        LocalTransactionGate.update_transaction(
+          {:error, :some_code, "some_description"},
+          transaction
+        )
 
       assert result.status == TransactionState.failed()
       assert result.error_code == "some_code"

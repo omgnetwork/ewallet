@@ -36,7 +36,9 @@ defmodule Keychain.SignatureTest do
 
     test "returns :invalid_address error if the wallet_id could not be found" do
       hash = Keccak.kec("some data")
-      assert Signature.sign_transaction_hash(hash, "some_unknown_wallet_id") == {:error, :invalid_address}
+
+      assert Signature.sign_transaction_hash(hash, "some_unknown_wallet_id") ==
+               {:error, :invalid_address}
     end
   end
 

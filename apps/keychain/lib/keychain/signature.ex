@@ -53,7 +53,14 @@ defmodule Keychain.Signature do
           integer() | nil
         ) ::
           {hash_v, hash_r, hash_s} | {:error, :invalid_uuid}
-  def sign_with_child_key(hash, wallet_uuid, derivation_path, account_ref, deposit_ref, chain_id \\ nil) do
+  def sign_with_child_key(
+        hash,
+        wallet_uuid,
+        derivation_path,
+        account_ref,
+        deposit_ref,
+        chain_id \\ nil
+      ) do
     case Key.private_key_for_uuid(wallet_uuid) do
       nil ->
         {:error, :invalid_uuid}

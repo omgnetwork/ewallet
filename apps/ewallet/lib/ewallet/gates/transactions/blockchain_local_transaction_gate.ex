@@ -56,8 +56,8 @@ defmodule EWallet.BlockchainLocalTransactionGate do
 
   defp from_blockchain?(transaction) do
     is_nil(transaction.from) &&
-    !is_nil(transaction.from_blockchain_address) &&
-    !is_nil(transaction.blockchain_identifier)
+      !is_nil(transaction.from_blockchain_address) &&
+      !is_nil(transaction.blockchain_identifier)
   end
 
   def update_transaction(
