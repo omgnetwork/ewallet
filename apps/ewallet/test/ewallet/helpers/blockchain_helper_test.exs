@@ -30,7 +30,7 @@ defmodule EWallet.BlockchainHelperTest do
 
   describe "identifier/0" do
     test "returns the blockchain identifier" do
-      assert BlockchainHelper.identifier() |> IO.inspect(label: "identifier")
+      assert BlockchainHelper.identifier()
     end
   end
 
