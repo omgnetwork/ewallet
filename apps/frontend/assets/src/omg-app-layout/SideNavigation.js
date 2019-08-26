@@ -109,11 +109,6 @@ class SideNavigation extends PureComponent {
         text: 'Keys'
       },
       {
-        icon: 'Key',
-        to: '/ethereum',
-        text: 'Ethereum'
-      },
-      {
         icon: 'Setting',
         to: '/configuration/blockchain_settings',
         text: 'Configuration'
