@@ -16,10 +16,9 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper}
+  alias EWallet.BlockchainDepositWalletGate
   alias EWalletDB.Wallet, as: DBWallet
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet, Repo}
-  alias Keychain.Wallet
 
   describe "get_or_generate/2" do
     test "generates a deposit wallet if it is not yet generated for the given wallet" do
@@ -80,6 +79,7 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
 
     test "returns :hd_wallet_not_found error if the primary HD wallet is missing" do
       wallet = insert(:wallet)
+      _ = Repo.delete_all(BlockchainHDWallet)
 
       {res, error} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
