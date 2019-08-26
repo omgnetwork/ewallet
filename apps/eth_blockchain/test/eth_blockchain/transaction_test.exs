@@ -201,7 +201,7 @@ defmodule EthBlockchain.TransactionTest do
         )
 
       trx = decode_transaction_response(encoded_trx)
-      hash_hex = Transaction.transaction_hash(trx, 10) |> Math.bin_to_hex()
+      hash_hex = trx |> Transaction.transaction_hash(10) |> Math.bin_to_hex()
 
       assert hash_hex == "94949cf3c67b0cc3c203ff4b98734f8d466da74d034e2d030dba476622f0f9c1"
     end
@@ -277,12 +277,14 @@ defmodule EthBlockchain.TransactionTest do
 
       assert deserialized == %Transaction{
                data: "",
-               gas_limit: 21000,
+               gas_limit: 21_000,
                gas_price: 20_000_000_000,
                init: "",
                nonce: 0,
+               # credo:disable-for-lines:2 Credo.Check.Readability.MaxLineLength
                r:
                  59_795_026_471_191_791_691_553_212_152_080_426_284_599_024_569_572_292_875_880_667_924_209_261_545_861,
+               # credo:disable-for-lines:2 Credo.Check.Readability.MaxLineLength
                s:
                  30_836_189_894_457_032_652_897_540_276_539_634_084_883_692_778_205_447_233_810_671_240_962_434_657_674,
                to: <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>,

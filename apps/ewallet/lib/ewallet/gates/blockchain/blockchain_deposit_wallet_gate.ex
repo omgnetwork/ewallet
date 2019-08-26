@@ -29,41 +29,44 @@ defmodule EWallet.BlockchainDepositWalletGate do
   def get_or_generate(wallet, %{"originator" => originator}) do
     case BlockchainDepositWallet.get_last_for(wallet) do
       nil ->
-        case BlockchainHDWallet.get_primary() do
-          nil ->
-            {:error, :hd_wallet_not_found}
-
-          hd_wallet ->
-            ref = generate_unique_ref()
-            address = Wallet.derive_child_address(hd_wallet.keychain_uuid, ref, 0)
-
-            %{
-              address: address,
-              path_ref: ref,
-              wallet_address: wallet.address,
-              blockchain_hd_wallet_uuid: hd_wallet.uuid,
-              originator: originator,
-              blockchain_identifier: BlockchainHelper.identifier()
-            }
-            |> BlockchainDepositWallet.insert()
-            |> case do
-              # TODO: This is a case within a case, better flatten out.
-              {:ok, deposit_wallet} ->
-                :ok =
-                  AddressTracker.register_address(
-                    deposit_wallet.address,
-                    deposit_wallet.wallet_address
-                  )
-
-                {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
-
-              error ->
-                error
-            end
-        end
+        do_generate(wallet, orginator)
 
       deposit_wallet ->
         {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
+    end
+  end
+
+  defp do_generate(wallet, originator) do
+    case BlockchainHDWallet.get_primary() do
+      nil ->
+        {:error, :hd_wallet_not_found}
+
+      hd_wallet ->
+        ref = generate_unique_ref()
+        address = Wallet.derive_child_address(hd_wallet.keychain_uuid, ref, 0)
+
+        %{
+          address: address,
+          path_ref: ref,
+          wallet_address: wallet.address,
+          blockchain_hd_wallet_uuid: hd_wallet.uuid,
+          originator: originator,
+          blockchain_identifier: BlockchainHelper.identifier()
+        }
+        |> BlockchainDepositWallet.insert()
+        |> case do
+          {:ok, deposit_wallet} ->
+            :ok =
+              AddressTracker.register_address(
+                deposit_wallet.address,
+                deposit_wallet.wallet_address
+              )
+
+            {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
+
+          error ->
+            error
+        end
     end
   end
 

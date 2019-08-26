@@ -119,7 +119,6 @@ defmodule EWallet.AddressTracker do
       contract_addresses: contract_addresses
     }
 
-    # TODO: change the .call last argument to a map of options?
     case BlockchainHelper.call(:get_transactions, attrs, nil, node_adapter) do
       {:error, :block_not_found} ->
         case stop_once_synced do
@@ -141,15 +140,19 @@ defmodule EWallet.AddressTracker do
         {:stop, error, state}
 
       transactions ->
-        transaction_results = Enum.map(transactions, fn tx -> insert(tx, state) end)
+        do_run(transactions, state)
+    end
+  end
 
-        case Enum.all?(transaction_results, fn {res, _} -> res == :ok end) do
-          true ->
-            next(state)
+  defp do_run(transactions, state) do
+    transaction_results = Enum.map(transactions, fn tx -> insert(tx, state) end)
 
-          false ->
-            retry_or_skip(state, transaction_results)
-        end
+    case Enum.all?(transaction_results, fn {res, _} -> res == :ok end) do
+      true ->
+        next(state)
+
+      false ->
+        retry_or_skip(state, transaction_results)
     end
   end
 
