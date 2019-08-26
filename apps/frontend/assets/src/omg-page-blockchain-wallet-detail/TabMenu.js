@@ -37,7 +37,7 @@ const TabMenu = ({ location }) => {
       </Link>
       <Link to='blockchain_transactions'>
         <Tag
-          title='Transaction'
+          title='Transactions'
           icon='Transaction'
           active={activeTab === 'blockchain_transactions'}
           hoverStyle

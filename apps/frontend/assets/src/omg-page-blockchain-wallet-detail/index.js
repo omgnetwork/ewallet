@@ -56,13 +56,11 @@ const BlockchainWalletDetailPage = ({
 
   const renderActionButton = () => {
     if (walletType === 'hot') {
-      return renderHotWalletTransferButton()
+      return balance ? renderHotWalletTransferButton() : null
     }
-
     if (metamaskUsable) {
       return balance ? renderBlockchainTransactionButton() : null
     }
-
     return renderMetamaskConnectButton()
   }
 
