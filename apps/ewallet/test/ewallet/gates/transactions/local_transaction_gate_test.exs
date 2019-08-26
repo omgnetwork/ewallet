@@ -15,10 +15,11 @@
 defmodule EWallet.LocalTransactionGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
+  alias ActivityLogger.System
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, LocalTransactionGate}
   alias EWalletDB.{Account, Token, Transaction, TransactionState, User, Wallet}
-  alias ActivityLogger.System
+  alias LocalLedgerDB.Factory, as: LedgerFactory
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
@@ -377,21 +378,42 @@ defmodule EWallet.LocalTransactionGateTest do
     end
   end
 
-  describe "process_with_transaction/1" do
-    test "processes for transaction.status==pending"
-    test "returns back the transaction untouched when transaction.status==local_confirmed"
-    test "returns back the transaction untouched when transaction.status==confirmed"
-    test "returns the error when transaction.status==failed"
-  end
-
-  describe "get_or_insert/4" do
-    test "returns the transaction"
-    test "returns :invalid_parameter error when idempotency_token is not given"
-  end
-
   describe "update_transaction/2" do
-    test "returns the transaction untouched if it's already in local ledger or an error code exists"
-    test "transitions to confirmed if given a ledger_transaction and transaction.status==pending"
-    test "transitions to failed if given an error tuple"
+    test "returns the transaction untouched if it's already in local ledger or an error code exists" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = :transaction |> insert() |> Map.put(:local_ledger_uuid, ledger_transaction.uuid)
+
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+      assert result == transaction
+    end
+
+    test "returns the transaction untouched if an error code exists" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = :transaction |> insert() |> Map.put(:error_code, :some_error)
+
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+      assert result == transaction
+    end
+
+    test "transitions to confirmed if given a ledger_transaction and transaction.status==pending" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = insert(:transaction)
+      assert transaction.status == TransactionState.pending()
+
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+
+      assert result.status == TransactionState.confirmed()
+      assert result.local_ledger_uuid == ledger_transaction.uuid
+    end
+
+    test "transitions to failed if given an error tuple" do
+      transaction = insert(:transaction)
+      assert transaction.status == TransactionState.pending()
+      result = LocalTransactionGate.update_transaction({:error, :some_code, "some_description"}, transaction)
+
+      assert result.status == TransactionState.failed()
+      assert result.error_code == "some_code"
+      assert result.error_description == "some_description"
+    end
   end
 end
