@@ -20,16 +20,18 @@ defmodule EWallet.UserGate do
   alias EWallet.Web.{UrlValidator, Inviter}
   alias EWalletDB.{User, Membership}
 
-  # Get user or email specifically for `assign_user/2` above.
-  #
-  # Returns:
-  # - `%User{}` if user_id is provided and found.
-  # - `:unauthorized` if `user_id` is provided but not found.
-  # - `%User{}` if email is provided and found.
-  # - `string` email if email provided but not found.
-  #
-  # If both `user_id` and `email` are provided, only `user_id` is attempted.
-  # Hence the pattern matching for `%{"user_id" => _}` comes first.
+  @doc """
+  Get user or email.
+
+  Returns:
+  - `%User{}` if user_id is provided and found.
+  - `:unauthorized` if `user_id` is provided but not found.
+  - `%User{}` if email is provided and found.
+  - `string` email if email provided but not found.
+
+  If both `user_id` and `email` are provided, only `user_id` is attempted.
+  Hence the pattern matching for `%{"user_id" => _}` comes first.
+  """
   def get_user_or_email(%{"user_id" => user_id}) do
     case User.get(user_id) do
       %User{} = user -> {:ok, user}

@@ -29,7 +29,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
   def get_or_generate(wallet, %{"originator" => originator}) do
     case BlockchainDepositWallet.get_last_for(wallet) do
       nil ->
-        do_generate(wallet, orginator)
+        do_generate(wallet, originator)
 
       deposit_wallet ->
         {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
