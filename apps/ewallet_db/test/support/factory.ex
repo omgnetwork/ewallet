@@ -256,7 +256,7 @@ defmodule EWalletDB.Factory do
 
   def role_factory do
     %Role{
-      name: sequence("admin"),
+      name: "admin",
       display_name: "Role display name",
       originator: %System{}
     }

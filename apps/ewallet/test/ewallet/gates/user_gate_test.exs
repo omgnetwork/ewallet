@@ -17,7 +17,7 @@ defmodule EWallet.UserGateTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWallet.UserGate
-  alias EWalletDB.Membership
+  alias EWalletDB.{Membership, Role}
 
   setup do
     original_email = Application.get_env(:admin_api, :sender_email)
@@ -98,7 +98,7 @@ defmodule EWallet.UserGateTest do
     test "returns {:ok, invite} when the given email is a valid format", context do
       email = "the.other.admin@example.com"
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       {res, invite} = UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
 
@@ -109,7 +109,7 @@ defmodule EWallet.UserGateTest do
     test "returns {:error, :invalid_email} when the given email is not valid format", context do
       email = "not_an_email"
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
 
       assert UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{}) == {:error, :invalid_email}
     end
@@ -117,9 +117,9 @@ defmodule EWallet.UserGateTest do
     test "returns {:ok, invite} when the given user's status is pending_confirmation", context do
       email = "the.other.admin@example.com"
       account = insert(:account)
-      role = insert(:role)
-      {:ok, invite} = UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
+      role = Role.get_by(name: "admin")
 
+      {:ok, invite} = UserGate.assign_or_invite(email, account, role, context.redirect_url, %System{})
       {res, re_invite} = UserGate.assign_or_invite(invite.user, account, role, context.redirect_url, %System{})
 
       assert res == :ok
@@ -130,7 +130,8 @@ defmodule EWallet.UserGateTest do
     test "returns {:ok, membership} when the user's status is active", context do
       user = insert(:user)
       account = insert(:account)
-      role = insert(:role)
+      role = Role.get_by(name: "admin")
+
       {res, membership} = UserGate.assign_or_invite(user, account, role, context.redirect_url, %System{})
 
       assert res == :ok
