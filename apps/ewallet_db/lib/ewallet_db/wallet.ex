@@ -57,7 +57,6 @@ defmodule EWalletDB.Wallet do
 
   schema "wallet" do
     # Wallet does not have an external ID. Use `address` instead.
-
     wallet_address(:address)
     field(:name, :string)
     field(:identifier, :string)
