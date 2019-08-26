@@ -395,6 +395,7 @@ defmodule EWalletDB.Factory do
       blockchain_tx_hash: sequence("0xabcdefabcdef"),
       blockchain_identifier: "ethereum",
       to_amount: 100,
+      blk_number: nil,
       type: "external",
       originator: %System{}
     }
