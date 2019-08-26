@@ -13,7 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.BlockchainDepositWalletGate do
-  # TODO: add moduledoc
+  @moduledoc """
+  Handles the logic for generating and retrieving a blockchain deposit wallet.
+  """
   alias EWallet.{AddressTracker, BlockchainHelper}
   alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
   alias Keychain.Wallet

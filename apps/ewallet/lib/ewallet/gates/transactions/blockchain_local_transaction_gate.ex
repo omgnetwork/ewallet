@@ -32,8 +32,7 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def process_with_transaction(%Transaction{status: "blockchain_confirmed"} = transaction) do
-    # TODO: better way to handle this?
-    from_blockchain? = is_from_blockchain?(transaction)
+    from_blockchain? = from_blockchain?(transaction)
 
     transaction
     |> Preloader.preload([:from_token, :to_token, :from_wallet, :to_wallet])
@@ -55,9 +54,10 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     end
   end
 
-  defp is_from_blockchain?(transaction) do
-    is_nil(transaction.from) && !is_nil(transaction.from_blockchain_address) &&
-      !is_nil(transaction.blockchain_identifier)
+  defp from_blockchain?(transaction) do
+    is_nil(transaction.from) &&
+    !is_nil(transaction.from_blockchain_address) &&
+    !is_nil(transaction.blockchain_identifier)
   end
 
   def update_transaction(
