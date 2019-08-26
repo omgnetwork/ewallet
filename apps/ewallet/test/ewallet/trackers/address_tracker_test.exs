@@ -374,7 +374,7 @@ defmodule EWallet.AddressTrackerTest do
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
     assert transaction.status == TransactionState.confirmed()
-    assert transaction.confirmations_count == confirmations_count
+    assert transaction.confirmations_count > 10
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc
     assert transaction.from == from

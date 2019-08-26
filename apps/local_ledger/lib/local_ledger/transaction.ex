@@ -120,15 +120,16 @@ defmodule LocalLedger.Transaction do
       {:error, :insufficient_funds, e.message}
   end
 
-
   def confirm(transaction_uuid) do
-    with %Transaction{} = transaction <- Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
-      entries = Enum.map(transaction.entries, fn entry ->
-        %{
-          uuid: entry.uuid,
-          status: LocalLedgerDB.Entry.confirmed()
-        }
-      end)
+    with %Transaction{} = transaction <-
+           Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
+      entries =
+        Enum.map(transaction.entries, fn entry ->
+          %{
+            uuid: entry.uuid,
+            status: LocalLedgerDB.Entry.confirmed()
+          }
+        end)
 
       Transaction.update(%{
         uuid: transaction.uuid,
@@ -139,13 +140,15 @@ defmodule LocalLedger.Transaction do
   end
 
   def fail(transaction_uuid) do
-    with %Transaction{} = transaction <- Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
-      entries = Enum.map(transaction.entries, fn entry ->
-        %{
-          uuid: entry.uuid,
-          status: LocalLedgerDB.Entry.failed()
-        }
-      end)
+    with %Transaction{} = transaction <-
+           Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
+      entries =
+        Enum.map(transaction.entries, fn entry ->
+          %{
+            uuid: entry.uuid,
+            status: LocalLedgerDB.Entry.failed()
+          }
+        end)
 
       Transaction.update(%{
         uuid: transaction.uuid,

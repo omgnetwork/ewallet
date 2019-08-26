@@ -84,7 +84,11 @@ defmodule EWalletDB.TransactionState do
       @pending => [@ledger_pending, @failed],
       @ledger_pending => [@blockchain_submitted, @blockchain_failed],
       @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed, @blockchain_failed],
-      @pending_confirmations => [@pending_confirmations, @ledger_blockchain_confirmed, @blockchain_failed],
+      @pending_confirmations => [
+        @pending_confirmations,
+        @ledger_blockchain_confirmed,
+        @blockchain_failed
+      ],
       @ledger_blockchain_confirmed => [@confirmed],
       @confirmed => []
     }
@@ -109,6 +113,7 @@ defmodule EWalletDB.TransactionState do
   def ledger_pending, do: @ledger_pending
   def pending_confirmations, do: @pending_confirmations
   def blockchain_confirmed, do: @blockchain_confirmed
+  def ledger_blockchain_confirmed, do: @ledger_blockchain_confirmed
   def ledger_confirmed, do: @ledger_confirmed
 
   def states, do: @states

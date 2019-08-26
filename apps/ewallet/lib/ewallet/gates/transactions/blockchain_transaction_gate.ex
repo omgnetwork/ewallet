@@ -64,9 +64,10 @@ defmodule EWallet.BlockchainTransactionGate do
          %{} = attrs <- set_blockchain_addresses(attrs),
          %{} = attrs <- set_token(attrs),
          %{} = attrs <- check_amount(attrs),
+         # TODO: add this error
          true <-
            enough_funds?(from, attrs["from_token"], attrs["from_amount"]) ||
-             {:error, :insufficient_funds_in_hot_wallet}, # TODO: add this error
+             {:error, :insufficient_funds_in_hot_wallet},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, tx_hash} <- submit(transaction),
@@ -118,7 +119,8 @@ defmodule EWallet.BlockchainTransactionGate do
              {:error, :insufficient_funds_in_hot_wallet},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
-         {:ok, transaction} <- BlockchainLocalTransactionGate.process_with_transaction(transaction),
+         {:ok, transaction} <-
+           BlockchainLocalTransactionGate.process_with_transaction(transaction),
          {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
            TransactionState.transition_to(
@@ -127,7 +129,6 @@ defmodule EWallet.BlockchainTransactionGate do
              transaction,
              %{blockchain_tx_hash: tx_hash, originator: %System{}}
            ),
-          # Update in ledger after completion
          :ok =
            TransactionRegistry.start_tracker(TransactionTracker, %{
              transaction: transaction,

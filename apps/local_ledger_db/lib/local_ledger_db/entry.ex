@@ -191,7 +191,9 @@ defmodule LocalLedgerDB.Entry do
     Repo.one(
       from(
         e in Entry,
-        where: e.wallet_address == ^address and e.type == ^type and e.token_id == ^token_id and e.status != "failed",
+        where:
+          e.wallet_address == ^address and e.type == ^type and e.token_id == ^token_id and
+            e.status != "failed",
         select: sum(e.amount)
       )
     )

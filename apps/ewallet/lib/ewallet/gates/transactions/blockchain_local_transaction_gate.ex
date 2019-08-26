@@ -45,17 +45,21 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
-  def process_with_transaction(%Transaction{local_ledger_uuid: local_ledger_uuid, status: "ledger_blockchain_confirmed"} = transaction)
-  when not is_nil(local_ledger_uuid)
-  do
+  def process_with_transaction(
+        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "ledger_blockchain_confirmed"} =
+          transaction
+      )
+      when not is_nil(local_ledger_uuid) do
     local_ledger_uuid
     |> LedgerTransaction.confirm()
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
-  def process_with_transaction(%Transaction{local_ledger_uuid: local_ledger_uuid, status: "failed_blockchain"} = transaction)
-  when not is_nil(local_ledger_uuid)
-  do
+  def process_with_transaction(
+        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "failed_blockchain"} =
+          transaction
+      )
+      when not is_nil(local_ledger_uuid) do
     local_ledger_uuid
     |> LedgerTransaction.fail()
     |> update_transaction(transaction, :from_ledger_to_blockchain)

@@ -30,7 +30,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
   alias Ecto.UUID
 
   describe "create/2" do
-    test "submits a transaction to the blockchain subapp (internal to blockchain address", meta do
+    test "submits a transaction to the blockchain subapp (internal to blockchain address)",
+         meta do
       # TODO: switch to using the seeded Ethereum address
       admin = insert(:admin, global_role: "super_admin")
 
@@ -72,7 +73,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert %{confirmations_count: 13, status: "confirmed"} = transaction
+          assert %{confirmations_count: count, status: "confirmed"} = transaction
+          assert count > 10
 
           {:ok, %{balances: [main_balance]}} = BalanceFetcher.all(%{"wallet" => master_wallet})
           assert main_balance[:amount] == 99_999_999
@@ -118,7 +120,6 @@ defmodule EWallet.BlockchainTransactionGateTest do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
           assert %{confirmations_count: 13, status: "confirmed"} = transaction
-          :ok = GenServer.stop(pid)
       end
     end
 
@@ -192,7 +193,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_funds} ==
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
