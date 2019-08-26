@@ -18,31 +18,41 @@ defmodule EthBlockchain.BlockTest do
   alias EthBlockchain.Block
 
   describe "get/1" do
-    test "get wallet balances with the given adapter spec", state do
-      res =
-        Block.get_number(
-          :dumb,
-          state[:pid]
-        )
-
-      assert res == 14
+    test "get the block with the given block number", state do
+      assert Block.get(0, :dumb, state[:pid]) == {:ok, %{"transactions" => []}}
+      assert Block.get(1, :dumb, state[:pid]) == {:ok, nil}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert {:error, :no_handler} ==
-               Block.get_number(
-                 :blah,
-                 state[:pid]
-               )
+      assert Block.get_number(:nonexistent_adapter, state[:pid]) == {:error, :no_handler}
     end
   end
 
   describe "get_number/2" do
-    test "returns the latest block number"
+    test "returns the latest block number", state do
+      assert Block.get_number(:dumb, state[:pid]) == 14
+    end
   end
 
   describe "get_transactions/3" do
-    test "returns the list of transactions for the given block number"
-    test "returns :block_not_found error if the block number is invalid"
+    test "returns the list of transactions for the given block number", state do
+      attrs = %{
+        blk_number: 0,
+        addresses: [],
+        contract_addresses: []
+      }
+
+      assert Block.get_transactions(attrs, :dumb, state[:pid]) == []
+    end
+
+    test "returns :block_not_found error if the block number is invalid", state do
+      attrs = %{
+        blk_number: 1,
+        addresses: [],
+        contract_addresses: []
+      }
+
+      assert Block.get_transactions(attrs, :dumb, state[:pid]) == {:error, :block_not_found}
+    end
   end
 end

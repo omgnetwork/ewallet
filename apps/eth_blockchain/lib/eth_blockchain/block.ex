@@ -79,14 +79,18 @@ defmodule EthBlockchain.Block do
   end
 
   defp relevant_eth_transaction?(transaction, addresses) do
-    # TODO: Switch to maps?
-    (Enum.member?(addresses, transaction["from"]) ||
-       Enum.member?(addresses, transaction["to"])) &&
-      (transaction["input"] == nil || transaction["input"] == "0x")
+    transaction_from_or_to?(transaction, addresses) && transaction_empty_input?(transaction)
   end
 
+  defp transaction_from_or_to?(transaction, addresses) do
+    Enum.member?(addresses, transaction["from"]) || Enum.member?(addresses, transaction["to"])
+  end
+
+  defp transaction_empty_input?(%{"input" => nil}), do: true
+  defp transaction_empty_input?(%{"input" => "0x"}), do: true
+  defp transaction_empty_input?(_), do: false
+
   defp tracked_contract_transaction?(transaction, contract_addresses) do
-    # TODO: Switch to maps?
     Enum.member?(contract_addresses, transaction["to"])
   end
 
