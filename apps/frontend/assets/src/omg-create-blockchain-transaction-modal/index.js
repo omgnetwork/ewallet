@@ -4,23 +4,19 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import web3Utils from 'web3-utils'
-import { blockchainTokens } from './blockchainTokens'
+
 import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
 import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
-import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
+import { formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
-import { selectWalletById } from '../omg-wallet/selector'
+import { selectBlockchainWalletBalance } from '../omg-blockchain-wallet/selector'
 import TokenSelect from '../omg-token-select'
-import { createSearchAddressQuery } from '../omg-wallet/searchField'
-import {
-  selectBlockchainBalanceByAddress,
-  selectNetwork
-} from '../omg-web3/selector'
+import { selectNetwork } from '../omg-web3/selector'
 import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
 import {
   Form,
@@ -43,12 +39,12 @@ import {
   Links
 } from './styles'
 import { ethExplorerMetamaskNetworkMap } from '../omg-web3/constants'
+
 const enhance = compose(
   withRouter,
   connect(
     state => ({
-      selectWalletById: selectWalletById(state),
-      selectBlockchainBalanceByAddress: selectBlockchainBalanceByAddress(state),
+      selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
       network: selectNetwork(state)
     }),
     { transfer, getWalletById, sendTransaction, estimateGasFromTransaction }
@@ -58,8 +54,7 @@ class CreateBlockchainTransaction extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
-    selectWalletById: PropTypes.func,
-    selectBlockchainBalanceByAddress: PropTypes.func,
+    selectBlockchainWalletBalance: PropTypes.func,
     sendTransaction: PropTypes.func,
     estimateGasFromTransaction: PropTypes.func,
     network: PropTypes.number
@@ -111,27 +106,8 @@ class CreateBlockchainTransaction extends Component {
   onClickSetting = () => {
     this.setState(oldState => ({ settingsOpen: !oldState.settingsOpen }))
   }
-  onChangeInputFromAddress = e => {
-    this.setState({
-      fromAddress: e.target.value,
-      fromTokenSelected: null,
-      fromTokenSearchToken: ''
-    })
-  }
-  onChangeInputToAddress = e => {
-    this.setState({
-      toAddress: e.target.value,
-      toTokenSearchToken: ''
-    })
-  }
   onChangeAmount = type => e => {
     this.setState({ [`${type}Amount`]: e.target.value })
-  }
-  onChangeSearchToken = type => e => {
-    this.setState({
-      [`${type}SearchToken`]: e.target.value,
-      [`${type}Selected`]: null
-    })
   }
   onSelectTokenSelect = type => token => {
     this.setState({
@@ -224,69 +200,30 @@ class CreateBlockchainTransaction extends Component {
     this.props.onRequestClose()
     this.setState({ submitting: false })
   }
-  getBalanceOfSelectedToken = type => {
-    return this.state[`${type}Selected`]
-      ? formatReceiveAmountToTotal(
-        _.get(this.state[`${type}Selected`], 'amount'),
-        _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
-      )
-      : '-'
-  }
-  renderFromSelectTokenValue = fromWallet => {
-    const { fromAddress } = this.state
-    const blockchain = web3Utils.isAddress(fromAddress)
-    const balances = this.props.selectBlockchainBalanceByAddress(fromAddress)
+  renderFromSelectTokenValue = () => {
+    const balances = this.props.selectBlockchainWalletBalance(this.state.fromAddress)
     return value => {
-      const from = blockchain ? blockchainTokens : fromWallet.balances.token
-
-      const foundToken = _.find(
-        from,
-        token => token.name.toLowerCase() === value.toLowerCase()
-      )
-      const balance = blockchain
-        ? _.get(balances, [foundToken.symbol].balance, 0)
-        : foundToken.balance
-
-      return foundToken ? (
-        <TokenSelect balance={balance} token={foundToken} />
-      ) : (
-        value
-      )
+      const foundToken = _.find(balances, i => i.token.name === value)
+      return foundToken
+        ? <TokenSelect balance={foundToken.amount} token={foundToken.token} />
+        : value
     }
   }
-
-  renderFromSelectTokenOption = fromWallet => {
-    const { fromAddress } = this.state
-    if (web3Utils.isAddress(this.state.fromAddress)) {
-      const balances = this.props.selectBlockchainBalanceByAddress(fromAddress)
-      return blockchainTokens.map(token => {
-        return {
-          key: `${token.name}${token.symbol}${token.id}`,
-          value: (
-            <TokenSelect balance={_.get(balances, [token.symbol].balance, 0)} token={token} />
-          ),
-          ...token
-        }
-      })
-    }
-    return fromWallet
-      ? fromWallet.balances.map(b => ({
-        key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-        value: <TokenSelect balance={b.amount} token={b.token} />,
-        ...b
-      }))
-      : []
+  renderFromSelectTokenOption = () => {
+    const balances = this.props.selectBlockchainWalletBalance(this.state.fromAddress)
+    return balances.map(balance => {
+      return {
+        key: `${balance.token.name}${balance.token.symbol}${balance.token.id}`,
+        value: (
+          <TokenSelect balance={balance.amount} token={balance.token} />
+        ),
+        ...balance.token
+      }
+    })
   }
-
   renderToSelectWalletValue = data => {
-    // const isBlockchain = web3Utils.isAddress(this.state.toAddress)
-    console.log('data: ', data)
-
     return value => {
-      console.log('value: ', value)
-
       const wallet = _.find(data, i => i.blockchain_deposit_address === value)
-      console.log('wallet: ', wallet)
       return wallet ? (
         <BlockchainWalletSelect
           icon='Wallet'
@@ -296,7 +233,6 @@ class CreateBlockchainTransaction extends Component {
       ) : value
     }
   }
-
   renderToSelectWalletOption = data => {
     return data
       ? data
@@ -316,11 +252,7 @@ class CreateBlockchainTransaction extends Component {
         })
       : []
   }
-
   renderFromSection () {
-    const fromWallet = this.props.selectWalletById(
-      this.state.fromAddress.trim()
-    )
     return (
       <FromToContainer>
         <h5>From</h5>
@@ -349,11 +281,10 @@ class CreateBlockchainTransaction extends Component {
                 label: 'Token',
                 clearable: true,
                 onSelectItem: this.onSelectTokenSelect('fromToken'),
-                onChange: this.onChangeSearchToken('fromToken'),
                 value: this.state.fromTokenSearchToken,
                 filterByKey: true,
-                valueRenderer: this.renderFromSelectTokenValue(fromWallet),
-                options: this.renderFromSelectTokenOption(fromWallet)
+                valueRenderer: this.renderFromSelectTokenValue(),
+                options: this.renderFromSelectTokenOption()
               }}
             />
           </div>
@@ -387,7 +318,6 @@ class CreateBlockchainTransaction extends Component {
       <FromToContainer>
         <h5>To</h5>
         <AllWalletsFetcher
-          query={createSearchAddressQuery(this.state.toAddress)}
           render={({ data }) => {
             return (
               <StyledSelectInput
@@ -397,7 +327,6 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectToAddressSelect,
                   disabled: this.state.step !== 1,
                   value: this.state.toAddress,
-                  onChange: this.onChangeInputToAddress,
                   valueRenderer: this.renderToSelectWalletValue(data),
                   options: this.renderToSelectWalletOption(data)
                 }}

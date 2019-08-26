@@ -98,14 +98,12 @@ class CreateTransaction extends Component {
   }
   state = {
     fromTokenAmount: '',
+    fromTokenSearchToken: '',
     fromAddress: this.props.fromAddress || '',
     toAddress: ''
   }
   onChangeAmount = type => e => {
     this.setState({ [`${type}Amount`]: e.target.value })
-  }
-  onChangeSearchToken = type => e => {
-    this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
     this.setState({
@@ -146,7 +144,7 @@ class CreateTransaction extends Component {
         toTokenId:
           _.get(this.state.toTokenSelected, 'token.id') ||
           _.get(this.state.fromTokenSelected, 'token.id'),
-        fromAmount
+        amount: fromAmount
       })
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
@@ -194,7 +192,6 @@ class CreateTransaction extends Component {
             label: 'Token',
             clearable: true,
             onSelectItem: this.onSelectTokenSelect('fromToken'),
-            onChange: this.onChangeSearchToken('fromToken'),
             value: this.state.fromTokenSearchToken,
             filterByKey: true,
             valueRenderer: this.state.fromTokenSelected
