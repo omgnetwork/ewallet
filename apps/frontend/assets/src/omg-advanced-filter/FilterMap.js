@@ -574,11 +574,12 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'blockchain_transactions',
     height: 110,
-    component: filters.SelectWallet,
+    component: filters.InputFilter,
     default: false,
+    placeholder: 'Enter blockchain address',
     matchAll: [
       {
-        field: 'from_wallet.address',
+        field: 'from_blockchain_address',
         comparator: 'contains'
       }
     ]
@@ -589,11 +590,12 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'blockchain_transactions',
     height: 110,
-    component: filters.SelectWallet,
+    component: filters.InputFilter,
     default: false,
+    placeholder: 'Enter blockchain address',
     matchAll: [
       {
-        field: 'from_wallet.address',
+        field: 'to_blockchain_address',
         comparator: 'contains'
       }
     ]
@@ -604,15 +606,16 @@ export const FILTER_MAP = [
     icon: 'Option-Horizontal',
     page: 'blockchain_transactions',
     height: 110,
-    component: filters.SelectWallet,
+    component: filters.InputFilter,
     default: false,
+    placeholder: 'Enter blockchain address',
     matchAny: [
       {
-        field: 'to_wallet.address',
+        field: 'from_blockchain_address',
         comparator: 'contains'
       },
       {
-        field: 'from_wallet.address',
+        field: 'to_blockchain_address',
         comparator: 'contains'
       }
     ]
