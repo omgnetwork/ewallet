@@ -28,7 +28,6 @@ defmodule EWallet.BlockchainTransactionGate do
     BlockchainTransactionPolicy,
     TokenFetcher,
     BlockchainLocalTransactionGate,
-    LocalTransactionGate,
     TransactionRegistry,
     TransactionTracker,
     BlockchainHelper
@@ -41,6 +40,7 @@ defmodule EWallet.BlockchainTransactionGate do
   # TODO: Check if blockchain is available
   # TODO: Add tests at the controller level
   # TODO: Add tests for failures at the gate level
+  # TODO: Not handling repetitive idempotency_token properly
 
   @doc """
   Here, we send a transaction from the hot wallet to
@@ -247,16 +247,62 @@ defmodule EWallet.BlockchainTransactionGate do
     Map.put(attrs, "payload", Map.delete(attrs, "originator"))
   end
 
-  defp check_amount(%{"from_amount" => from_amount, "to_amount" => from_amount} = attrs),
-    do: attrs
+  #
+  # Check amounts
+  #
 
-  defp check_amount(%{"amount" => amount} = attrs) do
+  defp check_amount(%{"amount" => amount} = attrs) when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, converted} -> attrs |> Map.put("amount", converted) |> check_amount()
+      error -> error
+    end
+  end
+
+  defp check_amount(%{"amount" => amount} = attrs) when is_integer(amount) do
     attrs
     |> Map.put("from_amount", amount)
     |> Map.put("to_amount", amount)
+    |> Map.delete("amount")
   end
 
-  defp check_amount(_), do: {:error, :amounts_missing_or_invalid}
+  defp check_amount(%{"amount" => amount}) do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` must be an integer or integer string."
+     <> " Given: #{inspect(amount)}."}
+  end
+
+  defp check_amount(%{"from_amount" => from_amount} = attrs) when is_binary(from_amount) do
+    case Helper.string_to_integer(from_amount) do
+      {:ok, converted} -> attrs |> Map.put("from_amount", converted) |> check_amount()
+      error -> error
+    end
+  end
+
+  defp check_amount(%{"to_amount" => to_amount} = attrs) when is_binary(to_amount) do
+    case Helper.string_to_integer(to_amount) do
+      {:ok, converted} -> attrs |> Map.put("to_amount", converted) |> check_amount()
+      error -> error
+    end
+  end
+
+  defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount} = attrs) when is_integer(from_amount) and is_integer(to_amount) do
+    attrs
+  end
+
+  defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount}) do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `from_amount` and `to_amount` must be integers or integer strings."
+     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+  end
+
+  defp check_amount(_) do
+    {:error, :invalid_parameter,
+      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
+  end
+
+  #
+  # Submit the transaction to blockchain
+  #
 
   defp submit(transaction) do
     blockchain_adapter = BlockchainHelper.adapter()
