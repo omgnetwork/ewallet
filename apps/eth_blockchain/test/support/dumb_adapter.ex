@@ -17,8 +17,10 @@ defmodule EthBlockchain.DumbAdapter do
   use GenServer
 
   @invalid_erc20_contract "0x9080682a37961d3c814464e7ada1c7e1b4638a27"
+  @high_transaction_count_address "0x811ae0a85d3f86824da3abe49a2407ea55a8b053"
 
   def invalid_erc20_contract_address, do: @invalid_erc20_contract
+  def high_transaction_count_address, do: @high_transaction_count_address
 
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
@@ -38,7 +40,11 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, balances}, reg}
   end
 
-  def handle_call({:get_transaction_count, _address}, _from, reg) do
+  def handle_call({:get_transaction_count, @high_transaction_count_address, _block}, _from, reg) do
+    {:reply, {:ok, "0x64"}, reg}
+  end
+
+  def handle_call({:get_transaction_count, _address, _block}, _from, reg) do
     {:reply, {:ok, "0x0"}, reg}
   end
 

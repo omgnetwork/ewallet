@@ -76,8 +76,10 @@ defmodule EthBlockchain.TransactionListener do
             state
 
           error ->
-            Logger.warn("Skip processing the transaction receipt due to an error while"
-              <> " retrieving the latest block number. Got: #{inspect(error)}.")
+            Logger.warn(
+              "Skip processing the transaction receipt due to an error while" <>
+                " retrieving the latest block number. Got: #{inspect(error)}."
+            )
 
             state
         end
