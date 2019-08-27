@@ -30,14 +30,11 @@ const Actions = styled.div`
   }
 `
 
-const renderBlockchainTransactionPage = address => ({
-  data,
+const renderBlockchainTransactionPage = ({
+  data: transactions,
   individualLoadingStatus,
   pagination
 }) => {
-  const transactions = _.filter(data, i => {
-    return i.from_blockchain_address === address || i.to_blockchain_address === address
-  })
   return (
     <TransactionTable
       loadingStatus={individualLoadingStatus}
@@ -82,13 +79,17 @@ const BlockchainTransactionsPage = ({ location, match }) => {
         }}
       />
       <TransactionsFetcher
-        render={renderBlockchainTransactionPage(address)}
+        render={renderBlockchainTransactionPage}
         query={{
           page: queryString.parse(location.search).page,
           perPage: Math.floor(window.innerHeight / 100),
           search: queryString.parse(location.search).search,
           matchAll,
-          matchAny
+          matchAny: [
+            { field: 'to_blockchain_address', comparator: 'contains', value: address },
+            { field: 'from_blockchain_address', comparator: 'contains', value: address },
+            ...matchAny
+          ]
         }}
       />
     </>
