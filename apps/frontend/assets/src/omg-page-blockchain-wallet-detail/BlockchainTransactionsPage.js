@@ -26,7 +26,6 @@ const renderBlockchainTransactionPage = address => ({
   const transactions = _.filter(data, i => {
     return i.from_blockchain_address === address || i.to_blockchain_address === address
   })
-
   return (
     <TransactionTable
       loadingStatus={individualLoadingStatus}

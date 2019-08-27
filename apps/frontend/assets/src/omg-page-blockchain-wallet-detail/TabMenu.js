@@ -43,14 +43,14 @@ const TabMenu = ({ location }) => {
           hoverStyle
         />
       </Link>
-      <Link to='blockchain_settings'>
+      {/* <Link to='blockchain_settings'>
         <Tag
           title='Settings'
           icon='Setting'
           active={activeTab === 'blockchain_settings'}
           hoverStyle
         />
-      </Link>
+      </Link> */}
     </KeyTopBar>
   )
 }
