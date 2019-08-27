@@ -566,5 +566,105 @@ export const FILTER_MAP = [
         comparator: 'contains'
       }
     ]
+  },
+  // BLOCKCHAIN WALLETS TRANSACTIONS PAGE
+  {
+    title: 'Transfer From',
+    key: 'blockchain_transactions-transfer-from',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.SelectWallet,
+    default: false,
+    matchAll: [
+      {
+        field: 'from_wallet.address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Transfer To',
+    key: 'blockchain_transactions-transfer-to',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.SelectWallet,
+    default: false,
+    matchAll: [
+      {
+        field: 'from_wallet.address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Target',
+    key: 'blockchain_transactions-target',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.SelectWallet,
+    default: false,
+    matchAny: [
+      {
+        field: 'to_wallet.address',
+        comparator: 'contains'
+      },
+      {
+        field: 'from_wallet.address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Date & Time',
+    key: 'blockchain_transactions-date-time',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 205,
+    component: filters.DateTime,
+    default: true,
+    matchAll: [
+      {
+        field: 'created_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'created_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Status',
+    key: 'blockchain_transactions-status',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 166,
+    component: filters.Checkbox,
+    default: true,
+    options: [
+      {
+        label: 'Confirmed',
+        value: 'confirmed'
+      },
+      {
+        label: 'Pending',
+        value: 'pending'
+      },
+      {
+        label: 'Failed',
+        value: 'failed'
+      }
+    ],
+    matchAny: [
+      {
+        field: 'status',
+        comparator: 'contains'
+      }
+    ]
   }
 ]
