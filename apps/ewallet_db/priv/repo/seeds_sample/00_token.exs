@@ -30,7 +30,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
     },
     %{
       symbol: "ABC",
-      name: "ABC Coin",
+      name: "ABC Token",
       subunit_to_unit: 1_000_000_000_000_000_000,
       genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 ABC
       account_name: "master_account",

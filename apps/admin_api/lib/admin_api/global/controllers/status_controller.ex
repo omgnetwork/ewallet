@@ -14,12 +14,14 @@
 
 defmodule AdminAPI.StatusController do
   use AdminAPI, :controller
+  alias EthBlockchain.Status
 
   def status(conn, _attrs) do
     json(conn, %{
       success: true,
       api_versions: api_versions(),
-      ewallet_version: Application.get_env(:ewallet, :version)
+      ewallet_version: Application.get_env(:ewallet, :version),
+      ethereum: ethereum_status()
     })
   end
 
@@ -29,5 +31,12 @@ defmodule AdminAPI.StatusController do
     Enum.map(api_versions, fn {key, value} ->
       %{name: value[:name], media_type: key}
     end)
+  end
+
+  defp ethereum_status do
+    case Status.get_status() do
+      {:ok, status} -> status
+      _ -> false
+    end
   end
 end
