@@ -30,7 +30,7 @@ defmodule EthBlockchain.BlockTest do
 
   describe "get_number/2" do
     test "returns the latest block number", state do
-      assert Block.get_number(:dumb, state[:pid]) == 14
+      assert Block.get_number(:dumb, state[:pid]) == {:ok, 14}
     end
   end
 

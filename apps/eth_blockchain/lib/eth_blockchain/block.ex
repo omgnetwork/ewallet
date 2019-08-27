@@ -123,6 +123,7 @@ defmodule EthBlockchain.Block do
   end
 
   defp format_eth_transaction(transaction) do
+    {:ok, current_block_number} = get_number()
     block_number = int_from_hex(transaction["blockNumber"])
 
     %{
@@ -137,7 +138,7 @@ defmodule EthBlockchain.Block do
       hash: transaction["hash"],
       index: int_from_hex(transaction["transactionIndex"]),
       nonce: int_from_hex(transaction["nonce"]),
-      confirmations_count: get_number() - block_number + 1,
+      confirmations_count: current_block_number - block_number + 1,
       data: get_data(transaction["input"])
     }
   end

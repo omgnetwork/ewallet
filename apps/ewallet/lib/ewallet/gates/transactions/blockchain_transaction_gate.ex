@@ -22,7 +22,7 @@ defmodule EWallet.BlockchainTransactionGate do
   for simplicity (modifying the existing inputs instead of creating new
   data structures).
   """
-  import Logger
+  require Logger
 
   alias EWallet.{
     BlockchainTransactionPolicy,
@@ -30,7 +30,8 @@ defmodule EWallet.BlockchainTransactionGate do
     BlockchainLocalTransactionGate,
     TransactionRegistry,
     TransactionTracker,
-    BlockchainHelper
+    BlockchainHelper,
+    Helper
   }
 
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
@@ -285,7 +286,15 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount} = attrs) when is_integer(from_amount) and is_integer(to_amount) do
+  defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount})
+       when is_integer(from_amount) and is_integer(to_amount) and from_amount != to_amount do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `from_amount` and `to_amount` must be equal."
+     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+  end
+
+  defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount} = attrs)
+       when is_integer(from_amount) and is_integer(to_amount) do
     attrs
   end
 
