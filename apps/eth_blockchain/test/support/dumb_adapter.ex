@@ -49,7 +49,8 @@ defmodule EthBlockchain.DumbAdapter do
   end
 
   def handle_call({:get_block_number}, _from, reg) do
-    {:reply, 14, reg}
+    # 0xe == 14
+    {:reply, {:ok, "0xe"}, reg}
   end
 
   def handle_call({:get_transaction_receipt, "not_found"}, _from, reg) do
@@ -143,6 +144,24 @@ defmodule EthBlockchain.DumbAdapter do
      {:ok,
       "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"},
      reg}
+  end
+
+  def handle_call({:get_eth_syncing}, _from, reg) do
+    {:reply, {:ok, false}, reg}
+  end
+
+  def handle_call({:get_client_version}, _from, reg) do
+    {:reply, {:ok, "DumbAdapter/v4.2.0-c999068/linux/go1.9.2"}, reg}
+  end
+
+  def handle_call({:get_network_id}, _from, reg) do
+    # Yes, network id is a string.
+    {:reply, {:ok, "99"}, reg}
+  end
+
+  def handle_call({:get_peer_count}, _from, reg) do
+    # 0x2a == 42
+    {:reply, {:ok, "0x2a"}, reg}
   end
 
   def handle_call({:get_errors}, _from, reg) do

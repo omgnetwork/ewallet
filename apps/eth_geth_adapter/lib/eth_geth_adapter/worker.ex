@@ -18,6 +18,7 @@ defmodule EthGethAdapter.Worker do
   alias EthGethAdapter.{
     Balance,
     Block,
+    Client,
     GethManager,
     Transaction,
     Token,
@@ -97,6 +98,22 @@ defmodule EthGethAdapter.Worker do
 
   def handle_call({:get_field, contract_address, encoded_abi_data}, _from, reg) do
     {:reply, Token.get_field(contract_address, encoded_abi_data), reg}
+  end
+
+  def handle_call({:get_eth_syncing}, _from, reg) do
+    {:reply, Client.get_eth_syncing(), reg}
+  end
+
+  def handle_call({:get_client_version}, _from, reg) do
+    {:reply, Client.get_client_version(), reg}
+  end
+
+  def handle_call({:get_network_id}, _from, reg) do
+    {:reply, Client.get_network_id(), reg}
+  end
+
+  def handle_call({:get_peer_count}, _from, reg) do
+    {:reply, Client.get_peer_count(), reg}
   end
 
   def handle_call({:get_errors}, _from, reg) do

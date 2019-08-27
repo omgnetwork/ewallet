@@ -12,15 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthBlockchain.Block do
-  @moduledoc false
-  import Utils.Helpers.Encoding
-  alias EthBlockchain.Adapter
+defmodule EthBlockchain.StatusTest do
+  use EthBlockchain.EthBlockchainCase, async: true
+  alias EthBlockchain.Status
 
-  def get_number(adapter \\ nil, pid \\ nil) do
-    case Adapter.call({:get_block_number}, adapter, pid) do
-      {:ok, number} -> {:ok, int_from_hex(number)}
-      error -> error
+  describe "get_status/0" do
+    test "returns the overall Ethereum connectivity status" do
+      assert Status.get_status() ==
+               {:ok,
+                %{
+                  eth_syncing: false,
+                  client_version: "DumbAdapter/v4.2.0-c999068/linux/go1.9.2",
+                  network_id: "99",
+                  last_seen_eth_block_number: 14,
+                  peer_count: 42
+                }}
     end
   end
 end

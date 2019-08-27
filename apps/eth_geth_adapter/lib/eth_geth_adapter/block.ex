@@ -14,13 +14,14 @@
 
 defmodule EthGethAdapter.Block do
   @moduledoc false
-
-  import Utils.Helpers.Encoding
+  import EthGethAdapter.ErrorHandler
   alias Ethereumex.HttpClient, as: Client
 
   def get_number do
-    parse(Client.eth_block_number())
+    handle_if_error(Client.eth_block_number())
   end
 
-  defp parse({:ok, number}), do: int_from_hex(number)
+  # Normalize the adapter error (if any) before returning the response.
+  defp handle_if_error({:ok, _} = resp), do: resp
+  defp handle_if_error({:error, error}), do: handle_error(error)
 end
