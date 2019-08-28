@@ -262,7 +262,7 @@ class CreateBlockchainTransaction extends Component {
       <BlockchainWalletSelect
         icon='Wallet'
         topRow={value}
-        bottomRow={wallet ? `${name} | ${type}` : null}
+        bottomRow={!_.isEmpty(wallet) ? `${name} | ${type}` : null}
       />
     )
   }
