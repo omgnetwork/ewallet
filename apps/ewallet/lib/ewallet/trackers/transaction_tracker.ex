@@ -21,7 +21,8 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.{BlockchainHelper, BlockchainTransactionState}
+  alias EWallet.{BlockchainHelper, BlockchainTransactionGate}
+  alias EWalletDB.{Transaction, TransactionState}
   alias ActivityLogger.System
 
   @backup_confirmations_threshold 10
@@ -32,23 +33,25 @@ defmodule EWallet.TransactionTracker do
     GenServer.start_link(__MODULE__, attrs)
   end
 
-  def init(%{transaction: transaction} = attrs) do
+  def init(%{transaction: transaction, transaction_type: transaction_type} = attrs) do
     adapter = BlockchainHelper.adapter()
     :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
 
     {:ok,
      %{
        transaction: transaction,
+       # for state changes, see TransactionState.state()'s map keys
+       transaction_type: transaction_type,
        # optional
        registry: attrs[:registry]
      }}
   end
 
   def handle_cast(
-        {:confirmations_count, tx_hash, confirmations_count},
+        {:confirmations_count, transaction_receipt, confirmations_count},
         %{transaction: transaction} = state
       ) do
-    case transaction.blockchain_tx_hash == tx_hash do
+    case transaction.blockchain_tx_hash == transaction_receipt.transaction_hash do
       true ->
         adapter = BlockchainHelper.adapter()
         threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
@@ -65,26 +68,42 @@ defmodule EWallet.TransactionTracker do
         )
 
       false ->
+        Logger.error(
+          "Unable to update the confirmation count for #{transaction.blockchain_tx_hash}." <>
+            " The receipt has a mismatched hash: #{transaction_receipt.transaction_hash}."
+        )
+
         {:noreply, state}
     end
   end
 
-  # Treshold reached, finalizing the transaction...
+  # Threshold reached, finalizing the transaction...
   defp update_confirmations_count(
          adapter,
-         %{transaction: transaction} = state,
+         %{transaction: transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          true
        ) do
+    # The transaction may have staled as it may took time before this function is invoked.
+    # So we'll re-retrieve the transaction from the database before transitioning.
+    transaction = Transaction.get(transaction.id)
+
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(
-        :confirmed,
+      TransactionState.transition_to(
+        transaction_type,
+        TransactionState.blockchain_confirmed(),
         transaction,
-        confirmations_count,
-        %System{}
+        %{
+          confirmations_count: confirmations_count,
+          originator: %System{}
+        }
       )
 
+    # TODO: handle error
+    {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+
     # Unsubscribing from the blockchain subapp
+    # TODO: :ok / {:error, :not_found} handling?
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
 
     case is_nil(state[:registry]) do
@@ -100,16 +119,23 @@ defmodule EWallet.TransactionTracker do
   # Treshold not reached yet, updating and continuing to track...
   defp update_confirmations_count(
          _adapter,
-         %{transaction: transaction} = state,
+         %{transaction: transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          false
        ) do
+    # The transaction may have staled as it may took time before this function is invoked.
+    # So we'll re-retrieve the transaction from the database before transitioning.
+    transaction = Transaction.get(transaction.id)
+
     {:ok, transaction} =
-      BlockchainTransactionState.transition_to(
-        :pending_confirmations,
+      TransactionState.transition_to(
+        transaction_type,
+        TransactionState.pending_confirmations(),
         transaction,
-        confirmations_count,
-        %System{}
+        %{
+          confirmations_count: confirmations_count,
+          originator: %System{}
+        }
       )
 
     {:noreply, Map.put(state, :transaction, transaction)}

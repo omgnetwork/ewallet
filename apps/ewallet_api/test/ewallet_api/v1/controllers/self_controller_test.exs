@@ -95,6 +95,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        "enabled_2fa_at" => nil
                      },
                      "user_id" => user.id,
+                     "blockchain_deposit_address" => nil,
                      "balances" => [
                        %{
                          "object" => "balance",

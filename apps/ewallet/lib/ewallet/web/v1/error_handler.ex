@@ -481,6 +481,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_blockchain_address: %{
       code: "blockchain:invalid_address",
       description: "The given blockchain address is not in a valid format."
+    },
+    hd_wallet_not_found: %{
+      code: "hd_wallet:not_found",
+      description: "An HD Wallet hasn't been generated yet."
+    },
+    blockchain_deposit_wallet_for_burn_wallet_not_allowed: %{
+      code: "blockchain:deposit_wallet_for_burn_wallet_not_allowed",
+      description: "Generating a deposit wallet for a burn wallet is not allowed."
     }
   }
 

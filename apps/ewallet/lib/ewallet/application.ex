@@ -15,6 +15,7 @@
 defmodule EWallet.Application do
   @moduledoc false
   use Application
+  alias EWallet.BlockchainHelper
   alias EWalletConfig.Config
 
   @decimal_precision 38
@@ -32,11 +33,18 @@ defmodule EWallet.Application do
       EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
     })
 
+    address_tracker_attrs = %{
+      blockchain_identifier: BlockchainHelper.identifier()
+    }
+
     # List all child processes to be supervised
     children = [
       worker(EWallet.Scheduler, []),
       {DynamicSupervisor, name: EWallet.DynamicListenerSupervisor, strategy: :one_for_one},
-      {EWallet.TransactionRegistry, name: EWallet.TransactionRegistry, strategy: :one_for_one}
+      {EWallet.TransactionRegistry, name: EWallet.TransactionRegistry, strategy: :one_for_one},
+      supervisor(EWallet.AddressTracker, [[attrs: address_tracker_attrs]],
+        name: EWallet.AddressTracker
+      )
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

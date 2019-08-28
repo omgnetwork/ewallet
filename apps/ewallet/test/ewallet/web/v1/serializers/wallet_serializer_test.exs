@@ -46,7 +46,8 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
         balances: Enum.map(wallet.balances, &BalanceSerializer.serialize/1),
         enabled: wallet.enabled,
         created_at: DateFormatter.to_iso8601(wallet.inserted_at),
-        updated_at: DateFormatter.to_iso8601(wallet.updated_at)
+        updated_at: DateFormatter.to_iso8601(wallet.updated_at),
+        blockchain_deposit_address: nil
       }
 
       assert WalletSerializer.serialize(wallet) == expected
@@ -85,6 +86,7 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
             account: AccountSerializer.serialize(wallet_1.account),
             balances: Enum.map(wallet_1.balances, &BalanceSerializer.serialize/1),
             enabled: wallet_1.enabled,
+            blockchain_deposit_address: nil,
             created_at: DateFormatter.to_iso8601(wallet_1.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_1.updated_at)
           },
@@ -102,6 +104,7 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
             account: AccountSerializer.serialize(wallet_2.account),
             balances: Enum.map(wallet_2.balances, &BalanceSerializer.serialize/1),
             enabled: wallet_2.enabled,
+            blockchain_deposit_address: nil,
             created_at: DateFormatter.to_iso8601(wallet_2.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_2.updated_at)
           }
@@ -142,6 +145,7 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
             account: AccountSerializer.serialize(wallet_1.account),
             balances: Enum.map(wallet_1.balances, &BalanceSerializer.serialize/1),
             enabled: wallet_1.enabled,
+            blockchain_deposit_address: nil,
             created_at: DateFormatter.to_iso8601(wallet_1.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_1.updated_at)
           },
@@ -159,6 +163,7 @@ defmodule EWallet.Web.V1.WalletSerializerTest do
             account: AccountSerializer.serialize(wallet_2.account),
             balances: Enum.map(wallet_2.balances, &BalanceSerializer.serialize/1),
             enabled: wallet_2.enabled,
+            blockchain_deposit_address: nil,
             created_at: DateFormatter.to_iso8601(wallet_2.inserted_at),
             updated_at: DateFormatter.to_iso8601(wallet_2.updated_at)
           }

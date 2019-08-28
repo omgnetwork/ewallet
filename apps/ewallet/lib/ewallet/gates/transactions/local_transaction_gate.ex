@@ -26,7 +26,7 @@ defmodule EWallet.LocalTransactionGate do
     TransactionSourceFetcher
   }
 
-  alias EWalletDB.{AccountUser, Transaction}
+  alias EWalletDB.{AccountUser, Transaction, TransactionState}
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -53,7 +53,7 @@ defmodule EWallet.LocalTransactionGate do
     end
   end
 
-  def process_with_transaction(%Transaction{status: "pending"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "pending"} = transaction) do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: false})
@@ -61,23 +61,27 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
-  def process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
     {:ok, transaction}
   end
 
-  def process_with_transaction(%Transaction{status: "failed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
+    {:ok, transaction}
+  end
+
+  defp process_with_transaction(%Transaction{status: "failed"} = transaction) do
     {:error, transaction, transaction.error_code,
      transaction.error_description || transaction.error_data}
   end
 
-  def get_or_insert(
-        from,
-        to,
-        exchange,
-        %{
-          "idempotency_token" => idempotency_token
-        } = attrs
-      ) do
+  defp get_or_insert(
+         from,
+         to,
+         exchange,
+         %{
+           "idempotency_token" => idempotency_token
+         } = attrs
+       ) do
     Transaction.get_or_insert(%{
       originator: attrs["originator"],
       idempotency_token: idempotency_token,
@@ -103,7 +107,7 @@ defmodule EWallet.LocalTransactionGate do
     })
   end
 
-  def get_or_insert(_, _, _, _) do
+  defp get_or_insert(_, _, _, _) do
     {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
   end
 
@@ -116,12 +120,39 @@ defmodule EWallet.LocalTransactionGate do
     transaction
   end
 
-  def update_transaction({:ok, ledger_transaction}, transaction) do
-    Transaction.confirm(transaction, ledger_transaction.uuid, %System{})
+  def update_transaction({:ok, ledger_transaction}, %{status: "pending"} = transaction) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.confirmed(),
+        transaction,
+        %{
+          local_ledger_uuid: ledger_transaction.uuid,
+          originator: %System{}
+        }
+      )
+
+    transaction
   end
 
   def update_transaction({:error, code, description}, transaction) do
-    Transaction.fail(transaction, code, description, %System{})
+    {description, data} =
+      if(is_map(description), do: {nil, description}, else: {description, nil})
+
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_ledger,
+        TransactionState.failed(),
+        transaction,
+        %{
+          error_code: Atom.to_string(code),
+          error_description: description,
+          error_data: data,
+          originator: %System{}
+        }
+      )
+
+    transaction
   end
 
   defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid} = transaction)

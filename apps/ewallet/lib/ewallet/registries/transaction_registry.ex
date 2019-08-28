@@ -34,18 +34,28 @@ defmodule EWallet.TransactionRegistry do
   end
 
   def handle_call({:lookup, uuid}, _from, registry) do
-    {:reply, Map.fetch(registry, uuid), registry}
+    case Map.fetch(registry, uuid) do
+      :error ->
+        {:reply, {:error, :not_found}, registry}
+
+      res ->
+        {:reply, res, registry}
+    end
   end
 
   @impl true
-  def handle_call({:track, tracker, transaction}, _from, registry) do
+  def handle_call(
+        {:track, tracker, %{transaction: transaction, transaction_type: type}},
+        _from,
+        registry
+      ) do
     if Map.has_key?(registry, transaction.uuid) do
       {:reply, :ok, registry}
     else
       {:ok, pid} =
         DynamicSupervisor.start_child(
           EWallet.DynamicListenerSupervisor,
-          {tracker, %{transaction: transaction, registry: self()}}
+          {tracker, %{transaction: transaction, transaction_type: type, registry: self()}}
         )
 
       {:reply, :ok,
@@ -62,9 +72,9 @@ defmodule EWallet.TransactionRegistry do
       :ok =
         DynamicSupervisor.terminate_child(EWallet.DynamicListenerSupervisor, registry[uuid][:pid])
 
-      {:reply, :ok, Map.delete(registry, uuid)}
+      {:noreply, Map.delete(registry, uuid)}
     else
-      {:reply, {:error, :entry_not_found}, registry}
+      {:noreply, registry}
     end
   end
 
@@ -76,7 +86,7 @@ defmodule EWallet.TransactionRegistry do
     GenServer.call(pid, {:lookup, uuid})
   end
 
-  def start_tracker(tracker, transaction, pid \\ __MODULE__) do
-    GenServer.call(pid, {:track, tracker, transaction})
+  def start_tracker(tracker, attrs, pid \\ __MODULE__) do
+    GenServer.call(pid, {:track, tracker, attrs})
   end
 end

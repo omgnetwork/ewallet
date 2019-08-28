@@ -18,7 +18,7 @@ defmodule EWalletDB.BlockchainWallet do
   """
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.{BlockchainValidator, Validator}
   import EWalletDB.Helpers.Preloader
 
@@ -106,6 +106,15 @@ defmodule EWalletDB.BlockchainWallet do
     :ewallet_db
     |> Application.get_env(:primary_hot_wallet)
     |> get(@hot, identifier)
+  end
+
+  @doc """
+  Retrieves all hot wallets.
+  """
+  def get_all_hot(blockchain_identifier, query \\ __MODULE__) do
+    query
+    |> where([w], w.blockchain_identifier == ^blockchain_identifier and w.type == "hot")
+    |> Repo.all()
   end
 
   @doc """

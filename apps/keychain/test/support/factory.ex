@@ -17,12 +17,31 @@ defmodule Keychain.Factory do
   Factories used for testing.
   """
   use ExMachina.Ecto, repo: Keychain.Repo
-  alias Keychain.Key
+  alias BlockKeys.{CKD, Ethereum.Address}
+  alias Ecto.UUID
+  alias Keychain.{Key, Wallet}
 
   def key_factory do
+    {public_key, private_key} = Wallet.generate_keypair()
+
     %Key{
       wallet_id: sequence(:email, &"wallet-id-#{&1}"),
-      encrypted_private_key: sequence(:encrypted_private_key, &"private-key-#{&1}")
+      private_key: Base.encode16(private_key, case: :lower),
+      public_key: Base.encode16(public_key, case: :lower),
+      uuid: UUID.generate()
+    }
+  end
+
+  def hd_key_factory do
+    %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
+    public_key = CKD.derive(root_key, "M/44'/60'/0'/0'")
+    wallet_address = Address.from_xpub(public_key)
+
+    %Key{
+      wallet_id: wallet_address,
+      private_key: root_key,
+      public_key: public_key,
+      uuid: UUID.generate()
     }
   end
 end

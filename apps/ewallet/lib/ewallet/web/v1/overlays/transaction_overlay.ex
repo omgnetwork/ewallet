@@ -39,7 +39,8 @@ defmodule EWallet.Web.V1.TransactionOverlay do
       :to_user,
       :exchange_account,
       exchange_wallet: [
-        :account
+        :account,
+        :blockchain_deposit_wallets
       ],
       exchange_pair: [
         :from_token,

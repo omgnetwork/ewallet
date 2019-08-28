@@ -21,8 +21,9 @@ defmodule EWallet.DBCase do
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
-  alias EWalletDB.{Account, BlockchainWallet, Repo, Role}
+  alias EWalletDB.{Account, BlockchainHDWallet, BlockchainWallet, Repo, Role}
   alias EWalletConfig.ConfigTestHelper
+  alias ActivityLogger.System
   alias Keychain.Wallet
 
   using do
@@ -59,6 +60,15 @@ defmodule EWallet.DBCase do
         type: "hot",
         blockchain_identifier: BlockchainHelper.identifier(),
         originator: %ActivityLogger.System{}
+      })
+
+    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+
+    {:ok, _} =
+      BlockchainHDWallet.insert(%{
+        keychain_uuid: keychain_hd_wallet_uuid,
+        blockchain_identifier: BlockchainHelper.identifier(),
+        originator: %System{}
       })
 
     config_pid = start_supervised!(EWalletConfig.Config)

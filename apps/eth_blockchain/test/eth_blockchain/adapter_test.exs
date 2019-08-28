@@ -14,10 +14,10 @@
 
 defmodule EthBlockchain.AdapterTest do
   use EthBlockchain.EthBlockchainCase
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.{Adapter, TransactionListener}
 
   describe "call/3" do
-    test "delegates call to the adapter", state do
+    test "delegates get_balances call to the adapter", state do
       dumb_resp1 =
         Adapter.call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
@@ -75,6 +75,30 @@ defmodule EthBlockchain.AdapterTest do
                  :foobar,
                  state[:pid]
                )
+    end
+  end
+
+  describe "subscribe/5" do
+    test "returns :ok" do
+      assert Adapter.subscribe(:transaction, "0x123456789", self()) == :ok
+    end
+  end
+
+  describe "unsubscribe/3" do
+    test "unsubscribes the given subscriber from the registry for the given transaction hash" do
+      :ok = Adapter.subscribe(:transaction, "0x123456789", self())
+      assert Adapter.unsubscribe(:transaction, "0x123456789", self()) == :ok
+    end
+  end
+
+  describe "lookup_listener/1" do
+    test "returns the list of subscribers for the given transaction hash" do
+      :ok = Adapter.subscribe(:transaction, "0x123456789", self())
+      {res, listener} = Adapter.lookup_listener("0x123456789")
+
+      assert res == :ok
+      assert listener.listener == TransactionListener
+      assert is_pid(listener.pid)
     end
   end
 end

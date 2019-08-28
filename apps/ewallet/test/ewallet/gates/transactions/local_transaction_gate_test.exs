@@ -15,10 +15,11 @@
 defmodule EWallet.LocalTransactionGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
+  alias ActivityLogger.System
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, LocalTransactionGate}
-  alias EWalletDB.{Account, Token, Transaction, User, Wallet}
-  alias ActivityLogger.System
+  alias EWalletDB.{Account, Token, Transaction, TransactionState, User, Wallet}
+  alias LocalLedgerDB.Factory, as: LedgerFactory
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
@@ -91,17 +92,17 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: %{"local_ledger_uuid" => "from cached ledger"},
-          status: Transaction.confirmed()
+          status: TransactionState.confirmed()
         })
 
-      assert inserted_transaction.status == Transaction.confirmed()
+      assert inserted_transaction.status == TransactionState.confirmed()
 
       {status, transaction} = LocalTransactionGate.create(attrs)
       assert status == :ok
 
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
       assert transaction.local_ledger_uuid == "from cached ledger"
     end
 
@@ -111,10 +112,10 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: %{"code" => "code!", "description" => "description!"},
-          status: Transaction.failed()
+          status: TransactionState.failed()
         })
 
-      assert inserted_transaction.status == Transaction.failed()
+      assert inserted_transaction.status == TransactionState.failed()
 
       {status, transaction, code, description} = LocalTransactionGate.create(attrs)
       assert status == :error
@@ -122,7 +123,7 @@ defmodule EWallet.LocalTransactionGateTest do
       assert description == "description!"
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert transaction.error_code == "code!"
       assert transaction.error_description == "description!"
     end
@@ -133,10 +134,10 @@ defmodule EWallet.LocalTransactionGateTest do
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
           response: nil,
-          status: Transaction.pending()
+          status: TransactionState.pending()
         })
 
-      assert inserted_transaction.status == Transaction.pending()
+      assert inserted_transaction.status == TransactionState.pending()
       init_wallet(inserted_transaction.from, inserted_transaction.from_token, 1_000)
 
       {status, transaction} = LocalTransactionGate.create(attrs)
@@ -144,7 +145,7 @@ defmodule EWallet.LocalTransactionGateTest do
 
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
     end
 
     test "creates and fails a transaction when idempotency token is not present and the ledger
@@ -155,12 +156,12 @@ defmodule EWallet.LocalTransactionGateTest do
 
       {status, transaction, code, _description} = LocalTransactionGate.create(attrs)
       assert status == :error
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert code == "insufficient_funds"
 
       transaction = Transaction.get_by(%{idempotency_token: idempotency_token})
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
 
       assert transaction.payload == %{
                "from_address" => wallet1.address,
@@ -195,7 +196,7 @@ defmodule EWallet.LocalTransactionGateTest do
 
       transaction = Transaction.get_by(%{idempotency_token: idempotency_token})
       assert transaction.idempotency_token == idempotency_token
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
 
       assert transaction.payload == %{
                "from_address" => wallet1.address,
@@ -226,7 +227,7 @@ defmodule EWallet.LocalTransactionGateTest do
         })
 
       assert res == :error
-      assert transaction.status == Transaction.failed()
+      assert transaction.status == TransactionState.failed()
       assert code == "amount_is_zero"
     end
 
@@ -374,6 +375,50 @@ defmodule EWallet.LocalTransactionGateTest do
       assert transaction.exchange_pair_uuid == pair.uuid
       assert transaction.exchange_account_uuid == account.uuid
       assert transaction.exchange_wallet_address == wallet.address
+    end
+  end
+
+  describe "update_transaction/2" do
+    test "returns the transaction untouched if it's already in local ledger" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = insert(:transaction, local_ledger_uuid: ledger_transaction.uuid)
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+
+      assert result == transaction
+    end
+
+    test "returns the transaction untouched if an error code exists" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = insert(:transaction, error_code: "some_error")
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+
+      assert result == transaction
+    end
+
+    test "transitions to confirmed if given a ledger_transaction and transaction.status==pending" do
+      ledger_transaction = LedgerFactory.insert(:transaction)
+      transaction = insert(:transaction)
+      assert transaction.status == TransactionState.pending()
+
+      result = LocalTransactionGate.update_transaction({:ok, ledger_transaction}, transaction)
+
+      assert result.status == TransactionState.confirmed()
+      assert result.local_ledger_uuid == ledger_transaction.uuid
+    end
+
+    test "transitions to failed if given an error tuple" do
+      transaction = insert(:transaction)
+      assert transaction.status == TransactionState.pending()
+
+      result =
+        LocalTransactionGate.update_transaction(
+          {:error, :some_code, "some_description"},
+          transaction
+        )
+
+      assert result.status == TransactionState.failed()
+      assert result.error_code == "some_code"
+      assert result.error_description == "some_description"
     end
   end
 end

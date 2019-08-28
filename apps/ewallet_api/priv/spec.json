@@ -2291,6 +2291,12 @@
                                                   "type": "string",
                                                   "format": "date-time"
                                                 },
+                                                "blockchain_address": {
+                                                  "type": "string"
+                                                },
+                                                "blockchain_status": {
+                                                  "type": "string"
+                                                },
                                                 "metadata": {
                                                   "type": "object"
                                                 },
@@ -2767,6 +2773,12 @@
                                                 "type": "string",
                                                 "format": "date-time"
                                               },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
+                                              },
                                               "metadata": {
                                                 "type": "object"
                                               },
@@ -2832,6 +2844,12 @@
                                               "updated_at": {
                                                 "type": "string",
                                                 "format": "date-time"
+                                              },
+                                              "blockchain_address": {
+                                                "type": "string"
+                                              },
+                                              "blockchain_status": {
+                                                "type": "string"
                                               },
                                               "metadata": {
                                                 "type": "object"
@@ -3213,6 +3231,12 @@
                                       "type": "string",
                                       "format": "date-time"
                                     },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
+                                    },
                                     "metadata": {
                                       "type": "object"
                                     },
@@ -3278,6 +3302,12 @@
                                     "updated_at": {
                                       "type": "string",
                                       "format": "date-time"
+                                    },
+                                    "blockchain_address": {
+                                      "type": "string"
+                                    },
+                                    "blockchain_status": {
+                                      "type": "string"
                                     },
                                     "metadata": {
                                       "type": "object"

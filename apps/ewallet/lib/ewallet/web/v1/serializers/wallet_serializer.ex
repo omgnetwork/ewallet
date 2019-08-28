@@ -58,9 +58,20 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account: AccountSerializer.serialize(wallet.account),
       balances: serialize_balances(wallet),
       enabled: wallet.enabled,
+      blockchain_deposit_address: serialize_blockchain_deposit_address(wallet),
       created_at: DateFormatter.to_iso8601(wallet.inserted_at),
       updated_at: DateFormatter.to_iso8601(wallet.updated_at)
     }
+  end
+
+  defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: %NotLoaded{}}), do: nil
+
+  defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: []}), do: nil
+
+  defp serialize_blockchain_deposit_address(%{blockchain_deposit_wallets: deposit_wallets}) do
+    deposit_wallets
+    |> List.first()
+    |> Assoc.get([:address])
   end
 
   defp serialize_balances(%{balances: nil}), do: []

@@ -19,11 +19,10 @@ defmodule EWalletDB.Repo.Seeds.ExchangePairSeed do
 
   @pairs [
     %{from_token_symbol: "ABC", to_token_symbol: "OMG", rate: 400},
+    %{from_token_symbol: "OMG", to_token_symbol: "ABC", rate: 0.0025},
 
     %{from_token_symbol: "OEM", to_token_symbol: "OMG", rate: 0.001},
-
-    %{from_token_symbol: "OMG", to_token_symbol: "OEM", rate: 1_000},
-    %{from_token_symbol: "OMG", to_token_symbol: "ABC", rate: 0.0025}
+    %{from_token_symbol: "OMG", to_token_symbol: "OEM", rate: 1_000}
   ]
 
   def seed do

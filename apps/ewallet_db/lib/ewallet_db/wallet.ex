@@ -23,7 +23,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
-  alias EWalletDB.{Account, Repo, User, Wallet}
+  alias EWalletDB.{Account, Repo, User, Wallet, BlockchainDepositWallet}
   alias ExULID.ULID
   alias ActivityLogger.System
 
@@ -57,7 +57,6 @@ defmodule EWalletDB.Wallet do
 
   schema "wallet" do
     # Wallet does not have an external ID. Use `address` instead.
-
     wallet_address(:address)
     field(:name, :string)
     field(:identifier, :string)
@@ -80,6 +79,13 @@ defmodule EWalletDB.Wallet do
       foreign_key: :account_uuid,
       references: :uuid,
       type: UUID
+    )
+
+    has_many(
+      :blockchain_deposit_wallets,
+      BlockchainDepositWallet,
+      foreign_key: :wallet_address,
+      references: :address
     )
 
     timestamps()

@@ -17,7 +17,7 @@ defmodule EWallet.MintGateTest do
   import EWalletDB.Factory
   alias Ecto.UUID
   alias EWallet.MintGate
-  alias EWalletDB.{Token, Transaction}
+  alias EWalletDB.{Token, TransactionState}
   alias ActivityLogger.System
 
   describe "mint_token/2" do
@@ -54,7 +54,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == true
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
     end
 
     test "inserts a new confirmed mint with big number" do
@@ -74,7 +74,7 @@ defmodule EWallet.MintGateTest do
       assert mint != nil
       assert mint.confirmed == true
       assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
-      assert transaction.status == Transaction.confirmed()
+      assert transaction.status == TransactionState.confirmed()
     end
 
     test "fails to insert a new mint when the data is invalid" do

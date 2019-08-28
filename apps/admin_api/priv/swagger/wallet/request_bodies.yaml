@@ -109,6 +109,20 @@ WalletEnableOrDisableBody:
           address: kxhk519271652215
           enabled: false
 
+WalletGenerateDepositAddressBody:
+  description: The parameters to generate a deposit address.
+  required: true
+  content:
+    application/vnd.omisego.v1+json:
+      schema:
+        properties:
+          address:
+            type: string
+        required:
+          - address
+        example:
+          address: kxhk519271652215
+
 WalletCreateBody:
   description: The parameters to use for creating a wallet
   required: true

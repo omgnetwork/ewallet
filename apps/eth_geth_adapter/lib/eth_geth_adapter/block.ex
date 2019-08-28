@@ -15,10 +15,18 @@
 defmodule EthGethAdapter.Block do
   @moduledoc false
   import EthGethAdapter.ErrorHandler
+  import Utils.Helpers.Encoding
   alias Ethereumex.HttpClient, as: Client
 
   def get_number do
     handle_if_error(Client.eth_block_number())
+  end
+
+  def get(number) do
+    number
+    |> to_hex()
+    |> Client.eth_get_block_by_number(true)
+    |> handle_if_error()
   end
 
   # Normalize the adapter error (if any) before returning the response.

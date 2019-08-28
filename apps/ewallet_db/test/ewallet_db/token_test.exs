@@ -167,6 +167,17 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
+  describe "all_blockchain/2" do
+    test "returns the list of tokens that have a blockchain address for the given blockchain identifier" do
+      insert(:token, blockchain_address: "0x1", blockchain_identifier: "test")
+      insert(:token, blockchain_address: "0x2", blockchain_identifier: "test")
+      insert(:token, blockchain_address: "0x3", blockchain_identifier: "other")
+
+      tokens = Token.all_blockchain("test")
+      assert length(tokens) == 2
+    end
+  end
+
   describe "query_all_blockchain/1" do
     test "returns a query of tokens that have a blockchain address for the specified identifier" do
       assert Enum.empty?(Token.all())
