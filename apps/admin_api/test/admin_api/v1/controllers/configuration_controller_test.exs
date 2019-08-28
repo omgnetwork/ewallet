@@ -225,7 +225,8 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
     end
 
     test_with_auths "updates the primary hot wallet address setting", context do
-      wallet = insert(:blockchain_wallet, blockchain_identifier: BlockchainHelper.identifier())
+      wallet =
+        insert(:blockchain_wallet, blockchain_identifier: BlockchainHelper.rootchain_identifier())
 
       response =
         request("/configuration.update", %{

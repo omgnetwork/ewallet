@@ -29,10 +29,17 @@ defmodule EWallet.BlockchainHelper do
   end
 
   @doc """
-  Returns the blockchain identifier corresponding to the default adapter
+  Returns the main rootchain identifier
   """
-  def identifier do
-    adapter().helper().identifier()
+  def rootchain_identifier do
+    Application.get_env(:ewallet_db, :rootchain_identifier)
+  end
+
+  @doc """
+  Returns the main childchain identifier
+  """
+  def childchain_identifier do
+    Application.get_env(:ewallet_db, :childchain_identifier)
   end
 
   @doc """

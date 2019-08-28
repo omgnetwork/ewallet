@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   def create(conn, %{"type" => "cold", "address" => _, "name" => _} = attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         identifier <- BlockchainHelper.identifier(),
+         identifier <- BlockchainHelper.rootchain_identifier(),
          attrs <- Map.put(attrs, "blockchain_identifier", identifier),
          {:ok, wallet} <- BlockchainWallet.insert_cold(attrs) do
       respond_single(wallet, conn)
@@ -154,7 +154,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do
-    identifier = BlockchainHelper.identifier()
+    identifier = BlockchainHelper.rootchain_identifier()
 
     addresses
     |> Token.query_all_by_blockchain_addresses(identifier)
@@ -170,7 +170,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
 
   defp paginated_blockchain_tokens(query, attrs) do
-    BlockchainHelper.identifier()
+    BlockchainHelper.rootchain_identifier()
     |> Token.query_all_blockchain(query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end

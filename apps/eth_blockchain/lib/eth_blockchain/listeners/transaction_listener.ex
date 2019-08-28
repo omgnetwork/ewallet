@@ -18,7 +18,7 @@ defmodule EthBlockchain.TransactionListener do
   """
   use GenServer, restart: :temporary
 
-  alias EthBlockchain.{Block, TransactionReceipt}
+  alias EthBlockchain.{RootchainTransactionListener, ChildchainTransactionListener}
 
   def start_link(attrs) do
     GenServer.start_link(__MODULE__, attrs)
@@ -28,6 +28,7 @@ defmodule EthBlockchain.TransactionListener do
         %{
           id: hash,
           interval: interval,
+          is_childchain_transaction: is_childchain_transaction,
           blockchain_adapter_pid: blockchain_adapter_pid,
           node_adapter: node_adapter
         } = attrs
@@ -38,6 +39,7 @@ defmodule EthBlockchain.TransactionListener do
        interval: interval,
        tx_hash: hash,
        transaction: nil,
+       is_childchain_transaction: is_childchain_transaction,
        blockchain_adapter_pid: blockchain_adapter_pid,
        node_adapter: node_adapter,
        registry: attrs[:registry],
@@ -61,37 +63,32 @@ defmodule EthBlockchain.TransactionListener do
 
   defp run(
          %{
+           is_childchain_transaction: false,
            tx_hash: tx_hash,
            blockchain_adapter_pid: blockchain_adapter_pid,
            node_adapter: node_adapter
          } = state
        ) do
-    case TransactionReceipt.get(%{tx_hash: tx_hash},
-           eth_node_adapter: node_adapter,
-           eth_node_adapter_pid: blockchain_adapter_pid
-         ) do
-      {:ok, :success, receipt} ->
-        confirmations_count = Block.get_number() - receipt.block_number + 1
-        broadcast({:confirmations_count, receipt, confirmations_count}, state)
-        state
+    tx_hash
+    |> RootchainTransactionListener.broadcast_payload(node_adapter, blockchain_adapter_pid)
+    |> broadcast(state)
 
-      {:ok, :failed, receipt} ->
-        broadcast({:failed_transaction, receipt}, state)
-        state
+    state
+  end
 
-      {:ok, :not_found, nil} ->
-        # Do nothing for now. TODO: increase checking interval until maximum is reached?
-        broadcast({:not_found}, state)
-        state
+  defp run(
+         %{
+           is_childchain_transaction: true,
+           tx_hash: tx_hash,
+           blockchain_adapter_pid: blockchain_adapter_pid,
+           node_adapter: node_adapter
+         } = state
+       ) do
+    tx_hash
+    |> ChildchainTransactionListener.broadcast_payload(node_adapter, blockchain_adapter_pid)
+    |> broadcast(state)
 
-      {:error, :adapter_error, message} ->
-        broadcast({:adapter_error, message}, state)
-        state
-
-      {:error, error} ->
-        broadcast({:adapter_error, error}, state)
-        state
-    end
+    state
   end
 
   def broadcast(msg, %{subscribers: subscribers}) do

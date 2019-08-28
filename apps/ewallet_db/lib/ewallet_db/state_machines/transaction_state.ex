@@ -34,7 +34,7 @@ defmodule EWalletDB.TransactionState do
     @failed => {[:error_code, :error_description, :error_data], [:error_code]},
     @blockchain_submitted => {[:blockchain_tx_hash], [:blockchain_tx_hash]},
     @ledger_pending => {[], []},
-    @pending_confirmations => {[:confirmations_count], [:confirmations_count]},
+    @pending_confirmations => {[:confirmations_count, :blk_number], [:confirmations_count]},
     @blockchain_confirmed => {[:confirmations_count], [:confirmations_count]},
     @ledger_confirmed => {[:ledger_ledger_uuid], [:ledger_ledger_uuid]}
   }

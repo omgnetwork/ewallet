@@ -76,8 +76,10 @@ defmodule EthBlockchain.Childchain do
         },
         opts \\ []
       ) do
-    with :ok <- check_childchain(childchain_identifier) do
-      Adapter.childchain_call({:send, from, to, amount, currency}, opts)
+    with :ok <- check_childchain(childchain_identifier),
+         {:ok, %{"blknum" => blknum, "txindex" => txindex, "txhash" => txhash}} <-
+           Adapter.childchain_call({:send, from, to, amount, currency}, opts) do
+      {:ok, txhash, txindex, blknum}
     end
   end
 
@@ -92,6 +94,10 @@ defmodule EthBlockchain.Childchain do
       _cc ->
         :ok
     end
+  end
+
+  def get_transaction_receipt(%{tx_hash: tx_hash}, opts \\ []) do
+    Adapter.childchain_call({:get_transaction_receipt, tx_hash}, opts)
   end
 
   # def get_block do

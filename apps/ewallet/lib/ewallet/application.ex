@@ -34,7 +34,7 @@ defmodule EWallet.Application do
     })
 
     address_tracker_attrs = %{
-      blockchain_identifier: BlockchainHelper.identifier()
+      blockchain_identifier: BlockchainHelper.rootchain_identifier()
     }
 
     # List all child processes to be supervised

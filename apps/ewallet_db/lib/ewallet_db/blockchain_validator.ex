@@ -45,17 +45,14 @@ defmodule EWalletDB.BlockchainValidator do
 
   def validate_blockchain_identifier(changeset, field) do
     inserted_identifier = Changeset.get_field(changeset, field)
-    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-    blockchain_identifier = adapter.helper().identifier()
+    rootchain_identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
+    childchain_identifier = Application.get_env(:ewallet_db, :childchain_identifier)
 
-    case inserted_identifier do
-      nil ->
+    case inserted_identifier in [rootchain_identifier, childchain_identifier, nil] do
+      true ->
         changeset
 
-      ^blockchain_identifier ->
-        changeset
-
-      _ ->
+      false ->
         Changeset.add_error(
           changeset,
           field,

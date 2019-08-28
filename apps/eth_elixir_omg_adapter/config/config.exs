@@ -4,7 +4,7 @@ use Mix.Config
 
 config :eth_elixir_omg_adapter,
   contract_address:
-    {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0x1fb01c432755298fdd1a7c6aadfdf6124f2e915c"},
+    {:system, "ELIXIR_OMG_CONTRACT_ADDRESS", "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"},
   childchain_url: {:system, "ELIXIR_OMG_CHILDCHAIN_URL", "http://localhost:9656"},
   watcher_url: {:system, "ELIXIR_OMG_WATCHER_URL", "http://localhost:7434"}
 

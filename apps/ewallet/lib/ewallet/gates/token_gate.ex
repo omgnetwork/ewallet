@@ -42,7 +42,8 @@ defmodule EWallet.TokenGate do
       |> :math.log10()
       |> trunc()
 
-    from = BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.identifier()).address
+    from =
+      BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.rootchain_identifier()).address
 
     :deploy_erc20
     |> BlockchainHelper.call(%{
@@ -68,7 +69,7 @@ defmodule EWallet.TokenGate do
       |> Map.put("blockchain_address", contract_address)
       |> Map.put("contract_uuid", contract_uuid)
       |> Map.put("blockchain_status", Token.blockchain_status_pending())
-      |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
+      |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
 
     {:ok, attrs}
   end
@@ -191,7 +192,7 @@ defmodule EWallet.TokenGate do
              field: "totalSupply",
              contract_address: contract_address
            }),
-         identifier = BlockchainHelper.identifier(),
+         identifier = BlockchainHelper.rootchain_identifier(),
          {:ok, %{^contract_address => balance}} <-
            BlockchainHelper.call(:get_balances, %{
              address: BlockchainWallet.get_primary_hot_wallet(identifier).address,

@@ -224,6 +224,10 @@ defmodule EthBlockchain.Adapter do
     Childchain.deposit(attrs, opts)
   end
 
+  def call({:transfer_on_childchain, attrs}, opts) do
+    Childchain.send(attrs, opts)
+  end
+
   def call({:deploy_erc20, attrs}, opts) do
     Contract.deploy_erc20(attrs, opts)
   end
@@ -251,19 +255,14 @@ defmodule EthBlockchain.Adapter do
     end
   end
 
-  # TODO: change adapter / pid to opts
-  def subscribe(
-        :transaction,
-        tx_hash,
-        subscriber_pid,
-        opts \\ []
-      ) do
+  def subscribe(:transaction, tx_hash, is_childchain_transaction, subscriber_pid, opts \\ []) do
     :ok =
       BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
+        is_childchain_transaction: is_childchain_transaction,
         interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
-        blockchain_adapter_pid: opts[:cc_node_adapter_pid],
-        node_adapter: opts[:cc_node_adapter]
+        blockchain_adapter_pid: opts[:eth_node_adapter_pid],
+        node_adapter: opts[:eth_node_adapter]
       })
 
     BlockchainRegistry.subscribe(tx_hash, subscriber_pid)

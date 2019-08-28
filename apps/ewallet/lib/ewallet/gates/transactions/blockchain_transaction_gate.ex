@@ -40,6 +40,9 @@ defmodule EWallet.BlockchainTransactionGate do
   @external_transaction Transaction.external()
   @deposit_transaction Transaction.deposit()
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+  @childchain_identifier BlockchainHelper.childchain_identifier()
+
   # TODO: Check if blockchain is enabled
   # TODO: Check if blockchain is available
   # TODO: Add tests at the controller level
@@ -55,8 +58,7 @@ defmodule EWallet.BlockchainTransactionGate do
   blockchain addresses.
   """
   def create(actor, %{"from_address" => from} = attrs, {true, true}) do
-    identifier = BlockchainHelper.identifier()
-    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
          true <-
@@ -66,9 +68,7 @@ defmodule EWallet.BlockchainTransactionGate do
          %{} = attrs <- set_blockchain_addresses(attrs),
          %{} = attrs <- set_token(attrs),
          %{} = attrs <- check_amount(attrs),
-         true <-
-           enough_funds?(from, attrs["from_token"], attrs["from_amount"]) ||
-             {:error, :insufficient_blockchain_funds},
+         true <- enough_funds?(attrs) || {:error, :insufficient_blockchain_funds},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, transaction} <- submit_if_needed(transaction) do
@@ -210,7 +210,15 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  defp enough_funds?(address, token, amount) do
+  # Funds are already checked on the childchain when submitting the transaction
+  defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier}), do: true
+
+  defp enough_funds?(%{
+         "from_blockchain_address" => address,
+         "from_token" => token,
+         "from_amount" => amount,
+         "blockchain_identifier" => @rootchain_identifier
+       }) do
     # TODO: handle errors
     {:ok, balances} =
       BlockchainHelper.call(:get_balances, %{
@@ -223,8 +231,8 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp set_blockchain(attrs) do
     attrs
-    |> Map.put("blockchain_identifier", BlockchainHelper.identifier())
-    |> Map.put("type", attrs["type"] || @external_transaction)
+    |> Map.put_new("blockchain_identifier", @rootchain_identifier)
+    |> Map.put_new("type", @external_transaction)
   end
 
   defp set_payload(attrs) do
@@ -262,6 +270,20 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp submit_if_needed(transaction), do: {:ok, transaction}
 
+  defp submit(%{blockchain_identifier: @childchain_identifier} = transaction) do
+    attrs = %{
+      from: transaction.from_blockchain_address,
+      to: transaction.to_blockchain_address,
+      amount: transaction.from_amount,
+      currency: transaction.from_token.blockchain_address,
+      childchain_identifier: String.to_existing_atom(@childchain_identifier)
+    }
+
+    :transfer_on_childchain
+    |> BlockchainHelper.call(attrs)
+    |> process_childchain_transaction()
+  end
+
   defp submit(%{type: @external_transaction} = transaction) do
     attrs = %{
       from: transaction.from_blockchain_address,
@@ -284,5 +306,14 @@ defmodule EWallet.BlockchainTransactionGate do
     }
 
     BlockchainHelper.call(:deposit_to_childchain, attrs)
+  end
+
+  defp process_childchain_transaction({:ok, tx_hash, _blk_num, _tx_index}) do
+    # TODO: process blk_num and tx_index
+    {:ok, tx_hash}
+  end
+
+  defp process_childchain_transaction(error) do
+    error
   end
 end
