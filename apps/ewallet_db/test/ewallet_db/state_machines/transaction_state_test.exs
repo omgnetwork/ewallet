@@ -14,95 +14,327 @@
 
 defmodule EWalletDB.TransactionStateTest do
   use EWalletDB.SchemaCase, async: true
+  import EWalletDB.Factory
+  alias EWalletDB.TransactionState
+  alias ActivityLogger.System
 
-  describe "transition_to/4 for local-to-local transactions" do
-    test "update and return the transaction successfully"
-    test "transition from pending to confirmed successfully"
-    test "transition from pending to failed successfully"
-    test "returns error when transitioning from confirmed to other statuses"
-    test "returns error when transitioning from failed to other statuses"
+  def test_successful_state_transition(flow, from_state, to_state, attrs \\ %{}) do
+    transaction = insert(:transaction, status: from_state)
+    assert transaction.status == from_state
 
-    # test "confirms a transaction" do
-    #   {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-    #   assert inserted_transaction.status == TransactionState.pending()
-    #   local_ledger_uuid = UUID.generate()
-    #   transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid, %System{})
-    #   assert transaction.id == inserted_transaction.id
-    #   assert transaction.status == TransactionState.confirmed()
-    #   assert transaction.local_ledger_uuid == local_ledger_uuid
-    # end
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        flow,
+        to_state,
+        transaction,
+        Map.merge(
+          %{
+            originator: %System{}
+          },
+          attrs
+        )
+      )
 
-    # test "sets a transaction as failed" do
-    #   {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-    #   assert inserted_transaction.status == TransactionState.pending()
-    #   transaction = Transaction.fail(inserted_transaction, "error", "desc", %System{})
-    #   assert transaction.id == inserted_transaction.id
-    #   assert transaction.status == TransactionState.failed()
-    #   assert transaction.error_code == "error"
-    #   assert transaction.error_description == "desc"
-    #   assert transaction.error_data == nil
-    # end
-
-    # test "sets a transaction as failed with atom error" do
-    #   {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-    #   assert inserted_transaction.status == TransactionState.pending()
-    #   transaction = Transaction.fail(inserted_transaction, :error, "desc", %System{})
-    #   assert transaction.id == inserted_transaction.id
-    #   assert transaction.status == TransactionState.failed()
-    #   assert transaction.error_code == "error"
-    #   assert transaction.error_description == "desc"
-    #   assert transaction.error_data == nil
-    # end
-
-    # test "sets a transaction as failed with error_data" do
-    #   {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
-    #   assert inserted_transaction.status == TransactionState.pending()
-    #   transaction = Transaction.fail(inserted_transaction, "error", %{}, %System{})
-    #   assert transaction.id == inserted_transaction.id
-    #   assert transaction.status == TransactionState.failed()
-    #   assert transaction.error_code == "error"
-    #   assert transaction.error_description == nil
-    #   assert transaction.error_data == %{}
-    # end
+    assert transaction.status == to_state
   end
 
-  describe "transition_to/4 for blockchain-to-ewallet transactions" do
-    test "update and return the transaction successfully"
-    test "transition from pending to pending_confirmations successfully"
-    test "transition from pending to blockchain_confirmed successfully"
-    test "transition from pending_confirmations to blockchain_confirmed successfully"
-    test "transition from blockchain_confirmed to confirmed successfully"
-    test "returns error when transitioning from confirmed to other statuses"
+  def test_failed_state_transition(flow, from_state, to_state, attrs \\ %{}) do
+    transaction = insert(:transaction, status: from_state)
+    assert transaction.status == from_state
+
+    {:error, error} =
+      TransactionState.transition_to(
+        flow,
+        to_state,
+        transaction,
+        Map.merge(
+          %{
+            originator: %System{}
+          },
+          attrs
+        )
+      )
+
+    assert error == :invalid_state_transition
+  end
+
+  describe "transition_to/4 for from_ledger_to_ledger transactions" do
+    test "transition from pending to confirmed successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_ledger,
+        TransactionState.pending(),
+        TransactionState.confirmed(),
+        %{}
+      )
+    end
+
+    test "transition from pending to failed successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_ledger,
+        TransactionState.pending(),
+        TransactionState.failed(),
+        %{error_code: "code"}
+      )
+    end
+
+    test "returns error when transitioning from confirmed to other statuses" do
+      test_failed_state_transition(
+        :from_ledger_to_ledger,
+        TransactionState.confirmed(),
+        TransactionState.failed(),
+        %{error_code: "code"}
+      )
+    end
+
+    test "returns error when transitioning from failed to other statuses" do
+      test_failed_state_transition(
+        :from_ledger_to_ledger,
+        TransactionState.failed(),
+        TransactionState.confirmed(),
+        %{error_code: "code"}
+      )
+    end
+  end
+
+  describe "transition_to/4 for from_blockchain_to_ewallet transactions" do
+    test "transition from pending to pending_confirmations successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.pending(),
+        TransactionState.pending_confirmations(),
+        %{
+          confirmations_count: 1
+        }
+      )
+    end
+
+    test "transition from pending to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.pending(),
+        TransactionState.blockchain_confirmed(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from pending_confirmations to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.pending_confirmations(),
+        TransactionState.blockchain_confirmed(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from blockchain_confirmed to confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.blockchain_confirmed(),
+        TransactionState.confirmed()
+      )
+    end
+
+    test "returns error when transitioning from confirmed to other statuses" do
+      test_failed_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.confirmed(),
+        TransactionState.blockchain_confirmed()
+      )
+    end
   end
 
   describe "transition_to/4 for ewallet-to-blockchain transactions" do
-    test "update and return the transaction successfully"
-    test "transition from pending to blockchain_submitted successfully"
-    test "transition from blockchain_submitted to pending_confirmations successfully"
-    test "transition from pending_confirmations to blockchain_confirmed successfully"
-    test "transition from blockchain_confirmed to confirmed successfully"
-    test "returns error when transitioning from confirmed to other statuses"
+    test "transition from pending to blockchain_submitted successfully" do
+      test_successful_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.pending(),
+        TransactionState.blockchain_submitted(),
+        %{
+          blockchain_tx_hash: "hash"
+        }
+      )
+    end
+
+    test "transition from blockchain_submitted to pending_confirmations successfully" do
+      test_successful_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.blockchain_submitted(),
+        TransactionState.pending_confirmations(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from pending_confirmations to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.pending_confirmations(),
+        TransactionState.blockchain_confirmed(),
+        %{
+          confirmations_count: 11
+        }
+      )
+    end
+
+    test "transition from blockchain_confirmed to confirmed successfully" do
+      test_successful_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.blockchain_confirmed(),
+        TransactionState.confirmed()
+      )
+    end
+
+    test "returns error when transitioning from confirmed to other statuses" do
+      test_failed_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.confirmed(),
+        TransactionState.failed()
+      )
+    end
   end
 
-  describe "transition_to/4 for blockchain-to-local transactions" do
-    test "update and return the transaction successfully"
-    test "transition from pending to pending_confirmations successfully"
-    test "transition from pending to blockchain_confirmed successfully"
-    test "transition from pending_confirmations to blockchain_confirmed successfully"
-    test "transition from blockchain_confirmed to confirmed successfully"
-    test "transition from blockchain_confirmed to failed successfully"
-    test "returns error when transitioning from confirmed to other statuses"
-    test "returns error when transitioning from failed to other statuses"
+  describe "transition_to/4 for from_blockchain_to_ledger transactions" do
+    test "transition from pending to pending_confirmations successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.pending(),
+        TransactionState.pending_confirmations(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from pending to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.pending(),
+        TransactionState.blockchain_confirmed(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from pending_confirmations to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.pending(),
+        TransactionState.pending_confirmations(),
+        %{
+          confirmations_count: 10
+        }
+      )
+    end
+
+    test "transition from blockchain_confirmed to confirmed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.blockchain_confirmed(),
+        TransactionState.confirmed()
+      )
+    end
+
+    test "transition from blockchain_confirmed to failed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.blockchain_confirmed(),
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
+      )
+    end
+
+    test "returns error when transitioning from confirmed to other statuses" do
+      test_failed_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.confirmed(),
+        TransactionState.pending()
+      )
+    end
+
+    test "returns error when transitioning from failed to other statuses" do
+      test_failed_state_transition(
+        :from_blockchain_to_ledger,
+        TransactionState.failed(),
+        TransactionState.confirmed()
+      )
+    end
   end
 
   describe "transition_to/4 for local-to-blockchain transactions" do
-    test "update and return the transaction successfully"
-    test "transition from pending to ledger_pending successfully"
-    test "transition from pending to failed successfully"
-    test "transition from ledger_pending to blockchain_submitted successfully"
-    test "transition from blockchain_submitted to pending_confirmations successfully"
-    test "transition from pending_confirmations to blockchain_confirmed successfully"
-    test "transition from blockchain_confirmed to confirmed successfully"
-    test "returns error when transitioning from confirmed to other statuses"
+    test "transition from pending to ledger_pending successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.pending(),
+        TransactionState.ledger_pending()
+      )
+    end
+
+    test "transition from pending to failed successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.pending(),
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
+      )
+    end
+
+    test "transition from ledger_pending to blockchain_submitted successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.ledger_pending(),
+        TransactionState.blockchain_submitted(),
+        %{
+          blockchain_tx_hash: "hash"
+        }
+      )
+    end
+
+    test "transition from blockchain_submitted to pending_confirmations successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.blockchain_submitted(),
+        TransactionState.pending_confirmations(),
+        %{
+          confirmations_count: 1
+        }
+      )
+    end
+
+    test "transition from pending_confirmations to blockchain_confirmed successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.pending_confirmations(),
+        TransactionState.blockchain_confirmed(),
+        %{
+          confirmations_count: 1
+        }
+      )
+    end
+
+    test "transition from blockchain_confirmed to confirmed successfully" do
+      test_successful_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.blockchain_confirmed(),
+        TransactionState.confirmed()
+      )
+    end
+
+    test "returns error when transitioning from confirmed to other statuses" do
+      test_failed_state_transition(
+        :from_ledger_to_blockchain,
+        TransactionState.confirmed(),
+        TransactionState.blockchain_confirmed()
+      )
+    end
   end
 end

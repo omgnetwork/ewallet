@@ -23,7 +23,7 @@ defmodule EWallet.BlockchainStateGate do
     tx_blk_number = Transaction.get_last_blk_number(blockchain_identifier)
     state_blk_number = get_state_blk_number(blockchain_identifier)
 
-    get_most_highest_blk_number(blockchain_identifier, state_blk_number, tx_blk_number)
+    get_highest_blk_number(blockchain_identifier, state_blk_number, tx_blk_number)
   end
 
   defp get_state_blk_number(blockchain_identifier) do
@@ -37,9 +37,9 @@ defmodule EWallet.BlockchainStateGate do
     end
   end
 
-  defp get_most_highest_blk_number(_blockchain, state_blk_number, nil), do: state_blk_number
+  defp get_highest_blk_number(_blockchain, state_blk_number, nil), do: state_blk_number
 
-  defp get_most_highest_blk_number(blockchain, state_blk_number, tx_blk_number)
+  defp get_highest_blk_number(blockchain, state_blk_number, tx_blk_number)
        when is_integer(state_blk_number) and is_integer(tx_blk_number) do
     case state_blk_number > tx_blk_number do
       true ->

@@ -267,7 +267,7 @@ defmodule EthBlockchain.Adapter do
     BlockchainRegistry.unsubscribe(tx_hash, subscriber_pid)
   end
 
-  def lookup_listener(id) do
-    BlockchainRegistry.lookup(id)
+  def lookup_listener(tx_hash) do
+    BlockchainRegistry.lookup(tx_hash)
   end
 end

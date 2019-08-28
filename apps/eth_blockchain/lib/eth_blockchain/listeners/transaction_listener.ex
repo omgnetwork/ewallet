@@ -17,6 +17,7 @@ defmodule EthBlockchain.TransactionListener do
   Listener started dynamically to poll a specific transaction from Ethereum.
   """
   use GenServer, restart: :temporary
+  require Logger
 
   alias EthBlockchain.{Block, TransactionReceipt}
 
@@ -68,9 +69,20 @@ defmodule EthBlockchain.TransactionListener do
        ) do
     case TransactionReceipt.get(%{tx_hash: tx_hash}, node_adapter, blockchain_adapter_pid) do
       {:ok, :success, receipt} ->
-        confirmations_count = Block.get_number() - receipt.block_number + 1
-        broadcast({:confirmations_count, receipt, confirmations_count}, state)
-        state
+        case Block.get_number() do
+          {:ok, block_number} ->
+            confirmations_count = block_number - receipt.block_number + 1
+            broadcast({:confirmations_count, receipt, confirmations_count}, state)
+            state
+
+          error ->
+            Logger.warn(
+              "Skip processing the transaction receipt due to an error while" <>
+                " retrieving the latest block number. Got: #{inspect(error)}."
+            )
+
+            state
+        end
 
       {:ok, :failed, receipt} ->
         broadcast({:failed_transaction, receipt}, state)

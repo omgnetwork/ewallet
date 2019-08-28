@@ -17,8 +17,10 @@ defmodule EthBlockchain.DumbAdapter do
   use GenServer
 
   @invalid_erc20_contract "0x9080682a37961d3c814464e7ada1c7e1b4638a27"
+  @high_transaction_count_address "0x811ae0a85d3f86824da3abe49a2407ea55a8b053"
 
   def invalid_erc20_contract_address, do: @invalid_erc20_contract
+  def high_transaction_count_address, do: @high_transaction_count_address
 
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
@@ -38,12 +40,17 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, balances}, reg}
   end
 
-  def handle_call({:get_transaction_count, _address}, _from, reg) do
+  def handle_call({:get_transaction_count, @high_transaction_count_address, _block}, _from, reg) do
+    {:reply, {:ok, "0x64"}, reg}
+  end
+
+  def handle_call({:get_transaction_count, _address, _block}, _from, reg) do
     {:reply, {:ok, "0x0"}, reg}
   end
 
   def handle_call({:get_block_number}, _from, reg) do
-    {:reply, 14, reg}
+    # 0xe == 14
+    {:reply, {:ok, "0xe"}, reg}
   end
 
   def handle_call({:get_block, 0}, _from, reg) do
@@ -149,6 +156,24 @@ defmodule EthBlockchain.DumbAdapter do
      {:ok,
       "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"},
      reg}
+  end
+
+  def handle_call({:get_eth_syncing}, _from, reg) do
+    {:reply, {:ok, false}, reg}
+  end
+
+  def handle_call({:get_client_version}, _from, reg) do
+    {:reply, {:ok, "DumbAdapter/v4.2.0-c999068/linux/go1.9.2"}, reg}
+  end
+
+  def handle_call({:get_network_id}, _from, reg) do
+    # Yes, network id is a string.
+    {:reply, {:ok, "99"}, reg}
+  end
+
+  def handle_call({:get_peer_count}, _from, reg) do
+    # 0x2a == 42
+    {:reply, {:ok, "0x2a"}, reg}
   end
 
   def handle_call({:get_errors}, _from, reg) do

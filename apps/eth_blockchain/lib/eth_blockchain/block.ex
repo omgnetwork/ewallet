@@ -18,7 +18,10 @@ defmodule EthBlockchain.Block do
   alias EthBlockchain.{Adapter, Helper}
 
   def get_number(adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_block_number}, adapter, pid)
+    case Adapter.call({:get_block_number}, adapter, pid) do
+      {:ok, number} -> {:ok, int_from_hex(number)}
+      error -> error
+    end
   end
 
   def get(number, adapter \\ nil, pid \\ nil) do
@@ -79,14 +82,18 @@ defmodule EthBlockchain.Block do
   end
 
   defp relevant_eth_transaction?(transaction, addresses) do
-    # TODO: Switch to maps?
-    (Enum.member?(addresses, transaction["from"]) ||
-       Enum.member?(addresses, transaction["to"])) &&
-      (transaction["input"] == nil || transaction["input"] == "0x")
+    transaction_from_or_to?(transaction, addresses) && transaction_empty_input?(transaction)
   end
 
+  defp transaction_from_or_to?(transaction, addresses) do
+    Enum.member?(addresses, transaction["from"]) || Enum.member?(addresses, transaction["to"])
+  end
+
+  defp transaction_empty_input?(%{"input" => nil}), do: true
+  defp transaction_empty_input?(%{"input" => "0x"}), do: true
+  defp transaction_empty_input?(_), do: false
+
   defp tracked_contract_transaction?(transaction, contract_addresses) do
-    # TODO: Switch to maps?
     Enum.member?(contract_addresses, transaction["to"])
   end
 
@@ -116,6 +123,7 @@ defmodule EthBlockchain.Block do
   end
 
   defp format_eth_transaction(transaction) do
+    {:ok, current_block_number} = get_number()
     block_number = int_from_hex(transaction["blockNumber"])
 
     %{
@@ -130,7 +138,7 @@ defmodule EthBlockchain.Block do
       hash: transaction["hash"],
       index: int_from_hex(transaction["transactionIndex"]),
       nonce: int_from_hex(transaction["nonce"]),
-      confirmations_count: get_number() - block_number + 1,
+      confirmations_count: current_block_number - block_number + 1,
       data: get_data(transaction["input"])
     }
   end

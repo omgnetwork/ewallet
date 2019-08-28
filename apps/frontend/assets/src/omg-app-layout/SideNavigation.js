@@ -146,7 +146,7 @@ class SideNavigation extends PureComponent {
         text: 'Users'
       },
       {
-        icon: 'Setting',
+        icon: 'History',
         to: '/activity',
         text: 'Activity Logs'
       }

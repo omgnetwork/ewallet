@@ -25,20 +25,18 @@ defmodule Keychain.Key do
   @timestamps_opts [type: :naive_datetime_usec]
 
   schema "keychain" do
-    field(:encrypted_private_key, Keychain.Encrypted.Binary)
+    field(:private_key, Keychain.Encrypted.Binary)
     field(:public_key, :string)
     field(:uuid, UUID)
 
     timestamps()
   end
 
-  @doc """
-  Validates the keychain.
-  """
+  # Validates the keychain record.
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:wallet_id, :encrypted_private_key, :public_key, :uuid])
-    |> validate_required([:wallet_id, :encrypted_private_key, :public_key])
+    |> cast(attrs, [:wallet_id, :private_key, :public_key, :uuid])
+    |> validate_required([:wallet_id, :private_key, :public_key])
     |> unique_constraint(:wallet_id)
     |> unique_constraint(:uuid)
   end
@@ -48,14 +46,14 @@ defmodule Keychain.Key do
   """
   def private_key_for_wallet(wallet_id) do
     Key
-    |> select([k], k.encrypted_private_key)
+    |> select([k], k.private_key)
     |> where([k], k.wallet_id == ^wallet_id)
     |> Repo.one()
   end
 
   def private_key_for_uuid(uuid) do
     Key
-    |> select([k], k.encrypted_private_key)
+    |> select([k], k.private_key)
     |> where([k], k.uuid == ^uuid)
     |> Repo.one()
   end

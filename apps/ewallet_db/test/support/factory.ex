@@ -29,6 +29,7 @@ defmodule EWalletDB.Factory do
     BlockchainDepositWallet,
     BlockchainHDWallet,
     BlockchainWallet,
+    BlockchainState,
     PreAuthToken,
     Category,
     Export,
@@ -136,6 +137,13 @@ defmodule EWalletDB.Factory do
     %BlockchainHDWallet{
       blockchain_identifier: "dumb",
       keychain_uuid: UUID.generate()
+    }
+  end
+
+  def blockchain_state_factory do
+    %BlockchainState{
+      identifier: "ethereum",
+      blk_number: 1
     }
   end
 
@@ -362,6 +370,9 @@ defmodule EWalletDB.Factory do
       to_account_uuid: to_wallet.account_uuid,
       exchange_account: nil,
       type: "internal",
+      error_code: nil,
+      error_description: nil,
+      error_data: nil,
       originator: %System{}
     }
   end
@@ -378,8 +389,13 @@ defmodule EWalletDB.Factory do
       to_token: token,
       from_blockchain_address: insert(:blockchain_wallet).address,
       to_blockchain_address: insert(:blockchain_wallet).address,
+      from_wallet: nil,
+      to_wallet: nil,
+      local_ledger_uuid: nil,
       blockchain_tx_hash: sequence("0xabcdefabcdef"),
+      blockchain_identifier: "ethereum",
       to_amount: 100,
+      blk_number: nil,
       type: "external",
       originator: %System{}
     }

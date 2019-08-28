@@ -15,7 +15,16 @@
 defmodule EthGethAdapter.Worker do
   @moduledoc false
 
-  alias EthGethAdapter.{Balance, Block, Transaction, Token, ErrorHandler, TransactionReceipt}
+  alias EthGethAdapter.{
+    Balance,
+    Block,
+    Client,
+    GethManager,
+    Transaction,
+    Token,
+    ErrorHandler,
+    TransactionReceipt
+  }
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -75,8 +84,8 @@ defmodule EthGethAdapter.Worker do
     {:reply, Transaction.send_raw(transaction_data), reg}
   end
 
-  def handle_call({:get_transaction_count, address}, _from, reg) do
-    {:reply, Transaction.get_transaction_count(address), reg}
+  def handle_call({:get_transaction_count, address, block}, _from, reg) do
+    {:reply, Transaction.get_transaction_count(address, block), reg}
   end
 
   def handle_call({:get_transaction_receipt, transaction_hash}, _from, reg) do
@@ -95,7 +104,27 @@ defmodule EthGethAdapter.Worker do
     {:reply, Token.get_field(contract_address, encoded_abi_data), reg}
   end
 
+  def handle_call({:get_eth_syncing}, _from, reg) do
+    {:reply, Client.get_eth_syncing(), reg}
+  end
+
+  def handle_call({:get_client_version}, _from, reg) do
+    {:reply, Client.get_client_version(), reg}
+  end
+
+  def handle_call({:get_network_id}, _from, reg) do
+    {:reply, Client.get_network_id(), reg}
+  end
+
+  def handle_call({:get_peer_count}, _from, reg) do
+    {:reply, Client.get_peer_count(), reg}
+  end
+
   def handle_call({:get_errors}, _from, reg) do
     {:reply, ErrorHandler.errors(), reg}
+  end
+
+  def handle_call({:boot_adapter, datadir}, _from, reg) do
+    {:reply, GethManager.start(datadir), reg}
   end
 end
