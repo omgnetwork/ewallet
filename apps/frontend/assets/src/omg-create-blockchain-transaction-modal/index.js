@@ -14,7 +14,7 @@ import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
-import { selectBlockchainWalletBalance } from '../omg-blockchain-wallet/selector'
+import { selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
 import TokenSelect from '../omg-token-select'
 import { selectNetwork } from '../omg-web3/selector'
 import { weiToGwei, gweiToWei } from '../omg-web3/web3Utils'
@@ -44,6 +44,7 @@ const enhance = compose(
   withRouter,
   connect(
     state => ({
+      selectBlockchainWalletById: selectBlockchainWalletById(state),
       selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
       network: selectNetwork(state)
     }),
@@ -55,6 +56,7 @@ class CreateBlockchainTransaction extends Component {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
     selectBlockchainWalletBalance: PropTypes.func,
+    selectBlockchainWalletById: PropTypes.func,
     sendTransaction: PropTypes.func,
     estimateGasFromTransaction: PropTypes.func,
     network: PropTypes.number
@@ -252,6 +254,18 @@ class CreateBlockchainTransaction extends Component {
         })
       : []
   }
+  renderFromSelectWalletValue = value => {
+    const wallet = this.props.selectBlockchainWalletById(value)
+    const type = _.get(wallet, 'type')
+    const name = _.get(wallet, 'name')
+    return (
+      <BlockchainWalletSelect
+        icon='Wallet'
+        topRow={value}
+        bottomRow={wallet ? `${name} | ${type}` : null}
+      />
+    )
+  }
   renderFromSection () {
     return (
       <FromToContainer>
@@ -261,7 +275,7 @@ class CreateBlockchainTransaction extends Component {
             label: 'Wallet Address',
             disabled: !!this.props.fromAddress,
             value: this.state.fromAddress,
-            prefix: <Icon name='Wallet' />
+            valueRenderer: this.renderFromSelectWalletValue
           }}
         />
         {this.state.step === 1 && (

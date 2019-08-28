@@ -176,6 +176,13 @@ class CreateTransaction extends Component {
             label: 'Wallet Address',
             disabled: !!this.props.fromAddress,
             value: this.state.fromAddress,
+            valueRenderer: value => (
+              <BlockchainWalletSelect
+                icon='Wallet'
+                topRow={value}
+                bottomRow='Hot wallet'
+              />
+            ),
             prefix: <Icon name='Wallet' />
           }}
         />
