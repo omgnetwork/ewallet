@@ -646,7 +646,7 @@ export const FILTER_MAP = [
     key: 'blockchain_transactions-status',
     icon: 'Option-Horizontal',
     page: 'blockchain_transactions',
-    height: 166,
+    height: 196,
     component: filters.Checkbox,
     default: true,
     options: [
@@ -657,6 +657,10 @@ export const FILTER_MAP = [
       {
         label: 'Pending',
         value: 'pending'
+      },
+      {
+        label: 'Submitted',
+        value: 'submitted'
       },
       {
         label: 'Failed',
