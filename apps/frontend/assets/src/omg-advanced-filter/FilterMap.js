@@ -663,7 +663,7 @@ export const FILTER_MAP = [
         value: 'failed'
       }
     ],
-    matchAny: [
+    matchAll: [
       {
         field: 'status',
         comparator: 'contains'
