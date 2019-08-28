@@ -36,7 +36,7 @@ const BlockchainSettings = (props) => {
         <Grid>
           <ConfigRow
             name={'Enable Ethereum Blockchain Connection'}
-            description={'Blockchain is cool'} // TODO: configurations.enable_blockchain.description}
+            description={'This feature is not implemented yet'}
             value={props.enableBlockchain}
             onChange={props.onChangeEnableBlockchain}
             type='boolean'
