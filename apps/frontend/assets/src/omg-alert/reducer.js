@@ -263,6 +263,12 @@ export const alertsReducer = createReducer([], {
       createAlertState(<div>Exported transactions successfully</div>, 'success')
     ]
   },
+  'ADMIN/INVITE/SUCCESS': state => {
+    return [...state, createAlertState('Invited admin successfully.', 'success')]
+  },
+  'INVITE_ADMIN/REQUEST/SUCCESS': state => {
+    return [...state, createAlertState('Invited admin successfully.', 'success')]
+  },
   'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
   'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
   'PASSWORD/UPDATE/FAILED': errorStateHandler,
@@ -286,5 +292,7 @@ export const alertsReducer = createReducer([], {
   'TOKEN_EXPIRE': errorStateHandler,
   'USER/UPDATE/FAILED': errorStateHandler,
   'ADMIN/UPDATE/FAILED': errorStateHandler,
-  'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler
+  'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler,
+  'ADMIN/INVITE/FAILED': errorStateHandler,
+  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler
 })

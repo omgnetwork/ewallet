@@ -4,7 +4,7 @@
 
 [![](https://img.shields.io/circleci/project/github/omisego/ewallet/master.svg)](https://circleci.com/gh/omisego/ewallet/tree/master)
 [![](https://img.shields.io/gitter/room/omisego/ewallet.svg)](https://gitter.im/omisego/ewallet)
-[![](https://badge.waffle.io/omisego/ewallet.svg?columns=Cycle%20To%20Do,In%20Progress,Review,Done)](https://waffle.io/omisego/ewallet)
+[![](https://img.shields.io/github/issues/omisego/ewallet.svg)](https://img.shields.io/github/issues/omisego/ewallet.svg)
 
 **OmiseGO eWallet Server** is a server application in OmiseGO eWallet Suite that allows a provider (businesses or individuals) to setup and run their own digital wallet services through a local ledger, and to a decentralized blockchain exchange in the future to form a federated network on the OMG network allowing exchange of any currency into any other in a transparent way.
 
