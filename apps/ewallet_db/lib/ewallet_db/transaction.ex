@@ -328,9 +328,9 @@ defmodule EWalletDB.Transaction do
     |> validate_blockchain_identifier(:blockchain_identifier)
   end
 
-  def get_last_blk_number(blockchain) do
+  def get_last_blk_number(blockchain_identifier) do
     Transaction
-    |> where([t], t.blockchain_identifier == ^blockchain and not is_nil(t.blk_number))
+    |> where([t], t.blockchain_identifier == ^blockchain_identifier and not is_nil(t.blk_number))
     |> order_by([t], desc: t.blk_number)
     |> select([t], t.blk_number)
     |> limit(1)

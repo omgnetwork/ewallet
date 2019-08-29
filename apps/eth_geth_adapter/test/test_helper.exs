@@ -12,22 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule KeychainTest do
-  use Keychain.DBCase
-
-  describe "private_key_for_wallet/1" do
-    test "returns the private key for the given wallet id"
-  end
-
-  describe "private_key_for_uuid/1" do
-    test "returns the private key for the given wallet uuid"
-  end
-
-  describe "public_key_for_uuid/1" do
-    test "returns the public key for the given wallet uuid"
-  end
-
-  describe "insert/1" do
-    test "returns the keychain inserted with the given attributes"
-  end
-end
+ExUnit.start()

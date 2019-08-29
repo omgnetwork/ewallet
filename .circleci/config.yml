@@ -32,9 +32,11 @@ commands:
           name: Notify Slack on failure
           command: |
             # Only notify for main branches. "eth_blockchain" condition may be removed if no longer used on the repo.
-            if [ "$CIRCLE_BRANCH" != "master" ] && [ ! "$CIRCLE_BRANCH" =~ ^v[[:digit:]]+.* ] && [ "$CIRCLE_BRANCH" != "eth_blockchain" ]; then
-              exit 0
-            fi
+            case "$CIRCLE_BRANCH" in
+              master | v[[:digit:]]+.* | eth_blockchain )
+                exit 0
+                ;;
+            esac
 
             if [ -z "$SLACK_WEBHOOK" ]; then
               printf "\\033[0;33mSkipping Slack notification (SLACK_WEBHOOK missing)\\033[0;0m\\n"

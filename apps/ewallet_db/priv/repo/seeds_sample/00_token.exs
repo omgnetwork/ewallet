@@ -29,10 +29,10 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
       originator: %Seeder{}
     },
     %{
-      symbol: "KNC",
-      name: "Kyber",
+      symbol: "ABC",
+      name: "ABC Token",
       subunit_to_unit: 1_000_000_000_000_000_000,
-      genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 KNC
+      genesis_amount: 1_000_000_000_000_000_000_000_000,  # 1,000,000 ABC
       account_name: "master_account",
       originator: %Seeder{}
     },

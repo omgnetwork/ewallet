@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Block do
-  @moduledoc false
-  import EthGethAdapter.ErrorHandler
-  import Utils.Helpers.Encoding
-  alias Ethereumex.HttpClient, as: Client
+defmodule EthBlockchain.StatusTest do
+  use EthBlockchain.EthBlockchainCase, async: true
+  alias EthBlockchain.Status
 
-  def get_number do
-    handle_if_error(Client.eth_block_number())
+  describe "get_status/0" do
+    test "returns the overall Ethereum connectivity status" do
+      assert Status.get_status() ==
+               {:ok,
+                %{
+                  eth_syncing: false,
+                  client_version: "DumbAdapter/v4.2.0-c999068/linux/go1.9.2",
+                  network_id: "99",
+                  last_seen_eth_block_number: 14,
+                  peer_count: 42
+                }}
+    end
   end
-
-  def get(number) do
-    number
-    |> to_hex()
-    |> Client.eth_get_block_by_number(true)
-    |> handle_if_error()
-  end
-
-  # Normalize the adapter error (if any) before returning the response.
-  defp handle_if_error({:ok, _} = resp), do: resp
-  defp handle_if_error({:error, error}), do: handle_error(error)
 end

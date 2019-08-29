@@ -29,15 +29,14 @@ defmodule Keychain.Signature do
 
   @base_recovery_id 27
   @base_recovery_id_eip_155 35
-  @priv_derivation_path "m/44'/60'/0'/0'"
 
   @doc """
   Returns a ECDSA signature (v,r,s) for a given hashed value.
   """
   @spec sign_transaction_hash(Keccak.keccak_hash(), String.t(), integer() | nil) ::
           {hash_v, hash_r, hash_s} | {:error, :invalid_address}
-  def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
-    wallet_address
+  def sign_transaction_hash(hash, wallet_id, chain_id \\ nil) do
+    wallet_id
     |> Key.private_key_for_wallet()
     |> sign_if_found(hash, chain_id)
   end
@@ -48,18 +47,26 @@ defmodule Keychain.Signature do
   @spec sign_with_child_key(
           Keccak.keccak_hash(),
           Ecto.UUID.t(),
+          String.t(),
           Integer.t(),
           Integer.t(),
           integer() | nil
         ) ::
           {hash_v, hash_r, hash_s} | {:error, :invalid_uuid}
-  def sign_with_child_key(hash, wallet_uuid, account_ref, deposit_ref, chain_id \\ nil) do
+  def sign_with_child_key(
+        hash,
+        wallet_uuid,
+        derivation_path,
+        account_ref,
+        deposit_ref,
+        chain_id \\ nil
+      ) do
     case Key.private_key_for_uuid(wallet_uuid) do
       nil ->
         {:error, :invalid_uuid}
 
       xprv ->
-        child_xprv = CKD.derive(xprv, @priv_derivation_path <> "/#{account_ref}/#{deposit_ref}")
+        child_xprv = CKD.derive(xprv, derivation_path <> "/#{account_ref}/#{deposit_ref}")
 
         decoded = Encoding.decode_extended_key(child_xprv)
         <<_prefix::binary-1, pkey::binary-32>> = decoded[:key]

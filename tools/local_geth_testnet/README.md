@@ -65,7 +65,7 @@ Set this address as the default address for geth:
 
 Start the miner for a few seconds to get some ether:
 
-> `miner.start()`
+> `miner.start(1)`
 
 Then stop it after a few seconds:
 

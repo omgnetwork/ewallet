@@ -21,7 +21,6 @@ defmodule EWallet.AddressTrackerTest do
   alias EWalletDB.{
     BlockchainDepositWallet,
     BlockchainWallet,
-    BlockchainHDWallet,
     Transaction,
     TransactionState,
     Token,
@@ -204,10 +203,11 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "01",
             default_token.uuid,
-            1_000
+            1_000,
+            15
           )
 
-          # build_eth_transaction(0, "02", hot_wallet_address, other_address, 1_000),
+          # build_eth_transaction(0, "02", hot_wallet_address, other_address, 1_000)
           transactions
           |> Enum.at(1)
           |> assert_transaction(
@@ -218,7 +218,8 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "02",
             default_token.uuid,
-            1_000
+            1_000,
+            15
           )
 
           # build_eth_transaction(0, "03", hot_wallet_address, other_address, 1_000)
@@ -232,10 +233,11 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "03",
             default_token.uuid,
-            1_000
+            1_000,
+            15
           )
 
-          # build_eth_transaction(0, "04", other_address, deposit_wallet_address, 1_000),
+          # build_eth_transaction(0, "04", other_address, deposit_wallet_address, 1_000)
           transactions
           |> Enum.at(3)
           |> assert_transaction(
@@ -246,14 +248,15 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "04",
             default_token.uuid,
-            1_000
+            1_000,
+            15
           )
 
           # build_eth_transaction(0, "04", other_address, Crypto.fake_eth_address(), 1_000)
           # This one is ignored since not relevant
           assert Transaction.get_by(blockchain_tx_hash: "05") == nil
 
-          # build_eth_transaction(1, "11", other_address, deposit_wallet_address, 1_337_000),
+          # build_eth_transaction(1, "11", other_address, deposit_wallet_address, 1_337_000)
           transactions
           |> Enum.at(4)
           |> assert_transaction(
@@ -264,10 +267,12 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "11",
             default_token.uuid,
-            1_337_000
+            1_337_000,
+            14
           )
 
-          # build_erc20_transaction(1, "12", erc20_address, hot_wallet_address, other_address, 1_000),
+          # build_erc20_transaction(1, "12", erc20_address, hot_wallet_address,
+          #   other_address, 1_000)
           transactions
           |> Enum.at(5)
           |> assert_transaction(
@@ -278,10 +283,12 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "12",
             erc20_token.uuid,
-            1_000
+            1_000,
+            14
           )
 
-          # build_erc20_transaction(1, "13", erc20_address, other_address, deposit_wallet_address, 1_000),
+          # build_erc20_transaction(1, "13", erc20_address, other_address,
+          #  deposit_wallet_address, 1_000)
           transactions
           |> Enum.at(6)
           |> assert_transaction(
@@ -292,14 +299,16 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "13",
             erc20_token.uuid,
-            1_000
+            1_000,
+            14
           )
 
           # build_erc20_transaction(1, "13", erc20_address, other_address, other_address, 1_000)
           # This one is ignored since not relevant
           assert Transaction.get_by(blockchain_tx_hash: "14") == nil
 
-          # build_erc20_transaction(1, "13", erc20_address, other_address, deposit_wallet_address, 1_000),
+          # build_erc20_transaction(1, "13", erc20_address, other_address,
+          #   deposit_wallet_address, 1_000),
 
           # build_eth_transaction(2, "21", other_address, deposit_wallet_address, 1_000),
           transactions
@@ -312,10 +321,12 @@ defmodule EWallet.AddressTrackerTest do
             2,
             "21",
             default_token.uuid,
-            1_000
+            1_000,
+            13
           )
 
-          # build_erc20_transaction(2, "22", erc20_address, other_address, deposit_wallet_address, 25_000)
+          # build_erc20_transaction(2, "22", erc20_address, other_address,
+          #   deposit_wallet_address, 25_000)
           transactions
           |> Enum.at(8)
           |> assert_transaction(
@@ -326,7 +337,8 @@ defmodule EWallet.AddressTrackerTest do
             2,
             "22",
             erc20_token.uuid,
-            25_000
+            25_000,
+            13
           )
 
           # Check the balance of the deposit wallet to ensure the
@@ -347,7 +359,7 @@ defmodule EWallet.AddressTrackerTest do
   end
 
   # It's a private helper function and we're doing a lot of assertions
-  # credo:disable-for-next-line Credo.Check.Refactor.Nesting
+  # credo:disable-for-next-line Credo.Check.Refactor.FunctionArity
   defp assert_transaction(
          transaction,
          from_bc,
@@ -357,11 +369,12 @@ defmodule EWallet.AddressTrackerTest do
          blk_number,
          tx_hash,
          token_uuid,
-         amount
+         amount,
+         confirmations_count
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
     assert transaction.status == TransactionState.confirmed()
-    assert transaction.confirmations_count == 13
+    assert transaction.confirmations_count == confirmations_count
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc
     assert transaction.from == from

@@ -17,6 +17,7 @@ defmodule EthBlockchain.TransactionListener do
   Listener started dynamically to poll a specific transaction from Ethereum.
   """
   use GenServer, restart: :temporary
+  require Logger
 
   alias EthBlockchain.{RootchainTransactionListener, ChildchainTransactionListener}
 

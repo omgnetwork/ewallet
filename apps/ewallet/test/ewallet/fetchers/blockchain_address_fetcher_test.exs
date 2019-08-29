@@ -14,14 +14,25 @@
 
 defmodule EWallet.BlockchainAddressFetcherTest do
   use EWallet.DBCase, async: true
-  import EWalletDB.Factory
-  alias EWallet.BlockchainAddressFetcher
+  alias EWallet.{BlockchainAddressFetcher, BlockchainHelper}
+  alias EWalletDB.BlockchainWallet
 
   describe "get_all_trackable_wallet_addresses/1" do
-    test "returns the list of all trackable wallet addresses"
+    test "returns the list of all trackable wallet addresses" do
+      identifier = BlockchainHelper.rootchain_identifier()
+      primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      result = BlockchainAddressFetcher.get_all_trackable_wallet_addresses(identifier)
+
+      assert result == %{primary_hot_wallet.address => nil}
+    end
   end
 
   describe "get_all_trackable_contract_address/1" do
-    test "returns the list of all trackable contract addresses"
+    test "returns the list of all trackable contract addresses" do
+      identifier = BlockchainHelper.rootchain_identifier()
+      result = BlockchainAddressFetcher.get_all_trackable_contract_address(identifier)
+
+      assert result == []
+    end
   end
 end

@@ -23,7 +23,7 @@ defmodule Keychain.Wallet do
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
-  @pub_root_derivation_path "M/44'/60'/0'/0'"
+  @root_derivation_path "M/44'/60'/0'/0'"
 
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
@@ -32,9 +32,7 @@ defmodule Keychain.Wallet do
   """
   @spec generate :: resp({:ok, address()})
   def generate do
-    {public_key, private_key} =
-      :crypto.generate_key(:ecdh, :secp256k1, :crypto.strong_rand_bytes(32))
-
+    {public_key, private_key} = generate_keypair()
     <<4::size(8), key::binary-size(64)>> = public_key
     <<_::binary-size(12), wallet_address::binary-size(20)>> = Keccak.kec(key)
 
@@ -48,32 +46,37 @@ defmodule Keychain.Wallet do
       Key.insert(%{
         wallet_id: wallet_address,
         public_key: public_key_encoded,
-        encrypted_private_key: private_key_encoded
+        private_key: private_key_encoded
       })
 
     {:ok, {wallet_address, public_key_encoded}}
   end
 
+  @spec generate_keypair() :: {public_key :: <<_::65>>, private_key :: <<_::32>>}
+  def generate_keypair do
+    :crypto.generate_key(:ecdh, :secp256k1, :crypto.strong_rand_bytes(32))
+  end
+
   @spec generate_hd :: {:ok, <<_::288>>}
   def generate_hd do
     %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
-    public_key = CKD.derive(root_key, @pub_root_derivation_path)
-    wallet_address = Ethereum.Address.from_xpub(public_key)
+    public_key = CKD.derive(root_key, @root_derivation_path)
+    wallet_address = Address.from_xpub(public_key)
     uuid = UUID.generate()
 
     {:ok, _} =
       Key.insert(%{
         wallet_id: wallet_address,
         public_key: public_key,
-        encrypted_private_key: root_key,
+        private_key: root_key,
         uuid: uuid
       })
 
     {:ok, uuid}
   end
 
-  @spec generate_child_account(any, any, any) :: <<_::16, _::_*8>> | {:error, :key_not_found}
-  def generate_child_account(uuid, account_ref, deposit_ref) do
+  @spec derive_child_address(any, any, any) :: <<_::16, _::_*8>> | {:error, :key_not_found}
+  def derive_child_address(uuid, account_ref, deposit_ref) do
     case Key.public_key_for_uuid(uuid) do
       nil ->
         {:error, :invalid_uuid}

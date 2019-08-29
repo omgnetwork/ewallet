@@ -74,18 +74,6 @@ defmodule EWallet.LocalTransactionGate do
      transaction.error_description || transaction.error_data}
   end
 
-  defp set_blockchain_wallets(transaction, _, _, false), do: transaction
-
-  defp set_blockchain_wallets(transaction, assoc, field, true) do
-    case Map.get(transaction, field) do
-      nil ->
-        Map.put(transaction, assoc, %{address: transaction.blockchain_identifier, metadata: %{}})
-
-      _ ->
-        transaction
-    end
-  end
-
   def get_or_insert(
         from,
         to,

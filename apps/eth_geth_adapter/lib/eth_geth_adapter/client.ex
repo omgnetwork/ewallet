@@ -12,21 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthGethAdapter.Block do
+defmodule EthGethAdapter.Client do
   @moduledoc false
   import EthGethAdapter.ErrorHandler
-  import Utils.Helpers.Encoding
   alias Ethereumex.HttpClient, as: Client
 
-  def get_number do
-    handle_if_error(Client.eth_block_number())
+  def get_eth_syncing do
+    handle_if_error(Client.eth_syncing())
   end
 
-  def get(number) do
-    number
-    |> to_hex()
-    |> Client.eth_get_block_by_number(true)
-    |> handle_if_error()
+  def get_client_version do
+    handle_if_error(Client.web3_client_version())
+  end
+
+  def get_network_id do
+    handle_if_error(Client.net_version())
+  end
+
+  def get_peer_count do
+    handle_if_error(Client.net_peer_count())
   end
 
   # Normalize the adapter error (if any) before returning the response.
