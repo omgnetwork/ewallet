@@ -49,12 +49,13 @@ defmodule EWallet.TransactionTrackerTest do
                   registry: nil
                 }}
     end
+
+    test "init with childchain transaction"
   end
 
   describe "handle_cast/2 with :confirmations_count" do
     test "handles confirmations count when lower than minimum" do
       transaction = insert(:blockchain_transaction)
-      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
 
       assert {:ok, pid} =
                TransactionTracker.start_link(%{
@@ -62,7 +63,7 @@ defmodule EWallet.TransactionTrackerTest do
                  transaction_type: :from_blockchain_to_ewallet
                })
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 2})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 2, 1})
 
       %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet} =
         :sys.get_state(pid)
@@ -74,7 +75,6 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles confirmations count when higher than minimum" do
       transaction = insert(:blockchain_transaction)
-      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
 
       assert {:ok, pid} =
                TransactionTracker.start_link(%{
@@ -82,7 +82,7 @@ defmodule EWallet.TransactionTrackerTest do
                  transaction_type: :from_blockchain_to_ewallet
                })
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12, 1})
 
       ref = Process.monitor(pid)
 
@@ -97,7 +97,6 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "handles invalid tx_hash" do
       transaction = insert(:blockchain_transaction)
-      transaction_receipt = %{transaction_hash: "fake"}
 
       assert {:ok, pid} =
                TransactionTracker.start_link(%{
@@ -106,7 +105,7 @@ defmodule EWallet.TransactionTrackerTest do
                })
 
       assert capture_log(fn ->
-               :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
+               :ok = GenServer.cast(pid, {:confirmations_count, "fake", 12, 1})
              end) =~ "The receipt has a mismatched hash"
 
       %{transaction: transaction, transaction_type: :from_blockchain_to_ewallet} =

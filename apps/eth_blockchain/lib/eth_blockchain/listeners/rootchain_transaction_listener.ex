@@ -24,11 +24,12 @@ defmodule EthBlockchain.RootchainTransactionListener do
            eth_node_adapter_pid: node_adapter_pid
          ) do
       {:ok, :success, %{block_number: block_number, transaction_hash: transaction_hash}} ->
-        confirmations_count = Block.get_number() - block_number + 1
+        {:ok, eth_height} = Block.get_number()
+        confirmations_count = eth_height - block_number + 1
         {:confirmations_count, transaction_hash, confirmations_count, block_number}
 
-      {:ok, :failed, %{transaction_hash: transaction_hash}} ->
-        {:failed_transaction, transaction_hash}
+      {:ok, :failed, _} ->
+        {:failed_transaction}
 
       {:ok, :not_found, nil} ->
         # Do nothing for now. TODO: increase checking interval until maximum is reached?

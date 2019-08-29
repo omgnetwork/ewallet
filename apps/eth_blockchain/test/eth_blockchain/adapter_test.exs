@@ -80,20 +80,20 @@ defmodule EthBlockchain.AdapterTest do
 
   describe "subscribe/5" do
     test "returns :ok" do
-      assert Adapter.subscribe(:transaction, "0x123456789", self()) == :ok
+      assert Adapter.subscribe(:transaction, "0x123456789", false, self()) == :ok
     end
   end
 
   describe "unsubscribe/3" do
     test "unsubscribes the given subscriber from the registry for the given transaction hash" do
-      :ok = Adapter.subscribe(:transaction, "0x123456789", self())
+      :ok = Adapter.subscribe(:transaction, "0x123456789", false, self())
       assert Adapter.unsubscribe(:transaction, "0x123456789", self()) == :ok
     end
   end
 
   describe "lookup_listener/1" do
     test "returns the list of subscribers for the given transaction hash" do
-      :ok = Adapter.subscribe(:transaction, "0x123456789", self())
+      :ok = Adapter.subscribe(:transaction, "0x123456789", false, self())
       {res, listener} = Adapter.lookup_listener("0x123456789")
 
       assert res == :ok

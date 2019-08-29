@@ -19,7 +19,13 @@ defmodule EthBlockchain.TransactionListenerTest do
 
   def get_attrs(map \\ %{}) do
     Map.merge(
-      %{id: "fake_id", interval: 100, blockchain_adapter_pid: nil, node_adapter: nil},
+      %{
+        id: "fake_id",
+        interval: 100,
+        is_childchain_transaction: false,
+        blockchain_adapter_pid: nil,
+        node_adapter: nil
+      },
       map
     )
   end
@@ -38,6 +44,7 @@ defmodule EthBlockchain.TransactionListenerTest do
               %{
                 timer: _,
                 interval: 100,
+                is_childchain_transaction: false,
                 tx_hash: "fake_id",
                 transaction: nil,
                 blockchain_adapter_pid: nil,
@@ -143,8 +150,7 @@ defmodule EthBlockchain.TransactionListenerTest do
       receive do
         state ->
           assert state[:confirmations_count] == 13
-          assert state[:receipt][:transaction_hash] == "valid"
-          assert state[:receipt][:status] == 1
+          assert state[:tx_hash] == "valid"
       end
 
       assert GenServer.stop(subscriber_pid) == :ok
@@ -173,8 +179,6 @@ defmodule EthBlockchain.TransactionListenerTest do
       receive do
         state ->
           assert state[:confirmations_count] == nil
-          assert state[:receipt][:transaction_hash] == "failed"
-          assert state[:receipt][:status] == 0
 
           assert GenServer.stop(subscriber_pid) == :ok
           assert GenServer.stop(pid) == :ok

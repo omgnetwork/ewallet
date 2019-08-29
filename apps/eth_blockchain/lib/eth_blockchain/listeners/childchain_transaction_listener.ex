@@ -25,7 +25,8 @@ defmodule EthBlockchain.ChildchainTransactionListener do
            cc_node_adapter_pid: node_adapter_pid
          ) do
       {:ok, :success, %{eth_block: %{number: block_number}, transaction_hash: transaction_hash}} ->
-        confirmations_count = Block.get_number() - block_number + 1
+        {:ok, eth_height} = Block.get_number()
+        confirmations_count = eth_height - block_number + 1
         {:confirmations_count, transaction_hash, confirmations_count, block_number}
 
       {:ok, :not_found} ->

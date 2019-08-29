@@ -212,6 +212,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   # Funds are already checked on the childchain when submitting the transaction
+  # TODO: query balance on plasma and check
   defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier}), do: true
 
   defp enough_funds?(%{

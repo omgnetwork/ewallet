@@ -72,6 +72,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         status: transaction.status,
         error_code: nil,
         error_description: nil,
+        type: transaction.type,
         created_at: DateFormatter.to_iso8601(transaction.inserted_at),
         updated_at: DateFormatter.to_iso8601(transaction.updated_at)
       }

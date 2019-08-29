@@ -226,15 +226,15 @@ defmodule EthBlockchain.TransactionTest do
                <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>,
                "d",
                "",
-               _,
-               _,
-               _
+               v,
+               r,
+               s
              ] = serialized
 
       # vrs change for every call, so assert only their size
-      assert serialized |> Enum.at(6) |> byte_size() == 3
-      assert (serialized |> Enum.at(7) |> byte_size()) in 31..32
-      assert (serialized |> Enum.at(8) |> byte_size()) in 31..32
+      assert v != nil
+      assert byte_size(r) in 31..32
+      assert byte_size(s) in 31..32
     end
 
     test "returns the RLP-encoded transaction excluding vrs", state do

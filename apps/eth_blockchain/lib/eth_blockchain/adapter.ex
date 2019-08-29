@@ -208,6 +208,10 @@ defmodule EthBlockchain.Adapter do
     Block.get_transactions(attrs, opts)
   end
 
+  def call({:get_block, attrs}, opts) do
+    Block.get(attrs, opts)
+  end
+
   def call({:send, attrs}, opts) do
     Transaction.send(attrs, opts)
   end

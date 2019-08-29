@@ -46,6 +46,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -89,6 +90,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "from_token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "to_token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
@@ -112,6 +114,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "from_amount" => 1,
         "to_amount" => 2,
         "originator" => %System{}
@@ -140,11 +143,12 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "amount" => 125,
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_funds} ==
+      assert {:error, :insufficient_blockchain_funds} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -159,6 +163,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "idempotency_token" => UUID.generate(),
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
+        "blockchain_identifier" => identifier,
         "token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
