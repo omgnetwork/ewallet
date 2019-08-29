@@ -1,20 +1,22 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
+
 import { Button, Icon } from '../omg-uikit'
 import { openModal } from '../omg-modal/action'
-function CreateTransactionButton (props) {
+
+function CreateInternalToExternalButton (props) {
   return (
     <Button
       key='create'
       size='small'
       styleType='primary'
       onClick={() =>
-        props.openModal({ id: 'createTransaction', fromAddress: props.fromAddress })
+        props.openModal({ id: 'internalToExternalModal', wallet: props.wallet })
       }
     >
       <Icon name='Transaction' />
-      <span>Internal Transfer</span>
+      <span>External Transfer</span>
     </Button>
   )
 }
@@ -22,9 +24,9 @@ function CreateTransactionButton (props) {
 export default connect(
   null,
   { openModal }
-)(CreateTransactionButton)
+)(CreateInternalToExternalButton)
 
-CreateTransactionButton.propTypes = {
+CreateInternalToExternalButton.propTypes = {
   openModal: PropTypes.func.isRequired,
-  fromAddress: PropTypes.string
+  wallet: PropTypes.object
 }

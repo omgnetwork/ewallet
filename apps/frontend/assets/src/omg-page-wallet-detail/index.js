@@ -9,6 +9,7 @@ import moment from 'moment'
 import { generateDepositAddress } from '../omg-wallet/action'
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
+import CreateInternalToExternalButton from '../omg-transaction/CreateInternalToExternalButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import { Tag } from '../omg-uikit'
@@ -75,6 +76,10 @@ class WalletDetaillPage extends Component {
         divider={this.props.divider}
         title={wallet.name}
         buttons={[
+          <CreateInternalToExternalButton
+            wallet={wallet}
+            key='internalToExternal'
+          />,
           <CreateTransactionButton
             fromAddress={wallet.address}
             key='transfer'
