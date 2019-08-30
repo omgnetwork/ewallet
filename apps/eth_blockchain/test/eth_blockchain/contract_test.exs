@@ -42,8 +42,7 @@ defmodule EthBlockchain.ContractTest do
             initial_amount: 100,
             locked: true
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -71,8 +70,7 @@ defmodule EthBlockchain.ContractTest do
             initial_amount: 100,
             locked: false
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)

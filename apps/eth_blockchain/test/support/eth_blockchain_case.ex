@@ -52,7 +52,14 @@ defmodule EthBlockchain.EthBlockchainCase do
     end
 
     %{
-      pid: pid,
+      adapter_opts: [
+        eth_node_adapter: :dumb,
+        eth_node_adapter_pid: pid
+      ],
+      invalid_adapter_opts: [
+        eth_node_adapter: :blah,
+        eth_node_adapter_pid: pid
+      ],
       supervisor: supervisor,
       addr_0: "0x0000000000000000000000000000000000000000",
       addr_1: "0x0000000000000000000000000000000000000001",

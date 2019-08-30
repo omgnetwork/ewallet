@@ -46,8 +46,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx, contract_address} =
         Transaction.create_contract(
           %{from: state[:valid_sender], contract_data: contract_data},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -76,8 +75,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -100,8 +98,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100, gas_price: 50_000},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -129,8 +126,7 @@ defmodule EthBlockchain.TransactionTest do
             amount: 100,
             contract_address: state[:addr_2]
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -160,8 +156,7 @@ defmodule EthBlockchain.TransactionTest do
             contract_address: state[:addr_2],
             gas_price: 50_000
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -185,8 +180,7 @@ defmodule EthBlockchain.TransactionTest do
       assert {:error, :no_handler} ==
                Transaction.send(
                  %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-                 eth_node_adapter: :blah,
-                 eth_node_adapter_pid: state[:pid]
+                 state[:invalid_adapter_opts]
                )
     end
   end
@@ -196,8 +190,7 @@ defmodule EthBlockchain.TransactionTest do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -212,8 +205,7 @@ defmodule EthBlockchain.TransactionTest do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -241,8 +233,7 @@ defmodule EthBlockchain.TransactionTest do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)

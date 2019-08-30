@@ -22,16 +22,14 @@ defmodule EthBlockchain.AdapterTest do
         Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       dumb_resp2 =
         Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          eth_node_adapter: {:dumb, "balance"},
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert {:ok, ["0x7B", "0x7B", "0x7B"]} == dumb_resp1
@@ -43,24 +41,21 @@ defmodule EthBlockchain.AdapterTest do
         Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       {:ok, _} =
         Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          eth_node_adapter: {:dumb, "balance"},
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       {:ok, _} =
         Adapter.eth_call(
           {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]], nil,
            "latest"},
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       childrens = DynamicSupervisor.which_children(state[:supervisor])
@@ -73,7 +68,7 @@ defmodule EthBlockchain.AdapterTest do
                  {:get_balances, state[:addr_0], [state[:addr_1], state[:addr_2], state[:addr_3]],
                   nil, "latest"},
                  eth_node_adapter: :foobar,
-                 eth_node_adapter_pid: state[:pid]
+                 eth_node_adapter_pid: state[:adapter_opts][:eth_node_adapter_pid]
                )
     end
   end

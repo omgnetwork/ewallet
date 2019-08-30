@@ -19,69 +19,45 @@ defmodule EthBlockchain.ClientTest do
   describe "get_eth_syncing/0" do
     test "returns the syncing status", state do
       # The result is mocked in EthBlockchain.DumbAdapter.handle_call({:get_eth_syncing},...)
-      assert Client.get_eth_syncing(
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:ok, false}
+      assert Client.get_eth_syncing(state[:adapter_opts]) == {:ok, false}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert Client.get_eth_syncing(
-               eth_node_adapter: :blah,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:error, :no_handler}
+      assert Client.get_eth_syncing(state[:invalid_adapter_opts]) == {:error, :no_handler}
     end
   end
 
   describe "get_client_version/0" do
     test "returns the client version", state do
       # The result is mocked in EthBlockchain.DumbAdapter.handle_call({:get_client_version},...)
-      assert Client.get_client_version(
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) ==
+      assert Client.get_client_version(state[:adapter_opts]) ==
                {:ok, "DumbAdapter/v4.2.0-c999068/linux/go1.9.2"}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert Client.get_client_version(
-               eth_node_adapter: :blah,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:error, :no_handler}
+      assert Client.get_client_version(state[:invalid_adapter_opts]) == {:error, :no_handler}
     end
   end
 
   describe "get_network_id/0" do
     test "returns the network id", state do
       # The result is mocked in EthBlockchain.DumbAdapter.handle_call({:get_network_id},...)
-      assert Client.get_network_id(
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:ok, "99"}
+      assert Client.get_network_id(state[:adapter_opts]) == {:ok, "99"}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert Client.get_network_id(
-               eth_node_adapter: :blah,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:error, :no_handler}
+      assert Client.get_network_id(state[:invalid_adapter_opts]) == {:error, :no_handler}
     end
   end
 
   describe "get_peer_count/0" do
     test "returns the number of peers", state do
       # The result is mocked in EthBlockchain.DumbAdapter.handle_call({:get_peer_count},...)
-      assert Client.get_peer_count(
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:ok, 42}
+      assert Client.get_peer_count(state[:adapter_opts]) == {:ok, 42}
     end
 
     test "returns an error if no such adapter is registered", state do
-      assert Client.get_peer_count(
-               eth_node_adapter: :blah,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:error, :no_handler}
+      assert Client.get_peer_count(state[:invalid_adapter_opts]) == {:error, :no_handler}
     end
   end
 end

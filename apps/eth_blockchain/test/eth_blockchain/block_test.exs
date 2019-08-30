@@ -19,31 +19,25 @@ defmodule EthBlockchain.BlockTest do
 
   describe "get/1" do
     test "get the block with the given block number", state do
-      assert Block.get(0,
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:ok, %{"transactions" => []}}
+      assert Block.get(0, state[:adapter_opts]) == {:ok, %{"transactions" => []}}
 
-      assert Block.get(1,
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
+      assert Block.get(
+               1,
+               state[:adapter_opts]
              ) == {:ok, nil}
     end
 
     test "returns an error if no such adapter is registered", state do
       assert Block.get_number(
                eth_node_adapter: :nonexistent_adapter,
-               eth_node_adapter_pid: state[:pid]
+               eth_node_adapter_pid: state[:adapter_opts][:eth_node_adapter_pid]
              ) == {:error, :no_handler}
     end
   end
 
   describe "get_number/2" do
     test "returns the latest block number", state do
-      assert Block.get_number(
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:ok, 14}
+      assert Block.get_number(state[:adapter_opts]) == {:ok, 14}
     end
   end
 
@@ -55,10 +49,7 @@ defmodule EthBlockchain.BlockTest do
         contract_addresses: []
       }
 
-      assert Block.get_transactions(attrs,
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == []
+      assert Block.get_transactions(attrs, state[:adapter_opts]) == []
     end
 
     test "returns :block_not_found error if the block number is invalid", state do
@@ -68,10 +59,7 @@ defmodule EthBlockchain.BlockTest do
         contract_addresses: []
       }
 
-      assert Block.get_transactions(attrs,
-               eth_node_adapter: :dumb,
-               eth_node_adapter_pid: state[:pid]
-             ) == {:error, :block_not_found}
+      assert Block.get_transactions(attrs, state[:adapter_opts]) == {:error, :block_not_found}
     end
   end
 end

@@ -15,7 +15,7 @@
 defmodule EthElixirOmgAdapter.HttpClientTest do
   use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
 
-  alias EthElixirOmgAdapter.{HttpClient, ResponseBody}
+  alias EthElixirOmgAdapter.HttpClient
 
   describe "post_request/2" do
     test "success" do

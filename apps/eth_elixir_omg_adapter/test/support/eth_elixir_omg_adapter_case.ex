@@ -33,18 +33,4 @@ defmodule EthElixirOmgAdapter.EthElixirOmgAdapterCase do
 
     tags
   end
-
-  setup_all tags do
-    start_mock_server()
-    tags
-  end
-
-  defp start_mock_server() do
-    children = [
-      {Plug.Cowboy, scheme: :http, plug: EthElixirOmgAdapter.MockServer, options: [port: 8081]}
-    ]
-
-    opts = [strategy: :one_for_one, name: EthElixirOmgAdapter.Supervisor]
-    {:ok, _pid} = Supervisor.start_link(children, opts)
-  end
 end

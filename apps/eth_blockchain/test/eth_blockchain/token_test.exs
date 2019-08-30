@@ -26,8 +26,7 @@ defmodule EthBlockchain.TokenTest do
             field: "name",
             contract_address: Crypto.fake_eth_address()
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:ok, "OMGToken"}
@@ -40,8 +39,7 @@ defmodule EthBlockchain.TokenTest do
             field: "invalid field",
             contract_address: Crypto.fake_eth_address()
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:error, :invalid_field}
@@ -54,8 +52,7 @@ defmodule EthBlockchain.TokenTest do
             field: "name",
             contract_address: DumbAdapter.invalid_erc20_contract_address()
           },
-          eth_node_adapter: :dumb,
-          eth_node_adapter_pid: state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:error, :field_not_found}
@@ -68,8 +65,7 @@ defmodule EthBlockchain.TokenTest do
                    field: "name",
                    contract_address: Crypto.fake_eth_address()
                  },
-                 eth_node_adapter: :blah,
-                 eth_node_adapter_pid: state[:pid]
+                 state[:invalid_adapter_opts]
                )
     end
   end
