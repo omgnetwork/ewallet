@@ -117,7 +117,7 @@ class WalletDetaillPage extends Component {
             </Link>
           </DetailGroup>
         )}
-        {!wallet.identifier.includes('burn') && (
+        {(!wallet.identifier.includes('burn') && !wallet.identifier.includes('genesis')) && (
           <DetailGroup>
             <b>Blockchain Address:</b>{' '}
             {wallet.blockchain_deposit_address && (
