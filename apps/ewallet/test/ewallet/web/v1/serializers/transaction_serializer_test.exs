@@ -34,6 +34,8 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         idempotency_token: transaction.idempotency_token,
         blockchain_tx_hash: nil,
         confirmations_count: nil,
+        from_blockchain_address: nil,
+        to_blockchain_address: nil,
         from: %{
           object: "transaction_source",
           address: transaction.from,
