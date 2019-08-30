@@ -35,6 +35,9 @@ defmodule EthElixirOmgAdapter.HttpClient do
   defp decode_body(body, code) do
     with {:ok, decoded_body} <- Jason.decode(body) do
       case {code, decoded_body} do
+        {200, %{"success" => true, "data" => data}} ->
+          {:ok, data}
+
         {200,
          %{
            "success" => false,
@@ -42,14 +45,11 @@ defmodule EthElixirOmgAdapter.HttpClient do
          }} ->
           {:error, :elixir_omg_bad_request, error_code: code}
 
-        {200, %{"success" => true, "data" => data}} ->
-          {:ok, data}
-
         _ ->
-          {:error, :elixir_omg_bad_request, error_code: inspect(decoded_body)}
+          {:error, :elixir_omg_bad_request, error_code: "invalid response"}
       end
     else
-      {:error, error} -> {:error, :elixir_omg_bad_request, error_code: inspect(error)}
+      {:error, error} -> {:error, :elixir_omg_bad_request, error_code: "decoding error"}
     end
   end
 end

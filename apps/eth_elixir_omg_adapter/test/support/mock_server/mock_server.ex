@@ -66,8 +66,23 @@ defmodule EthElixirOmgAdapter.MockServer do
     end
   end
 
-  defp respond(conn, body) do
-    conn
-    |> Plug.Conn.send_resp(200, Poison.encode!(body))
+  post("/post_request_test") do
+    case conn.params do
+      %{"expect" => "success", "data" => data} ->
+        respond(conn, ResponseBody.post_request_success(data))
+
+      %{"expect" => "handled_failure", "code" => code} ->
+        respond(conn, ResponseBody.post_request_handled_failure(code))
+
+      %{"expect" => "unhandled_failure"} ->
+        respond(conn, ResponseBody.post_request_unhandled_failure(), 500)
+
+      %{"expect" => "decoding_failure"} ->
+        Plug.Conn.send_resp(conn, 200, ResponseBody.post_request_decoding_failure())
+    end
+  end
+
+  defp respond(conn, body, code \\ 200) do
+    Plug.Conn.send_resp(conn, code, Poison.encode!(body))
   end
 end

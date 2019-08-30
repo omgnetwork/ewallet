@@ -36,7 +36,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
           "metadata" => nil,
           "outputs" => [
             %{
-              "amount" => 100,
+              "amount" => amount,
               "currency" => currency,
               "owner" => receiver
             },
@@ -211,6 +211,18 @@ defmodule EthElixirOmgAdapter.ResponseBody do
   def transaction_submit_typed_failure do
     failure("submit:utxo_not_found")
   end
+
+  def post_request_success(data), do: %{"success" => true, "data" => data}
+
+  def post_request_handled_failure(code) do
+    %{
+      "success" => false,
+      "data" => %{"object" => "error", "code" => code}
+    }
+  end
+
+  def post_request_unhandled_failure, do: %{"something" => "unexpected"}
+  def post_request_decoding_failure, do: "invalid"
 
   defp success(data) do
     %{
