@@ -24,6 +24,7 @@ TransactionResponseSchema:
             subunit_to_unit: 100
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
+        from_blockchain_address: '0x7318ac3ed7a85eb67295aecf29c676bf4e996d08'
         to:
           object: transaction_source
           address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
@@ -36,6 +37,7 @@ TransactionResponseSchema:
             subunit_to_unit: 100
             created_at: '2018-01-01T00:00:00Z'
             updated_at: '2018-01-01T10:00:00Z'
+        to_blockchain_address: '0x6f68cdf221abc49f24d1f39c1618c751eb6c9ef6'
         metadata: {}
         encrypted_metadata: {}
         exchange:
@@ -78,6 +80,7 @@ TransactionsResponseSchema:
                 subunit_to_unit: 100
                 created_at: '2018-01-01T00:00:00Z'
                 updated_at: '2018-01-01T10:00:00Z'
+            from_blockchain_address: '0x7318ac3ed7a85eb67295aecf29c676bf4e996d08'
             to:
               object: transaction_source
               address: 47218ab4-d94f-44e9-b7f2-36061f76ce58
@@ -90,6 +93,7 @@ TransactionsResponseSchema:
                 subunit_to_unit: 100
                 created_at: '2018-01-01T00:00:00Z'
                 updated_at: '2018-01-01T10:00:00Z'
+            to_blockchain_address: '0x6f68cdf221abc49f24d1f39c1618c751eb6c9ef6'
             exchange:
               object: exchange
               rate: 1
