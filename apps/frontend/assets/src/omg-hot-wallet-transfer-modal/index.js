@@ -255,19 +255,20 @@ class CreateTransaction extends Component {
                     : null,
                   options:
                     blockchainWallets
-                      ? blockchainWallets.filter(i => i.type === 'cold').map(d => {
-                        return {
-                          key: d.address,
-                          value: (
-                            <BlockchainWalletSelect
-                              icon='Wallet'
-                              topRow={d.address}
-                              bottomRow={`${d.name} | ${d.type}`}
-                            />
-                          ),
-                          ...d
-                        }
-                      })
+                      ? blockchainWallets.filter(i => i.type === 'cold')
+                        .map(d => {
+                          return {
+                            key: d.address,
+                            value: (
+                              <BlockchainWalletSelect
+                                icon='Wallet'
+                                topRow={d.address}
+                                bottomRow={`${d.name} | ${d.type}`}
+                              />
+                            ),
+                            ...d
+                          }
+                        })
                       : []
                 }}
               />

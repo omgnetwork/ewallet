@@ -1,7 +1,7 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
-import { Button, Icon } from '../omg-uikit'
+import { Button } from '../omg-uikit'
 import { openModal } from '../omg-modal/action'
 
 function CreateBlockchainTransactionButton (props) {
@@ -15,8 +15,7 @@ function CreateBlockchainTransactionButton (props) {
       }
       disabled={!window.web3 || !window.ethereum}
     >
-      <Icon name='Transaction' />
-      <span>Transfer</span>
+      <span>Topup</span>
     </Button>
   )
 }

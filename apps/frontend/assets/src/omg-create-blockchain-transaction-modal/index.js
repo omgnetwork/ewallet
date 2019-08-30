@@ -12,7 +12,7 @@ import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
 import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatAmount } from '../utils/formatter'
-import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
+import { AllBlockchainWalletsFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
 import { selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
 import TokenSelect from '../omg-token-select'
@@ -121,7 +121,7 @@ class CreateBlockchainTransaction extends Component {
   onSelectToAddressSelect = item => {
     if (item) {
       this.setState({
-        toAddress: item.blockchain_deposit_address,
+        toAddress: item.key,
         toAddressSelect: true
       })
     } else {
@@ -225,12 +225,12 @@ class CreateBlockchainTransaction extends Component {
   }
   renderToSelectWalletValue = data => {
     return value => {
-      const wallet = _.find(data, i => i.blockchain_deposit_address === value)
+      const wallet = _.find(data, i => i.address === value)
       return wallet ? (
         <BlockchainWalletSelect
           icon='Wallet'
-          topRow={wallet.blockchain_deposit_address}
-          bottomRow={`${wallet.account.name} | ${wallet.name} | ${wallet.address}`}
+          topRow={wallet.address}
+          bottomRow={`${wallet.name} | ${wallet.type}`}
         />
       ) : value
     }
@@ -238,15 +238,14 @@ class CreateBlockchainTransaction extends Component {
   renderToSelectWalletOption = data => {
     return data
       ? data
-        .filter(d => d.blockchain_deposit_address)
         .map(d => {
           return {
             key: d.address,
             value: (
               <BlockchainWalletSelect
                 icon='Wallet'
-                topRow={d.blockchain_deposit_address}
-                bottomRow={`${d.account.name} | ${d.name} | ${d.address}`}
+                topRow={d.address}
+                bottomRow={`${d.name} | ${d.type}`}
               />
             ),
             ...d
@@ -331,8 +330,9 @@ class CreateBlockchainTransaction extends Component {
     return (
       <FromToContainer>
         <h5>To</h5>
-        <AllWalletsFetcher
-          render={({ data }) => {
+        <AllBlockchainWalletsFetcher
+          render={({ blockchainWallets }) => {
+            const hotWallets = blockchainWallets.filter(i => i.type === 'hot')
             return (
               <StyledSelectInput
                 selectProps={{
@@ -341,8 +341,8 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectToAddressSelect,
                   disabled: this.state.step !== 1,
                   value: this.state.toAddress,
-                  valueRenderer: this.renderToSelectWalletValue(data),
-                  options: this.renderToSelectWalletOption(data)
+                  valueRenderer: this.renderToSelectWalletValue(hotWallets),
+                  options: this.renderToSelectWalletOption(hotWallets)
                 }}
               />
             )
