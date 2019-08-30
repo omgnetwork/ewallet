@@ -31,7 +31,8 @@ defmodule EthElixirOmgAdapter.MixProject do
       {:deferred_config, "~> 0.1.0"},
       {:ex_rlp, "~> 0.5.2"},
       {:jason, "~> 1.1"},
-      {:httpoison, "~> 1.4.0"}
+      {:httpoison, "~> 1.4.0"},
+      {:plug_cowboy, "~> 1.0", only: [:dev]}
     ]
   end
 

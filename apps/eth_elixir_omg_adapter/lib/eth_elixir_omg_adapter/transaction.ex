@@ -20,6 +20,7 @@ defmodule EthElixirOmgAdapter.Transaction do
   import Utils.Helpers.Encoding
 
   alias EthElixirOmgAdapter.HttpClient
+  alias Keychain.Signature
 
   @eth "0x0000000000000000000000000000000000000000"
   @max_inputs 4
@@ -91,10 +92,13 @@ defmodule EthElixirOmgAdapter.Transaction do
   end
 
   defp sign(sign_hash, from, inputs) do
-    {:ok, {v, r, s}} = Keychain.Signature.sign_transaction_hash(from_hex(sign_hash), from)
-    sig = to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
-    List.duplicate(sig, length(inputs))
+    with {:ok, {v, r, s}} <- Signature.sign_transaction_hash(from_hex(sign_hash), from) do
+      sig = to_hex(<<r::integer-size(256), s::integer-size(256), v::integer-size(8)>>)
+      List.duplicate(sig, length(inputs))
+    end
   end
+
+  defp submit_typed({:error, _} = error, _), do: error
 
   defp submit_typed(signatures, typed_data) do
     typed_data
