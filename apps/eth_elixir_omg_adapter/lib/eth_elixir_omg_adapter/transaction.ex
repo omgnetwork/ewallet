@@ -41,9 +41,12 @@ defmodule EthElixirOmgAdapter.Transaction do
   """
 
   def get_deposit_tx_bytes(address, amount, currency) do
-    []
-    |> new([{from_hex(address), from_hex(currency), amount}])
-    |> encode()
+    tx_bytes =
+      []
+      |> new([{from_hex(address), from_hex(currency), amount}])
+      |> encode()
+
+    {:ok, tx_bytes}
   end
 
   def send(from, to, amount, currency_address) do

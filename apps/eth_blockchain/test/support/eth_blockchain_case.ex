@@ -15,10 +15,10 @@
 defmodule EthBlockchain.EthBlockchainCase do
   @moduledoc false
   use ExUnit.CaseTemplate
-  alias EthBlockchain.{Adapter, DumbAdapter, Transaction}
+  alias EthBlockchain.{Adapter, Transaction}
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
-  alias Keychain.Repo
+  alias Keychain.{Repo, Signature}
   alias Utils.Helpers.Encoding
 
   using do
@@ -41,7 +41,8 @@ defmodule EthBlockchain.EthBlockchainCase do
       Adapter.start_link(
         supervisor: supervisor,
         adapters: [
-          {:dumb, DumbAdapter}
+          {:dumb, EthBlockchain.DumbAdapter},
+          {:dumb_cc, EthBlockchain.DumbCCAdapter}
         ]
       )
 
@@ -54,7 +55,9 @@ defmodule EthBlockchain.EthBlockchainCase do
     %{
       adapter_opts: [
         eth_node_adapter: :dumb,
-        eth_node_adapter_pid: pid
+        eth_node_adapter_pid: pid,
+        cc_node_adapter: :dumb_cc,
+        cc_node_adapter_pid: pid
       ],
       invalid_adapter_opts: [
         eth_node_adapter: :blah,
@@ -73,5 +76,16 @@ defmodule EthBlockchain.EthBlockchainCase do
     |> Encoding.from_hex()
     |> ExRLP.decode()
     |> Transaction.deserialize()
+  end
+
+  def recover_public_key(trx) do
+    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+
+    {:ok, pub_key} =
+      trx
+      |> Transaction.transaction_hash(chain_id)
+      |> Signature.recover_public_key(trx.r, trx.s, trx.v, chain_id)
+
+    pub_key
   end
 end

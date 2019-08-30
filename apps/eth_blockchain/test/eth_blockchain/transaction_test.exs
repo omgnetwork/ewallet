@@ -17,7 +17,7 @@ defmodule EthBlockchain.TransactionTest do
 
   alias EthBlockchain.{Transaction, ABIEncoder}
   alias ExthCrypto.Math
-  alias Keychain.{Signature, Wallet}
+  alias Keychain.Wallet
   alias Utils.Helpers.Encoding
 
   setup state do
@@ -26,17 +26,6 @@ defmodule EthBlockchain.TransactionTest do
     state
     |> Map.put(:valid_sender, address)
     |> Map.put(:public_key, public_key)
-  end
-
-  defp recover_public_key(trx) do
-    chain_id = Application.get_env(:eth_blockchain, :chain_id)
-
-    {:ok, pub_key} =
-      trx
-      |> Transaction.transaction_hash(chain_id)
-      |> Signature.recover_public_key(trx.r, trx.s, trx.v, chain_id)
-
-    pub_key
   end
 
   describe "create_contract/3" do

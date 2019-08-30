@@ -28,10 +28,10 @@ defmodule EthBlockchain.Childchain do
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier),
-         {:ok, contract_address} = Adapter.childchain_call({:get_contract_address}, opts) do
-      {:get_deposit_tx_bytes, to, amount, currency}
-      |> Adapter.childchain_call(opts)
-      |> submit_deposit(to, amount, currency, contract_address, opts)
+         {:ok, contract_address} <- Adapter.childchain_call({:get_contract_address}, opts),
+         {:ok, tx_bytes} <-
+           Adapter.childchain_call({:get_deposit_tx_bytes, to, amount, currency}, opts) do
+      submit_deposit(tx_bytes, to, amount, currency, contract_address, opts)
     end
   end
 

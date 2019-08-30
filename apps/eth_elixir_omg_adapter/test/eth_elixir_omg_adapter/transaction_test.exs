@@ -36,7 +36,7 @@ defmodule EthElixirOmgAdapter.TransactionTest do
       address = Crypto.fake_eth_address()
       amount = 100
       currency = Crypto.fake_eth_address()
-      deposit_bytes = Transaction.get_deposit_tx_bytes(address, amount, currency)
+      {:ok, deposit_bytes} = Transaction.get_deposit_tx_bytes(address, amount, currency)
 
       expected_transaction = [
         [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
