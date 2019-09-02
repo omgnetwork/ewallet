@@ -38,7 +38,7 @@ defmodule EWalletDB.TransactionState do
     @ledger_pending => {[], []},
     @pending_confirmations => {[:confirmations_count], [:confirmations_count]},
     @ledger_pending_blockchain_confirmed => {[:confirmations_count], [:confirmations_count]},
-    @blockchain_confirmed => {[:confirmations_count], [:confirmations_count]},
+    @blockchain_confirmed => {[:confirmations_count], [:confirmations_count]}
   }
 
   @states %{

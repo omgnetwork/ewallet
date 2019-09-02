@@ -46,8 +46,10 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   end
 
   def process_with_transaction(
-        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "ledger_pending_blockchain_confirmed"} =
-          transaction
+        %Transaction{
+          local_ledger_uuid: local_ledger_uuid,
+          status: "ledger_pending_blockchain_confirmed"
+        } = transaction
       )
       when not is_nil(local_ledger_uuid) do
     local_ledger_uuid
