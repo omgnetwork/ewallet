@@ -167,12 +167,12 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert BlockchainTransactionGate.create(admin, attrs, {true, true}) ==
-        {
-          :error,
-          :invalid_parameter,
-          "Invalid parameter provided. `from_amount` and `to_amount` must be equal." <>
-          " Given: 1 and 2 respectively."
-        }
+               {
+                 :error,
+                 :invalid_parameter,
+                 "Invalid parameter provided. `from_amount` and `to_amount` must be equal." <>
+                   " Given: 1 and 2 respectively."
+               }
     end
 
     test "returns an error when the hot wallet doesn't have enough funds" do

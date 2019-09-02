@@ -84,9 +84,14 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   end
 
   defp to_blockchain?(transaction) do
-    is_nil(transaction.to) && !is_nil(transaction.to_blockchain_address) &&
+    is_nil(transaction.to) &&
+      !is_nil(transaction.to_blockchain_address) &&
       !is_nil(transaction.blockchain_identifier)
   end
+
+  #
+  # Skip errored transactions and transactions already recorded in the local ledger.
+  #
 
   defp update_transaction(
          _,
@@ -97,6 +102,10 @@ defmodule EWallet.BlockchainLocalTransactionGate do
        when error_code != nil do
     {:ok, transaction}
   end
+
+  #
+  # Handle transactions from blockchain to ledger
+  #
 
   defp update_transaction(
          {:ok, ledger_transaction},
@@ -117,8 +126,52 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     {:ok, transaction}
   end
 
+  #
+  # Handle transactions from ledger to blockchainn
+  #
 
-  def update_transaction({:error, code, description}, transaction, flow) do
+  defp update_transaction(
+         {:ok, ledger_transaction},
+         %{status: "pending"} = transaction,
+         :from_ledger_to_blockchain
+       ) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_blockchain,
+        TransactionState.ledger_pending(),
+        transaction,
+        %{
+          local_ledger_uuid: ledger_transaction.uuid,
+          originator: %System{}
+        }
+      )
+
+    {:ok, transaction}
+  end
+
+  defp update_transaction(
+         {:ok, _ledger_transaction},
+         %{status: "ledger_blockchain_confirmed"} = transaction,
+         :from_ledger_to_blockchain
+       ) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_blockchain,
+        TransactionState.confirmed(),
+        transaction,
+        %{
+          originator: %System{}
+        }
+      )
+
+    {:ok, transaction}
+  end
+
+  #
+  # Handle errors recording to the local ledger
+  #
+
+  defp update_transaction({:error, code, description}, transaction, flow) do
     {description, data} =
       if(is_map(description), do: {nil, description}, else: {description, nil})
 
@@ -136,42 +189,5 @@ defmodule EWallet.BlockchainLocalTransactionGate do
       )
 
     {:error, transaction}
-  end
-
-  def update_transaction(
-        {:ok, ledger_transaction},
-        %{status: "pending"} = transaction,
-        :from_ledger_to_blockchain
-      ) do
-    {:ok, transaction} =
-      TransactionState.transition_to(
-        :from_ledger_to_blockchain,
-        TransactionState.ledger_pending(),
-        transaction,
-        %{
-          local_ledger_uuid: ledger_transaction.uuid,
-          originator: %System{}
-        }
-      )
-
-    {:ok, transaction}
-  end
-
-  def update_transaction(
-        {:ok, _ledger_transaction},
-        %{status: "ledger_blockchain_confirmed"} = transaction,
-        :from_ledger_to_blockchain
-      ) do
-    {:ok, transaction} =
-      TransactionState.transition_to(
-        :from_ledger_to_blockchain,
-        TransactionState.confirmed(),
-        transaction,
-        %{
-          originator: %System{}
-        }
-      )
-
-    {:ok, transaction}
   end
 end

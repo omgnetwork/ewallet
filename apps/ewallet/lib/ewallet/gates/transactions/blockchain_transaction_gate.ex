@@ -316,8 +316,8 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp check_amount(%{"amount" => amount}) do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `amount` must be an integer or integer string."
-     <> " Given: #{inspect(amount)}."}
+     "Invalid parameter provided. `amount` must be an integer or integer string." <>
+       " Given: #{inspect(amount)}."}
   end
 
   defp check_amount(%{"from_amount" => from_amount} = attrs) when is_binary(from_amount) do
@@ -337,8 +337,8 @@ defmodule EWallet.BlockchainTransactionGate do
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount})
        when is_integer(from_amount) and is_integer(to_amount) and from_amount != to_amount do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `from_amount` and `to_amount` must be equal."
-     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+     "Invalid parameter provided. `from_amount` and `to_amount` must be equal." <>
+       " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
   end
 
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount} = attrs)
@@ -348,13 +348,13 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount}) do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `from_amount` and `to_amount` must be integers or integer strings."
-     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+     "Invalid parameter provided. `from_amount` and `to_amount` must be integers or integer strings." <>
+       " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
   end
 
   defp check_amount(_) do
     {:error, :invalid_parameter,
-      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   #
