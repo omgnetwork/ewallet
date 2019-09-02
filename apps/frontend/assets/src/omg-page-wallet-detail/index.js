@@ -101,13 +101,14 @@ class WalletDetaillPage extends Component {
         searchBar={false}
         divider={this.props.divider}
         title={wallet.name}
-        buttons={[
-          this.renderInternalToExternalButton(wallet),
-          <CreateTransactionButton
-            fromAddress={wallet.address}
-            key='transfer'
-          />
-        ]}
+        buttons={
+          wallet.identifier !== 'burn' ? [
+            this.renderInternalToExternalButton(wallet),
+            <CreateTransactionButton
+              fromAddress={wallet.address}
+              key='transfer'
+            />
+          ] : []}
       />
     )
   }

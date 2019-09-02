@@ -7,6 +7,7 @@ export const getWallets = ({ search, page, perPage, cacheKey, matchAll, matchAny
     action: 'REQUEST',
     service: async () =>
       walletService.getWallets({
+        search,
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
