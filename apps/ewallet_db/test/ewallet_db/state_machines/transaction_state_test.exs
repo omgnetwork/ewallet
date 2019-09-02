@@ -314,7 +314,7 @@ defmodule EWalletDB.TransactionStateTest do
       test_successful_state_transition(
         :from_ledger_to_blockchain,
         TransactionState.pending_confirmations(),
-        TransactionState.ledger_blockchain_confirmed(),
+        TransactionState.ledger_pending_blockchain_confirmed(),
         %{
           confirmations_count: 1
         }
@@ -324,7 +324,7 @@ defmodule EWalletDB.TransactionStateTest do
     test "transition from blockchain_confirmed to confirmed successfully" do
       test_successful_state_transition(
         :from_ledger_to_blockchain,
-        TransactionState.ledger_blockchain_confirmed(),
+        TransactionState.ledger_pending_blockchain_confirmed(),
         TransactionState.confirmed()
       )
     end
@@ -333,7 +333,7 @@ defmodule EWalletDB.TransactionStateTest do
       test_failed_state_transition(
         :from_ledger_to_blockchain,
         TransactionState.confirmed(),
-        TransactionState.ledger_blockchain_confirmed()
+        TransactionState.ledger_pending_blockchain_confirmed()
       )
     end
   end

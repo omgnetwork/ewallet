@@ -46,7 +46,7 @@ defmodule EWallet.BlockchainLocalTransactionGate do
   end
 
   def process_with_transaction(
-        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "ledger_blockchain_confirmed"} =
+        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "ledger_pending_blockchain_confirmed"} =
           transaction
       )
       when not is_nil(local_ledger_uuid) do
@@ -151,7 +151,7 @@ defmodule EWallet.BlockchainLocalTransactionGate do
 
   defp update_transaction(
          {:ok, _ledger_transaction},
-         %{status: "ledger_blockchain_confirmed"} = transaction,
+         %{status: "ledger_pending_blockchain_confirmed"} = transaction,
          :from_ledger_to_blockchain
        ) do
     {:ok, transaction} =
