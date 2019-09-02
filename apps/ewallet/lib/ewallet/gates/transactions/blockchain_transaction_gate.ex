@@ -222,6 +222,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   def handle_local_insert(%{to: nil} = transaction) do
+    # TODO: Should not this function also insert local ledger (genesis) transactions?
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
       TransactionState.confirmed(),
