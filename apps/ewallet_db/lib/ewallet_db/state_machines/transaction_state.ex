@@ -107,17 +107,87 @@ defmodule EWalletDB.TransactionState do
     @ledger_pending_blockchain_confirmed
   ]
 
+  @doc """
+  Returns "pending" status's string representation.
+
+  A transaction enters the "pending" status at the very beginning of the transaction flow,
+  when it is not yet recorded by the local ledger, and if also applicable,
+  not yet recorded by the blockchain.
+  """
   def pending, do: @pending
+
+  @doc """
+  Returns the "confirmed" status's string representation.
+
+  A transaction enters the "confirmed" status when it is fully complete. That is,
+  it is successfully recorded by the local ledger, and if also applicable, by the blockchain.
+  """
   def confirmed, do: @confirmed
+
+  @doc """
+  Returns the "failed" status's string representation.
+
+  A transaction enters the "failed" status when it failed at some point. This could be a failure
+  at the local ledger or blockchain level. No further actions can be performed on this transaction.
+  """
   def failed, do: @failed
-  def blockchain_submitted, do: @blockchain_submitted
+
+  @doc """
+  Returns the "ledger_pending" status's string representation.
+
+  A transaction enters the "ledger_pending" status when the transaction has been recorded into
+  the local ledger, but the ledger entries are marked with "pending" status. This means this
+  transaction may be reverted if the blockchain submission or confirmation is unsuccessful.
+  """
   def ledger_pending, do: @ledger_pending
+
+  @doc """
+  Returns the "blockchain_submitted" status's string representation.
+
+  A transaction enters the "blockchain_submitted" status when the transaction has been submitted
+  to the blockchain. A transaction gains this status immediately after a succfessful submission
+  with zero block confirmation.
+  """
+  def blockchain_submitted, do: @blockchain_submitted
+
+  @doc """
+  Returns the "pending_confirmations" status's string representation.
+
+  A transaction enters the "pending_confirmations" status when the transaction has been submitted
+  to the blockchain, and some confirmations have been received. However, the number of confirmations
+  have not reached the threshold to be considered a successful transaction.
+  """
   def pending_confirmations, do: @pending_confirmations
+
+  @doc """
+  Returns the "blockchain_confirmed" status's string representation.
+
+  A transaction enters the "blockchain_confirmed" status when the number of confirmations reach
+  the threshold to be considered successful. This status is used for incoming transactions
+  where the transaction is recorded to the ledger only after the blockchain transaction is
+  confirmed. Outgoing transactions use `ledger_pending_blockchain_confirmed/0` instead.
+  """
   def blockchain_confirmed, do: @blockchain_confirmed
 
-  def states, do: @states
+  @doc """
+  Returns the "ledger_pending_blockchain_confirmed" status's string representation.
+
+  A transaction enters the "ledger_pending_blockchain_confirmed" status when the number of confirmations reach
+  the threshold to be considered successful. This status is used for outgoing transactions
+  where the transaction is recorded to the ledger with "pending" entries before the blockchain
+  transaction is confirmed. Incoming transactions use `blockchain_confirmed/0` instead.
+  """
   def ledger_pending_blockchain_confirmed, do: @ledger_pending_blockchain_confirmed
+
+  @doc """
+  Returns the list of all possible string representations of transaction statuses.
+  """
   def statuses, do: @statuses
+
+  @doc """
+  Returns a map containing all possible transitions for each transaction flow.
+  """
+  def states, do: @states
 
   def transition_to(flow_name, new_state, %{status: state} = transaction, attrs) do
     with flow when is_map(flow) <- @states[flow_name] || :state_flow_not_found,
