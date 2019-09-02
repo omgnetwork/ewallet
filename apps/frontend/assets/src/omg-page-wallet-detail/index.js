@@ -6,13 +6,15 @@ import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
 
+import { Tag, Button, Icon } from '../omg-uikit'
+import { enableMetamaskEthereumConnection } from '../omg-web3/action'
+import { selectMetamaskUsable } from '../omg-web3/selector'
 import { generateDepositAddress } from '../omg-wallet/action'
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import CreateInternalToExternalButton from '../omg-transaction/CreateInternalToExternalButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { Tag } from '../omg-uikit'
 import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
@@ -59,15 +61,39 @@ const MenuContainer = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    null,
-    { generateDepositAddress }
+    state => ({ metamaskUsable: selectMetamaskUsable(state) }),
+    { generateDepositAddress, enableMetamaskEthereumConnection }
   )
 )
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     divider: PropTypes.bool,
-    generateDepositAddress: PropTypes.func
+    generateDepositAddress: PropTypes.func,
+    enableMetamaskEthereumConnection: PropTypes.func,
+    metamaskUsable: PropTypes.bool
+  }
+  renderInternalToExternalButton = wallet => {
+    if (this.props.metamaskUsable) {
+      return (
+        <CreateInternalToExternalButton
+          wallet={wallet}
+          key='internalToExternal'
+        />
+      )
+    }
+    return (
+      <Button
+        key='create'
+        size='small'
+        styleType='primary'
+        onClick={this.props.enableMetamaskEthereumConnection}
+        disabled={!window.ethereum || !window.web3}
+      >
+        <Icon name='Transaction' />
+        <span>External Transfer</span>
+      </Button>
+    )
   }
   renderTopBar = wallet => {
     return (
@@ -76,10 +102,7 @@ class WalletDetaillPage extends Component {
         divider={this.props.divider}
         title={wallet.name}
         buttons={[
-          <CreateInternalToExternalButton
-            wallet={wallet}
-            key='internalToExternal'
-          />,
+          this.renderInternalToExternalButton(wallet),
           <CreateTransactionButton
             fromAddress={wallet.address}
             key='transfer'
@@ -224,6 +247,7 @@ class WalletDetaillPage extends Component {
       <WalletProvider
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
+        {...this.props}
       />
     )
   }
