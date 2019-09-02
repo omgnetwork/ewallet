@@ -73,6 +73,57 @@ defmodule EthBlockchain.AdapterTest do
     end
   end
 
+  describe "childchain_call/2" do
+    test "delegates get_contract_address call to the adapter", state do
+      dumb_resp1 =
+        Adapter.childchain_call(
+          {:get_contract_address},
+          state[:adapter_opts]
+        )
+
+      dumb_resp2 =
+        Adapter.childchain_call(
+          {:get_contract_address},
+          state[:adapter_opts]
+        )
+
+      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp1
+      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp2
+    end
+
+    test "shutdowns the worker once finished handling tasks", state do
+      {:ok, _} =
+        Adapter.childchain_call(
+          {:get_contract_address},
+          state[:adapter_opts]
+        )
+
+      {:ok, _} =
+        Adapter.childchain_call(
+          {:get_contract_address},
+          state[:adapter_opts]
+        )
+
+      {:ok, _} =
+        Adapter.childchain_call(
+          {:get_contract_address},
+          state[:adapter_opts]
+        )
+
+      childrens = DynamicSupervisor.which_children(state[:supervisor])
+      assert childrens == []
+    end
+
+    test "returns an error if no such adapter is registered", state do
+      assert {:error, :no_handler} ==
+               Adapter.childchain_call(
+                 {:get_contract_address},
+                 cc_node_adapter: :foobar,
+                 cc_node_adapter_pid: state[:adapter_opts][:cc_node_adapter_pid]
+               )
+    end
+  end
+
   describe "subscribe/5" do
     test "returns :ok" do
       assert Adapter.subscribe(:transaction, "0x123456789", false, self()) == :ok

@@ -66,6 +66,17 @@ defmodule EthElixirOmgAdapter.MockServer do
     end
   end
 
+  post("/transaction.get") do
+    case conn.params do
+      %{"id" => "valid"} ->
+        respond(conn, ResponseBody.transaction_get_success())
+
+      _ ->
+        respond(conn, ResponseBody.transaction_get_failure())
+    end
+  end
+
+
   post("/post_request_test") do
     case conn.params do
       %{"expect" => "success", "data" => data} ->

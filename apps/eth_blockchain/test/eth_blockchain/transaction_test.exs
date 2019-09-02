@@ -15,7 +15,7 @@
 defmodule EthBlockchain.TransactionTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
-  alias EthBlockchain.{Transaction, ABIEncoder}
+  alias EthBlockchain.{GasHelper, Transaction, ABIEncoder}
   alias ExthCrypto.Math
   alias Keychain.Wallet
   alias Utils.Helpers.Encoding
@@ -235,6 +235,96 @@ defmodule EthBlockchain.TransactionTest do
                "d",
                ""
              ]
+    end
+  end
+
+  describe "deposit_eth/2" do
+    test "generates a desposit transaction for eth currency", state do
+      tx_bytes = "0x01"
+      amount = 100
+      {resp, encoded_trx} =
+        Transaction.deposit_eth(
+          %{
+            tx_bytes: tx_bytes,
+            from: state[:valid_sender],
+            amount: amount,
+            root_chain_contract: state[:addr_1]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == amount
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
+    end
+  end
+
+  describe "deposit_erc20/2" do
+    test "generates a desposit transaction for erc20 currency", state do
+      tx_bytes = "0x01"
+      {resp, encoded_trx} =
+        Transaction.deposit_erc20(
+          %{
+            tx_bytes: tx_bytes,
+            from: state[:valid_sender],
+            root_chain_contract: state[:addr_1]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
+    end
+  end
+
+  describe "approve_erc20/2" do
+    test "generates a desposit transaction for erc20 currency", state do
+      amount = 100
+      {resp, encoded_trx} =
+        Transaction.approve_erc20(
+          %{
+            from: state[:valid_sender],
+            to: state[:addr_1],
+            amount: amount,
+            contract_address: state[:addr_2]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.approve(state[:addr_1], amount)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_2]
     end
   end
 

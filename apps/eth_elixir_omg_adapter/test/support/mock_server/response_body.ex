@@ -212,6 +212,57 @@ defmodule EthElixirOmgAdapter.ResponseBody do
     failure("submit:utxo_not_found")
   end
 
+  def transaction_get_success do
+    data = %{
+      "block" => %{
+        "blknum" => 30000,
+        "eth_height" => 146633,
+        "hash" => "0x86c72415cd59771eda3dec8b1d0904a2342f48555e46d17508b73a184024e1f7",
+        "timestamp" => 1566981001
+      },
+      "inputs" => [
+        %{
+          "amount" => 99999997025,
+          "blknum" => 29000,
+          "currency" => "0x0000000000000000000000000000000000000000",
+          "oindex" => 1,
+          "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",
+          "txindex" => 0,
+          "utxo_pos" => 29000000000001
+        }
+      ],
+      "metadata" => nil,
+      "outputs" => [
+        %{
+          "amount" => 100,
+          "blknum" => 30000,
+          "currency" => "0x0000000000000000000000000000000000000000",
+          "oindex" => 0,
+          "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b052",
+          "txindex" => 0,
+          "utxo_pos" => 30000000000000
+        },
+        %{
+          "amount" => 99999996924,
+          "blknum" => 30000,
+          "currency" => "0x0000000000000000000000000000000000000000",
+          "oindex" => 1,
+          "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",
+          "txindex" => 0,
+          "utxo_pos" => 30000000000001
+        }
+      ],
+      "txbytes" => "0xf9010ff843b8415ea0db90e83afe73556dd195af2b014b1e7eb03003f3559e59988059469746650bfb0287a1b0901020fc5f782f742482708cbec61c40df74e4f2b010c36f56261bd2c58271488001c3808080c3808080c3808080f8b5eb94811ae0a85d3f86824da3abe49a2407ea55a8b05294000000000000000000000000000000000000000064f094811ae0a85d3f86824da3abe49a2407ea55a8b05394000000000000000000000000000000000000000085174876dbfceb94000000000000000000000000000000000000000094000000000000000000000000000000000000000080eb94000000000000000000000000000000000000000094000000000000000000000000000000000000000080",
+      "txhash" => "0x7ceea0a22b3ac4660ab67eb8bc3eaca03820bbefe9846444741626eae26e4271",
+      "txindex" => 0
+    }
+    success(data)
+  end
+
+  def transaction_get_failure do
+    failure("transaction:not_found")
+  end
+
   def post_request_success(data), do: %{"success" => true, "data" => data}
 
   def post_request_handled_failure(code) do
