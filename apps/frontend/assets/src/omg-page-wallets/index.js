@@ -190,6 +190,7 @@ class WalletPage extends Component {
           search: queryString.parse(this.props.location.search).search,
           matchAny: this.state.matchAny,
           matchAll: [
+            { field: 'account.name', comparator: 'neq', value: 'genesis' },
             ...this.state.matchAll,
             ...(!_.isEmpty(this.props.walletQuery) ? this.props.walletQuery.matchAll : [])
           ]
