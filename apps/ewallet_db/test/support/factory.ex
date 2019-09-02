@@ -27,6 +27,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     BlockchainDepositWallet,
+    BlockchainDepositWalletBalance,
     BlockchainHDWallet,
     BlockchainWallet,
     BlockchainState,
@@ -153,8 +154,18 @@ defmodule EWalletDB.Factory do
       blockchain_identifier: "dumb",
       public_key: Crypto.fake_eth_address(),
       originator: %System{},
+      path_ref: "12345",
       wallet_address: insert(:wallet).address,
       blockchain_hd_wallet_uuid: insert(:blockchain_hd_wallet).uuid
+    }
+  end
+
+  def blockchain_deposit_wallet_balance_factory do
+    %BlockchainDepositWalletBalance{
+      amount: 1,
+      blockchain_identifier: "dumb",
+      blockchain_deposit_wallet: insert(:blockchain_deposit_wallet),
+      token: insert(:token)
     }
   end
 

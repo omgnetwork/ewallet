@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionState do
   @moduledoc """
   State machine module for transactions.
   """
-  alias EWalletDB.{Transaction, Repo}
+  alias EWalletDB.{DepositTransaction, Transaction, Repo}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -83,6 +83,13 @@ defmodule EWalletDB.TransactionState do
       @pending_confirmations => [@blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],
       @confirmed => []
+    },
+    from_deposit_to_pooled: %{
+      @pending => [@blockchain_submitted],
+      @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
+      @pending_confirmations => [@blockchain_confirmed],
+      @blockchain_confirmed => [@confirmed],
+      @confirmed => []
     }
   }
 
@@ -115,9 +122,10 @@ defmodule EWalletDB.TransactionState do
          true <- Enum.member?(next_states, new_state) || :invalid_state_transition do
       {cast_fields, required_fields} = @attrs[new_state]
       attrs = Map.merge(attrs, %{status: new_state})
+      %mod{} = transaction
 
       transaction
-      |> Transaction.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
+      |> mod.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
       |> Repo.update_record_with_activity_log()
     else
       code when is_atom(code) ->

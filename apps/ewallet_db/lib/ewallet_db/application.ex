@@ -56,7 +56,8 @@ defmodule EWalletDB.Application do
       EWalletDB.AuthToken => %{type: "auth_token", identifier: :id},
       EWalletDB.APIKey => %{type: "api_key", identifier: :id},
       EWalletDB.Token => %{type: "token", identifier: :id},
-      EWalletDB.Role => %{type: "role", identifier: :id}
+      EWalletDB.Role => %{type: "role", identifier: :id},
+      EWalletDB.DepositTransaction => %{type: "deposit_transaction", identifier: :id}
     })
 
     :telemetry.attach(

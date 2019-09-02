@@ -270,6 +270,13 @@ defmodule EWalletDB.Token do
     |> Repo.all()
   end
 
+  def all_blockchain_except(addresses, identifier) do
+    identifier
+    |> query_all_blockchain()
+    |> where([t], t.blockchain_address not in ^addresses)
+    |> Repo.all()
+  end
+
   @doc """
   Returns a query of Tokens that have a blockchain address for the specified identifier
   """

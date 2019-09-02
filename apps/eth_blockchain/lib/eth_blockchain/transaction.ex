@@ -109,7 +109,7 @@ defmodule EthBlockchain.Transaction do
           value: amount
         }
         |> Map.merge(meta)
-        |> sign_and_hash(from)
+        |> sign_and_hash(from, attrs)
         |> send_raw(adapter, pid)
         |> respond(from, adapter, pid)
 
@@ -136,7 +136,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> Map.merge(meta)
-      |> sign_and_hash(from)
+      |> sign_and_hash(from, attrs)
       |> send_raw(adapter, pid)
       |> respond(from, adapter, pid)
     else
@@ -156,7 +156,7 @@ defmodule EthBlockchain.Transaction do
 
         %__MODULE__{init: from_hex(init)}
         |> Map.merge(meta)
-        |> sign_and_hash(from)
+        |> sign_and_hash(from, attrs)
         |> send_raw(adapter, pid)
         |> append_contract_address(contract_address)
         |> respond(from, adapter, pid)
@@ -186,8 +186,8 @@ defmodule EthBlockchain.Transaction do
     "0x" <> contract_address
   end
 
-  defp sign_and_hash(%__MODULE__{} = transaction_data, from) do
-    case sign_transaction(transaction_data, from) do
+  defp sign_and_hash(%__MODULE__{} = transaction_data, from, attrs) do
+    case sign_transaction(transaction_data, from, attrs) do
       {:ok, signed_trx} ->
         hashed =
           signed_trx
@@ -208,7 +208,31 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _adapter, _pid), do: error
 
-  defp sign_transaction(transaction, wallet_address) do
+  defp get_transaction_count(%{address: address}, adapter, pid) do
+    Adapter.call({:get_transaction_count, address}, adapter, pid)
+  end
+
+  defp sign_transaction(transaction, wallet_address, %{
+         wallet: %{
+           wallet_uuid: wallet_uuid,
+           account_ref: account_ref,
+           deposit_ref: deposit_ref
+         }
+       }) do
+    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+
+    result =
+      transaction
+      |> transaction_hash(chain_id)
+      |> Signature.sign_with_child_key(wallet_uuid, account_ref, deposit_ref, chain_id)
+
+    case result do
+      {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}
+      error -> error
+    end
+  end
+
+  defp sign_transaction(transaction, wallet_address, _) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
     result =

@@ -17,7 +17,15 @@ defmodule EWallet.BlockchainDepositWalletGate do
   Handles the logic for generating and retrieving a blockchain deposit wallet.
   """
   alias EWallet.{AddressTracker, BlockchainHelper}
-  alias EWalletDB.{BlockchainDepositWallet, BlockchainHDWallet}
+  alias EWallet.Web.BlockchainBalanceLoader
+
+  alias EWalletDB.{
+    BlockchainDepositWallet,
+    BlockchainDepositWalletBalance,
+    BlockchainHDWallet,
+    Token
+  }
+
   alias Keychain.Wallet
 
   @burn_identifier EWalletDB.Wallet.burn()
@@ -68,6 +76,19 @@ defmodule EWallet.BlockchainDepositWalletGate do
             error
         end
     end
+  end
+
+  def store_balances(address, blockchain_identifier, tokens \\ nil) do
+    tokens = tokens || Token.all_blockchain(blockchain_identifier)
+    deposit_wallet = BlockchainDepositWallet.get(address)
+
+    {:ok, [deposit_wallet_with_balances]} =
+      BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens)
+
+    BlockchainDepositWalletBalance.create_or_update_all(
+      deposit_wallet_with_balances,
+      blockchain_identifier
+    )
   end
 
   # TODO: Handle the possibility of generating clashing numbers

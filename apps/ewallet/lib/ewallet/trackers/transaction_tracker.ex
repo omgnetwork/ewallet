@@ -102,6 +102,12 @@ defmodule EWallet.TransactionTracker do
     # TODO: handle error
     {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
 
+    # If to a deposit wallet, make sure it's stored
+    if BlockchainDepositWallet.get(transaction.to) do
+      {:ok, _} =
+        BlockchainDepositWalletGate.store_balances(transaction.to, [transaction.to_token])
+    end
+
     # Unsubscribing from the blockchain subapp
     # TODO: :ok / {:error, :not_found} handling?
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
