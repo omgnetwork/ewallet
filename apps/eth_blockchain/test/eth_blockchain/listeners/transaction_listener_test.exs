@@ -138,7 +138,7 @@ defmodule EthBlockchain.TransactionListenerTest do
   end
 
   describe "run/1" do
-    test "handles a valid transaction" do
+    test "handles a valid rootchain transaction" do
       {:ok, pid} = TransactionListener.start_link(get_attrs(%{id: "valid"}))
       # Subscribe to the subscriber to get updates
       {:ok, subscriber_pid} = DumbSubscriber.start_link(%{subscriber: self()})
@@ -157,8 +157,47 @@ defmodule EthBlockchain.TransactionListenerTest do
       assert GenServer.stop(pid) == :ok
     end
 
-    test "handles a not found transaction" do
+    test "handles a valid childchain transaction" do
+      {:ok, pid} =
+        TransactionListener.start_link(get_attrs(%{id: "valid", is_childchain_transaction: true}))
+
+      # Subscribe to the subscriber to get updates
+      {:ok, subscriber_pid} = DumbSubscriber.start_link(%{subscriber: self()})
+      :ok = GenServer.call(pid, {:subscribe, subscriber_pid})
+
+      # The Dumb Subscriber stops after receiving two confirmations_count,
+      # ensuring the listener has submitted at least two events, testing the tick + run
+      # functions
+      receive do
+        state ->
+          assert state[:confirmations_count] == 13
+          assert state[:tx_hash] == "valid"
+      end
+
+      assert GenServer.stop(subscriber_pid) == :ok
+      assert GenServer.stop(pid) == :ok
+    end
+
+    test "handles a not found rootchain transaction" do
       {:ok, pid} = TransactionListener.start_link(get_attrs(%{id: "not_found"}))
+      {:ok, subscriber_pid} = DumbSubscriber.start_link(%{subscriber: self()})
+      :ok = GenServer.call(pid, {:subscribe, subscriber_pid})
+
+      receive do
+        state ->
+          assert state[:error] == :not_found
+      end
+
+      assert GenServer.stop(subscriber_pid) == :ok
+      assert GenServer.stop(pid) == :ok
+    end
+
+    test "handles a not found childchain transaction" do
+      {:ok, pid} =
+        TransactionListener.start_link(
+          get_attrs(%{id: "not_found", is_childchain_transaction: true})
+        )
+
       {:ok, subscriber_pid} = DumbSubscriber.start_link(%{subscriber: self()})
       :ok = GenServer.call(pid, {:subscribe, subscriber_pid})
 

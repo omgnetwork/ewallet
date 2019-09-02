@@ -118,17 +118,13 @@ defmodule EthBlockchain.ChildchainTest do
 
   describe "send/2" do
     test "successfuly submit a transfer transaction to the childchain", state do
-      address = state[:valid_sender]
-      amount = 100
-      currency = @eth
-
       {res, tx_hash, tx_index, blk_num} =
         Childchain.send(
           %{
-            from: address,
+            from: state[:valid_sender],
             to: state[:addr_1],
-            amount: amount,
-            currency: currency,
+            amount: 100,
+            currency: @eth,
             childchain_identifier: :elixir_omg
           },
           state[:adapter_opts]
@@ -144,10 +140,10 @@ defmodule EthBlockchain.ChildchainTest do
       {res, error} =
         Childchain.send(
           %{
-            from: address,
+            from: state[:valid_sender],
             to: state[:addr_1],
-            amount: amount,
-            currency: currency,
+            amount: 100,
+            currency: @eth,
             childchain_identifier: :invalid
           },
           state[:adapter_opts]
