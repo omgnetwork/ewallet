@@ -31,6 +31,8 @@ defmodule EWallet.AddressTrackerTest do
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
 
+  @minimum_confirmation_counts 10
+
   describe "start_link/1" do
     test "starts a new server" do
       _hot_wallet = insert(:blockchain_wallet, type: "hot")
@@ -203,8 +205,7 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "01",
             default_token.uuid,
-            1_000,
-            15
+            1_000
           )
 
           # build_eth_transaction(0, "02", hot_wallet_address, other_address, 1_000)
@@ -218,8 +219,7 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "02",
             default_token.uuid,
-            1_000,
-            15
+            1_000
           )
 
           # build_eth_transaction(0, "03", hot_wallet_address, other_address, 1_000)
@@ -233,8 +233,7 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "03",
             default_token.uuid,
-            1_000,
-            15
+            1_000
           )
 
           # build_eth_transaction(0, "04", other_address, deposit_wallet_address, 1_000)
@@ -248,8 +247,7 @@ defmodule EWallet.AddressTrackerTest do
             0,
             "04",
             default_token.uuid,
-            1_000,
-            15
+            1_000
           )
 
           # build_eth_transaction(0, "04", other_address, Crypto.fake_eth_address(), 1_000)
@@ -267,8 +265,7 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "11",
             default_token.uuid,
-            1_337_000,
-            14
+            1_337_000
           )
 
           # build_erc20_transaction(1, "12", erc20_address, hot_wallet_address,
@@ -283,8 +280,7 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "12",
             erc20_token.uuid,
-            1_000,
-            14
+            1_000
           )
 
           # build_erc20_transaction(1, "13", erc20_address, other_address,
@@ -299,8 +295,7 @@ defmodule EWallet.AddressTrackerTest do
             1,
             "13",
             erc20_token.uuid,
-            1_000,
-            14
+            1_000
           )
 
           # build_erc20_transaction(1, "13", erc20_address, other_address, other_address, 1_000)
@@ -321,8 +316,7 @@ defmodule EWallet.AddressTrackerTest do
             2,
             "21",
             default_token.uuid,
-            1_000,
-            13
+            1_000
           )
 
           # build_erc20_transaction(2, "22", erc20_address, other_address,
@@ -337,8 +331,7 @@ defmodule EWallet.AddressTrackerTest do
             2,
             "22",
             erc20_token.uuid,
-            25_000,
-            13
+            25_000
           )
 
           # Check the balance of the deposit wallet to ensure the
@@ -369,12 +362,11 @@ defmodule EWallet.AddressTrackerTest do
          blk_number,
          tx_hash,
          token_uuid,
-         amount,
-         confirmations_count
+         amount
        ) do
     assert transaction.blockchain_tx_hash == tx_hash
     assert transaction.status == TransactionState.confirmed()
-    assert transaction.confirmations_count > 10
+    assert transaction.confirmations_count > @minimum_confirmation_counts
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc
     assert transaction.from == from
