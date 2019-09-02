@@ -73,8 +73,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert %{confirmations_count: count, status: "confirmed"} = transaction
-          assert count > 10
+          assert transaction.status == TransactionState.confirmed()
+          assert transaction.confirmations_count > 10
 
           {:ok, %{balances: [main_balance]}} = BalanceFetcher.all(%{"wallet" => master_wallet})
           assert main_balance[:amount] == 99_999_999
@@ -119,7 +119,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert %{confirmations_count: 13, status: "confirmed"} = transaction
+          assert transaction.confirmations_count == 13
+          assert transaction.status == TransactionState.confirmed()
       end
     end
 
@@ -260,7 +261,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert transaction.status == "confirmed"
+          assert transaction.status == TransactionState.confirmed()
       end
     end
 
@@ -358,7 +359,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
 
       transaction = Transaction.get(transaction.id)
-      assert transaction.status == "confirmed"
+      assert transaction.status == TransactionState.confirmed()
       # Check balance
       {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
       assert balance[:amount] == 1
