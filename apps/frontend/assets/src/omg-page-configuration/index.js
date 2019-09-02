@@ -140,7 +140,7 @@ class ConfigurationPage extends React.Component {
   }
   componentDidMount = () => {
     if (this.props.location.pathname === '/configuration') {
-      this.props.history.push('/configuration/blockchain_settings')
+      this.props.history.push('/configuration/global_settings')
     }
   }
   handleCancelClick = () => {
@@ -399,7 +399,7 @@ class ConfigurationPage extends React.Component {
         </ConnectionNotification>
         <Layout>
           <SideMenu>
-            <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink>
+            {/* <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink> */}
             <NavLink to='/configuration/global_settings'>Global Settings</NavLink>
             <NavLink to='/configuration/email_settings'>Email Settings</NavLink>
             <NavLink to='/configuration/cache_settings'>Cache Settings</NavLink>
