@@ -208,11 +208,13 @@ class CreateTransaction extends Component {
               : null,
             options:
               walletBalance.length
-                ? walletBalance.map(b => ({
-                  key: `${b.token.name}${b.token.symbol}${b.token.id}`,
-                  value: <TokenSelect balance={b.amount} token={b.token} />,
-                  ...b
-                }))
+                ? walletBalance
+                  .filter(b => b.token.blockchain_status === 'confirmed')
+                  .map(b => ({
+                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                    value: <TokenSelect balance={b.amount} token={b.token} />,
+                    ...b
+                  }))
                 : []
           }}
         />
