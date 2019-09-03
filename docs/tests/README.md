@@ -58,7 +58,7 @@ These tests rely on initial seeded data which are 2 admins and a base account.
 Prior to running the acceptance tests, you will need generate the sample data needed for the tests:
 
 ```bash
-$ mix seed --test --yes
+$ E2E_ENABLED=true mix seed --test --yes
 ```
 
 `--yes` option allows to skip all prompted confirmations which is ideal when ran on an automation server.
@@ -67,7 +67,7 @@ You will need to add a few environment variables before running the seed, check 
 
 ## Load tests
 
-A minimal load test suite is available in the [loadtest](/apps/loadtest) sub-application.
+A minimal load test suite is available in the [load_tester](/apps/load_tester) sub-application.
 
 To run the load test, first seed the data into your target eWallet server with the command below.
 Note that this command uses the same seed as the acceptance tests, with the exception that it sets
