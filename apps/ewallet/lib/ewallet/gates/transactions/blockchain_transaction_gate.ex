@@ -221,8 +221,11 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  # The destination is nil when the transaction is intended to arrive and stay
+  # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
+  # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
+  # move the transaction to confirmed state.
   def handle_local_insert(%{to: nil} = transaction) do
-    # TODO: Should not this function also insert local ledger (genesis) transactions?
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
       TransactionState.confirmed(),
