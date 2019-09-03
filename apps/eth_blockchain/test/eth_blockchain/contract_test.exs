@@ -21,8 +21,11 @@ defmodule EthBlockchain.ContractTest do
 
   setup state do
     {:ok, {address, _public_key}} = Wallet.generate()
+    overwritten_opts = Keyword.merge(state[:adapter_opts], [eth_node_adapter: :dumb_tx])
 
-    Map.put(state, :valid_sender, address)
+    state
+    |> Map.put(:valid_sender, address)
+    |> Map.put(:adapter_opts, overwritten_opts)
   end
 
   describe "deploy_erc20/3" do

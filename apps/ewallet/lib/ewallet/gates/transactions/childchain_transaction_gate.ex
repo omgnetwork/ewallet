@@ -38,6 +38,7 @@ defmodule EWallet.ChildchainTransactionGate do
     |> Map.put("to_address", contract_address)
     |> Map.delete("address")
     |> Map.put("type", Transaction.deposit())
+    |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
   end
 
   defp address_validation_tuple(attrs) do

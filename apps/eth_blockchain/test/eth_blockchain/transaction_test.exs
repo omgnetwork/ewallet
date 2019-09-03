@@ -22,10 +22,12 @@ defmodule EthBlockchain.TransactionTest do
 
   setup state do
     {:ok, {address, public_key}} = Wallet.generate()
+    overwritten_opts = Keyword.merge(state[:adapter_opts], [eth_node_adapter: :dumb_tx])
 
     state
     |> Map.put(:valid_sender, address)
     |> Map.put(:public_key, public_key)
+    |> Map.put(:adapter_opts, overwritten_opts)
   end
 
   describe "create_contract/3" do

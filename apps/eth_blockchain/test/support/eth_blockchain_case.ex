@@ -42,6 +42,7 @@ defmodule EthBlockchain.EthBlockchainCase do
         supervisor: supervisor,
         adapters: [
           {:dumb, EthBlockchain.DumbAdapter},
+          {:dumb_tx, EthBlockchain.DumbTxAdapter},
           {:dumb_cc, EthBlockchain.DumbCCAdapter}
         ]
       )

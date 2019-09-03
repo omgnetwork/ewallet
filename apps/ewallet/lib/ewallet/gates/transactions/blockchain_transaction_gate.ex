@@ -211,7 +211,6 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  # Funds are already checked on the childchain when submitting the transaction
   # TODO: query balance on plasma and check
   defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier}), do: true
 
@@ -318,7 +317,7 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp submit_if_needed(transaction), do: {:ok, transaction}
 
-  defp submit(%{blockchain_identifier: @childchain_identifier} = transaction) do
+  defp submit(%{type: @external_transaction, blockchain_identifier: @childchain_identifier} = transaction) do
     attrs = %{
       from: transaction.from_blockchain_address,
       to: transaction.to_blockchain_address,
@@ -357,7 +356,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp process_childchain_transaction({:ok, tx_hash, _blk_num, _tx_index}) do
-    # TODO: process blk_num and tx_index
+    # TODO: process blk_num and tx_index ?
     {:ok, tx_hash}
   end
 

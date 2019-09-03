@@ -30,7 +30,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   alias Ecto.UUID
 
   describe "create/2" do
-    test "submits a transaction to the blockchain subapp (hot wallet to blockchain address)",
+    test "submits a rootchain transaction to the blockchain subapp (hot wallet to blockchain address)",
          meta do
       # TODO: switch to using the seeded Ethereum address
       admin = insert(:admin, global_role: "super_admin")
@@ -56,6 +56,52 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
       assert transaction.blockchain_identifier == identifier
+      assert transaction.confirmations_count == nil
+
+      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
+      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+
+      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = res
+
+      assert Process.alive?(pid)
+      assert Process.alive?(blockchain_listener_pid)
+
+      # Turn off the listeners before exiting so it does not try
+      # to update the transactions after the test is done.
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
+    end
+
+    test "submits a childchain transaction to the blockchain subapp (hot wallet plasma to blockchain plasma address)",
+         meta do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
+
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.external()
+      assert transaction.blockchain_identifier == cc_identifier
       assert transaction.confirmations_count == nil
 
       {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
