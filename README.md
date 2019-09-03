@@ -76,6 +76,7 @@ These commands create the initial data in the database. If `seed` is run without
 
 -   `seed --sample` will seed a sample data suitable for evaluating OmiseGO eWallet Server.
 -   `seed --e2e` will seed a data for [end-to-end testing](docs/setup/advanced/env.md).
+-   `seed --settings` will seed the application settings for the OmiseGO eWallet Server.
 
 ### config
 
