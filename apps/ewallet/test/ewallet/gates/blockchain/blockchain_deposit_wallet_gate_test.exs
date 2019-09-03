@@ -78,6 +78,7 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
     end
 
     test "returns :hd_wallet_not_found error if the primary HD wallet is missing" do
+      BlockchainHDWallet.get_primary() |> Repo.delete()
       wallet = insert(:wallet)
       _ = Repo.delete_all(BlockchainHDWallet)
 

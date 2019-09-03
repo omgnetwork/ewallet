@@ -23,11 +23,20 @@ defmodule LocalLedgerDB.Transaction do
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+  @pending "pending"
+  @confirmed "confirmed"
+  @failed "failed"
+  @statuses [@pending, @confirmed, @failed]
+
+  def pending, do: @pending
+  def confirmed, do: @confirmed
+  def failed, do: @failed
 
   schema "transaction" do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
     field(:idempotency_token, :string)
+    field(:status, :string, default: @confirmed)
 
     has_many(
       :entries,
@@ -45,8 +54,9 @@ defmodule LocalLedgerDB.Transaction do
   """
   def changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [:metadata, :encrypted_metadata, :idempotency_token])
-    |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
+    |> cast(attrs, [:metadata, :encrypted_metadata, :idempotency_token, :status])
+    |> validate_required([:idempotency_token, :metadata, :encrypted_metadata, :status])
+    |> validate_inclusion(:status, @statuses)
     |> cast_assoc(:entries, required: true)
     |> unique_constraint(:idempotency_token)
   end
@@ -124,6 +134,12 @@ defmodule LocalLedgerDB.Transaction do
     %Transaction{}
     |> changeset(attrs)
     |> do_insert(opts)
+  end
+
+  def update(attrs) do
+    %Transaction{}
+    |> changeset(attrs)
+    |> Repo.update()
   end
 
   defp do_insert(changeset, opts) do

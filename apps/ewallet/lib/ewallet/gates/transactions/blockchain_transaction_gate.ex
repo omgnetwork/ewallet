@@ -64,9 +64,10 @@ defmodule EWallet.BlockchainTransactionGate do
          %{} = attrs <- set_blockchain_addresses(attrs),
          %{} = attrs <- set_token(attrs),
          %{} = attrs <- check_amount(attrs),
+         # TODO: add this error
          true <-
            enough_funds?(from, attrs["from_token"], attrs["from_amount"]) ||
-             {:error, :insufficient_funds},
+             {:error, :insufficient_funds_in_hot_wallet},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, tx_hash} <- submit(transaction),
@@ -100,9 +101,47 @@ defmodule EWallet.BlockchainTransactionGate do
 
   # Here we're handling a regular transaction getting funds out of an
   # internal wallet to a blockchain address
-  def create(_actor, _attrs, {false, true}) do
+  def create(actor, attrs, {false, true}) do
     # TODO: Next PR
-    {:error, :not_implemented}
+    # Insert pending local transaction
+    # submit to blockchain
+    # once enough confirmations, confirm local transaction
+    identifier = BlockchainHelper.identifier()
+    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+
+    with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
+         %{} = attrs <- set_payload(attrs),
+         %{} = attrs <- set_internal_and_blockchain_addresses(attrs, primary_hot_wallet),
+         %{} = attrs <- set_token(attrs),
+         %{} = attrs <- check_amount(attrs),
+         true <-
+           enough_funds?(primary_hot_wallet.address, attrs["from_token"], attrs["from_amount"]) ||
+             {:error, :insufficient_funds_in_hot_wallet},
+         %{} = attrs <- set_blockchain(attrs),
+         {:ok, transaction} <- get_or_insert(attrs),
+         {:ok, transaction} <-
+           BlockchainLocalTransactionGate.process_with_transaction(transaction),
+         {:ok, tx_hash} <- submit(transaction),
+         {:ok, transaction} <-
+           TransactionState.transition_to(
+             :from_ledger_to_blockchain,
+             TransactionState.blockchain_submitted(),
+             transaction,
+             %{blockchain_tx_hash: tx_hash, originator: %System{}}
+           ),
+         :ok =
+           TransactionRegistry.start_tracker(TransactionTracker, %{
+             transaction: transaction,
+             transaction_type: :from_ledger_to_blockchain
+           }) do
+      {:ok, transaction}
+    else
+      error when is_atom(error) ->
+        {:error, error}
+
+      error ->
+        error
+    end
   end
 
   # Handle external -> hot
@@ -183,6 +222,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   def handle_local_insert(%{to: nil} = transaction) do
+    # TODO: Should not this function also insert local ledger (genesis) transactions?
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
       TransactionState.confirmed(),
@@ -199,6 +239,15 @@ defmodule EWallet.BlockchainTransactionGate do
     attrs
     |> Map.put("to_blockchain_address", attrs["to_address"])
     |> Map.put("from_blockchain_address", attrs["from_address"])
+    |> Map.delete("to_address")
+    |> Map.delete("from_address")
+  end
+
+  defp set_internal_and_blockchain_addresses(attrs, hot_wallet) do
+    attrs
+    |> Map.put("from", attrs["from_address"])
+    |> Map.put("to_blockchain_address", attrs["to_address"])
+    |> Map.put("from_blockchain_address", hot_wallet.address)
     |> Map.delete("to_address")
     |> Map.delete("from_address")
   end
@@ -268,8 +317,8 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp check_amount(%{"amount" => amount}) do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `amount` must be an integer or integer string."
-     <> " Given: #{inspect(amount)}."}
+     "Invalid parameter provided. `amount` must be an integer or integer string." <>
+       " Given: #{inspect(amount)}."}
   end
 
   defp check_amount(%{"from_amount" => from_amount} = attrs) when is_binary(from_amount) do
@@ -289,8 +338,8 @@ defmodule EWallet.BlockchainTransactionGate do
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount})
        when is_integer(from_amount) and is_integer(to_amount) and from_amount != to_amount do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `from_amount` and `to_amount` must be equal."
-     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+     "Invalid parameter provided. `from_amount` and `to_amount` must be equal." <>
+       " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
   end
 
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount} = attrs)
@@ -300,13 +349,13 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp check_amount(%{"from_amount" => from_amount, "to_amount" => to_amount}) do
     {:error, :invalid_parameter,
-     "Invalid parameter provided. `from_amount` and `to_amount` must be integers or integer strings."
-     <> " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
+     "Invalid parameter provided. `from_amount` and `to_amount` must be integers or integer strings." <>
+       " Given: #{inspect(from_amount)} and #{inspect(to_amount)} respectively."}
   end
 
   defp check_amount(_) do
     {:error, :invalid_parameter,
-      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   #
