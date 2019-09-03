@@ -143,7 +143,7 @@ class WalletDetaillPage extends Component {
         )}
         {(!wallet.identifier.includes('burn') && !wallet.identifier.includes('genesis')) && (
           <DetailGroup>
-            <b>Blockchain Address:</b>{' '}
+            <b>Blockchain Deposit Address:</b>{' '}
             {wallet.blockchain_deposit_address && (
               <>
                 <span>{wallet.blockchain_deposit_address}</span> <Copy data={wallet.blockchain_deposit_address} />

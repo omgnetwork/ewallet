@@ -37,9 +37,10 @@ const TokenPageContainer = styled.div`
 `
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
+  { key: 'blockchain', title: 'TYPE', sort: false },
+  { key: 'created', title: 'CREATED AT', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
-  { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED AT', sort: true }
+  { key: 'symbol', title: 'SYMBOL', sort: true }
 ]
 class TokenDetailPage extends Component {
   static propTypes = {
@@ -113,6 +114,11 @@ class TokenDetailPage extends Component {
     )
   }
   rowRenderer (key, data, rows) {
+    if (key === 'blockchain') {
+      return data
+        ? 'Blockchain'
+        : 'Internal'
+    }
     if (key === 'created') {
       return moment(data).format()
     }
@@ -135,7 +141,8 @@ class TokenDetailPage extends Component {
         token: token.name,
         symbol: token.symbol,
         created: token.created_at,
-        id: token.id
+        id: token.id,
+        blockchain: token.blockchain_status === 'confirmed'
       }
     })
 
