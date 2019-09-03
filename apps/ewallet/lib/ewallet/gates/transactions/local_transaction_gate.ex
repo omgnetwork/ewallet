@@ -53,7 +53,7 @@ defmodule EWallet.LocalTransactionGate do
     end
   end
 
-  def process_with_transaction(%Transaction{status: "pending"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "pending"} = transaction) do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: false})
@@ -61,27 +61,27 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
-  def process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
     {:ok, transaction}
   end
 
-  def process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
     {:ok, transaction}
   end
 
-  def process_with_transaction(%Transaction{status: "failed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: "failed"} = transaction) do
     {:error, transaction, transaction.error_code,
      transaction.error_description || transaction.error_data}
   end
 
-  def get_or_insert(
-        from,
-        to,
-        exchange,
-        %{
-          "idempotency_token" => idempotency_token
-        } = attrs
-      ) do
+  defp get_or_insert(
+         from,
+         to,
+         exchange,
+         %{
+           "idempotency_token" => idempotency_token
+         } = attrs
+       ) do
     Transaction.get_or_insert(%{
       originator: attrs["originator"],
       idempotency_token: idempotency_token,
@@ -107,7 +107,7 @@ defmodule EWallet.LocalTransactionGate do
     })
   end
 
-  def get_or_insert(_, _, _, _) do
+  defp get_or_insert(_, _, _, _) do
     {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
   end
 

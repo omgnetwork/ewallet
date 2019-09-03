@@ -13,11 +13,16 @@
 # limitations under the License.
 
 defmodule EthElixirOmgAdapter.MockServer do
+  @moduledoc """
+  Dumb server that serves request with dummy response during tests.
+  """
+
   use Plug.Router
 
   alias EthElixirOmgAdapter.ResponseBody
+  alias Plug.{Conn, Parsers}
 
-  plug(Plug.Parsers,
+  plug(Parsers,
     parsers: [:json],
     pass: ["text/*"],
     json_decoder: Poison
@@ -88,11 +93,11 @@ defmodule EthElixirOmgAdapter.MockServer do
         respond(conn, ResponseBody.post_request_unhandled_failure(), 500)
 
       %{"expect" => "decoding_failure"} ->
-        Plug.Conn.send_resp(conn, 200, ResponseBody.post_request_decoding_failure())
+        Conn.send_resp(conn, 200, ResponseBody.post_request_decoding_failure())
     end
   end
 
   defp respond(conn, body, code \\ 200) do
-    Plug.Conn.send_resp(conn, code, Poison.encode!(body))
+    Conn.send_resp(conn, code, Poison.encode!(body))
   end
 end

@@ -13,6 +13,10 @@
 # limitations under the License.
 
 defmodule EthElixirOmgAdapter.ResponseBody do
+  @moduledoc """
+  Contains the different resposnses used by the MockServer
+  """
+
   def transaction_create_success(sender, receiver, amount, currency, fee_amount, fee_currency) do
     data = %{
       "result" => "complete",
@@ -24,7 +28,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
           },
           "inputs" => [
             %{
-              "amount" => 1000,
+              "amount" => 1_000,
               "blknum" => 1,
               "currency" => currency,
               "oindex" => 0,
@@ -215,7 +219,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
   def transaction_get_success do
     data = %{
       "block" => %{
-        "blknum" => 30000,
+        "blknum" => 30_000,
         "eth_height" => 146_633,
         "hash" => "0x86c72415cd59771eda3dec8b1d0904a2342f48555e46d17508b73a184024e1f7",
         "timestamp" => 1_566_981_001
@@ -223,7 +227,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
       "inputs" => [
         %{
           "amount" => 99_999_997_025,
-          "blknum" => 29000,
+          "blknum" => 29_000,
           "currency" => "0x0000000000000000000000000000000000000000",
           "oindex" => 1,
           "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",
@@ -235,7 +239,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
       "outputs" => [
         %{
           "amount" => 100,
-          "blknum" => 30000,
+          "blknum" => 30_000,
           "currency" => "0x0000000000000000000000000000000000000000",
           "oindex" => 0,
           "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b052",
@@ -244,7 +248,7 @@ defmodule EthElixirOmgAdapter.ResponseBody do
         },
         %{
           "amount" => 99_999_996_924,
-          "blknum" => 30000,
+          "blknum" => 30_000,
           "currency" => "0x0000000000000000000000000000000000000000",
           "oindex" => 1,
           "owner" => "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",

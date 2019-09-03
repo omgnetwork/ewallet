@@ -110,7 +110,8 @@ defmodule EthBlockchain.DumbAdapter do
   end
 
   def handle_call({:send_raw, _data}, _from, reg) do
-    {:reply, {:ok, "0xbdf562c24ace032176e27621073df58ce1c6f65de3b5932343b70ba03c72132d"}, reg}
+    data = 32 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
+    {:reply, {:ok, "0x" <> data}, reg}
   end
 
   # name

@@ -16,7 +16,9 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.{Crypto, DateFormatter}
-  alias EWalletDB.{BlockchainWallet, Repo}
+  alias EWalletDB.{BlockchainWallet, Transaction, Repo}
+  alias EWallet.{BlockchainHelper, TransactionRegistry}
+  alias Ecto.UUID
 
   describe "/blockchain_wallet.create" do
     test_with_auths "inserts a cold wallet with the given attributes" do
@@ -56,6 +58,54 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         })
 
       refute response["success"]
+    end
+  end
+
+  describe "/blockchain_wallet.deposit_to_childchain" do
+    test_with_auths "deposit to childchain with the given attributes" do
+      identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      adapter = BlockchainHelper.adapter()
+      {:ok, _adapter_pid} = adapter.start_link([])
+
+      attrs = %{
+        token_id: token.id,
+        amount: 100,
+        address: hot_wallet.address,
+        idempotency_token: UUID.generate()
+      }
+
+      response = request("/blockchain_wallet.deposit_to_childchain", attrs)
+
+      assert response["success"]
+      assert response["data"]["blockchain_tx_hash"] != nil
+      assert response["data"]["type"] == "deposit"
+
+      transaction = Transaction.get(response["data"]["id"])
+      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+
+      {:ok, %{pid: blockchain_listener_pid}} =
+        adapter.lookup_listener(transaction.blockchain_tx_hash)
+
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
+    end
+
+    test_with_auths "fails to deposit with a missing address" do
+      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      response =
+        request("/blockchain_wallet.deposit_to_childchain", %{
+          token_id: token.id,
+          amount: 100
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
   end
 

@@ -51,11 +51,11 @@ defmodule EthBlockchain.DumbCCAdapter do
         hash: "0x86c72415cd59771eda3dec8b1d0904a2342f48555e46d17508b73a184024e1f7",
         timestamp: 1_566_981_001
       },
-      cc_block_number: 30000,
+      cc_block_number: 30_000,
       inputs: [
         %{
           amount: 99_999_997_025,
-          block_number: 29000,
+          block_number: 29_000,
           currency: "0x0000000000000000000000000000000000000000",
           oindex: 1,
           owner: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",
@@ -67,7 +67,7 @@ defmodule EthBlockchain.DumbCCAdapter do
       outputs: [
         %{
           amount: 100,
-          block_number: 30000,
+          block_number: 30_000,
           currency: "0x0000000000000000000000000000000000000000",
           oindex: 0,
           owner: "0x811ae0a85d3f86824da3abe49a2407ea55a8b052",
@@ -76,7 +76,7 @@ defmodule EthBlockchain.DumbCCAdapter do
         },
         %{
           amount: 99_999_996_924,
-          block_number: 30000,
+          block_number: 30_000,
           currency: "0x0000000000000000000000000000000000000000",
           oindex: 1,
           owner: "0x811ae0a85d3f86824da3abe49a2407ea55a8b053",
