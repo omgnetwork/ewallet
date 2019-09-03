@@ -112,8 +112,8 @@ defmodule EWallet.FundManagementGate do
       to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
       amount: transaction.amount,
       contract_address: transaction.token.blockchain_address,
-      gas_limit: 21_000,
-      gas_price: 20_000_000_000,
+      gas_limit: transaction.limit,
+      gas_price: transaction.price,
       wallet: %{
         wallet_uuid: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
         account_ref: blockchain_deposit_wallet.path_ref,

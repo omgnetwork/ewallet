@@ -146,6 +146,7 @@ defmodule EWalletDB.DepositTransaction do
     |> assoc_constraint(:to_blockchain_wallet)
   end
 
+  # TODO: Clean that up once working on updating transaction
   defp update_changeset(%DepositTransaction{} = transaction, attrs) do
     transaction
     |> cast_and_validate_required_for_activity_log(

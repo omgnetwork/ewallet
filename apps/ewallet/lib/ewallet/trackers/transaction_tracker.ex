@@ -105,7 +105,7 @@ defmodule EWallet.TransactionTracker do
     # If to a deposit wallet, make sure it's stored
     if BlockchainDepositWallet.get(transaction.to) do
       {:ok, _} =
-        BlockchainDepositWalletGate.store_balances(transaction.to, [transaction.to_token])
+        BlockchainDepositWalletGate.store_balances(transaction.to, blockchain_identifier, [transaction.to_token])
     end
 
     # Unsubscribing from the blockchain subapp
