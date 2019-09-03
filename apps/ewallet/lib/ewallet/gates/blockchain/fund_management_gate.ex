@@ -66,6 +66,7 @@ defmodule EWallet.FundManagementGate do
 
       # TODO: Check for pending transaction with same from / to / status = pending
       with true <- amount > 0 || {:error, :invalid_amount},
+           # TODO: Query balance from blockchain and check > 0
            {:ok, transaction} <-
              DepositTransaction.insert(%{
                type: DepositTransaction.incoming(),
