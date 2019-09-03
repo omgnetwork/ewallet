@@ -22,7 +22,7 @@ defmodule EthBlockchain.TransactionTest do
 
   setup state do
     {:ok, {address, public_key}} = Wallet.generate()
-    overwritten_opts = Keyword.merge(state[:adapter_opts], [eth_node_adapter: :dumb_tx])
+    overwritten_opts = Keyword.merge(state[:adapter_opts], eth_node_adapter: :dumb_tx)
 
     state
     |> Map.put(:valid_sender, address)
@@ -244,6 +244,7 @@ defmodule EthBlockchain.TransactionTest do
     test "generates a desposit transaction for eth currency", state do
       tx_bytes = "0x01"
       amount = 100
+
       {resp, encoded_trx} =
         Transaction.deposit_eth(
           %{
@@ -274,6 +275,7 @@ defmodule EthBlockchain.TransactionTest do
   describe "deposit_erc20/2" do
     test "generates a desposit transaction for erc20 currency", state do
       tx_bytes = "0x01"
+
       {resp, encoded_trx} =
         Transaction.deposit_erc20(
           %{
@@ -303,6 +305,7 @@ defmodule EthBlockchain.TransactionTest do
   describe "approve_erc20/2" do
     test "generates a desposit transaction for erc20 currency", state do
       amount = 100
+
       {resp, encoded_trx} =
         Transaction.approve_erc20(
           %{

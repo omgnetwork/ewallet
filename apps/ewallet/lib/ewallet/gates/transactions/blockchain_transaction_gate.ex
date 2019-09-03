@@ -317,7 +317,10 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp submit_if_needed(transaction), do: {:ok, transaction}
 
-  defp submit(%{type: @external_transaction, blockchain_identifier: @childchain_identifier} = transaction) do
+  defp submit(
+         %{type: @external_transaction, blockchain_identifier: @childchain_identifier} =
+           transaction
+       ) do
     attrs = %{
       from: transaction.from_blockchain_address,
       to: transaction.to_blockchain_address,

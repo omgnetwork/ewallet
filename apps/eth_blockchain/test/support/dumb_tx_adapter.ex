@@ -37,6 +37,6 @@ defmodule EthBlockchain.DumbTxAdapter do
   end
 
   def handle_call(call, _from, reg) do
-   {:reply, Adapter.eth_call(call, []), reg}
+    {:reply, Adapter.eth_call(call, []), reg}
   end
 end

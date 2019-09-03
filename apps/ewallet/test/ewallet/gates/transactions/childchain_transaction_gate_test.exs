@@ -56,7 +56,10 @@ defmodule EWallet.ChildchainTransactionGateTest do
       assert transaction.to_blockchain_address == contract_address
 
       {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
-      {:ok, %{pid: blockchain_listener_pid}} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+
+      {:ok, %{pid: blockchain_listener_pid}} =
+        meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+
       # to update the transactions after the test is done.
       on_exit(fn ->
         :ok = GenServer.stop(pid)

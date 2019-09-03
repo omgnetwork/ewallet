@@ -21,7 +21,7 @@ defmodule EthBlockchain.ContractTest do
 
   setup state do
     {:ok, {address, _public_key}} = Wallet.generate()
-    overwritten_opts = Keyword.merge(state[:adapter_opts], [eth_node_adapter: :dumb_tx])
+    overwritten_opts = Keyword.merge(state[:adapter_opts], eth_node_adapter: :dumb_tx)
 
     state
     |> Map.put(:valid_sender, address)

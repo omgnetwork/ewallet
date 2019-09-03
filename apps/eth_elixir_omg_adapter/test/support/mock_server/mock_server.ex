@@ -76,7 +76,6 @@ defmodule EthElixirOmgAdapter.MockServer do
     end
   end
 
-
   post("/post_request_test") do
     case conn.params do
       %{"expect" => "success", "data" => data} ->

@@ -26,7 +26,8 @@ defmodule EthBlockchain.ChildchainTest do
   setup state do
     {:ok, {address, public_key}} = Wallet.generate()
 
-    overwritten_opts = Keyword.merge(state[:adapter_opts], [eth_node_adapter: :dumb_tx])
+    overwritten_opts = Keyword.merge(state[:adapter_opts], eth_node_adapter: :dumb_tx)
+
     state
     |> Map.put(:valid_sender, address)
     |> Map.put(:public_key, public_key)
