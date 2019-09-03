@@ -201,6 +201,8 @@ defmodule EthBlockchain.Adapter do
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
+  # TODO: Move these calls to a separate file (`adapter.ex`) along with the `subscribe`, `unsubscribe`, ...
+  # and rename this file to `adapter_server.ex`
   @spec call(call(), list()) :: resp({:ok, any()})
   def call(func_spec, opts \\ [])
 
