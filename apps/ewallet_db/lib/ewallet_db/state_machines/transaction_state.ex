@@ -84,6 +84,7 @@ defmodule EWalletDB.TransactionState do
       @blockchain_confirmed => [@confirmed],
       @confirmed => []
     },
+    # TODO: add a check so this flow only works for deposit transaction
     from_deposit_to_pooled: %{
       @pending => [@blockchain_submitted],
       @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
@@ -124,6 +125,7 @@ defmodule EWalletDB.TransactionState do
       attrs = Map.merge(attrs, %{status: new_state})
       %mod{} = transaction
 
+      # Implement @behavior to mod.state_changeset
       transaction
       |> mod.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
       |> Repo.update_record_with_activity_log()

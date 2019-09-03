@@ -13,9 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.FundManagementGate do
-  @moduledoc """
-
-  """
+  # TODO: moduledoc
   alias EWallet.{BlockchainHelper, TransactionRegistry, TransactionTracker}
 
   alias EWalletDB.{
