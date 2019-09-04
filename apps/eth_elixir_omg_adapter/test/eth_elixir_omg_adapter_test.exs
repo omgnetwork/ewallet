@@ -1,2 +1,0 @@
-defmodule EthElixirOmgAdapterTest do
-end

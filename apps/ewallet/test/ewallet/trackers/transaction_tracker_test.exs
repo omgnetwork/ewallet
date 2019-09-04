@@ -16,7 +16,7 @@ defmodule EWallet.TransactionTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   import ExUnit.CaptureLog
-  alias EWallet.TransactionTracker
+  alias EWallet.{BlockchainHelper, TransactionTracker}
   alias EWalletDB.Transaction
 
   describe "start_link/1" do
@@ -49,8 +49,6 @@ defmodule EWallet.TransactionTrackerTest do
                   registry: nil
                 }}
     end
-
-    test "init with childchain transaction"
   end
 
   describe "handle_cast/2 with :confirmations_count" do

@@ -49,7 +49,7 @@ defmodule EthElixirOmgAdapter.HttpClient do
           {:error, :elixir_omg_bad_request, error_code: "invalid response"}
       end
     else
-      {:error, error} -> {:error, :elixir_omg_bad_request, error_code: "decoding error"}
+      {:error, _error} -> {:error, :elixir_omg_bad_request, error_code: "decoding error"}
     end
   end
 end
