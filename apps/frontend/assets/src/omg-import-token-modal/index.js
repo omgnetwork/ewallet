@@ -3,12 +3,12 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 
+import { generateDepositAddress, getWallets } from '../omg-wallet/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { Input, Button, Icon, Banner, Id } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { getErc20Capabilities, createToken } from '../omg-token/action'
-import { formatAmount } from '../utils/formatter'
 
 const Form = styled.form`
   padding: 50px;
@@ -39,6 +39,7 @@ const MetaMaskImage = styled.img`
 const StepStyle = styled(Form)``
 const ButtonContainer = styled.div`
   display: flex;
+  justify-content: center;
   text-align: center;
   a {
     margin-top: 20px;
@@ -114,16 +115,17 @@ class ImportToken extends Component {
   static propTypes = {
     createToken: PropTypes.func,
     getErc20Capabilities: PropTypes.func,
-    onFetchSuccess: PropTypes.func,
     onRequestClose: PropTypes.func,
     enableMetamaskEthereumConnection: PropTypes.func,
+    generateDepositAddress: PropTypes.func,
+    getWallets: PropTypes.func,
     metamaskUsable: PropTypes.bool
   }
   state = {
     importedToken: null,
     error: '',
     submitting: false,
-    step: 3,
+    step: 1,
     name: '',
     symbol: '',
     amount: '',
@@ -175,7 +177,6 @@ class ImportToken extends Component {
     }
   }
   onCreateToken = async e => {
-    // TODO: generate deposit address for master if it doesnt exist already, parallel promise
     e.preventDefault()
     if (this.shouldSubmit()) {
       try {
@@ -183,12 +184,40 @@ class ImportToken extends Component {
         const result = await this.props.createToken({
           name: this.state.name,
           symbol: this.state.symbol,
-          amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
-          decimal: this.state.decimal
+          decimal: this.state.decimal,
+          amount: this.state.amount
         })
         if (result.data) {
-          this.props.onRequestClose()
-          this.props.onFetchSuccess()
+          const wallets = await this.props.getWallets({
+            matchAll: [
+              {
+                field: 'account.name',
+                comparator: 'eq',
+                value: 'master_account'
+              },
+              {
+                field: 'name',
+                comparator: 'eq',
+                value: 'primary'
+              }
+            ]
+          })
+          const primaryWallet = _.first(wallets.data)
+
+          if (primaryWallet.blockchain_deposit_address) {
+            this.setState({
+              submitting: false,
+              step: 3,
+              depositAddress: primaryWallet.blockchain_deposit_address
+            })
+          } else {
+            const generatedWallet = await this.props.generateDepositAddress(primaryWallet.address)
+            this.setState({
+              submitting: false,
+              step: 3,
+              depositAddress: generatedWallet.data.blockchain_deposit_address
+            })
+          }
         } else {
           this.setState({
             submitting: false,
@@ -395,9 +424,10 @@ class ImportTokenModal extends Component {
     open: PropTypes.bool,
     createToken: PropTypes.func,
     getErc20Capabilities: PropTypes.func,
-    onFetchSuccess: PropTypes.func,
     metamaskUsable: PropTypes.bool,
-    enableMetamaskEthereumConnection: PropTypes.func
+    enableMetamaskEthereumConnection: PropTypes.func,
+    generateDepositAddress: PropTypes.func,
+    getWallets: PropTypes.func
   }
   render () {
     return (
@@ -406,14 +436,7 @@ class ImportTokenModal extends Component {
         onRequestClose={this.props.onRequestClose}
         contentLabel='import token modal'
       >
-        <ImportToken
-          onRequestClose={this.props.onRequestClose}
-          createToken={this.props.createToken}
-          getErc20Capabilities={this.props.getErc20Capabilities}
-          onFetchSuccess={this.props.onFetchSuccess}
-          metamaskUsable={this.props.metamaskUsable}
-          enableMetamaskEthereumConnection={this.props.enableMetamaskEthereumConnection}
-        />
+        <ImportToken {...this.props} />
       </Modal>
     )
   }
@@ -422,5 +445,11 @@ export default connect(
   state => ({
     metamaskUsable: selectMetamaskUsable(state)
   }),
-  { createToken, getErc20Capabilities, enableMetamaskEthereumConnection }
+  {
+    createToken,
+    getErc20Capabilities,
+    enableMetamaskEthereumConnection,
+    generateDepositAddress,
+    getWallets
+  }
 )(ImportTokenModal)
