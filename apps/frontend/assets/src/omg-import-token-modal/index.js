@@ -3,7 +3,9 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 
-import { Input, Button, Icon } from '../omg-uikit'
+import { selectMetamaskUsable, selectMetamaskEnabled } from '../omg-web3/selector'
+import { enableMetamaskEthereumConnection } from '../omg-web3/action'
+import { Input, Button, Icon, Banner, Id } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { getErc20Capabilities, createToken } from '../omg-token/action'
 import { formatAmount } from '../utils/formatter'
@@ -29,9 +31,27 @@ const Form = styled.form`
     text-align: center;
   }
 `
-const AddressStepStyle = styled(Form)``
+const MetaMaskImage = styled.img`
+  max-width: 80px;
+  display: block;
+  margin: 0 auto;
+`
+const StepStyle = styled(Form)``
 const ButtonContainer = styled.div`
+  display: flex;
   text-align: center;
+  a {
+    margin-top: 20px;
+    color: white;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    width: '100%';
+    min-width: 60px;
+    position: relative;
+    padding: 10px;
+    cursor: pointer;
+    background-color: ${props => props.theme.colors.BL400};
+  }
   button:first-child {
     margin-right: 10px;
   }
@@ -48,33 +68,80 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
-
+const IdStyle = styled.div`
+  text-align: center;
+  color: ${props => props.theme.colors.B100};
+  margin-bottom: 10px;
+`
+const InfoIcon = styled(Icon)`
+  border-radius: 100%;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  background-color: #ffb200;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+`
+const ConfirmStyles = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+const CancelButton = styled.div`
+  cursor: pointer;
+  color: ${props => props.theme.colors.BL400};
+  margin-top: 20px;
+`
+const DisclaimerStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-top: 20px;
+  button {
+    margin: 0;
+  }
+  em {
+    color: ${props => props.theme.colors.B100};
+  }
+`
 class ImportToken extends Component {
   static propTypes = {
     createToken: PropTypes.func,
     getErc20Capabilities: PropTypes.func,
     onFetchSuccess: PropTypes.func,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    enableMetamaskEthereumConnection: PropTypes.func,
+    metamaskUsable: PropTypes.bool,
+    metamaskEnabled: PropTypes.bool
   }
   state = {
     importedToken: null,
     error: '',
     submitting: false,
-    step: 1,
+    step: 3,
     name: '',
     symbol: '',
     amount: '',
     decimal: 18,
-    blockchainAddress: ''
+    blockchainAddress: '',
+    depositAddress: ''
+  }
+  componentDidUpdate = prevProps => {
+    if (!prevProps.metamaskUsable && this.props.metamaskUsable) {
+      this.setState({ step: 5 })
+    }
   }
   onChangeInputName = e => {
     this.setState({ name: e.target.value })
   }
   onChangeInputSymbol = e => {
     this.setState({ symbol: e.target.value })
-  }
-  onChangeAmount = e => {
-    this.setState({ amount: e.target.value })
   }
   onChangeDecimal = e => {
     this.setState({ decimal: e.target.value })
@@ -108,7 +175,8 @@ class ImportToken extends Component {
       this.setState({ submitting: false })
     }
   }
-  onSubmit = async e => {
+  onCreateToken = async e => {
+    // TODO: generate deposit address for master if it doesnt exist already, parallel promise
     e.preventDefault()
     if (this.shouldSubmit()) {
       try {
@@ -143,15 +211,51 @@ class ImportToken extends Component {
       name: '',
       symbol: '',
       amount: '',
-      decimal: '',
-      blockchainAddress: ''
+      decimal: ''
     })
+  }
+  depositToken = e => {
+    e.preventDefault()
+    if (this.props.metamaskUsable) {
+      this.setState({ step: 5 })
+    } else {
+      this.setState({ step: 4 })
+    }
+  }
+  renderConfirmTokenStep = () => {
+    return (
+      <StepStyle>
+        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
+        <ConfirmStyles>
+          <InfoIcon name='Info' />
+          <div>
+            {`In order to confirm the token you have just imported, please deposit some ${this.state.symbol} to ${this.state.depositAddress}`}
+          </div>
+          <Button
+            onClick={this.depositToken}
+            size='small'
+          >
+            <span>Deposit</span>
+          </Button>
+          <CancelButton onClick={this.props.onRequestClose}>
+            Cancel
+          </CancelButton>
+        </ConfirmStyles>
+      </StepStyle>
+    )
   }
   renderCreationStep = () => {
     return (
-      <Form onSubmit={this.onSubmit} noValidate>
+      <Form onSubmit={this.onCreateToken} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>Import Token</h4>
+        <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
+        <IdStyle>
+          <Id withCopy={false}>{this.state.blockchainAddress}</Id>
+        </IdStyle>
+        {(!this.state.name || !this.state.symbol || !this.state.decimal) && (
+          <Banner text='Please fill in any unspecified fields.' />
+        )}
         <Input
           disabled={!!this.state.importedToken.name}
           placeholder='Token name'
@@ -175,13 +279,6 @@ class ImportToken extends Component {
           type='number'
           step={'1'}
         />
-        <Input
-          disabled={!!this.state.importedToken.total_supply}
-          placeholder='Amount (Optional)'
-          value={this.state.amount}
-          onChange={this.onChangeAmount}
-          type='amount'
-        />
         <ButtonContainer>
           <Button
             size='small'
@@ -197,7 +294,7 @@ class ImportToken extends Component {
             loading={this.state.submitting}
             disabled={!this.shouldSubmit() || this.state.submitting}
           >
-            <span>Import Token</span>
+            <span>Next</span>
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>
@@ -206,27 +303,73 @@ class ImportToken extends Component {
   }
   renderAddressStep = () => {
     return (
-      <AddressStepStyle>
+      <StepStyle>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>Import Token</h4>
+        <h4>Import Blockchain Token</h4>
         <Input
           autofocus
-          placeholder='ERC20 Address'
+          placeholder='Contract Address'
           value={this.state.blockchainAddress}
           onChange={e => this.setState({ blockchainAddress: e.target.value })}
         />
         <ButtonContainer>
           <Button
             size='small'
-            loading={false}
+            loading={this.state.submitting}
             disabled={!this.state.blockchainAddress}
             onClick={this.checkErc20}
           >
-            <span>Next</span>
+            <span>Import</span>
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>
-      </AddressStepStyle>
+      </StepStyle>
+    )
+  }
+  connectMetamask = e => {
+    e.preventDefault()
+    this.props.enableMetamaskEthereumConnection()
+  }
+  renderDownloadMetamask = () => {
+    return (
+      <StepStyle>
+        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
+        <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
+        <DisclaimerStyle>
+          {this.props.metamaskEnabled && (
+            <>
+              <Button onClick={this.connectMetamask} disabled={!window.ethereum || !window.web3}>
+                Connect Metamask
+              </Button>
+              <CancelButton onClick={this.props.onRequestClose}>
+                Cancel
+              </CancelButton>
+            </>
+          )}
+          {!this.props.metamaskEnabled && (
+            <>
+              <span>{'You do not have Metamask'}</span>
+              <span><em>{'Please download Metamask to access your wallet.'}</em></span>
+              <ButtonContainer>
+                <a href='https://metamask.io/' target='_blank' rel='noopener noreferrer'>
+                  Download Metamask
+                </a>
+              </ButtonContainer>
+              <CancelButton onClick={this.props.onRequestClose}>
+                No, Thanks
+              </CancelButton>
+            </>
+          )}
+        </DisclaimerStyle>
+      </StepStyle>
+    )
+  }
+  renderTransfer = () => {
+    return (
+      <div>
+        Transfer tokens...
+      </div>
     )
   }
   render () {
@@ -235,6 +378,12 @@ class ImportToken extends Component {
         return this.renderAddressStep()
       case 2:
         return this.renderCreationStep()
+      case 3:
+        return this.renderConfirmTokenStep()
+      case 4:
+        return this.renderDownloadMetamask()
+      case 5:
+        return this.renderTransfer()
       default:
         return null
     }
@@ -247,7 +396,10 @@ class ImportTokenModal extends Component {
     open: PropTypes.bool,
     createToken: PropTypes.func,
     getErc20Capabilities: PropTypes.func,
-    onFetchSuccess: PropTypes.func
+    onFetchSuccess: PropTypes.func,
+    metamaskUsable: PropTypes.bool,
+    metamaskEnabled: PropTypes.bool,
+    enableMetamaskEthereumConnection: PropTypes.func
   }
   render () {
     return (
@@ -261,12 +413,18 @@ class ImportTokenModal extends Component {
           createToken={this.props.createToken}
           getErc20Capabilities={this.props.getErc20Capabilities}
           onFetchSuccess={this.props.onFetchSuccess}
+          metamaskUsable={this.props.metamaskUsable}
+          metamaskEnabled={this.props.metamaskEnabled}
+          enableMetamaskEthereumConnection={this.props.enableMetamaskEthereumConnection}
         />
       </Modal>
     )
   }
 }
 export default connect(
-  null,
-  { createToken, getErc20Capabilities }
+  state => ({
+    metamaskUsable: selectMetamaskUsable(state),
+    metamaskEnabled: selectMetamaskEnabled(state)
+  }),
+  { createToken, getErc20Capabilities, enableMetamaskEthereumConnection }
 )(ImportTokenModal)
