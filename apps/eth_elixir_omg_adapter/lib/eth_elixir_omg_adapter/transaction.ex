@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO: Move in new subapp
 defmodule EthElixirOmgAdapter.Transaction do
   @moduledoc """
   Internal representation of transaction spent on Plasma chain.

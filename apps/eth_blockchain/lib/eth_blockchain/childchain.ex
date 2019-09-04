@@ -100,6 +100,10 @@ defmodule EthBlockchain.Childchain do
     Adapter.childchain_call({:get_transaction_receipt, tx_hash}, opts)
   end
 
+  def get_balance(%{address: address}, opts \\ []) do
+    Adapter.childchain_call({:get_balance, address}, opts)
+  end
+
   # def get_block do
   # TODO: get block and parse transactions to find relevant ones
   # to be used by a childchain AddressTracker

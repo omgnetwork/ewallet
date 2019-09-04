@@ -234,6 +234,10 @@ defmodule EthBlockchain.Adapter do
     Childchain.send(attrs, opts)
   end
 
+  def call({:get_childchain_balance, attrs}, opts) do
+    Childchain.get_balance(attrs, opts)
+  end
+
   def call({:deploy_erc20, attrs}, opts) do
     Contract.deploy_erc20(attrs, opts)
   end

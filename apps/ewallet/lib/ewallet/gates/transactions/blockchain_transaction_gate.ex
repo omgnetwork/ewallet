@@ -211,23 +211,45 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  # TODO: query balance on plasma and check
-  defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier}), do: true
+  defp enough_funds?(%{"type" => @deposit_transaction} = attrs) do
+    attrs
+    |> get_childchain_balance()
+    |> process_balance_response(attrs)
+  end
 
-  defp enough_funds?(%{
+  defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier} = attrs) do
+    attrs
+    |> get_childchain_balance()
+    |> process_balance_response(attrs)
+  end
+
+  defp enough_funds?(%{"blockchain_identifier" => @rootchain_identifier} = attrs) do
+    attrs
+    |> get_rootchain_balance()
+    |> process_balance_response(attrs)
+  end
+
+  defp get_rootchain_balance(%{
          "from_blockchain_address" => address,
-         "from_token" => token,
-         "from_amount" => amount,
-         "blockchain_identifier" => @rootchain_identifier
+         "from_token" => token
        }) do
-    # TODO: handle errors
-    {:ok, balances} =
-      BlockchainHelper.call(:get_balances, %{
-        address: address,
-        contract_addresses: [token.blockchain_address]
-      })
+    BlockchainHelper.call(:get_balances, %{
+      address: address,
+      contract_addresses: [token.blockchain_address]
+    })
+  end
 
+  defp get_childchain_balance(%{"from_blockchain_address" => address}) do
+    BlockchainHelper.call(:get_childchain_balance, %{address: address})
+  end
+
+  defp process_balance_response({:ok, balances}, %{"from_token" => token, "from_amount" => amount}) do
     (balances[token.blockchain_address] || 0) > amount
+  end
+
+  defp process_balance_response(_error, _attrs) do
+    # TODO: handle error
+    false
   end
 
   defp set_blockchain(attrs) do

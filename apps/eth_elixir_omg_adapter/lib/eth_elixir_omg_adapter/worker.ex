@@ -15,7 +15,7 @@
 defmodule EthElixirOmgAdapter.Worker do
   @moduledoc false
 
-  alias EthElixirOmgAdapter.{Config, Transaction, TransactionReceipt, ErrorHandler}
+  alias EthElixirOmgAdapter.{Balance, Config, Transaction, TransactionReceipt, ErrorHandler}
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -81,5 +81,9 @@ defmodule EthElixirOmgAdapter.Worker do
 
   def handle_call({:send, from, to, amount, currency}, _from, state) do
     {:reply, Transaction.send(from, to, amount, currency), state}
+  end
+
+  def handle_call({:get_balance, address}, _from, state) do
+    {:reply, Balance.get(address), state}
   end
 end
