@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 
-import { selectMetamaskUsable, selectMetamaskEnabled } from '../omg-web3/selector'
+import { selectMetamaskUsable } from '../omg-web3/selector'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { Input, Button, Icon, Banner, Id } from '../omg-uikit'
 import Modal from '../omg-modal'
@@ -117,8 +117,7 @@ class ImportToken extends Component {
     onFetchSuccess: PropTypes.func,
     onRequestClose: PropTypes.func,
     enableMetamaskEthereumConnection: PropTypes.func,
-    metamaskUsable: PropTypes.bool,
-    metamaskEnabled: PropTypes.bool
+    metamaskUsable: PropTypes.bool
   }
   state = {
     importedToken: null,
@@ -337,9 +336,9 @@ class ImportToken extends Component {
         <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
         <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
         <DisclaimerStyle>
-          {this.props.metamaskEnabled && (
+          {(window.ethereum || window.web3) && (
             <>
-              <Button onClick={this.connectMetamask} disabled={!window.ethereum || !window.web3}>
+              <Button onClick={this.connectMetamask}>
                 Connect Metamask
               </Button>
               <CancelButton onClick={this.props.onRequestClose}>
@@ -347,7 +346,7 @@ class ImportToken extends Component {
               </CancelButton>
             </>
           )}
-          {!this.props.metamaskEnabled && (
+          {(!window.ethereum || !window.web3) && (
             <>
               <span>{'You do not have Metamask'}</span>
               <span><em>{'Please download Metamask to access your wallet.'}</em></span>
@@ -398,7 +397,6 @@ class ImportTokenModal extends Component {
     getErc20Capabilities: PropTypes.func,
     onFetchSuccess: PropTypes.func,
     metamaskUsable: PropTypes.bool,
-    metamaskEnabled: PropTypes.bool,
     enableMetamaskEthereumConnection: PropTypes.func
   }
   render () {
@@ -414,7 +412,6 @@ class ImportTokenModal extends Component {
           getErc20Capabilities={this.props.getErc20Capabilities}
           onFetchSuccess={this.props.onFetchSuccess}
           metamaskUsable={this.props.metamaskUsable}
-          metamaskEnabled={this.props.metamaskEnabled}
           enableMetamaskEthereumConnection={this.props.enableMetamaskEthereumConnection}
         />
       </Modal>
@@ -423,8 +420,7 @@ class ImportTokenModal extends Component {
 }
 export default connect(
   state => ({
-    metamaskUsable: selectMetamaskUsable(state),
-    metamaskEnabled: selectMetamaskEnabled(state)
+    metamaskUsable: selectMetamaskUsable(state)
   }),
   { createToken, getErc20Capabilities, enableMetamaskEthereumConnection }
 )(ImportTokenModal)
