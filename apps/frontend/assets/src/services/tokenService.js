@@ -59,3 +59,10 @@ export function getTokenById (id) {
     data: { id }
   })
 }
+
+export function getErc20Capabilities (blockchain_address) {
+  return authenticatedRequest({
+    path: '/token.get_erc20_capabilities',
+    data: { blockchain_address }
+  })
+}

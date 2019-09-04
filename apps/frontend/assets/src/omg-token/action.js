@@ -61,3 +61,10 @@ export const getTokenById = id =>
     action: 'REQUEST',
     service: () => tokenService.getTokenStatsById(id)
   })
+
+export const getErc20Capabilities = address =>
+  createActionCreator({
+    actionName: 'TOKEN_CAPABILITIES',
+    action: 'REQUEST',
+    service: () => tokenService.getErc20Capabilities(address)
+  })

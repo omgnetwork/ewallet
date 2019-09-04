@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import styled from 'styled-components'
 
+import { openModal } from '../omg-modal/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
@@ -42,12 +45,22 @@ const columns = [
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true }
 ]
+
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { openModal }
+  )
+)
+
 class TokenDetailPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    openModal: PropTypes.func
   }
   state = {
     createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
@@ -93,11 +106,22 @@ class TokenDetailPage extends Component {
   renderMintTokenButton = () => {
     return (
       <Button
-        key='mint'
+        key='mint-token'
         size='small'
         onClick={this.onClickCreateToken}
       >
         <Icon name='Plus' /><span>Create Token</span>
+      </Button>
+    )
+  }
+  renderImportTokenButton = () => {
+    return (
+      <Button
+        key='import-token'
+        size='small'
+        onClick={() => this.props.openModal({ id: 'importTokenModal' })}
+      >
+        <Icon name='Plus' /><span>Import Token</span>
       </Button>
     )
   }
@@ -153,7 +177,8 @@ class TokenDetailPage extends Component {
           title={'Tokens'}
           buttons={[
             tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
-            this.renderMintTokenButton()
+            this.renderMintTokenButton(),
+            this.renderImportTokenButton()
           ]}
         />
         <SortableTable
@@ -200,4 +225,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default withRouter(TokenDetailPage)
+export default enhance(TokenDetailPage)
