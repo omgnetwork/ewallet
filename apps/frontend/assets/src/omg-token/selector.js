@@ -6,6 +6,10 @@ export const selectTokens = (state, search) => {
       return reg.test(x.name) || reg.test(x.symbol)
     })
 }
+export const selectBlockchainTokenByAddress = state => blockchainAddress => {
+  const tokenKey = _.findKey(state.tokens, ['blockchain_address', blockchainAddress.toLowerCase()])
+  return state.tokens[tokenKey]
+}
 export const selectTokensCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(tokenId => {
     return selectGetTokenById(state)(tokenId)

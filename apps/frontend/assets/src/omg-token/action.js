@@ -1,6 +1,6 @@
 import * as tokenService from '../services/tokenService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createToken = ({ name, symbol, decimal, amount }) =>
+export const createToken = ({ name, symbol, decimal, amount, blockchain_address }) =>
   createActionCreator({
     actionName: 'TOKEN',
     action: 'CREATE',
@@ -9,7 +9,8 @@ export const createToken = ({ name, symbol, decimal, amount }) =>
         name,
         symbol,
         decimal,
-        amount
+        amount,
+        blockchain_address
       })
   })
 

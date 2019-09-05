@@ -14,14 +14,15 @@ export function getAllTokens ({ page, perPage, sort, matchAll, matchAny }) {
   })
 }
 
-export function createToken ({ name, symbol, decimal = 18, amount = 0 }) {
+export function createToken ({ name, symbol, decimal = 18, amount, blockchain_address }) {
   return authenticatedRequest({
     path: '/token.create',
     data: {
       name,
       symbol,
       subunit_to_unit: parseInt(Math.pow(10, decimal)),
-      amount
+      amount,
+      blockchain_address
     }
   })
 }

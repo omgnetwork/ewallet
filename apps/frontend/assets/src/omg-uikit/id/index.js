@@ -17,9 +17,14 @@ const IdStyle = styled.div`
     max-width: ${props => props.maxChar ? 'none' : `${props.maxWidth}px`};
   }
 `
-const Id = ({ maxWidth = 200, withCopy = true, maxChar, children }) => {
+const Id = ({ maxWidth = 200, withCopy = true, maxChar, children, ...rest }) => {
   return (
-    <IdStyle maxWidth={maxWidth} maxChar={maxChar} withCopy={withCopy}>
+    <IdStyle
+      maxWidth={maxWidth}
+      maxChar={maxChar}
+      withCopy={withCopy}
+      {...rest}
+    >
       <div className='data'>
         {maxChar
           ? _.truncate(children, { 'length': maxChar })

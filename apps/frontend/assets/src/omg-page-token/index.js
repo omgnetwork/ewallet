@@ -114,12 +114,12 @@ class TokenDetailPage extends Component {
       </Button>
     )
   }
-  renderImportTokenButton = () => {
+  renderImportTokenButton = (refetch) => {
     return (
       <Button
         key='import-token'
         size='small'
-        onClick={() => this.props.openModal({ id: 'importTokenModal' })}
+        onClick={() => this.props.openModal({ id: 'importTokenModal', refetch })}
       >
         <Icon name='Plus' /><span>Import Token</span>
       </Button>
@@ -166,7 +166,7 @@ class TokenDetailPage extends Component {
         symbol: token.symbol,
         created: token.created_at,
         id: token.id,
-        blockchain: token.blockchain_status === 'confirmed'
+        blockchain: !!token.blockchain_status
       }
     })
 
@@ -178,7 +178,7 @@ class TokenDetailPage extends Component {
           buttons={[
             tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
             this.renderMintTokenButton(),
-            this.renderImportTokenButton()
+            this.renderImportTokenButton(fetch)
           ]}
         />
         <SortableTable
@@ -193,7 +193,10 @@ class TokenDetailPage extends Component {
           navigation
         />
 
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
+        <ExportModal
+          open={this.state.exportModalOpen}
+          onRequestClose={this.onRequestCloseExport}
+        />
         <CreateTokenModal
           open={this.state.createTokenModalOpen}
           onRequestClose={this.onRequestCloseCreateToken}

@@ -9,6 +9,7 @@ import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { Input, Button, Icon, Banner, Id } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { getErc20Capabilities, createToken } from '../omg-token/action'
+import { selectBlockchainTokenByAddress } from '../omg-token/selector'
 
 const Form = styled.form`
   padding: 50px;
@@ -91,6 +92,7 @@ const ConfirmStyles = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 `
 const CancelButton = styled.div`
   cursor: pointer;
@@ -111,6 +113,13 @@ const DisclaimerStyle = styled.div`
     color: ${props => props.theme.colors.B100};
   }
 `
+const StyledId = styled(Id)`
+  margin-top: 20px;
+  background-color: ${props => props.theme.colors.S200};
+  color: ${props => props.theme.colors.B100};
+  border-radius: 4px;
+  padding: 10px;
+`
 class ImportToken extends Component {
   static propTypes = {
     createToken: PropTypes.func,
@@ -119,7 +128,9 @@ class ImportToken extends Component {
     enableMetamaskEthereumConnection: PropTypes.func,
     generateDepositAddress: PropTypes.func,
     getWallets: PropTypes.func,
-    metamaskUsable: PropTypes.bool
+    metamaskUsable: PropTypes.bool,
+    refetch: PropTypes.func,
+    selectBlockchainTokenByAddress: PropTypes.func
   }
   state = {
     importedToken: null,
@@ -152,6 +163,11 @@ class ImportToken extends Component {
   }
   checkErc20 = async e => {
     e.preventDefault()
+    const existingToken = !!this.props.selectBlockchainTokenByAddress(this.state.blockchainAddress)
+    if (existingToken) {
+      return this.setState({ error: 'This token has already been imported.' })
+    }
+
     try {
       this.setState({ submitting: true })
       const result = await this.props.getErc20Capabilities(this.state.blockchainAddress)
@@ -185,9 +201,10 @@ class ImportToken extends Component {
           name: this.state.name,
           symbol: this.state.symbol,
           decimal: this.state.decimal,
-          amount: this.state.amount
+          blockchain_address: this.state.blockchainAddress
         })
         if (result.data) {
+          this.props.refetch()
           const wallets = await this.props.getWallets({
             matchAll: [
               {
@@ -257,9 +274,10 @@ class ImportToken extends Component {
         <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
         <ConfirmStyles>
           <InfoIcon name='Info' />
-          <div>
-            {`In order to confirm the token you have just imported, please deposit some ${this.state.symbol} to ${this.state.depositAddress}`}
-          </div>
+          <span>
+            {`In order to confirm the token you have just imported, please deposit some ${this.state.symbol} to this master account blockchain deposit address. `}
+          </span>
+          <StyledId withCopy>{this.state.depositAddress}</StyledId>
           <Button
             onClick={this.depositToken}
             size='small'
@@ -420,6 +438,7 @@ class ImportToken extends Component {
 
 class ImportTokenModal extends Component {
   static propTypes = {
+    refetch: PropTypes.func,
     onRequestClose: PropTypes.func,
     open: PropTypes.bool,
     createToken: PropTypes.func,
@@ -427,7 +446,8 @@ class ImportTokenModal extends Component {
     metamaskUsable: PropTypes.bool,
     enableMetamaskEthereumConnection: PropTypes.func,
     generateDepositAddress: PropTypes.func,
-    getWallets: PropTypes.func
+    getWallets: PropTypes.func,
+    selectBlockchainTokenByAddress: PropTypes.func
   }
   render () {
     return (
@@ -443,7 +463,8 @@ class ImportTokenModal extends Component {
 }
 export default connect(
   state => ({
-    metamaskUsable: selectMetamaskUsable(state)
+    metamaskUsable: selectMetamaskUsable(state),
+    selectBlockchainTokenByAddress: selectBlockchainTokenByAddress(state)
   }),
   {
     createToken,
