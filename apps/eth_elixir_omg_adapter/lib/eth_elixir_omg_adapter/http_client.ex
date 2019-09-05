@@ -13,11 +13,20 @@
 # limitations under the License.
 
 defmodule EthElixirOmgAdapter.HttpClient do
-  @moduledoc false
+  @moduledoc """
+  Simple HTTP client to perform request on the watcher's API
+  """
 
   alias EthElixirOmgAdapter.Config
   alias HTTPoison.Response
 
+  @doc """
+  Build, submit and parse the response of a call to the watcher's API.
+  Returns
+  {:ok, data} if success
+  {:error, :elixir_omg_connection_error} if unreachable
+  {:error, elixir_omg_bad_request, params} if bad response
+  """
   @spec post_request(binary(), []) :: {:ok | :error, any()}
   def post_request(payload, action) do
     headers = [{"Content-Type", "application/json"}, {"accept", "application/json"}]

@@ -18,6 +18,15 @@ defmodule EthBlockchain.Childchain do
 
   @eth Helper.default_address()
 
+  @doc """
+  Submits a deposit transaction to the plsma chain.
+  For ERC20 deposits, an `approve(address, amount)` call will be made
+  first, then the deposit will be done.
+  Returns
+  {:ok, tx_hash} if success
+  {:error, code} || {:error, code, params} if failure
+  """
+  @spec deposit(map(), list() | nil) :: {:ok, String.t()}
   def deposit(
         %{
           to: to,
@@ -66,6 +75,14 @@ defmodule EthBlockchain.Childchain do
     end
   end
 
+  @doc """
+  Submits a transfer transaction to the plsma chain.
+
+  Returns
+  {:ok, transaction_hash, transaction_index, block_number} if success
+  {:error, code} || {:error, code, params} if failure
+  """
+  @spec send(map(), list() | nil) :: {:ok, String.t(), integer(), integer()}
   def send(
         %{
           from: from,
@@ -77,9 +94,14 @@ defmodule EthBlockchain.Childchain do
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier),
-         {:ok, %{"blknum" => blknum, "txindex" => txindex, "txhash" => txhash}} <-
+         {:ok,
+          %{
+            block_number: block_number,
+            transaction_index: transaction_index,
+            transaction_hash: transaction_hash
+          }} <-
            Adapter.childchain_call({:send, from, to, amount, currency}, opts) do
-      {:ok, txhash, txindex, blknum}
+      {:ok, transaction_hash, transaction_index, block_number}
     end
   end
 

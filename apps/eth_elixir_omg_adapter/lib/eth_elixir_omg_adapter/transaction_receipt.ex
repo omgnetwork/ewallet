@@ -39,6 +39,18 @@ defmodule EthElixirOmgAdapter.TransactionReceipt do
           transaction_index: integer()
         }
 
+  @doc """
+  Attempts to get the transaction receipt for the specified hash.
+  Note that with the current implementation of plasma, this will return
+  {:ok, :not_found} for a submitted transaction but not yet included in the rootchain.
+  Returns
+  {:ok, :success, parsed_transaction} if the transaction is found on plasma
+  {:ok, not_found} if the transaction is not yet included or the transaction does not exist
+  {:error, code} || {:error, code, params} if there was an error while communicating with
+  the watcher.
+  """
+  @spec get(Sting.t()) ::
+          {:ok, :success, t()} | {:ok, :not_found} | {:error, atom()} | {:error, atom(), any()}
   def get(transaction_hash) do
     %{
       id: transaction_hash
@@ -54,10 +66,6 @@ defmodule EthElixirOmgAdapter.TransactionReceipt do
 
   defp parse_response({:error, :elixir_omg_bad_request, [error_code: "transaction:not_found"]}) do
     {:ok, :not_found}
-  end
-
-  defp parse_response({:error, %{"code" => code, "description" => description}}) do
-    {:error, :adapter_error, "#{code} - #{description}"}
   end
 
   defp parse_response(error), do: error

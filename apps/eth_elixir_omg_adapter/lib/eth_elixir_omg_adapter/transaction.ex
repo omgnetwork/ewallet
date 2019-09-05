@@ -37,8 +37,9 @@ defmodule EthElixirOmgAdapter.Transaction do
     length(inputs) <= @max_inputs
     length(outputs) <= @max_outputs
   ```
+  Returns {:ok, tx_bytes}
   """
-
+  @spec get_deposit_tx_bytes(Sting.t(), integer(), String.t()) :: {:ok, String.t()}
   def get_deposit_tx_bytes(address, amount, currency) do
     tx_bytes =
       []
@@ -48,6 +49,23 @@ defmodule EthElixirOmgAdapter.Transaction do
     {:ok, tx_bytes}
   end
 
+  @doc """
+  This functions does 2 things internally:
+  - Build the transaction with the UTXO to use by calling the `transaction.create`
+  watcher's endpoint.
+  - Submit the transaction along with the signatures by calling the
+  `transaction.submit_typed` watcher's endpoint.
+
+  Note: The fee is currently hardcoded to 1 wei.
+
+  Returns
+  {:ok, %{block_number: blknum, transaction_index: txindex, transaction_hash: txhash}}
+  if success
+  {:error, code} || {:error, code, params} if there was an error while communicating with
+  the watcher.
+  """
+  @spec send(Sting.t(), Sting.t(), integer(), Sting.t()) ::
+          {:ok, map()} | {:error, atom()} | {:error, atom(), any()}
   def send(from, to, amount, currency_address) do
     case prepare_transaction(from, to, amount, currency_address) do
       {:ok,
@@ -60,6 +78,7 @@ defmodule EthElixirOmgAdapter.Transaction do
         sign_hash
         |> sign(from, inputs)
         |> submit_typed(typed_data)
+        |> respond_submit()
 
       # TODO Handle intermediate transactions
       {:ok, %{"result" => "intermediate"}} ->
@@ -154,4 +173,10 @@ defmodule EthElixirOmgAdapter.Transaction do
         List.duplicate([from_hex(@eth), from_hex(@eth), 0], 4 - length(outputs))
     ]
   end
+
+  defp respond_submit({:ok, %{"blknum" => blknum, "txindex" => txindex, "txhash" => txhash}}) do
+    {:ok, %{block_number: blknum, transaction_index: txindex, transaction_hash: txhash}}
+  end
+
+  defp respond_submit(error), do: error
 end

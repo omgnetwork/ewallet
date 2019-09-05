@@ -18,6 +18,20 @@ defmodule EthElixirOmgAdapter.Balance do
   """
   alias EthElixirOmgAdapter.HttpClient
 
+  @doc """
+  Retrieve the balance of the specified address on the plasma chain.
+  Returns:
+  {:ok,
+    %{
+      "0xtoken_1" => int_amount_1,
+      "0xtoken_2" => int_amount_2,
+    }
+  } if success
+  {:error, code} || {:error, code, params} if there was an error while communicating with
+  the watcher.
+  """
+  @spec get(Sting.t()) ::
+          {:ok, map()} | {:error, atom()} | {:error, atom(), any()}
   def get(address) do
     %{address: address}
     |> Jason.encode!()
