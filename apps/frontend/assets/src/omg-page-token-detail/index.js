@@ -200,6 +200,16 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Updated At:</b> <span>{moment(token.updated_at).format()}</span>
         </DetailGroup>
+        {token.blockchain_address && (
+          <>
+            <DetailGroup>
+              <b>Blockchain Address:</b> <Id withCopy>{token.blockchain_address}</Id>
+            </DetailGroup>
+            <DetailGroup>
+              <b>Blockchain Status:</b> <span>{token.blockchain_status}</span>
+            </DetailGroup>
+          </>
+        )}
       </Section>
     )
   }
