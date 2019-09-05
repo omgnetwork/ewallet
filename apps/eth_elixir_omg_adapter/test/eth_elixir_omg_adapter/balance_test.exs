@@ -12,27 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.Balance do
-  @moduledoc """
-  Interface with balances on plasma chain.
-  """
-  alias EthElixirOmgAdapter.HttpClient
+defmodule EthElixirOmgAdapter.BalanceTest do
+  use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
 
-  def get(address) do
-    %{address: address}
-    |> Jason.encode!()
-    |> HttpClient.post_request("account.get_balance")
-    |> respond()
+  alias EthElixirOmgAdapter.Balance
+
+  describe "get/1" do
+    test "get and parse balances for an address" do
+      {res, data} = Balance.get("valid")
+      assert res == :ok
+
+      assert data == %{
+               "0x0000000000000000000000000000000000000000" => 100,
+               "0x0000000000000000000000000000000000000001" => 1
+             }
+    end
   end
-
-  defp respond({:ok, balances}) do
-    balances =
-      Enum.reduce(balances, %{}, fn %{"amount" => amount, "currency" => currency}, acc ->
-        Map.put(acc, currency, amount)
-      end)
-
-    {:ok, balances}
-  end
-
-  defp respond(error), do: error
 end

@@ -156,4 +156,12 @@ defmodule EthBlockchain.ChildchainTest do
       assert error == :childchain_not_supported
     end
   end
+
+  describe "get_balance/2" do
+    test "successfuly get balance of an address" do
+      {res, data} = Childchain.get_balance(%{address: Crypto.fake_eth_address()})
+      assert res == :ok
+      assert data == %{"0x0000000000000000000000000000000000000000" => 123}
+    end
+  end
 end

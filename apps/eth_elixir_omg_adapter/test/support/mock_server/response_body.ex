@@ -269,6 +269,18 @@ defmodule EthElixirOmgAdapter.ResponseBody do
     failure("transaction:not_found")
   end
 
+  def balance_get_success do
+    data = [
+      %{"currency" => "0x0000000000000000000000000000000000000000", "amount" => 100},
+      %{
+        "currency" => "0x0000000000000000000000000000000000000001",
+        "amount" => 1
+      }
+    ]
+
+    success(data)
+  end
+
   def post_request_success(data), do: %{"success" => true, "data" => data}
 
   def post_request_handled_failure(code) do

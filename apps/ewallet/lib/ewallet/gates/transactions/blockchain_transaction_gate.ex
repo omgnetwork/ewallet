@@ -247,10 +247,7 @@ defmodule EWallet.BlockchainTransactionGate do
     (balances[token.blockchain_address] || 0) > amount
   end
 
-  defp process_balance_response(_error, _attrs) do
-    # TODO: handle error
-    false
-  end
+  defp process_balance_response(_error, _attrs), do: false
 
   defp set_blockchain(attrs) do
     attrs

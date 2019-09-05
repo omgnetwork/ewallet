@@ -81,6 +81,10 @@ defmodule EthElixirOmgAdapter.MockServer do
     end
   end
 
+  post("/account.get_balance") do
+    respond(conn, ResponseBody.balance_get_success())
+  end
+
   post("/post_request_test") do
     case conn.params do
       %{"expect" => "success", "data" => data} ->

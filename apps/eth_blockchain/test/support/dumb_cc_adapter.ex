@@ -44,6 +44,10 @@ defmodule EthBlockchain.DumbCCAdapter do
     {:reply, {:ok, :not_found}, reg}
   end
 
+  def handle_call({:get_balance, _address}, _from, reg) do
+    {:reply, {:ok, %{"0x0000000000000000000000000000000000000000" => 123}}, reg}
+  end
+
   def handle_call({:get_transaction_receipt, transaction_hash}, _from, state) do
     receipt = %{
       eth_block: %{

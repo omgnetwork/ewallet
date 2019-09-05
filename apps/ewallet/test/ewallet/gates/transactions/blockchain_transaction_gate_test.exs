@@ -121,6 +121,56 @@ defmodule EWallet.BlockchainTransactionGateTest do
       end)
     end
 
+    test "returns an error for a childchain transaction if there is no balance for the token" do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000999")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      assert {:error, :insufficient_blockchain_funds} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
+    end
+
+    test "returns an error for a childchain transaction if there is not enough funds for the transaction" do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 125,
+        "originator" => %System{}
+      }
+
+      assert {:error, :insufficient_blockchain_funds} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
+    end
+
     test "returns an error when trying to exchange" do
       admin = insert(:admin, global_role: "super_admin")
 

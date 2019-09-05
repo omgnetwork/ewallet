@@ -16,7 +16,7 @@ defmodule EWallet.TransactionTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   import ExUnit.CaptureLog
-  alias EWallet.{BlockchainHelper, TransactionTracker}
+  alias EWallet.TransactionTracker
   alias EWalletDB.Transaction
 
   describe "start_link/1" do
