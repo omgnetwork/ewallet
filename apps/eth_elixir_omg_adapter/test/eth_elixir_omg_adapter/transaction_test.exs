@@ -57,9 +57,14 @@ defmodule EthElixirOmgAdapter.TransactionTest do
       to = MockServer.success_receiver()
 
       {result, response} = Transaction.send(state[:valid_sender], to, 100, @eth)
-      %{"data" => success_data} = ResponseBody.transaction_submit_typed_success()
       assert result == :ok
-      assert response == success_data
+
+      assert response == %{
+               :block_number => 123_000,
+               :transaction_hash =>
+                 "0xbdf562c24ace032176e27621073df58ce1c6f65de3b5932343b70ba03c72132d",
+               :transaction_index => 111
+             }
     end
 
     test "returns an error for an invalid sender" do

@@ -29,6 +29,17 @@ defmodule EWallet.BlockchainHelper do
   end
 
   @doc """
+  Returns :ok if the given identifier is supported by the system
+  or {:error, :blockchain_invalid_identifier} otherwise.
+  """
+  def validate_identifier(identifier) do
+    case identifier in [rootchain_identifier(), childchain_identifier()] do
+      true -> :ok
+      false -> {:error, :blockchain_invalid_identifier}
+    end
+  end
+
+  @doc """
   Returns the main rootchain identifier
   """
   def rootchain_identifier do

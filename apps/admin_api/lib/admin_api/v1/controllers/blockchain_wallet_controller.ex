@@ -108,7 +108,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- paginated_tokens(attrs),
-         {:ok, data} <- BlockchainBalanceLoader.balances(wallet.address, tokens) do
+         identifier <- attrs["blockchain_identifier"] || BlockchainHelper.rootchain_identifier(),
+         :ok <- BlockchainHelper.validate_identifier(identifier),
+         {:ok, data} <- BlockchainBalanceLoader.balances(wallet.address, tokens, identifier) do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
     else
       {:error, error} -> handle_error(conn, error)

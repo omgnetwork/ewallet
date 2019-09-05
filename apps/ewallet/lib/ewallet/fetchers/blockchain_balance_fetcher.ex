@@ -19,14 +19,17 @@ defmodule EWallet.BlockchainBalanceFetcher do
 
   alias EWallet.BlockchainHelper
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+  @childchain_identifier BlockchainHelper.childchain_identifier()
+
   @doc """
   Prepare the list of balances for specified tokens and turn them into a suitable format for
   EWalletAPI using a blockchain wallet address and a list of tokens.
   """
-  @spec all(String.t() | [String.t()], [%EWalletDB.Token{}]) ::
+  @spec all(String.t() | [String.t()], [%EWalletDB.Token{}], String.t()) ::
           {:ok, [%EWalletDB.BlockchainWallet{}]} | {:error, atom()}
-  def all(address_or_addresses, tokens) do
-    case do_all(address_or_addresses, tokens) do
+  def all(address_or_addresses, tokens, identifier) do
+    case do_all(address_or_addresses, tokens, identifier) do
       {:error, error} ->
         {:error, :blockchain_adapter_error, error: inspect(error)}
 
@@ -35,30 +38,38 @@ defmodule EWallet.BlockchainBalanceFetcher do
     end
   end
 
-  defp do_all(wallet_addresses, tokens) when is_list(wallet_addresses),
-    do: do_all([], wallet_addresses, tokens)
+  defp do_all(wallet_addresses, tokens, identifier) when is_list(wallet_addresses),
+    do: do_all([], wallet_addresses, tokens, identifier)
 
-  defp do_all(wallet_address, tokens),
-    do: hd(do_all([], [wallet_address], tokens))
+  defp do_all(wallet_address, tokens, identifier),
+    do: hd(do_all([], [wallet_address], tokens, identifier))
 
-  defp do_all(balances_for_wallets, [wallet_address | wallet_addresses], tokens) do
-    case query_and_add_balances(wallet_address, tokens) do
+  defp do_all(balances_for_wallets, [wallet_address | wallet_addresses], tokens, identifier) do
+    case query_and_add_balances(wallet_address, tokens, identifier) do
       {:error, error} ->
         {:error, error}
 
       balances_for_wallet ->
-        do_all([balances_for_wallet | balances_for_wallets], wallet_addresses, tokens)
+        do_all([balances_for_wallet | balances_for_wallets], wallet_addresses, tokens, identifier)
     end
   end
 
-  defp do_all(balances_for_wallets, [], _),
+  defp do_all(balances_for_wallets, [], _, identifier),
     do: Enum.reverse(balances_for_wallets)
 
-  defp query_and_add_balances(wallet_address, tokens) do
+  defp query_and_add_balances(wallet_address, tokens, @rootchain_identifier) do
     token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
 
     :get_balances
     |> BlockchainHelper.call(%{address: wallet_address, contract_addresses: token_addresses})
+    |> process_response(tokens)
+  end
+
+  defp query_and_add_balances(wallet_address, tokens, @childchain_identifier) do
+    token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
+
+    :get_childchain_balance
+    |> BlockchainHelper.call(%{address: wallet_address})
     |> process_response(tokens)
   end
 

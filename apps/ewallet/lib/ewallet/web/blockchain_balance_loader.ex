@@ -19,16 +19,16 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
   alias EWallet.BlockchainBalanceFetcher
   alias EWalletDB.{BlockchainWallet, Token}
 
-  @spec balances(String.t(), [%Token{}]) :: {:ok, Map.t()}
-  def balances(address, tokens) do
-    BlockchainBalanceFetcher.all(address, tokens)
+  @spec balances(String.t(), [%Token{}], String.t()) :: {:ok, Map.t()}
+  def balances(address, tokens, identifier) do
+    BlockchainBalanceFetcher.all(address, tokens, identifier)
   end
 
-  @spec wallet_balances([%BlockchainWallet{}], [%Token{}]) :: {:ok, [Map.t()]}
-  def wallet_balances(wallets, tokens) when is_list(wallets) do
+  @spec wallet_balances([%BlockchainWallet{}], [%Token{}], String.t()) :: {:ok, [Map.t()]}
+  def wallet_balances(wallets, tokens, identifier) when is_list(wallets) do
     addresses = Enum.map(wallets, fn wallet -> wallet.address end)
 
-    case BlockchainBalanceFetcher.all(addresses, tokens) do
+    case BlockchainBalanceFetcher.all(addresses, tokens, identifier) do
       {:ok, wallets_balances} ->
         {:ok, populate_wallet_balances(wallets, wallets_balances)}
 
@@ -37,9 +37,9 @@ defmodule EWallet.Web.BlockchainBalanceLoader do
     end
   end
 
-  @spec wallet_balances(%BlockchainWallet{}, [%Token{}]) :: {:ok, Map.t()}
-  def wallet_balances(wallet, tokens) do
-    case wallet_balances([wallet], tokens) do
+  @spec wallet_balances(%BlockchainWallet{}, [%Token{}], String.t()) :: {:ok, Map.t()}
+  def wallet_balances(wallet, tokens, identifier) do
+    case wallet_balances([wallet], tokens, identifier) do
       {:ok, [wallet_balances]} ->
         {:ok, wallet_balances}
 

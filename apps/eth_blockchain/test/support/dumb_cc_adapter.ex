@@ -45,7 +45,12 @@ defmodule EthBlockchain.DumbCCAdapter do
   end
 
   def handle_call({:get_balance, _address}, _from, reg) do
-    {:reply, {:ok, %{"0x0000000000000000000000000000000000000000" => 123}}, reg}
+    {:reply,
+     {:ok,
+      %{
+        "0x0000000000000000000000000000000000000000" => 123,
+        "0x0000000000000000000000000000000000000001" => 100
+      }}, reg}
   end
 
   def handle_call({:get_transaction_receipt, transaction_hash}, _from, state) do
@@ -99,9 +104,9 @@ defmodule EthBlockchain.DumbCCAdapter do
 
   def handle_call({:send, _from_address, _to, _amount, _currency}, _from, state) do
     response = %{
-      "blknum" => 123_000,
-      "txindex" => 111,
-      "txhash" => "0xbdf562c24ace032176e27621073df58ce1c6f65de3b5932343b70ba03c72132d"
+      block_number: 123_000,
+      transaction_index: 111,
+      transaction_hash: "0xbdf562c24ace032176e27621073df58ce1c6f65de3b5932343b70ba03c72132d"
     }
 
     {:reply, {:ok, response}, state}
