@@ -211,12 +211,6 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  defp enough_funds?(%{"type" => @deposit_transaction} = attrs) do
-    attrs
-    |> get_childchain_balance()
-    |> process_balance_response(attrs)
-  end
-
   defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier} = attrs) do
     attrs
     |> get_childchain_balance()
