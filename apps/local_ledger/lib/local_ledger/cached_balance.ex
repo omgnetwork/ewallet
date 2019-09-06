@@ -38,7 +38,8 @@ defmodule LocalLedger.CachedBalance do
 
   The given datetime also gets included in the deletion.
   """
-  @spec delete_since(%Wallet{} | [%Wallet{}], NaiveDateTime.t()) :: {:ok, num_deleted :: integer()}
+  @spec delete_since(%Wallet{} | [%Wallet{}], NaiveDateTime.t()) ::
+          {:ok, num_deleted :: integer()}
   def delete_since(wallet_or_wallets, computed_at) do
     wallet_or_wallets
     |> List.wrap()

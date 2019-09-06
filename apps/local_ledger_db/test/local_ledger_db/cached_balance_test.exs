@@ -116,7 +116,8 @@ defmodule LocalLedgerDB.CachedBalanceTest do
       assert all_uuids_by_address(wallet_2.address) == [cb_2.uuid, cb_4.uuid]
 
       # Perform the deletion
-      assert CachedBalance.delete_since([wallet.address, wallet_2.address], cb_3.computed_at) == {:ok, 2}
+      assert CachedBalance.delete_since([wallet.address, wallet_2.address], cb_3.computed_at) ==
+               {:ok, 2}
 
       # Asserts for the remaining cached balances
       assert all_uuids_by_address(wallet.address) == [cb_1.uuid]

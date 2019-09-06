@@ -83,7 +83,8 @@ defmodule LocalLedgerDB.CachedBalance do
   @doc """
   Delete all cached balances for the given address(es) since the given computed date and time.
   """
-  @spec delete_since(String.t() | [String.t()], NaiveDateTime.t()) :: {:ok, num_deleted :: integer()}
+  @spec delete_since(String.t() | [String.t()], NaiveDateTime.t()) ::
+          {:ok, num_deleted :: integer()}
   def delete_since(addresses, computed_at) do
     addresses = List.wrap(addresses)
 

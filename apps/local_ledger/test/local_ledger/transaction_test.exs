@@ -82,26 +82,29 @@ defmodule LocalLedger.TransactionTest do
 
     # Continue the balances from genesis() above, now debiting 100 away from Carol and Dan.
     {:ok, transaction} =
-      Transaction.insert(%{
-        "idempotency_token" => UUID.generate(),
-        "entries" => [
-          %{
-            "type" => Entry.debit_type(),
-            "address" => "carol",
-            "metadata" => %{},
-            "amount" => 100,
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-          },
-          %{
-            "type" => Entry.credit_type(),
-            "address" => "dan",
-            "metadata" => %{},
-            "amount" => 100,
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-          }
-        ],
-        "metadata" => %{}
-      }, %{status: "pending", genesis: false})
+      Transaction.insert(
+        %{
+          "idempotency_token" => UUID.generate(),
+          "entries" => [
+            %{
+              "type" => Entry.debit_type(),
+              "address" => "carol",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            },
+            %{
+              "type" => Entry.credit_type(),
+              "address" => "dan",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            }
+          ],
+          "metadata" => %{}
+        },
+        %{status: "pending", genesis: false}
+      )
 
     transaction
   end

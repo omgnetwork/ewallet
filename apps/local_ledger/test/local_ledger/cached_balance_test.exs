@@ -376,26 +376,35 @@ defmodule LocalLedger.CachedBalanceTest do
   describe "delete_since/2" do
     test "deletes the cached balance since the given datetime", %{wallet: wallet} do
       # Faking a cached balance that will be deleted
-      cached_balance = insert(
-        :cached_balance,
-        wallet_address: wallet.address,
-        amounts: %{"tok_BTC_5678" => 1_000_000, "tok_OMG_1234" => 1_000_000}
-      )
+      cached_balance =
+        insert(
+          :cached_balance,
+          wallet_address: wallet.address,
+          amounts: %{"tok_BTC_5678" => 1_000_000, "tok_OMG_1234" => 1_000_000}
+        )
 
       # Checks that the faked cached balance is working
-      assert CachedBalance.all(wallet) == {:ok, %{wallet.address => %{
-        "tok_BTC_5678" => 1_000_000,
-        "tok_OMG_1234" => 1_000_000,
-      }}}
+      assert CachedBalance.all(wallet) ==
+               {:ok,
+                %{
+                  wallet.address => %{
+                    "tok_BTC_5678" => 1_000_000,
+                    "tok_OMG_1234" => 1_000_000
+                  }
+                }}
 
       # Now perform delete_since/2
       assert CachedBalance.delete_since(wallet, cached_balance.computed_at) == {:ok, 1}
 
       # Checks that the cached balance is back to its normal state
-      assert CachedBalance.all(wallet) == {:ok, %{wallet.address => %{
-        "tok_BTC_5678" => 160_524 - 74_961,
-        "tok_OMG_1234" => 120_000 - 61_047
-      }}}
+      assert CachedBalance.all(wallet) ==
+               {:ok,
+                %{
+                  wallet.address => %{
+                    "tok_BTC_5678" => 160_524 - 74_961,
+                    "tok_OMG_1234" => 120_000 - 61_047
+                  }
+                }}
     end
   end
 
