@@ -9,7 +9,7 @@ import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
+import { sendErc20Transaction, estimateGasFromTransaction } from '../omg-web3/action'
 import { formatAmount } from '../utils/formatter'
 import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
 import { selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
@@ -43,7 +43,7 @@ class TokenTransferStep extends Component {
     onRequestClose: PropTypes.func,
     selectBlockchainWalletById: PropTypes.func,
     selectCurrentAddress: PropTypes.string,
-    sendTransaction: PropTypes.func,
+    sendErc20Transaction: PropTypes.func,
     estimateGasFromTransaction: PropTypes.func,
     network: PropTypes.number,
     token: PropTypes.object
@@ -80,7 +80,7 @@ class TokenTransferStep extends Component {
       toAddress &&
       fromTokenSelected &&
       ((prevState.toAddress !== toAddress) ||
-        this.state.fromTokenSelected.id !== prevState.fromTokenSelected.id ||
+        this.props.token.id !== prevState.fromTokenSelected.id ||
         this.state.fromTokenAmount !== prevState.fromTokenAmount)
     ) {
       this.setGasPrice()
@@ -117,17 +117,17 @@ class TokenTransferStep extends Component {
   }
   getTransactionPayload = () => {
     const {
-      toAddress,
+      fromAddress,
       fromTokenAmount,
-      fromTokenSelected,
       gasLimit,
       gasPrice
     } = this.state
 
     const payload = {
-      from: this.state.fromAddress,
-      to: toAddress,
-      value: formatAmount(fromTokenAmount, fromTokenSelected.subunit_to_unit),
+      from: fromAddress,
+      to: this.props.to,
+      value: formatAmount(fromTokenAmount, this.props.token.subunit_to_unit),
+      tokenAddress: this.props.token.blockchain_address,
       gas: gasLimit || undefined,
       gasPrice: gasPrice ? gweiToWei(gasPrice) : undefined
     }
@@ -143,7 +143,7 @@ class TokenTransferStep extends Component {
   onSubmit = async e => {
     this.setState({ submitting: true })
     e.preventDefault()
-    this.props.sendTransaction({
+    this.props.sendErc20Transaction({
       transaction: this.getTransactionPayload(),
       onTransactionHash: hash => {
         this.setState({ step: 3, txHash: String(hash) })
@@ -230,15 +230,13 @@ class TokenTransferStep extends Component {
                 onChange: this.onChangeAmount('fromToken'),
                 type: 'amount',
                 maxAmountLength: 18,
-                suffix:
-                  _.get(this.state.fromTokenSelected, 'token.symbol') ||
-                  _.get(this.state.fromTokenSelected, 'symbol')
+                suffix: _.get(this.props.token, 'symbol')
               }}
               selectProps={{
                 label: 'Token',
                 clearable: false,
                 disabled: true,
-                value: 'dumb',
+                value: 'none',
                 valueRenderer: this.renderFromSelectTokenValue
               }}
             />
@@ -301,8 +299,7 @@ class TokenTransferStep extends Component {
             <span>Amount to send</span>
             <span>
               {this.state.fromTokenAmount}{' '}
-              {_.get(this.state.fromTokenSelected, 'token.symbol') ||
-                _.get(this.state.fromTokenSelected, 'symbol')}
+              {_.get(this.props.token, 'symbol')}
             </span>
           </GrayFeeContainer>
         )}
@@ -337,10 +334,9 @@ class TokenTransferStep extends Component {
     )
   }
   renderActions () {
-    const { fromAddress, toAddress, fromTokenSelected, txHash } = this.state
+    const { txHash } = this.state
     const { network } = this.props
     const exlorerUrl = `${ethExplorerMetamaskNetworkMap[network]}/tx/${txHash}`
-    const transferDisabled = !(fromAddress && toAddress && fromTokenSelected)
     return (
       <>
         {this.state.step === 1 && (
@@ -348,7 +344,7 @@ class TokenTransferStep extends Component {
             <Button
               size='small'
               onClick={() => this.setState({ step: 2 })}
-              disabled={transferDisabled}
+              disabled={!this.state.fromTokenAmount}
             >
               <span>Transfer</span>
             </Button>
@@ -430,7 +426,7 @@ const enhance = compose(
     {
       transfer,
       getWalletById,
-      sendTransaction,
+      sendErc20Transaction,
       estimateGasFromTransaction
     }
   )

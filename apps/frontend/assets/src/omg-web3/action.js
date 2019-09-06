@@ -63,6 +63,59 @@ export const getNetworkType = () =>
     })
   })
 
+export const sendErc20Transaction = ({
+  transaction,
+  onTransactionHash,
+  onReceipt,
+  onConfirmation,
+  onError
+}) =>
+  createWeb3Call(async dispatch => {
+    const { web3 } = window
+    const { tokenAddress, to, from, value, gasPrice, gas } = transaction
+    const minABI = [
+      {
+        'constant': false,
+        'inputs': [
+          {
+            'name': '_to',
+            'type': 'address'
+          },
+          {
+            'name': '_value',
+            'type': 'uint256'
+          }
+        ],
+        'name': 'transfer',
+        'outputs': [
+          {
+            'name': '',
+            'type': 'bool'
+          }
+        ],
+        'type': 'function'
+      }
+    ]
+    const contract = new web3.eth.Contract(minABI, tokenAddress, { gasPrice, gas })
+    try {
+      contract.methods
+        .transfer(to, value)
+        .send({ from })
+        .on('transactionHash', hash => {
+          dispatch({
+            type: 'WEB3/SEND_TRANSACTION/SUCCESS',
+            data: { txHash: hash }
+          })
+          onTransactionHash(hash)
+        })
+        .on('receipt', onReceipt)
+        .on('confirmation', onConfirmation)
+        .on('error', onError)
+    } catch (e) {
+      onError(e.message)
+    }
+  })
+
 export const sendTransaction = ({
   transaction,
   onTransactionHash,
