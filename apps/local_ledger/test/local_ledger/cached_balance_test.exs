@@ -101,7 +101,7 @@ defmodule LocalLedger.CachedBalanceTest do
         amount: 3_892
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
 
       assert LocalLedgerDB.CachedBalance.get(wallet_1.address).amounts == %{
@@ -126,7 +126,7 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -154,7 +154,7 @@ defmodule LocalLedger.CachedBalanceTest do
         amount: 500
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -175,9 +175,9 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
     end
 
@@ -194,16 +194,18 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
-      CachedBalance.cache_all()
+
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
     end
 
     test "cached_count is 1 when calculating with strategy = 'since_beginning'", %{wallet: wallet} do
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
-      CachedBalance.cache_all()
+
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
     end
 
@@ -218,11 +220,13 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
-      CachedBalance.cache_all()
+
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 2
-      CachedBalance.cache_all()
+
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance.get(wallet.address).cached_count == 1
     end
 
@@ -237,7 +241,7 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
                "tok_BTC_5678" => 85_563,
@@ -259,7 +263,7 @@ defmodule LocalLedger.CachedBalanceTest do
         amount: 1000
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
 
       # This is wrong because it's based on a wrongly calculated previous cached_balance
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -269,7 +273,7 @@ defmodule LocalLedger.CachedBalanceTest do
 
       # The reset_frequency is 3 so it will now calculate since the beginning
       # and sync the correct value
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
                "tok_BTC_5678" => 85_563,
@@ -280,7 +284,7 @@ defmodule LocalLedger.CachedBalanceTest do
     test "reuses the previous cached balance to calculate the new one when
           strategy = 'since_beginning'",
          %{token_1: token_1, wallet: wallet} do
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -305,7 +309,7 @@ defmodule LocalLedger.CachedBalanceTest do
         amount: 500
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -327,7 +331,7 @@ defmodule LocalLedger.CachedBalanceTest do
         config_pid
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -352,7 +356,7 @@ defmodule LocalLedger.CachedBalanceTest do
         amount: 500
       )
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
 
       assert LocalLedgerDB.CachedBalance.get(wallet.address).amounts == %{
@@ -364,8 +368,34 @@ defmodule LocalLedger.CachedBalanceTest do
     test "does not store a cached balance if all the amounts are equal to 0" do
       insert(:wallet, address: "1234")
 
-      CachedBalance.cache_all()
+      :ok = CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
+    end
+  end
+
+  describe "delete_since/2" do
+    test "deletes the cached balance since the given datetime", %{wallet: wallet} do
+      # Faking a cached balance that will be deleted
+      cached_balance = insert(
+        :cached_balance,
+        wallet_address: wallet.address,
+        amounts: %{"tok_BTC_5678" => 1_000_000, "tok_OMG_1234" => 1_000_000}
+      )
+
+      # Checks that the faked cached balance is working
+      assert CachedBalance.all(wallet) == {:ok, %{wallet.address => %{
+        "tok_BTC_5678" => 1_000_000,
+        "tok_OMG_1234" => 1_000_000,
+      }}}
+
+      # Now perform delete_since/2
+      assert CachedBalance.delete_since(wallet, cached_balance.computed_at) == {:ok, 1}
+
+      # Checks that the cached balance is back to its normal state
+      assert CachedBalance.all(wallet) == {:ok, %{wallet.address => %{
+        "tok_BTC_5678" => 160_524 - 74_961,
+        "tok_OMG_1234" => 120_000 - 61_047
+      }}}
     end
   end
 

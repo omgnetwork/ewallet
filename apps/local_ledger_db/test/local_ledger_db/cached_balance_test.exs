@@ -73,20 +73,30 @@ defmodule LocalLedgerDB.CachedBalanceTest do
   end
 
   describe "delete_since/2" do
-    test "deletes all cached balances for the given address since the given computed time" do
+    test "deletes all cached balances for the given address after the given computed time" do
+      wallet = insert(:wallet)
+      cb_1 = insert(:cached_balance, wallet_address: wallet.address)
+      cb_2 = insert(:cached_balance, wallet_address: wallet.address)
+      cb_3 = insert(:cached_balance, wallet_address: wallet.address)
+
+      assert all_uuids_by_address(wallet.address) == [cb_1.uuid, cb_2.uuid, cb_3.uuid]
+      assert CachedBalance.delete_since(wallet.address, cb_2.computed_at) == {:ok, 2}
+      assert all_uuids_by_address(wallet.address) == [cb_1.uuid]
+    end
+
+    test "does not impact other addresses" do
       wallet = insert(:wallet)
       wallet_2 = insert(:wallet)
       cb_1 = insert(:cached_balance, wallet_address: wallet.address)
       cb_2 = insert(:cached_balance, wallet_address: wallet.address)
       cb_3 = insert(:cached_balance, wallet_address: wallet_2.address)
-      cb_4 = insert(:cached_balance, wallet_address: wallet.address)
 
       # Make sure all data exists
-      assert all_uuids_by_address(wallet.address) == [cb_1.uuid, cb_2.uuid, cb_4.uuid]
+      assert all_uuids_by_address(wallet.address) == [cb_1.uuid, cb_2.uuid]
       assert all_uuids_by_address(wallet_2.address) == [cb_3.uuid]
 
       # Perform the deletion
-      assert CachedBalance.delete_since(wallet.address, cb_2.computed_at) == {:ok, 2}
+      assert CachedBalance.delete_since(wallet.address, cb_2.computed_at) == {:ok, 1}
 
       # Asserts for the remaining cached balances
       assert all_uuids_by_address(wallet.address) == [cb_1.uuid]
