@@ -18,7 +18,7 @@ defmodule LocalLedger.TransactionTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias LocalLedger.Transaction
-  alias LocalLedgerDB.{Entry, Repo}
+  alias LocalLedgerDB.{CachedBalance, Entry, Repo}
   alias LocalLedgerDB.Transaction, as: TransactionSchema
 
   setup do
@@ -617,6 +617,19 @@ defmodule LocalLedger.TransactionTest do
       assert res == :ok
       assert confirmed.status == TransactionSchema.failed()
       assert Enum.all?(confirmed.entries, fn e -> e.status == Entry.failed() end)
+    end
+
+    test "invalidates cache balances after the failed transaction" do
+      transaction = pending()
+
+      # Inserts a mock cached balance for testing
+      address = Enum.at(transaction.entries, 0).wallet_address
+      computed_at = NaiveDateTime.add(transaction.inserted_at, 60 * 60, :second)
+      cached_balance = insert(:cached_balance, wallet_address: address, computed_at: computed_at)
+      assert Repo.get(CachedBalance, cached_balance.uuid)
+
+      {:ok, _} = Transaction.fail(transaction.uuid)
+      refute Repo.get(CachedBalance, cached_balance.uuid)
     end
   end
 end
