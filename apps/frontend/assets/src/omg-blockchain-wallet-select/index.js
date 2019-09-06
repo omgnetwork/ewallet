@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Icon } from '../omg-uikit'
+import { Icon, Id } from '../omg-uikit'
 
 const WalletSelectItemContainer = styled.div`
   display: flex;
@@ -12,7 +12,6 @@ const DetailContainer = styled.div`
   display: inline-block;
   vertical-align: middle;
 `
-const Address = styled.div``
 const WalletNameAndIdentifier = styled.div`
   color: ${props => props.theme.colors.B100};
   font-size: 10px;
@@ -34,7 +33,7 @@ export default class BlockchainWalletSelect extends Component {
           <Icon name={this.props.icon} />
         </StyledIcon>
         <DetailContainer>
-          <Address>{this.props.topRow}</Address>
+          {this.props.topRow}
           <WalletNameAndIdentifier>
             {this.props.bottomRow}
           </WalletNameAndIdentifier>

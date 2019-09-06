@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 
+import TokenTransferStep from './TokenTransferStep'
+
 import { generateDepositAddress, getWallets } from '../omg-wallet/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
@@ -13,7 +15,7 @@ import { selectBlockchainTokenByAddress } from '../omg-token/selector'
 
 const Form = styled.form`
   padding: 50px;
-  width: 250px;
+  width: 300px;
   > i {
     position: absolute;
     right: 15px;
@@ -164,6 +166,7 @@ class ImportToken extends Component {
   checkErc20 = async e => {
     e.preventDefault()
     const existingToken = !!this.props.selectBlockchainTokenByAddress(this.state.blockchainAddress)
+    // TODO: if existing token balance is 0, go to transfer step
     if (existingToken) {
       return this.setState({ error: 'This token has already been imported.' })
     }
@@ -376,7 +379,7 @@ class ImportToken extends Component {
     e.preventDefault()
     this.props.enableMetamaskEthereumConnection()
   }
-  renderDownloadMetamask = () => {
+  renderMetamaskStep = () => {
     return (
       <StepStyle>
         <Icon name='Close' onClick={this.props.onRequestClose} />
@@ -411,13 +414,6 @@ class ImportToken extends Component {
       </StepStyle>
     )
   }
-  renderTransfer = () => {
-    return (
-      <div>
-        Transfer tokens...
-      </div>
-    )
-  }
   render () {
     switch (this.state.step) {
       case 1:
@@ -427,9 +423,15 @@ class ImportToken extends Component {
       case 3:
         return this.renderConfirmTokenStep()
       case 4:
-        return this.renderDownloadMetamask()
+        return this.renderMetamaskStep()
       case 5:
-        return this.renderTransfer()
+        return (
+          <TokenTransferStep
+            to={this.state.depositAddress}
+            token={this.props.selectBlockchainTokenByAddress(this.state.blockchainAddress)}
+            onRequestClose={this.props.onRequestClose}
+          />
+        )
       default:
         return null
     }
