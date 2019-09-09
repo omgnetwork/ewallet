@@ -14,9 +14,10 @@ import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
 import TokensFetcher from '../omg-token/tokensFetcher'
+import CreateTokenChooser from '../omg-token/CreateTokenChooser'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 import { NameColumn } from '../omg-page-account'
 import ExchangePairModal from '../omg-exchange-rate-modal'
-import { createSearchTokenQuery } from '../omg-token/searchField'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -38,6 +39,9 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
+const ExchangePairButton = styled(Button)`
+  margin-right: 10px;
+`
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'blockchain', title: 'TYPE', sort: false },
@@ -45,14 +49,6 @@ const columns = [
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true }
 ]
-
-const enhance = compose(
-  withRouter,
-  connect(
-    null,
-    { openModal }
-  )
-)
 
 class TokenDetailPage extends Component {
   static propTypes = {
@@ -68,7 +64,7 @@ class TokenDetailPage extends Component {
     createExchangePairModalOpen: false
   }
 
-  onClickCreateToken = () => {
+  onClickCreateInternalToken = () => {
     this.setState({ createTokenModalOpen: true })
   }
   onClickCreateExchangePair = () => {
@@ -96,45 +92,25 @@ class TokenDetailPage extends Component {
       </Button>
     )
   }
-  renderTransferToken = () => {
+  renderCreateTokenButton = (refetch) => {
     return (
-      <Button size='small' styleType='secondary' onClick={this.onClickCreateToken} key={'transfer'}>
-        <span>Transfer Token</span>
-      </Button>
-    )
-  }
-  renderMintTokenButton = () => {
-    return (
-      <Button
-        key='mint-token'
-        size='small'
-        onClick={this.onClickCreateToken}
-      >
-        <Icon name='Plus' /><span>Create Token</span>
-      </Button>
-    )
-  }
-  renderImportTokenButton = (refetch) => {
-    return (
-      <Button
-        key='import-token'
-        size='small'
-        onClick={() => this.props.openModal({ id: 'importTokenModal', refetch })}
-      >
-        <Icon name='Plus' /><span>Import Token</span>
-      </Button>
+      <CreateTokenChooser
+        refetch={refetch}
+        onClickCreateInternalToken={this.onClickCreateInternalToken}
+        {...this.props}
+      />
     )
   }
   renderCreateExchangePairButton = () => {
     return (
-      <Button
+      <ExchangePairButton
         key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
       >
         <span>Create Exchange Pair</span>
-      </Button>
+      </ExchangePairButton>
     )
   }
   rowRenderer (key, data, rows) {
@@ -177,8 +153,7 @@ class TokenDetailPage extends Component {
           title={'Tokens'}
           buttons={[
             tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
-            this.renderMintTokenButton(),
-            this.renderImportTokenButton(fetch)
+            this.renderCreateTokenButton(fetch)
           ]}
         />
         <SortableTable
@@ -227,5 +202,13 @@ class TokenDetailPage extends Component {
     )
   }
 }
+
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { openModal }
+  )
+)
 
 export default enhance(TokenDetailPage)
