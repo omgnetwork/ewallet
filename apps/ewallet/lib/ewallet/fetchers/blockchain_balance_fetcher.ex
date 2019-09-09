@@ -54,7 +54,7 @@ defmodule EWallet.BlockchainBalanceFetcher do
     end
   end
 
-  defp do_all(balances_for_wallets, [], _, identifier),
+  defp do_all(balances_for_wallets, [], _, _identifier),
     do: Enum.reverse(balances_for_wallets)
 
   defp query_and_add_balances(wallet_address, tokens, @rootchain_identifier) do
@@ -66,8 +66,6 @@ defmodule EWallet.BlockchainBalanceFetcher do
   end
 
   defp query_and_add_balances(wallet_address, tokens, @childchain_identifier) do
-    token_addresses = Enum.map(tokens, fn token -> token.blockchain_address end)
-
     :get_childchain_balance
     |> BlockchainHelper.call(%{address: wallet_address})
     |> process_response(tokens)

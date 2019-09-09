@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.TransactionTest do
-  use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
+defmodule EthOmisegoNetworkAdapter.TransactionTest do
+  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
 
   import Utils.Helpers.Encoding
 
-  alias EthElixirOmgAdapter.{MockServer, Transaction, ResponseBody}
+  alias EthOmisegoNetworkAdapter.{MockServer, Transaction, ResponseBody}
   alias Utils.Helpers.Crypto
   alias Keychain.Wallet
 
@@ -82,7 +82,7 @@ defmodule EthElixirOmgAdapter.TransactionTest do
       {result, response, message} = Transaction.send(state[:valid_sender], to, 100, @eth)
       %{"data" => %{"code" => code}} = ResponseBody.transaction_create_failure()
       assert result == :error
-      assert response == :elixir_omg_bad_request
+      assert response == :omisego_network_bad_request
       assert message == [error_code: code]
     end
   end

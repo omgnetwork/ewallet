@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.ErrorHandler do
+defmodule EthOmisegoNetworkAdapter.ErrorHandler do
   @moduledoc """
   Handles errors by mapping the error to its response code and description.
   """
 
   @errors %{
-    elixir_omg_connection_error: %{
-      code: "elixir_omg:communication_error",
+    omisego_network_connection_error: %{
+      code: "omisego_network:communication_error",
       description:
         "Could not communicate with the childchain, make sure that there is a valid childchain node running at the specified url."
     },
-    elixir_omg_bad_request: %{
-      code: "elixir_omg:bad_request",
+    omisego_network_bad_request: %{
+      code: "omisego_network:bad_request",
       template: "An error occured on the childchain: %{error_code}"
     }
   }

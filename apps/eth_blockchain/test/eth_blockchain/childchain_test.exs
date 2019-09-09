@@ -42,7 +42,7 @@ defmodule EthBlockchain.ChildchainTest do
 
       {res, encoded_trx} =
         Childchain.deposit(
-          %{to: address, amount: amount, currency: currency, childchain_identifier: :elixir_omg},
+          %{to: address, amount: amount, currency: currency, childchain_identifier: :omisego_network},
           state[:adapter_opts]
         )
 
@@ -77,7 +77,7 @@ defmodule EthBlockchain.ChildchainTest do
 
       {res, encoded_trx} =
         Childchain.deposit(
-          %{to: address, amount: amount, currency: currency, childchain_identifier: :elixir_omg},
+          %{to: address, amount: amount, currency: currency, childchain_identifier: :omisego_network},
           state[:adapter_opts]
         )
 
@@ -128,7 +128,7 @@ defmodule EthBlockchain.ChildchainTest do
             to: state[:addr_1],
             amount: 100,
             currency: @eth,
-            childchain_identifier: :elixir_omg
+            childchain_identifier: :omisego_network
           },
           state[:adapter_opts]
         )

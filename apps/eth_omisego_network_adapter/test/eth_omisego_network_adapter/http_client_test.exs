@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.HttpClientTest do
-  use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
+defmodule EthOmisegoNetworkAdapter.HttpClientTest do
+  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
 
-  alias EthElixirOmgAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HttpClient
 
   describe "post_request/2" do
     test "success" do
@@ -39,7 +39,7 @@ defmodule EthElixirOmgAdapter.HttpClientTest do
         |> HttpClient.post_request("post_request_test")
 
       assert status == :error
-      assert error == :elixir_omg_bad_request
+      assert error == :omisego_network_bad_request
       assert message == [error_code: code]
     end
 
@@ -50,7 +50,7 @@ defmodule EthElixirOmgAdapter.HttpClientTest do
         |> HttpClient.post_request("post_request_test")
 
       assert status == :error
-      assert error == :elixir_omg_bad_request
+      assert error == :omisego_network_bad_request
       assert message == [error_code: "invalid response"]
     end
 
@@ -61,7 +61,7 @@ defmodule EthElixirOmgAdapter.HttpClientTest do
         |> HttpClient.post_request("post_request_test")
 
       assert status == :error
-      assert error == :elixir_omg_bad_request
+      assert error == :omisego_network_bad_request
       assert message == [error_code: "decoding error"]
     end
   end

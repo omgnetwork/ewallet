@@ -7,7 +7,7 @@ config :ewallet,
   version: "2.0.0-dev",
   cors_origin: {:system, "CORS_ORIGIN", nil},
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
-  cc_node_adapter: {:elixir_omg, EthElixirOmgAdapter.Worker},
+  cc_node_adapter: {:omisego_network, EthOmisegoNetworkAdapter.Worker},
   settings: [
     :base_url,
     :sender_email,

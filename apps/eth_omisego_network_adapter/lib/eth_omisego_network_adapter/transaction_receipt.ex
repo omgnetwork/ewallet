@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.TransactionReceipt do
+defmodule EthOmisegoNetworkAdapter.TransactionReceipt do
   @moduledoc """
   Represents a receipt of a plasma omg transaction
   """
 
-  alias EthElixirOmgAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HttpClient
 
   defstruct eth_block: nil,
             cc_block_number: 0,
@@ -64,7 +64,7 @@ defmodule EthElixirOmgAdapter.TransactionReceipt do
     {:ok, :success, parse_transaction(transaction)}
   end
 
-  defp parse_response({:error, :elixir_omg_bad_request, [error_code: "transaction:not_found"]}) do
+  defp parse_response({:error, :omisego_network_bad_request, [error_code: "transaction:not_found"]}) do
     {:ok, :not_found}
   end
 

@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.Config do
+defmodule EthOmisegoNetworkAdapter.Config do
   @moduledoc false
 
   def get_contract_address do
-    Application.get_env(:eth_elixir_omg_adapter, :contract_address)
+    Application.get_env(:eth_omisego_network_adapter, :contract_address)
   end
 
   def get_watcher_url do
-    Application.get_env(:eth_elixir_omg_adapter, :watcher_url)
+    Application.get_env(:eth_omisego_network_adapter, :watcher_url)
   end
 end

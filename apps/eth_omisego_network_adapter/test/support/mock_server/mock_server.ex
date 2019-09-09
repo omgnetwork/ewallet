@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.MockServer do
+defmodule EthOmisegoNetworkAdapter.MockServer do
   @moduledoc """
   Dumb server that serves request with dummy response during tests.
   """
 
   use Plug.Router
 
-  alias EthElixirOmgAdapter.ResponseBody
+  alias EthOmisegoNetworkAdapter.ResponseBody
   alias Plug.{Conn, Parsers}
 
   plug(Parsers,

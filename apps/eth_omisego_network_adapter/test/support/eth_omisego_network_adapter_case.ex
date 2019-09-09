@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.EthElixirOmgAdapterCase do
+defmodule EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase do
   @moduledoc false
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
@@ -20,7 +20,7 @@ defmodule EthElixirOmgAdapter.EthElixirOmgAdapterCase do
 
   using do
     quote do
-      import EthElixirOmgAdapter.EthElixirOmgAdapterCase
+      import EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase
     end
   end
 

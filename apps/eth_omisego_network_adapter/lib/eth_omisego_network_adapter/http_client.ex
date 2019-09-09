@@ -12,20 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.HttpClient do
+defmodule EthOmisegoNetworkAdapter.HttpClient do
   @moduledoc """
   Simple HTTP client to perform request on the watcher's API
   """
 
-  alias EthElixirOmgAdapter.Config
+  alias EthOmisegoNetworkAdapter.Config
   alias HTTPoison.Response
 
   @doc """
   Build, submit and parse the response of a call to the watcher's API.
   Returns
   {:ok, data} if success
-  {:error, :elixir_omg_connection_error} if unreachable
-  {:error, elixir_omg_bad_request, params} if bad response
+  {:error, :omisego_network_connection_error} if unreachable
+  {:error, omisego_network_bad_request, params} if bad response
   """
   @spec post_request(binary(), []) :: {:ok | :error, any()}
   def post_request(payload, action) do
@@ -36,7 +36,7 @@ defmodule EthElixirOmgAdapter.HttpClient do
          %Response{body: body, status_code: code} = response do
       decode_body(body, code)
     else
-      _error -> {:error, :elixir_omg_connection_error}
+      _error -> {:error, :omisego_network_connection_error}
     end
   end
 
@@ -52,13 +52,13 @@ defmodule EthElixirOmgAdapter.HttpClient do
            "success" => false,
            "data" => %{"object" => "error", "code" => code}
          }} ->
-          {:error, :elixir_omg_bad_request, error_code: code}
+          {:error, :omisego_network_bad_request, error_code: code}
 
         _ ->
-          {:error, :elixir_omg_bad_request, error_code: "invalid response"}
+          {:error, :omisego_network_bad_request, error_code: "invalid response"}
       end
     else
-      {:error, _error} -> {:error, :elixir_omg_bad_request, error_code: "decoding error"}
+      {:error, _error} -> {:error, :omisego_network_bad_request, error_code: "decoding error"}
     end
   end
 end

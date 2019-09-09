@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.TransactionReceiptTest do
-  use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
+defmodule EthOmisegoNetworkAdapter.TransactionReceiptTest do
+  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
 
-  alias EthElixirOmgAdapter.{TransactionReceipt, ResponseBody}
+  alias EthOmisegoNetworkAdapter.{TransactionReceipt, ResponseBody}
 
   describe "get/1" do
     test "get a valid transaction" do

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.Balance do
+defmodule EthOmisegoNetworkAdapter.Balance do
   @moduledoc """
   Interface with balances on plasma chain.
   """
-  alias EthElixirOmgAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HttpClient
 
   @doc """
   Retrieve the balance of the specified address on the plasma chain.

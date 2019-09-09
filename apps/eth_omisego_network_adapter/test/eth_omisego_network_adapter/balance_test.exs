@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.BalanceTest do
-  use EthElixirOmgAdapter.EthElixirOmgAdapterCase, async: true
+defmodule EthOmisegoNetworkAdapter.BalanceTest do
+  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
 
-  alias EthElixirOmgAdapter.Balance
+  alias EthOmisegoNetworkAdapter.Balance
 
   describe "get/1" do
     test "get and parse balances for an address" do

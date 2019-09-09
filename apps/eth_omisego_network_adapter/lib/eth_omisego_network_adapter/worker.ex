@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthElixirOmgAdapter.Worker do
+defmodule EthOmisegoNetworkAdapter.Worker do
   @moduledoc false
 
-  alias EthElixirOmgAdapter.{Balance, Config, Transaction, TransactionReceipt, ErrorHandler}
+  alias EthOmisegoNetworkAdapter.{Balance, Config, Transaction, TransactionReceipt, ErrorHandler}
 
   @type server :: GenServer.server()
   @typep from :: GenServer.from()
@@ -29,12 +29,12 @@ defmodule EthElixirOmgAdapter.Worker do
   use GenServer
 
   @doc """
-  Starts EthElixirOmgAdapter.Worker.
+  Starts EthOmisegoNetworkAdapter.Worker.
   """
   @spec start_link() :: GenServer.on_start()
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    DeferredConfig.populate(:eth_elixir_omg_adapter)
+    DeferredConfig.populate(:eth_omisego_network_adapter)
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 

@@ -6,7 +6,7 @@ config :ewallet_db,
   blockchain_adapter: EthBlockchain.Adapter,
   # TODO: move this to config / refactor
   rootchain_identifier: "ethereum",
-  childchain_identifier: "elixir_omg",
+  childchain_identifier: "omisego_network",
   settings: [
     :base_url,
     :primary_hot_wallet,

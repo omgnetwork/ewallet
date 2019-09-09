@@ -6,10 +6,10 @@ config :eth_blockchain,
          {:geth, EthGethAdapter.Worker}
        ],
        cc_node_adapters: [
-         {:elixir_omg, EthElixirOmgAdapter.Worker}
+         {:omisego_network, EthOmisegoNetworkAdapter.Worker}
        ],
        default_eth_node_adapter: :geth,
-       default_cc_node_adapter: :elixir_omg,
+       default_cc_node_adapter: :omisego_network,
        default_eth_test_integration_adapter: :geth
 
 config :eth_blockchain,
