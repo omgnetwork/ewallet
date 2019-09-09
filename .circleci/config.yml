@@ -33,9 +33,8 @@ commands:
           command: |
             # Only notify for main branches. "eth_blockchain" condition may be removed if no longer used on the repo.
             case "$CIRCLE_BRANCH" in
-              master | v[[:digit:]]+.* | eth_blockchain )
-                exit 0
-                ;;
+              master | v[0-9]* | eth_blockchain ) continue ;;
+              *) exit 0 ;;
             esac
 
             if [ -z "$SLACK_WEBHOOK" ]; then
