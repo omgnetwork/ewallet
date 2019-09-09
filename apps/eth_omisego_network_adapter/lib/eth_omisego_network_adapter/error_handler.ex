@@ -26,6 +26,11 @@ defmodule EthOmisegoNetworkAdapter.ErrorHandler do
     omisego_network_bad_request: %{
       code: "omisego_network:bad_request",
       template: "An error occured on the childchain: %{error_code}"
+    },
+    omisego_network_unhandled_merge_transaction: %{
+      code: "omisego_network:unhandled_merge_transaction",
+      description:
+        "No UTXO big enough were found to cover the amount. A merge transaction has been initiated on the childchain, please try again once it's been included on the rootchain."
     }
   }
 

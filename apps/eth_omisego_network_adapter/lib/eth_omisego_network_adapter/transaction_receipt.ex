@@ -64,7 +64,9 @@ defmodule EthOmisegoNetworkAdapter.TransactionReceipt do
     {:ok, :success, parse_transaction(transaction)}
   end
 
-  defp parse_response({:error, :omisego_network_bad_request, [error_code: "transaction:not_found"]}) do
+  defp parse_response(
+         {:error, :omisego_network_bad_request, [error_code: "transaction:not_found"]}
+       ) do
     {:ok, :not_found}
   end
 

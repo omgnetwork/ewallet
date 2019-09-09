@@ -20,6 +20,7 @@ config :eth_blockchain,
   child_chain_deposit_eth_gas_limit: 180_000,
   child_chain_deposit_token_gas_limit: 250_000,
   # Custom id used for development/testing only, to be updated for production use
+  # Note that the geth ran by elixir-omg docker-compose is using 1337 as well.
   chain_id: 1337,
   transaction_poll_interval: 5000
 
