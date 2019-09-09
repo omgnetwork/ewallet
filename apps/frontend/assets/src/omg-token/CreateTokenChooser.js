@@ -29,6 +29,7 @@ const DropdownItem = styled.div`
   }
 `
 const ButtonStyle = styled(Button)`
+  margin-left: 10px;
   i {
     margin-left: 10px;
     margin-right: 0 !important;
@@ -46,12 +47,14 @@ class CreateTokenChooser extends Component {
     return (
       <DropdownBox>
         <DropdownItem
+          key='internal-token'
           onClick={this.props.onClickCreateInternalToken}
         >
           <Icon name='Token' />
           <span>Create Internal Token</span>
         </DropdownItem>
         <DropdownItem
+          key='import-token'
           onClick={() => this.props.openModal({
             id: 'importTokenModal',
             refetch: this.props.refetch

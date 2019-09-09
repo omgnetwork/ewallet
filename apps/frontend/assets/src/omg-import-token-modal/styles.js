@@ -20,7 +20,11 @@ export const Form = styled.form`
   }
 `
 export const Title = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 20px;
+  word-break: break-all;
 `
 export const PendingIcon = styled(Icon)`
   color: white;

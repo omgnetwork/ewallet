@@ -39,9 +39,6 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
-const ExchangePairButton = styled(Button)`
-  margin-right: 10px;
-`
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
   { key: 'blockchain', title: 'TYPE', sort: false },
@@ -95,6 +92,8 @@ class TokenDetailPage extends Component {
   renderCreateTokenButton = (refetch) => {
     return (
       <CreateTokenChooser
+        style={{ marginLeft: '10px' }}
+        key='create-token-chooser'
         refetch={refetch}
         onClickCreateInternalToken={this.onClickCreateInternalToken}
         {...this.props}
@@ -103,14 +102,14 @@ class TokenDetailPage extends Component {
   }
   renderCreateExchangePairButton = () => {
     return (
-      <ExchangePairButton
+      <Button
         key='create pair'
         size='small'
         styleType='secondary'
         onClick={this.onClickCreateExchangePair}
       >
         <span>Create Exchange Pair</span>
-      </ExchangePairButton>
+      </Button>
     )
   }
   rowRenderer (key, data, rows) {
