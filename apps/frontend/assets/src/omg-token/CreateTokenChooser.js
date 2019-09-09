@@ -48,7 +48,7 @@ class CreateTokenChooser extends Component {
         <DropdownItem
           onClick={this.props.onClickCreateInternalToken}
         >
-          <Icon name='Plus' />
+          <Icon name='Token' />
           <span>Create Internal Token</span>
         </DropdownItem>
         <DropdownItem
@@ -57,7 +57,7 @@ class CreateTokenChooser extends Component {
             refetch: this.props.refetch
           })}
         >
-          <Icon name='Plus' />
+          <Icon name='Download' />
           <span>Import Blockchain Token</span>
         </DropdownItem>
       </DropdownBox>
