@@ -39,10 +39,7 @@ defmodule LocalLedgerDB.CachedBalance do
     timestamps()
   end
 
-  @doc """
-  Validate the cached balance attributes.
-  """
-  def changeset(%CachedBalance{} = balance, attrs) do
+  defp changeset(%CachedBalance{} = balance, attrs) do
     balance
     |> cast(attrs, [:amounts, :wallet_address, :cached_count, :computed_at])
     |> validate_required([:amounts, :wallet_address, :cached_count, :computed_at])
@@ -52,6 +49,7 @@ defmodule LocalLedgerDB.CachedBalance do
   @doc """
   Retrieve a list of cached balances using the specified addresses.
   """
+  @spec all([String.t()]) :: [%CachedBalance{}]
   def all(addresses) do
     CachedBalance
     |> distinct([c], c.wallet_address)
@@ -63,6 +61,7 @@ defmodule LocalLedgerDB.CachedBalance do
   @doc """
   Retrieve a cached balance using the specified address.
   """
+  @spec get(String.t()) :: %CachedBalance{} | nil
   def get(address) do
     CachedBalance
     |> where([c], c.wallet_address == ^address)
@@ -74,9 +73,27 @@ defmodule LocalLedgerDB.CachedBalance do
   @doc """
   Insert a cached balance.
   """
+  @spec insert(map()) :: {:ok, %CachedBalance{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     %CachedBalance{}
-    |> CachedBalance.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Delete all cached balances for the given address(es) since the given computed date and time.
+  """
+  @spec delete_since(String.t() | [String.t()], NaiveDateTime.t()) ::
+          {:ok, num_deleted :: integer()}
+  def delete_since(addresses, computed_at) do
+    addresses = List.wrap(addresses)
+
+    {num_deleted, _} =
+      CachedBalance
+      |> where([c], c.wallet_address in ^addresses)
+      |> where([c], c.computed_at >= ^computed_at)
+      |> Repo.delete_all()
+
+    {:ok, num_deleted}
   end
 end
