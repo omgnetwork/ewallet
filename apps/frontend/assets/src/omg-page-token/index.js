@@ -10,14 +10,11 @@ import styled from 'styled-components'
 import { openModal } from '../omg-modal/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
-import CreateTokenModal from '../omg-create-token-modal'
-import ExportModal from '../omg-export-modal'
+import { Button, Avatar } from '../omg-uikit'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import CreateTokenChooser from '../omg-token/CreateTokenChooser'
 import { createSearchTokenQuery } from '../omg-token/searchField'
 import { NameColumn } from '../omg-page-account'
-import ExchangePairModal from '../omg-exchange-rate-modal'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -55,47 +52,18 @@ class TokenDetailPage extends Component {
     scrollTopContentContainer: PropTypes.func,
     openModal: PropTypes.func
   }
-  state = {
-    createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
-    exportModalOpen: false,
-    createExchangePairModalOpen: false
-  }
-
-  onClickCreateInternalToken = () => {
-    this.setState({ createTokenModalOpen: true })
-  }
-  onClickCreateExchangePair = () => {
-    this.setState({ createExchangePairModalOpen: true })
-  }
-  onRequestCloseCreateToken = () => {
-    this.setState({ createTokenModalOpen: false })
-  }
-  onRequestCloseCreateExchangePair = () => {
-    this.setState({ createExchangePairModalOpen: false })
-  }
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
-  }
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
-  }
   onClickLoadMore = e => {
     this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
-  renderExportButton = () => {
-    return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'exports'}>
-        <Icon name='Export' /><span>Export</span>
-      </Button>
-    )
-  }
-  renderCreateTokenButton = (refetch) => {
+  renderCreateTokenButton = refetch => {
     return (
       <CreateTokenChooser
         style={{ marginLeft: '10px' }}
         key='create-token-chooser'
         refetch={refetch}
-        onClickCreateInternalToken={this.onClickCreateInternalToken}
+        onClickCreateInternalToken={() => {
+          this.props.openModal({ id: 'createTokenModal', onFetchSuccess: refetch })
+        }}
         {...this.props}
       />
     )
@@ -106,7 +74,9 @@ class TokenDetailPage extends Component {
         key='create pair'
         size='small'
         styleType='secondary'
-        onClick={this.onClickCreateExchangePair}
+        onClick={() => {
+          this.props.openModal({ id: 'exchangePairModal', action: 'create' })
+        }}
       >
         <span>Create Exchange Pair</span>
       </Button>
@@ -165,21 +135,6 @@ class TokenDetailPage extends Component {
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
-        />
-
-        <ExportModal
-          open={this.state.exportModalOpen}
-          onRequestClose={this.onRequestCloseExport}
-        />
-        <CreateTokenModal
-          open={this.state.createTokenModalOpen}
-          onRequestClose={this.onRequestCloseCreateToken}
-          onFetchSuccess={fetch}
-        />
-        <ExchangePairModal
-          action='create'
-          open={this.state.createExchangePairModalOpen}
-          onRequestClose={this.onRequestCloseCreateExchangePair}
         />
       </TokenPageContainer>
     )

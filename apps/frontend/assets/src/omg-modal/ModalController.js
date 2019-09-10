@@ -13,6 +13,9 @@ import BlockchainWalletModal from '../omg-blockchain-wallet-modal'
 import HotWalletTransferModal from '../omg-hot-wallet-transfer-modal'
 import InternalToExternalModal from '../omg-internal-to-external-modal'
 import ImportTokenModal from '../omg-import-token-modal'
+import ExportModal from '../omg-export-modal'
+import ExchangePairModal from '../omg-exchange-rate-modal'
+import CreateTokenModal from '../omg-create-token-modal'
 
 // ADD YOUR NEW MODAL HERE
 const modals = [
@@ -25,7 +28,10 @@ const modals = [
   { id: 'blockchainWalletModal', modal: BlockchainWalletModal },
   { id: 'hotWalletTransferModal', modal: HotWalletTransferModal },
   { id: 'internalToExternalModal', modal: InternalToExternalModal },
-  { id: 'importTokenModal', modal: ImportTokenModal }
+  { id: 'importTokenModal', modal: ImportTokenModal },
+  { id: 'exportModal', modal: ExportModal },
+  { id: 'exchangePairModal', modal: ExchangePairModal },
+  { id: 'createTokenModal', modal: CreateTokenModal }
 ]
 
 function ModalController (props) {
