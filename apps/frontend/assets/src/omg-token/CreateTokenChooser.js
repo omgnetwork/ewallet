@@ -40,15 +40,19 @@ class CreateTokenChooser extends Component {
     open: PropTypes.bool,
     onClickButton: PropTypes.func,
     openModal: PropTypes.func,
-    refetch: PropTypes.func,
-    onClickCreateInternalToken: PropTypes.func
+    refetch: PropTypes.func
   }
   renderDropdown = () => {
     return (
       <DropdownBox>
         <DropdownItem
           key='internal-token'
-          onClick={this.props.onClickCreateInternalToken}
+          onClick={() => {
+            this.props.openModal({
+              id: 'createTokenModal',
+              refetch: this.props.refetch
+            })
+          }}
         >
           <Icon name='Token' />
           <span>Create Internal Token</span>
@@ -86,11 +90,7 @@ class CreateTokenChooser extends Component {
     return (
       <PopperRenderer
         offset='0px, 5px'
-        modifiers={{
-          flip: {
-            enabled: false
-          }
-        }}
+        modifiers={{ flip: { enabled: false } }}
         renderReference={this.renderButton}
         open={this.props.open}
         renderPopper={this.renderDropdown}

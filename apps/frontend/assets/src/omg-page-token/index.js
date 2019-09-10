@@ -61,9 +61,6 @@ class TokenDetailPage extends Component {
         style={{ marginLeft: '10px' }}
         key='create-token-chooser'
         refetch={refetch}
-        onClickCreateInternalToken={() => {
-          this.props.openModal({ id: 'createTokenModal', onFetchSuccess: refetch })
-        }}
         {...this.props}
       />
     )
@@ -71,7 +68,7 @@ class TokenDetailPage extends Component {
   renderCreateExchangePairButton = () => {
     return (
       <Button
-        key='create pair'
+        key='create-exchange-pair'
         size='small'
         styleType='secondary'
         onClick={() => {
