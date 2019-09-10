@@ -31,7 +31,40 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     |> set_blockchain_wallets(:from_wallet, :from, from_blockchain?)
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: from_blockchain?})
-    |> update_transaction(transaction)
+    |> update_transaction(transaction, :from_blockchain_to_ledger)
+  end
+
+  def process_with_transaction(%Transaction{status: "pending"} = transaction) do
+    to_blockchain? = to_blockchain?(transaction)
+
+    transaction
+    |> Preloader.preload([:from_token, :to_token, :from_wallet, :to_wallet])
+    |> set_blockchain_wallets(:to_wallet, :to, to_blockchain?)
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: false, status: "pending"})
+    |> update_transaction(transaction, :from_ledger_to_blockchain)
+  end
+
+  def process_with_transaction(
+        %Transaction{
+          local_ledger_uuid: local_ledger_uuid,
+          status: "ledger_pending_blockchain_confirmed"
+        } = transaction
+      )
+      when not is_nil(local_ledger_uuid) do
+    local_ledger_uuid
+    |> LedgerTransaction.confirm()
+    |> update_transaction(transaction, :from_ledger_to_blockchain)
+  end
+
+  def process_with_transaction(
+        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "failed_blockchain"} =
+          transaction
+      )
+      when not is_nil(local_ledger_uuid) do
+    local_ledger_uuid
+    |> LedgerTransaction.fail()
+    |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
   defp set_blockchain_wallets(transaction, _, _, false), do: transaction
@@ -52,18 +85,34 @@ defmodule EWallet.BlockchainLocalTransactionGate do
       !is_nil(transaction.blockchain_identifier)
   end
 
+  defp to_blockchain?(transaction) do
+    is_nil(transaction.to) &&
+      !is_nil(transaction.to_blockchain_address) &&
+      !is_nil(transaction.blockchain_identifier)
+  end
+
+  #
+  # Skip errored transactions and transactions already recorded in the local ledger.
+  #
+
   defp update_transaction(
          _,
-         %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction
+         %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction,
+         _
        )
        when local_ledger_uuid != nil
        when error_code != nil do
     {:ok, transaction}
   end
 
+  #
+  # Handle transactions from blockchain to ledger
+  #
+
   defp update_transaction(
          {:ok, ledger_transaction},
-         transaction
+         transaction,
+         :from_blockchain_to_ledger
        ) do
     {:ok, transaction} =
       TransactionState.transition_to(
@@ -79,16 +128,64 @@ defmodule EWallet.BlockchainLocalTransactionGate do
     {:ok, transaction}
   end
 
-  defp update_transaction({:error, code, description}, transaction) do
+  #
+  # Handle transactions from ledger to blockchainn
+  #
+
+  defp update_transaction(
+         {:ok, ledger_transaction},
+         %{status: "pending"} = transaction,
+         :from_ledger_to_blockchain
+       ) do
     {:ok, transaction} =
       TransactionState.transition_to(
-        :from_ledger_to_ledger,
+        :from_ledger_to_blockchain,
+        TransactionState.ledger_pending(),
+        transaction,
+        %{
+          local_ledger_uuid: ledger_transaction.uuid,
+          originator: %System{}
+        }
+      )
+
+    {:ok, transaction}
+  end
+
+  defp update_transaction(
+         {:ok, _ledger_transaction},
+         %{status: "ledger_pending_blockchain_confirmed"} = transaction,
+         :from_ledger_to_blockchain
+       ) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_blockchain,
+        TransactionState.confirmed(),
+        transaction,
+        %{
+          originator: %System{}
+        }
+      )
+
+    {:ok, transaction}
+  end
+
+  #
+  # Handle errors recording to the local ledger
+  #
+
+  defp update_transaction({:error, code, description}, transaction, flow) do
+    {description, data} =
+      if(is_map(description), do: {nil, description}, else: {description, nil})
+
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        flow,
         TransactionState.failed(),
         transaction,
         %{
-          error_code: code,
+          error_code: Atom.to_string(code),
           error_description: description,
-          error_data: nil,
+          error_data: data,
           originator: %System{}
         }
       )

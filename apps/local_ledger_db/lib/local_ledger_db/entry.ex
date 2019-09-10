@@ -31,6 +31,14 @@ defmodule LocalLedgerDB.Entry do
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+  @pending "pending"
+  @confirmed "confirmed"
+  @failed "failed"
+  @statuses [@pending, @confirmed, @failed]
+
+  def pending, do: @pending
+  def confirmed, do: @confirmed
+  def failed, do: @failed
 
   @credit "credit"
   @debit "debit"
@@ -42,6 +50,7 @@ defmodule LocalLedgerDB.Entry do
   schema "entry" do
     field(:amount, LocalLedger.Types.Integer)
     field(:type, :string)
+    field(:status, :string, default: @confirmed)
 
     belongs_to(
       :token,
@@ -76,8 +85,9 @@ defmodule LocalLedgerDB.Entry do
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:amount, :type, :token_id, :wallet_address, :transaction_uuid])
-    |> validate_required([:amount, :type, :token_id, :wallet_address])
+    |> cast(attrs, [:amount, :type, :token_id, :wallet_address, :transaction_uuid, :status])
+    |> validate_required([:amount, :type, :token_id, :wallet_address, :status])
+    |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
     |> foreign_key_constraint(:token_id)
     |> foreign_key_constraint(:wallet_address)
@@ -181,7 +191,9 @@ defmodule LocalLedgerDB.Entry do
     Repo.one(
       from(
         e in Entry,
-        where: e.wallet_address == ^address and e.type == ^type and e.token_id == ^token_id,
+        where:
+          e.wallet_address == ^address and e.type == ^type and e.token_id == ^token_id and
+            e.status != @failed,
         select: sum(e.amount)
       )
     )
