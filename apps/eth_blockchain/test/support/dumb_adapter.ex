@@ -158,6 +158,7 @@ defmodule EthBlockchain.DumbAdapter do
 
   # minting finished
   def handle_call({:get_field, _, "0x05d2035b"}, _from, reg) do
+    # "0x05d2035b" is the hex encoded value of the ABI encoded "finishMinting()"
     {:reply, {:ok, "0x0000000000000000000000000000000000000000000000000000000000000001"}, reg}
   end
 

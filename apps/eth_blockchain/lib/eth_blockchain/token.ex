@@ -48,7 +48,7 @@ defmodule EthBlockchain.Token do
 
   def get_field(_, _), do: {:error, :invalid_field}
 
-  def is_locked(attrs, opts \\ []) do
+  def locked?(attrs, opts \\ []) do
     attrs
     |> Map.put(:field, "mintingFinished")
     |> get_field(opts)

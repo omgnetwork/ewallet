@@ -239,7 +239,7 @@ defmodule EthBlockchain.Adapter do
   end
 
   def call({:is_erc20_locked, attrs}, opts) do
-    Token.is_locked(attrs, opts)
+    Token.locked?(attrs, opts)
   end
 
   def call({:deposit_to_childchain, attrs}, opts) do

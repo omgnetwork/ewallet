@@ -70,9 +70,9 @@ defmodule EthBlockchain.TokenTest do
     end
   end
 
-  describe "is_locked/2" do
+  describe "locked?/2" do
     test "returns a boolean indicating if the minting is still possible or not", state do
-      resp = Token.is_locked(%{contract_address: Crypto.fake_eth_address()}, state[:adapter_opts])
+      resp = Token.locked?(%{contract_address: Crypto.fake_eth_address()}, state[:adapter_opts])
 
       assert resp == {:ok, true}
     end
