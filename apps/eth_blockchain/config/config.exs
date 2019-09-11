@@ -13,12 +13,6 @@ config :eth_blockchain,
        default_eth_test_integration_adapter: :geth
 
 config :eth_blockchain,
-  default_gas_price: 20_000_000_000,
-  default_eth_transaction_gas_limit: 21_000,
-  default_contract_transaction_gas_limit: 90_000,
-  default_contract_creation_gas_limit: 1_500_000,
-  child_chain_deposit_eth_gas_limit: 180_000,
-  child_chain_deposit_token_gas_limit: 250_000,
   # Custom id used for development/testing only, to be updated for production use
   # Note that the geth ran by elixir-omg docker-compose is using 1337 as well.
   chain_id: 1337,

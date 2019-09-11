@@ -100,7 +100,7 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
   end
 
   defp handle_intermediate({:ok, _response}, from, to, amount, currency) do
-    #TODO: Handle transactions that require a merge.
+    # TODO: Handle transactions that require a merge.
     # For now we are doing the merge on the childchain but the initiator needs to re-submit the transaction.
     {:error, :omisego_network_unhandled_merge_transaction}
   end

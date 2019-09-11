@@ -51,7 +51,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_creation_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_creation, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 0
@@ -78,7 +78,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:eth_transaction, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 100
@@ -101,7 +101,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:eth_transaction, %{})
 
       assert trx.gas_price == 50_000
       assert trx.value == 100
@@ -129,7 +129,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 0
@@ -159,7 +159,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
       assert trx.gas_price == 50_000
       assert trx.value == 0
