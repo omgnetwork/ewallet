@@ -78,8 +78,8 @@ config :ewallet_config,
       type: "unsigned_integer",
       position: 107,
       description:
-        "The duration (in seconds) that a pre auth token will be valid for. Set to 0 to never expire a pre auth token."
-        <> " The pre auth token is issued once the username and password are verified, and awaiting 2FA verification."
+        "The duration (in seconds) that a pre auth token will be valid for. Set to 0 to never expire a pre auth token." <>
+          " The pre auth token is issued once the username and password are verified, and awaiting 2FA verification."
     },
     "number_of_backup_codes" => %{
       key: "number_of_backup_codes",
