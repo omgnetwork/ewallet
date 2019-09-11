@@ -126,7 +126,7 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   @doc """
-  Insert a transction and its entries.
+  Inserts a transction and its entries.
   """
   def insert(attrs) do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
@@ -136,8 +136,11 @@ defmodule LocalLedgerDB.Transaction do
     |> do_insert(opts)
   end
 
-  def update(attrs) do
-    %Transaction{}
+  @doc """
+  Updates a transction and its entries.
+  """
+  def update(%Transaction{} = transaction, attrs) do
+    transaction
     |> changeset(attrs)
     |> Repo.update()
   end

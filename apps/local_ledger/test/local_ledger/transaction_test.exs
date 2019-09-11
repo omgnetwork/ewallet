@@ -18,13 +18,102 @@ defmodule LocalLedger.TransactionTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias LocalLedger.Transaction
-  alias LocalLedgerDB.{Entry, Repo}
+  alias LocalLedgerDB.{CachedBalance, Entry, Repo}
+  alias LocalLedgerDB.Transaction, as: TransactionSchema
 
   setup do
     :ok = Sandbox.checkout(Repo)
   end
 
-  describe "#all" do
+  defp debits do
+    [
+      %{
+        "type" => Entry.debit_type(),
+        "address" => "alice",
+        "metadata" => %{},
+        "amount" => 100,
+        "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+      },
+      %{
+        "type" => Entry.debit_type(),
+        "address" => "bob",
+        "metadata" => %{},
+        "amount" => 200,
+        "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+      }
+    ]
+  end
+
+  defp credits do
+    [
+      %{
+        "type" => Entry.credit_type(),
+        "address" => "carol",
+        "metadata" => %{},
+        "amount" => 150,
+        "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+      },
+      %{
+        "type" => Entry.credit_type(),
+        "address" => "dan",
+        "metadata" => %{},
+        "amount" => 150,
+        "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+      }
+    ]
+  end
+
+  defp genesis do
+    {:ok, transaction} =
+      Transaction.insert(
+        %{
+          "metadata" => %{},
+          "entries" => debits() ++ credits(),
+          "idempotency_token" => UUID.generate()
+        },
+        %{genesis: true}
+      )
+
+    transaction
+  end
+
+  defp pending do
+    _ = genesis()
+
+    # Continue the balances from genesis() above, now debiting 100 away from Carol and Dan.
+    {:ok, transaction} =
+      Transaction.insert(
+        %{
+          "idempotency_token" => UUID.generate(),
+          "entries" => [
+            %{
+              "type" => Entry.debit_type(),
+              "address" => "carol",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            },
+            %{
+              "type" => Entry.credit_type(),
+              "address" => "dan",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            }
+          ],
+          "metadata" => %{}
+        },
+        %{status: "pending", genesis: false}
+      )
+
+    transaction
+  end
+
+  defp get_current_balance(address) do
+    Entry.calculate_current_amount(address, "tok_OMG_01cbepz0mhzb042vwgaqv17cjy")
+  end
+
+  describe "all/0" do
     test "returns all transactions" do
       {:ok, inserted_transaction} = :transaction |> build |> Repo.insert()
 
@@ -40,7 +129,7 @@ defmodule LocalLedger.TransactionTest do
     end
   end
 
-  describe "#get" do
+  describe "get/1" do
     test "returns the specified transaction" do
       {:ok, inserted_transaction} = :transaction |> build |> Repo.insert()
 
@@ -55,63 +144,17 @@ defmodule LocalLedger.TransactionTest do
     end
   end
 
-  describe "#insert" do
-    defp debits do
-      [
-        %{
-          "type" => Entry.debit_type(),
-          "address" => "alice",
-          "metadata" => %{},
-          "amount" => 100,
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-        },
-        %{
-          "type" => Entry.debit_type(),
-          "address" => "bob",
-          "metadata" => %{},
-          "amount" => 200,
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-        }
-      ]
+  describe "get_by_idempotency_token/1" do
+    test "returns the specified transaction" do
+      inserted = insert(:transaction)
+      {res, transaction} = Transaction.get_by_idempotency_token(inserted.idempotency_token)
+
+      assert res == :ok
+      assert transaction.uuid == inserted.uuid
     end
+  end
 
-    def credits do
-      [
-        %{
-          "type" => Entry.credit_type(),
-          "address" => "carol",
-          "metadata" => %{},
-          "amount" => 150,
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-        },
-        %{
-          "type" => Entry.credit_type(),
-          "address" => "dan",
-          "metadata" => %{},
-          "amount" => 150,
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-        }
-      ]
-    end
-
-    def genesis do
-      {:ok, transaction} =
-        Transaction.insert(
-          %{
-            "metadata" => %{},
-            "entries" => debits() ++ credits(),
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: true}
-        )
-
-      transaction
-    end
-
-    def get_current_balance(address) do
-      Entry.calculate_current_amount(address, "tok_OMG_01cbepz0mhzb042vwgaqv17cjy")
-    end
-
+  describe "insert/3" do
     test "inserts a transaction and two entries when genesis" do
       transaction = genesis()
 
@@ -547,6 +590,49 @@ defmodule LocalLedger.TransactionTest do
             %{genesis: true}
           )
       end
+    end
+  end
+
+  describe "confirm/1" do
+    test "returns the confirmed transaction and entries" do
+      transaction = pending()
+      assert transaction.status == TransactionSchema.pending()
+      assert length(transaction.entries) > 1
+      assert Enum.all?(transaction.entries, fn e -> e.status == Entry.pending() end)
+
+      {res, confirmed} = Transaction.confirm(transaction.uuid)
+
+      assert res == :ok
+      assert confirmed.status == TransactionSchema.confirmed()
+      assert Enum.all?(confirmed.entries, fn e -> e.status == Entry.confirmed() end)
+    end
+  end
+
+  describe "fail/1" do
+    test "returns the failed transaction and entries" do
+      transaction = pending()
+      assert transaction.status == TransactionSchema.pending()
+      assert length(transaction.entries) > 1
+      assert Enum.all?(transaction.entries, fn e -> e.status == Entry.pending() end)
+
+      {res, confirmed} = Transaction.fail(transaction.uuid)
+
+      assert res == :ok
+      assert confirmed.status == TransactionSchema.failed()
+      assert Enum.all?(confirmed.entries, fn e -> e.status == Entry.failed() end)
+    end
+
+    test "invalidates cache balances after the failed transaction" do
+      transaction = pending()
+
+      # Inserts a mock cached balance for testing
+      address = Enum.at(transaction.entries, 0).wallet_address
+      computed_at = NaiveDateTime.add(transaction.inserted_at, 60 * 60, :second)
+      cached_balance = insert(:cached_balance, wallet_address: address, computed_at: computed_at)
+      assert Repo.get(CachedBalance, cached_balance.uuid)
+
+      {:ok, _} = Transaction.fail(transaction.uuid)
+      refute Repo.get(CachedBalance, cached_balance.uuid)
     end
   end
 end

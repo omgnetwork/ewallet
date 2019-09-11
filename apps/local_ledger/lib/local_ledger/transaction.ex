@@ -18,8 +18,10 @@ defmodule LocalLedger.Transaction do
   needed to insert valid transactions and entries.
   """
   alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction, Entry}
+  alias LocalLedgerDB.Entry, as: EntrySchema
 
   alias LocalLedger.{
+    CachedBalance,
     Entry,
     Errors.AmountNotPositiveError,
     Errors.InvalidAmountError,
@@ -32,6 +34,7 @@ defmodule LocalLedger.Transaction do
   @doc """
   Retrieve all transactions from the database.
   """
+  @spec all() :: {:ok, [%Transaction{}]}
   def all do
     {:ok, Transaction.all()}
   end
@@ -39,6 +42,7 @@ defmodule LocalLedger.Transaction do
   @doc """
   Retrieve a specific transaction from the database.
   """
+  @spec get(String.t()) :: {:ok, %Transaction{} | nil}
   def get(id) do
     {:ok, Transaction.one(id)}
   end
@@ -46,6 +50,7 @@ defmodule LocalLedger.Transaction do
   @doc """
   Retrieve a specific transaction based on a correlation ID from the database.
   """
+  @spec get_by_idempotency_token(String.t()) :: {:ok, %Transaction{} | nil}
   def get_by_idempotency_token(idempotency_token) do
     {:ok, Transaction.get_by_idempotency_token(idempotency_token)}
   end
@@ -89,8 +94,8 @@ defmodule LocalLedger.Transaction do
         }],
         idempotency_token: "123"
       })
-
   """
+  @spec insert(map(), map(), fun() | nil) :: {:ok, %Transaction{}} | {:error, Ecto.Changeset.t()}
   def insert(
         %{
           "metadata" => metadata,
@@ -120,41 +125,66 @@ defmodule LocalLedger.Transaction do
       {:error, :insufficient_funds, e.message}
   end
 
+  @doc """
+  Marks the transaction and its entries as confirmed.
+  """
+  @spec confirm(String.t()) :: {:ok, %Transaction{}} | {:error, Ecto.Changeset.t()}
   def confirm(transaction_uuid) do
     with %Transaction{} = transaction <-
-           Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
-      entries =
+           Transaction.get_by(%{uuid: transaction_uuid}, preload: [:entries]) do
+      flagged_entries =
         Enum.map(transaction.entries, fn entry ->
           %{
             uuid: entry.uuid,
-            status: LocalLedgerDB.Entry.confirmed()
+            status: EntrySchema.confirmed()
           }
         end)
 
-      Transaction.update(%{
-        uuid: transaction.uuid,
+      Transaction.update(transaction, %{
         status: Transaction.confirmed(),
-        entries: entries
+        entries: flagged_entries
       })
     end
   end
 
+  @doc """
+  Marks the transaction and its entries as failed.
+
+  This operation will also delete the cached balances since the failed transaction.
+  """
+  @spec fail(String.t()) :: {:ok, %Transaction{}} | {:error, Ecto.Changeset.t()}
   def fail(transaction_uuid) do
     with %Transaction{} = transaction <-
-           Transaction.get_by(uuid: transaction_uuid, preload: [:entries]) do
-      entries =
+           Transaction.get_by(%{uuid: transaction_uuid}, preload: [entries: [:wallet]]) do
+      flagged_entries =
         Enum.map(transaction.entries, fn entry ->
           %{
             uuid: entry.uuid,
-            status: LocalLedgerDB.Entry.failed()
+            status: EntrySchema.failed()
           }
         end)
 
-      Transaction.update(%{
-        uuid: transaction.uuid,
-        status: Transaction.failed(),
-        entries: entries
-      })
+      result =
+        Transaction.update(transaction, %{
+          status: Transaction.failed(),
+          entries: flagged_entries
+        })
+
+      _ =
+        case result do
+          {:ok, _} ->
+            # A transaction is inserted before entries, so deleting since transaction.insert_at
+            # should cover all its entries just fine.
+            transaction.entries
+            |> Enum.map(fn e -> e.wallet end)
+            |> Enum.uniq()
+            |> CachedBalance.delete_since(transaction.inserted_at)
+
+          _ ->
+            :noop
+        end
+
+      result
     end
   end
 

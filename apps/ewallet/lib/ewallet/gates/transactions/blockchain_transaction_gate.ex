@@ -99,13 +99,13 @@ defmodule EWallet.BlockchainTransactionGate do
     {:error, :invalid_to_address_for_blockchain_transaction}
   end
 
-  # Here we're handling a regular transaction getting funds out of an
-  # internal wallet to a blockchain address
+  # Sends funds out of an internal wallet to a blockchain address
+  #
+  # Steps:
+  # 1. Insert a local transaction with status: "pending"
+  # 2. Submit a transaction to the blockchain
+  # 3. Start a transaction tracker to confirm the local transaction after enough confirmations
   def create(actor, attrs, {false, true}) do
-    # TODO: Next PR
-    # Insert pending local transaction
-    # submit to blockchain
-    # once enough confirmations, confirm local transaction
     identifier = BlockchainHelper.identifier()
     primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
@@ -144,8 +144,8 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
-  # Handle external -> hot
-  # Handle external -> internal
+  # Handle external -> hot wallet (not registered in local ledger)
+  # Handle external -> internal wallet (registered in local ledger)
   def create_from_tracker(attrs) do
     case Transaction.insert(attrs) do
       {:ok, transaction} ->
@@ -221,6 +221,10 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  # The destination is nil when the transaction is intended to arrive and stay
+  # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
+  # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
+  # move the transaction to confirmed state.
   def handle_local_insert(%{to: nil} = transaction) do
     # TODO: Should not this function also insert local ledger (genesis) transactions?
     TransactionState.transition_to(
