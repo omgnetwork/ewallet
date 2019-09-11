@@ -7,7 +7,6 @@ Settings allow you to configure system-wide behavior of the eWallet server. All 
 Below are the general settings needed for the eWallet to run.
 
 - `master_account`: The ID of the master account.
-
 - `base_url`: The base to use when building URLs.
 
 ## Incoming Requests
@@ -27,6 +26,8 @@ The eWallet is able to work independent of an external integration. The default 
 
 - `min_password_length`: The minimum length of the password that a user is allowed to set.
 - `forget_password_request_lifetime`: The duration (in minutes) that a forget password request will be valid for.
+- `auth_token_lifetime`: The duration (in seconds) that an auth token will be valid for. Set to 0 to never expire an auth token.
+- `pre_auth_token_lifetime`: The duration (in seconds) that a pre auth token will be valid for. Set to 0 to never expire a pre auth token. The pre auth token is issued once the username and password are verified, and awaiting 2FA verification.
 - `number_of_backup_codes`: The number of backup codes for the two-factor authentication.
 - `two_fa_issuer`: The issuer of the two-factor authentication, which will be displayed on the TOTP app.
 
@@ -45,7 +46,6 @@ The local ledger offers a caching mechanism for wallets in order to boost the ca
   Strategies available:
   - `since_beginning`: Recalculate the balance since the beginning of time.
   - `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
-
 
 - `balance_caching_reset_frequency`: Specify that a cached balance needs to be recalculated at the n<sup>th</sup> time of usage. Setting this to 0 means that cached balances will never be re-calculated from the beginning. Applicable only when `since_last_cached` caching strategy is used.
 

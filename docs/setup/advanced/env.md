@@ -45,11 +45,11 @@ The eWallet only supports [Sentry](https://sentry.io/welcome/) for now. You can 
 - `SENTRY_DSN`: The Sentry's Data Source Name for your project.
   For example, `SENTRY_DSN=https://public_key@host:port/1`
 
-### Local File Storage
+## Local File Storage
 
 Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
 
-### E2E Tests
+## E2E Tests
 
 - `E2E_ENABLED`: Allows to run `mix seed --test --yes` to generate test data
 - `E2E_TEST_ADMIN_EMAIL`: The email of the first test admin

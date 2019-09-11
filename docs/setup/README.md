@@ -1,6 +1,6 @@
 # Setup
 
-See [Getting started](../../#getting-started) for our recommended way to setup the eWallet Server.
+See [Getting started](../../../../#getting-started) for our recommended way to setup the eWallet Server.
 
 The following links cover the setup in more details.
 

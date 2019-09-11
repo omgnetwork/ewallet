@@ -46,8 +46,7 @@ For other platforms or a more advanced setup, see alternative installation below
 
 ## Upgrade
 
-- Upgrading from `v1.0`? See [Upgrading from v1.0.0 to v1.1.0](docs/setup/upgrading/v1.1.0.md).
-- Upgrading from other versions? See [Upgrading the eWallet Server](docs/setup/upgrading).
+See [Upgrading the eWallet Server](docs/setup/upgrading).
 
 ## Commands
 
@@ -77,6 +76,7 @@ These commands create the initial data in the database. If `seed` is run without
 
 -   `seed --sample` will seed a sample data suitable for evaluating OmiseGO eWallet Server.
 -   `seed --e2e` will seed a data for [end-to-end testing](docs/setup/advanced/env.md).
+-   `seed --settings` will seed the application settings for the OmiseGO eWallet Server.
 
 ### config
 
