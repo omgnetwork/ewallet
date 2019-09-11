@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.FundManagementGateTest do
+defmodule EWallet.DepositPoolingGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWallet.{FundManagementGate, BlockchainDepositWalletGate}
+  alias EWallet.{DepositPoolingGate, BlockchainDepositWalletGate}
   alias EWalletDB.Wallet, as: DBWallet
 
   alias EWalletDB.{
@@ -28,7 +28,7 @@ defmodule EWallet.FundManagementGateTest do
   }
 
   describe "move_deposits_to_pooled_funds/2" do
-    test "f" do
+    test "pools the funds" do
       blockchain_identifier = "ethereum"
       hd_wallet = BlockchainHDWallet.get_primary()
 
@@ -50,7 +50,7 @@ defmodule EWallet.FundManagementGateTest do
           blockchain_hd_wallet_uuid: hd_wallet.uuid
         )
 
-        deposit_wallet_balance =
+      deposit_wallet_balance =
         insert(:blockchain_deposit_wallet_balance,
           token: token,
           amount: 100_000_000_000_000_000_000_000,
@@ -59,7 +59,9 @@ defmodule EWallet.FundManagementGateTest do
         )
 
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
-      assert [{:ok, _transaction}] = FundManagementGate.move_deposits_to_pooled_funds(blockchain_identifier)
+
+      assert [{:ok, _transaction}] =
+               DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
     end
   end
 end

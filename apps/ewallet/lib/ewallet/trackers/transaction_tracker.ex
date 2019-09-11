@@ -14,9 +14,10 @@
 
 defmodule EWallet.TransactionTracker do
   @moduledoc """
-  This module is a GenServer started dynamically for a specific eWallet transaction
-  It will registers itself with the blockchain adapter to receive events about
-  a given transactions and act on it
+  Tracks changes to a blockchain transaction and reflects those changes
+  on the respective eWallet transaction.
+
+  This is a GenServer that can be started dynamically for a specific eWallet transaction.
   """
   use GenServer, restart: :temporary
   require Logger
@@ -103,10 +104,19 @@ defmodule EWallet.TransactionTracker do
     {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
 
     # If to a deposit wallet, make sure it's stored
-    if BlockchainDepositWallet.get(transaction.to) do
-      {:ok, _} =
-        BlockchainDepositWalletGate.store_balances(transaction.to, blockchain_identifier, [transaction.to_token])
-    end
+    _ =
+      case BlockchainDepositWallet.get(transaction.to) do
+        nil ->
+          :noop
+
+        _deposit_wallet ->
+          {:ok, _} =
+            BlockchainDepositWalletGate.store_balances(
+              transaction.to,
+              blockchain_identifier,
+              [transaction.to_token]
+            )
+      end
 
     # Unsubscribing from the blockchain subapp
     # TODO: :ok / {:error, :not_found} handling?

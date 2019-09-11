@@ -23,7 +23,8 @@ defmodule EWallet.FundManagementTracker do
     BlockchainHelper,
     BlockchainAddressFetcher,
     BlockchainStateGate,
-    BlockchainTransactionGate
+    BlockchainTransactionGate,
+    DepositPoolingGate
   }
 
   alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
@@ -72,6 +73,6 @@ defmodule EWallet.FundManagementTracker do
            blockchain_identifier: blockchain_identifier
          } = state
        ) do
-    FundManagementGate.move_deposits_to_pooled_funds(blockchain_identifier)
+    DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
   end
 end

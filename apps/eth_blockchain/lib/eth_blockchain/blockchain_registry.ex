@@ -14,8 +14,7 @@
 
 defmodule EthBlockchain.BlockchainRegistry do
   @moduledoc """
-  The Blockchain registry handles the lifecycle of blockchain listeners
-  (such as the transaction listener).
+  Manages start/stop and subscriptions of blockchain listeners.
   """
   use GenServer
 
@@ -102,6 +101,10 @@ defmodule EthBlockchain.BlockchainRegistry do
 
   def start_listener(listener, attrs, pid \\ __MODULE__) do
     GenServer.call(pid, {:start_listener, listener, attrs})
+  end
+
+  def stop_listener(id, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:stop_listener, id})
   end
 
   def subscribe(id, subscriber_pid, pid \\ __MODULE__) do
