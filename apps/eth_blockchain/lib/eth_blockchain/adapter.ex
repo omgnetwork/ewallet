@@ -226,6 +226,22 @@ defmodule EthBlockchain.Adapter do
     Token.get_field(attrs, opts)
   end
 
+  def call({:deploy_erc20, attrs}, opts) do
+    Contract.deploy_erc20(attrs, opts)
+  end
+
+  def call({:mint_erc20, attrs}, opts) do
+    Transaction.mint_erc20(attrs, opts)
+  end
+
+  def call({:lock_erc20, attrs}, opts) do
+    Transaction.lock_erc20(attrs, opts)
+  end
+
+  def call({:is_erc20_locked, attrs}, opts) do
+    Token.is_locked(attrs, opts)
+  end
+
   def call({:deposit_to_childchain, attrs}, opts) do
     Childchain.deposit(attrs, opts)
   end
@@ -236,10 +252,6 @@ defmodule EthBlockchain.Adapter do
 
   def call({:get_childchain_balance, attrs}, opts) do
     Childchain.get_balance(attrs, opts)
-  end
-
-  def call({:deploy_erc20, attrs}, opts) do
-    Contract.deploy_erc20(attrs, opts)
   end
 
   def call({:get_childchain_contract_address, _attrs}, opts) do

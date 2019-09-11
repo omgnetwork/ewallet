@@ -63,4 +63,16 @@ defmodule EthBlockchain.ABIEncoder do
   def child_chain_erc20_deposit(tx_bytes) do
     {:ok, ABI.encode("depositFrom(bytes)", [tx_bytes])}
   end
+
+  def mint("0x" <> _ = address, amount) do
+    {:ok,
+     ABI.encode("mint(address,uint)", [
+       from_hex(address),
+       amount
+     ])}
+  end
+
+  def finishMinting() do
+    {:ok, ABI.encode("finishMinting()", [])}
+  end
 end
