@@ -18,7 +18,7 @@ defmodule EthBlockchain.TokenTest do
   alias EthBlockchain.Token
   alias Utils.Helpers.Crypto
 
-  describe "get_field/3" do
+  describe "get_field/2" do
     test "get a valid field with the given adapter spec", state do
       resp =
         Token.get_field(
@@ -67,6 +67,14 @@ defmodule EthBlockchain.TokenTest do
                  },
                  state[:invalid_adapter_opts]
                )
+    end
+  end
+
+  describe "is_locked/2" do
+    test "returns a boolean indicating if the minting is still possible or not", state do
+      resp = Token.is_locked(%{contract_address: Crypto.fake_eth_address()}, state[:adapter_opts])
+
+      assert resp == {:ok, true}
     end
   end
 end
