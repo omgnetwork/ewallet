@@ -16,6 +16,7 @@ import ImportTokenModal from '../omg-import-token-modal'
 import ExportModal from '../omg-export-modal'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import CreateTokenModal from '../omg-create-token-modal'
+import CreateBlockchainTokenModal from '../omg-create-blockchain-token-modal'
 
 // ADD YOUR NEW MODAL HERE
 const modals = [
@@ -31,7 +32,8 @@ const modals = [
   { id: 'importTokenModal', modal: ImportTokenModal },
   { id: 'exportModal', modal: ExportModal },
   { id: 'exchangePairModal', modal: ExchangePairModal },
-  { id: 'createTokenModal', modal: CreateTokenModal }
+  { id: 'createTokenModal', modal: CreateTokenModal },
+  { id: 'createBlockchainTokenModal', modal: CreateBlockchainTokenModal }
 ]
 
 function ModalController (props) {

@@ -58,6 +58,18 @@ class CreateTokenChooser extends Component {
           <span>Create Internal Token</span>
         </DropdownItem>
         <DropdownItem
+          key='blockchain-token'
+          onClick={() => {
+            this.props.openModal({
+              id: 'createBlockchainTokenModal',
+              refetch: this.props.refetch
+            })
+          }}
+        >
+          <Icon name='Token' />
+          <span>Create Blockchain Token</span>
+        </DropdownItem>
+        <DropdownItem
           key='import-token'
           onClick={() => this.props.openModal({
             id: 'importTokenModal',

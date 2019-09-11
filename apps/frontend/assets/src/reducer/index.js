@@ -12,7 +12,7 @@ import {
   accessKeyMembershipsReducer
 } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
-import { tokensReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
+import { tokensReducer, mintedTokenHistoryReducer, tokenCapabilitiesReducer } from '../omg-token/reducer'
 import { usersReducer } from '../omg-users/reducer'
 import { consumptionsReducer } from '../omg-consumption/reducer'
 import { transactionsReducer } from '../omg-transaction/reducer'
@@ -45,6 +45,7 @@ export default combineReducers({
   apiKeys: apiKeysReducer,
   alerts: alertsReducer,
   tokens: tokensReducer,
+  tokenCapabilities: tokenCapabilitiesReducer,
   transactionRequests: transactionRequestsReducer,
   users: usersReducer,
   transactions: transactionsReducer,

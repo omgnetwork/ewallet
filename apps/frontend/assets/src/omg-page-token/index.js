@@ -10,7 +10,7 @@ import styled from 'styled-components'
 import { openModal } from '../omg-modal/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Avatar } from '../omg-uikit'
+import { Button, Avatar, Icon, Tooltip } from '../omg-uikit'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import CreateTokenChooser from '../omg-token/CreateTokenChooser'
 import { createSearchTokenQuery } from '../omg-token/searchField'
@@ -36,9 +36,26 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
+const EwalletBlockchain = styled.div`
+  display: flex;
+  align-items: center;
+  i {
+    margin-left: 5px;
+    font-size: 12px;
+  }
+  .triangle {
+    right: 2px;
+  }
+  .tooltip-text {
+    width: 200px;
+    transform: translateX(50%);
+    top: -54px;
+  }
+`
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
-  { key: 'blockchain', title: 'TYPE', sort: false },
+  { key: 'blockchainStatus', title: 'TYPE', sort: true },
+  { key: 'status', title: 'STATUS', sort: true },
   { key: 'created', title: 'CREATED AT', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
   { key: 'symbol', title: 'SYMBOL', sort: true }
@@ -80,7 +97,23 @@ class TokenDetailPage extends Component {
     )
   }
   rowRenderer (key, data, rows) {
-    if (key === 'blockchain') {
+    if (key === 'status') {
+      if (rows.blockchainStatus) {
+        return _.capitalize(rows.blockchainStatus)
+      }
+    }
+    if (key === 'blockchainStatus') {
+      if (rows.txHash) {
+        return (
+          <EwalletBlockchain>
+            <span>Blockchain</span>
+            <Tooltip text='This is a blockchain token controlled by the eWallet.'>
+              <Icon name='Wallet' />
+            </Tooltip>
+          </EwalletBlockchain>
+        )
+      }
+
       return data
         ? 'Blockchain'
         : 'Internal'
@@ -108,7 +141,8 @@ class TokenDetailPage extends Component {
         symbol: token.symbol,
         created: token.created_at,
         id: token.id,
-        blockchain: !!token.blockchain_status
+        blockchainStatus: token.blockchain_status,
+        txHash: token.tx_hash
       }
     })
 
