@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.FundManagementGate do
-  # TODO: moduledoc
+defmodule EWallet.DepositPoolingGate do
+  @moduledoc """
+  Monitors deposit wallets and moves the funds into a pooled wallet when criteria are met.
+  """
   alias EWallet.{BlockchainHelper, TransactionRegistry, TransactionTracker}
 
   alias EWalletDB.{
@@ -33,33 +35,24 @@ defmodule EWallet.FundManagementGate do
     # if sum > 3% of hot wallet, transfer until amount is 0.5%
     primary_token_address = BlockchainHelper.adapter().helper().default_token()[:address]
 
-    primary_token =
-      Token.get_by(%{
-        blockchain_address: primary_token_address,
-        blockchain_identifier: blockchain_identifier
-      })
-
-    tokens = Token.all_blockchain_except([primary_token_address], blockchain_identifier)
+    {[primary_token], secondary_tokens} =
+      blockchain_identifier
+      |> Token.all_blockchain()
+      |> Enum.split(fn t -> t.blockchain_address == primary_token_address end)
 
     hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
-    # balances = BlockchainBalanceFetcher.all([hot_wallet.address], tokens)
 
-    primary_token_deposit_balances =
-      BlockchainDepositWalletBalance.all_with_balances([primary_token], blockchain_identifier)
-
-    other_token_deposit_balances =
-      BlockchainDepositWalletBalance.all_with_balances(tokens, blockchain_identifier)
-
-    # DOING: Rapatriate Ethereum
     # TODO: get real gas cost
-    primary_token_gas_cost = 20_000_000_000
-    other_token_gas_cost = 20_000_000_000
+    check_and_move_primary(primary_token, hot_wallet, 20_000_000_000, 21_000)
+    check_and_move_secondary(secondary_tokens, hot_wallet, 20_000_000_000, 90_000)
+  end
 
-    default_eth_transaction_gas_limit = 21_000
-    default_contract_transaction_gas_limit = 90_000
-
-    Enum.map(primary_token_deposit_balances, fn balance ->
-      gas_cost = primary_token_gas_cost * default_eth_transaction_gas_limit
+  defp check_and_move_primary(primary_token, gas_price, gas_limit) do
+    # DOING: Rapatriate Ethereum
+    [primary_token]
+    |> BlockchainDepositWalletBalance.all_with_balances(blockchain_identifier)
+    |> Enum.map(fn balance ->
+      gas_cost = gas_price * gas_limit
       amount = balance.amount - gas_cost
 
       # TODO: Check for pending transaction with same from / to / status = pending
@@ -70,15 +63,16 @@ defmodule EWallet.FundManagementGate do
                type: DepositTransaction.incoming(),
                amount: amount,
                token_uuid: primary_token.uuid,
-               cost: primary_token_gas_cost,
-               limit: default_eth_transaction_gas_limit,
+               cost: gas_price,
+               limit: gas_limit,
                from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
                to_blockchain_wallet_address: hot_wallet.address,
                blockchain_identifier: blockchain_identifier,
                originator: %System{}
              }),
            transaction <- Preloader.preload(transaction, [:token]),
-           balance <- Preloader.preload(balance, [blockchain_deposit_wallet: [:blockchain_hd_wallet]]),
+           balance <-
+             Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet]),
            {:ok, tx_hash} <- submit(transaction, balance),
            {:ok, transaction} <-
              TransactionState.transition_to(
@@ -98,8 +92,13 @@ defmodule EWallet.FundManagementGate do
           error
       end
     end)
+  end
 
-    # TODO: Rapatriate ERC-20 token
+  # TODO: Rapatriate ERC-20 token
+  defp check_and_move_secondary(tokens, gas_price, gas_limit) do
+    secondary_tokens
+    |> BlockchainDepositWalletBalance.all_with_balances(blockchain_identifier)
+    |> Enum.map(fn balance -> balance end)
   end
 
   defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet} = balance) do
