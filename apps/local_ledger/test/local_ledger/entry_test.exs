@@ -50,13 +50,15 @@ defmodule LocalLedger.EntryTest do
                  type: LocalLedgerDB.Entry.debit_type(),
                  amount: 100,
                  token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                 wallet_address: "omisego.test.sender1"
+                 wallet_address: "omisego.test.sender1",
+                 status: "confirmed"
                },
                %{
                  type: LocalLedgerDB.Entry.credit_type(),
                  amount: 100,
                  token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                 wallet_address: "omisego.test.receiver1"
+                 wallet_address: "omisego.test.receiver1",
+                 status: "confirmed"
                }
              ]
     end

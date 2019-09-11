@@ -24,13 +24,65 @@ defmodule EWallet.BlockchainTransactionGateTest do
     TransactionRegistry
   }
 
-  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID
 
   describe "create/2" do
-    test "submits a rootchain transaction to the blockchain subapp (hot wallet to blockchain address)",
+    test "submits a transaction to the blockchain subapp (internal to blockchain address)",
+         meta do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      identifier = BlockchainHelper.rootchain_identifier()
+      account = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(account)
+      mint!(primary_blockchain_token)
+
+      {:ok, %{balances: [main_balance]}} = BalanceFetcher.all(%{"wallet" => master_wallet})
+      assert main_balance[:amount] == 100_000_000
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => master_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {false, true})
+
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.external()
+      assert transaction.blockchain_identifier == identifier
+      assert transaction.confirmations_count == nil
+
+      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
+      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+
+      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = res
+
+      ref = Process.monitor(blockchain_listener_pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.status == TransactionState.confirmed()
+          assert transaction.confirmations_count > 10
+
+          {:ok, %{balances: [main_balance]}} = BalanceFetcher.all(%{"wallet" => master_wallet})
+          assert main_balance[:amount] == 99_999_999
+      end
+    end
+
+    test "submits a transaction to the blockchain subapp (hot wallet to blockchain address)",
          meta do
       # TODO: switch to using the seeded Ethereum address
       admin = insert(:admin, global_role: "super_admin")
@@ -64,15 +116,14 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
       assert %{listener: _, pid: blockchain_listener_pid} = res
 
-      assert Process.alive?(pid)
-      assert Process.alive?(blockchain_listener_pid)
+      ref = Process.monitor(blockchain_listener_pid)
 
-      # Turn off the listeners before exiting so it does not try
-      # to update the transactions after the test is done.
-      on_exit(fn ->
-        :ok = GenServer.stop(pid)
-        :ok = GenServer.stop(blockchain_listener_pid)
-      end)
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.confirmations_count == 13
+          assert transaction.status == TransactionState.confirmed()
+      end
     end
 
     test "submits a childchain transaction to the blockchain subapp (hot wallet plasma to blockchain plasma address)",
@@ -142,7 +193,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_blockchain_funds} ==
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -167,7 +218,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_blockchain_funds} ==
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -244,7 +295,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert {:error, :insufficient_blockchain_funds} ==
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
 
@@ -312,7 +363,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert transaction.status == "confirmed"
+          assert transaction.status == TransactionState.confirmed()
       end
     end
 
@@ -410,7 +461,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
 
       transaction = Transaction.get(transaction.id)
-      assert transaction.status == "confirmed"
+      assert transaction.status == TransactionState.confirmed()
       # Check balance
       {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
       assert balance[:amount] == 1

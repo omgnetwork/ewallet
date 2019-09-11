@@ -76,7 +76,7 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
       {:ok, %{"result" => "intermediate"} = create_response} ->
         create_response
         |> sign_and_submit(from)
-        |> handle_intermediate(from, to, amount, currency_address)
+        |> handle_intermediate()
 
       {:ok, _} ->
         {:error, :unhandled}
@@ -99,13 +99,13 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
     |> submit_typed(typed_data)
   end
 
-  defp handle_intermediate({:ok, _response}, from, to, amount, currency) do
+  defp handle_intermediate({:ok, _response}) do
     # TODO: Handle transactions that require a merge.
     # For now we are doing the merge on the childchain but the initiator needs to re-submit the transaction.
     {:error, :omisego_network_unhandled_merge_transaction}
   end
 
-  defp handle_intermediate(error, _from, _to, _amount, _currency), do: error
+  defp handle_intermediate(error), do: error
 
   defp prepare_transaction(from, to, amount, currency_address) do
     # TODO: Fee?

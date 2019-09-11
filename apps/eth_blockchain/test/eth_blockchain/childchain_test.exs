@@ -146,8 +146,8 @@ defmodule EthBlockchain.ChildchainTest do
       assert res == :ok
 
       assert tx_hash == "0xbdf562c24ace032176e27621073df58ce1c6f65de3b5932343b70ba03c72132d"
-      assert tx_index = 111
-      assert blk_num = 123_000
+      assert tx_index == 111
+      assert blk_num == 123_000
     end
 
     test "returns an error when given an invalid childchain identifier", state do

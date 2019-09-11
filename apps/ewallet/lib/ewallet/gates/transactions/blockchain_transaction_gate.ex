@@ -69,10 +69,10 @@ defmodule EWallet.BlockchainTransactionGate do
          %{} = attrs <- set_blockchain_addresses(attrs),
          %{} = attrs <- set_token(attrs),
          %{} = attrs <- check_amount(attrs),
-         true <- enough_funds?(attrs) || {:error, :insufficient_blockchain_funds},
+         true <- enough_funds?(attrs) || {:error, :insufficient_funds_in_hot_wallet},
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
-         {:ok, transaction} <- submit_if_needed(transaction) do
+         {:ok, transaction} <- submit_if_needed(transaction, :from_ewallet_to_blockchain) do
       {:ok, transaction}
     else
       error when is_atom(error) ->
@@ -89,15 +89,38 @@ defmodule EWallet.BlockchainTransactionGate do
     {:error, :invalid_to_address_for_blockchain_transaction}
   end
 
-  # Here we're handling a regular transaction getting funds out of an
-  # internal wallet to a blockchain address
-  def create(_actor, _attrs, {false, true}) do
-    # TODO: Next PR
-    {:error, :not_implemented}
+  # Sends funds out of an internal wallet to a blockchain address
+  #
+  # Steps:
+  # 1. Insert a local transaction with status: "pending"
+  # 2. Submit a transaction to the blockchain
+  # 3. Start a transaction tracker to confirm the local transaction after enough confirmations
+  def create(actor, attrs, {false, true}) do
+    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
+
+    with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
+         %{} = attrs <- set_payload(attrs),
+         %{} = attrs <- set_internal_and_blockchain_addresses(attrs, primary_hot_wallet),
+         %{} = attrs <- set_token(attrs),
+         %{} = attrs <- check_amount(attrs),
+         true <- enough_funds?(attrs) || {:error, :insufficient_funds_in_hot_wallet},
+         %{} = attrs <- set_blockchain(attrs),
+         {:ok, transaction} <- get_or_insert(attrs),
+         {:ok, transaction} <-
+           BlockchainLocalTransactionGate.process_with_transaction(transaction),
+         {:ok, transaction} <- submit_if_needed(transaction, :from_ledger_to_blockchain) do
+      {:ok, transaction}
+    else
+      error when is_atom(error) ->
+        {:error, error}
+
+      error ->
+        error
+    end
   end
 
-  # Handle external -> hot
-  # Handle external -> internal
+  # Handle external -> hot wallet (not registered in local ledger)
+  # Handle external -> internal wallet (registered in local ledger)
   def create_from_tracker(attrs) do
     case Transaction.insert(attrs) do
       {:ok, transaction} ->
@@ -173,6 +196,10 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  # The destination is nil when the transaction is intended to arrive and stay
+  # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
+  # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
+  # move the transaction to confirmed state.
   def handle_local_insert(%{to: nil} = transaction) do
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
@@ -190,6 +217,15 @@ defmodule EWallet.BlockchainTransactionGate do
     attrs
     |> Map.put("to_blockchain_address", attrs["to_address"])
     |> Map.put("from_blockchain_address", attrs["from_address"])
+    |> Map.delete("to_address")
+    |> Map.delete("from_address")
+  end
+
+  defp set_internal_and_blockchain_addresses(attrs, hot_wallet) do
+    attrs
+    |> Map.put("from", attrs["from_address"])
+    |> Map.put("to_blockchain_address", attrs["to_address"])
+    |> Map.put("from_blockchain_address", hot_wallet.address)
     |> Map.delete("to_address")
     |> Map.delete("from_address")
   end
@@ -310,11 +346,11 @@ defmodule EWallet.BlockchainTransactionGate do
      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
-  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction) do
+  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction, type) do
     with {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
            TransactionState.transition_to(
-             :from_ewallet_to_blockchain,
+             type,
              TransactionState.blockchain_submitted(),
              transaction,
              %{blockchain_tx_hash: tx_hash, originator: %System{}}
@@ -322,13 +358,13 @@ defmodule EWallet.BlockchainTransactionGate do
          :ok =
            TransactionRegistry.start_tracker(TransactionTracker, %{
              transaction: transaction,
-             transaction_type: :from_ewallet_to_blockchain
+             transaction_type: type
            }) do
       {:ok, transaction}
     end
   end
 
-  defp submit_if_needed(transaction), do: {:ok, transaction}
+  defp submit_if_needed(transaction, _type), do: {:ok, transaction}
 
   defp submit(
          %{type: @external_transaction, blockchain_identifier: @childchain_identifier} =

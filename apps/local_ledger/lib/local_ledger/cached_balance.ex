@@ -21,34 +21,54 @@ defmodule LocalLedger.CachedBalance do
   alias LocalLedgerDB.{CachedBalance, Entry, Wallet}
 
   @doc """
-  Cache all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This
+  Caches all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This
   is meant to be used in some kind of schedulers, but can also be ran manually.
   """
   @spec cache_all() :: :ok
   def cache_all do
+    strategy = Application.get_env(:local_ledger, :balance_caching_strategy)
+
     Wallet.stream_all(fn wallet ->
-      {:ok, calculate_with_strategy(wallet)}
+      {:ok, calculate_with_strategy(strategy, wallet)}
     end)
   end
 
-  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
-  def all(wallet, attrs \\ %{})
-
   @doc """
-  Get all the balances for the given wallet or wallets.
+  Deletes the cache since a specific point in time.
+
+  The given datetime also gets included in the deletion.
   """
-  def all(wallet_or_wallets, attrs) do
-    {:ok, get_balances(wallet_or_wallets, attrs)}
+  @spec delete_since(%Wallet{} | [%Wallet{}], NaiveDateTime.t()) ::
+          {:ok, num_deleted :: integer()}
+  def delete_since(wallet_or_wallets, computed_at) do
+    wallet_or_wallets
+    |> List.wrap()
+    |> Enum.map(fn w -> w.address end)
+    |> CachedBalance.delete_since(computed_at)
   end
 
   @doc """
-  Get the balance for the specified token (token_id) and
+  Gets all the balances for the given wallet or wallets.
+  """
+  @spec all(%Wallet{} | [%Wallet{}]) :: {:ok, map()}
+  def all(wallet_or_wallets, attrs \\ %{}) do
+    balances =
+      wallet_or_wallets
+      |> List.wrap()
+      |> get_balances(attrs)
+
+    {:ok, balances}
+  end
+
+  @doc """
+  Gets the balance for the specified token (token_id) and
   the given wallet.
   """
   @spec get(%Wallet{} | [%Wallet{}], String.t()) :: {:ok, map()}
   def get(wallet_or_wallets, token_id) do
     balances =
       wallet_or_wallets
+      |> List.wrap()
       |> get_balances()
       |> Enum.into(%{}, fn {address, amounts} ->
         {address, %{token_id => amounts[token_id] || 0}}
@@ -57,16 +77,17 @@ defmodule LocalLedger.CachedBalance do
     {:ok, balances}
   end
 
-  defp get_balances(wallet_or_wallets, attrs \\ %{})
+  #
+  # Private functions for figuring out the latest balances
+  # from existing cached balances plus uncached transactions.
+  #
 
-  defp get_balances(wallets, attrs) when is_list(wallets) do
+  defp get_balances(wallets, attrs \\ %{}) do
     wallets
     |> Enum.map(fn wallet -> wallet.address end)
     |> CachedBalance.all()
     |> calculate_all_amounts(wallets, attrs)
   end
-
-  defp get_balances(wallet, attrs), do: get_balances([wallet], attrs)
 
   defp calculate_all_amounts(computed_balances, wallets, attrs) do
     computed_balances =
@@ -115,11 +136,9 @@ defmodule LocalLedger.CachedBalance do
     )
   end
 
-  defp calculate_with_strategy(wallet) do
-    :local_ledger
-    |> Application.get_env(:balance_caching_strategy)
-    |> calculate_with_strategy(wallet)
-  end
+  #
+  # Private functions for calculating and storing the cached balances.
+  #
 
   defp calculate_with_strategy("since_last_cached", wallet) do
     case CachedBalance.get(wallet.address) do

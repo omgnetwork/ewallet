@@ -89,24 +89,5 @@ defmodule EWallet.ChildchainTransactionGateTest do
       assert code == :invalid_parameter
       assert error == "Invalid parameter provided. `amount` is required."
     end
-
-    test "returns an error if `address` is not a valid blockchain address" do
-      admin = insert(:admin, global_role: "super_admin")
-
-      primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
-
-      attrs = %{
-        "idempotency_token" => UUID.generate(),
-        "address" => "123",
-        "token_id" => primary_blockchain_token.id,
-        "amount" => 1,
-        "originator" => %System{}
-      }
-
-      {res, code} = ChildchainTransactionGate.deposit(admin, attrs)
-      assert res == :error
-      assert code == :not_implemented
-    end
   end
 end
