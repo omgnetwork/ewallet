@@ -130,6 +130,17 @@ class TokenDetailPage extends Component {
       />
     )
   }
+  renderMintTokenButton = () => {
+    return (
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickMintTopen}
+      >
+        <span>Mint Token</span>
+      </Button>
+    )
+  }
   renderTopBar = token => {
     return (
       <>
@@ -145,13 +156,7 @@ class TokenDetailPage extends Component {
           title={token.name}
           buttons={[
             this.renderCreateExchangePairButton(),
-            <Button
-              key='mint'
-              size='small'
-              onClick={this.onClickMintTopen}
-            >
-              <span>Mint Token</span>
-            </Button>
+            !token.locked ? this.renderMintTokenButton() : null
           ]}
         />
       </>
@@ -209,6 +214,9 @@ class TokenDetailPage extends Component {
             </DetailGroup>
           </>
         )}
+        <DetailGroup>
+          <b>Locked:</b> <span>{token.locked ? 'True' : 'False'}</span>
+        </DetailGroup>
       </Section>
     )
   }
