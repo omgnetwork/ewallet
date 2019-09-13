@@ -19,7 +19,7 @@ defmodule EthBlockchain.Transaction do
 
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
-  alias EthBlockchain.{Adapter, ABIEncoder, GasHelper, Helper, Nonce, NonceRegistry}
+  alias EthBlockchain.{AdapterServer, ABIEncoder, GasHelper, Helper, Nonce, NonceRegistry}
 
   @eth Helper.default_address()
 
@@ -292,7 +292,7 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp send_raw({:ok, transaction_data}, opts) do
-    Adapter.eth_call({:send_raw, transaction_data}, opts)
+    AdapterServer.eth_call({:send_raw, transaction_data}, opts)
   end
 
   defp send_raw(error, _opts), do: error

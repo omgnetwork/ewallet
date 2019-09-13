@@ -21,7 +21,7 @@ defmodule EthBlockchain.DumbTxAdapter do
   """
   use GenServer
 
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.AdapterServer
 
   @spec start_link :: :ignore | {:error, any} | {:ok, pid}
   def start_link, do: GenServer.start_link(__MODULE__, :ok, [])
@@ -37,6 +37,6 @@ defmodule EthBlockchain.DumbTxAdapter do
   end
 
   def handle_call(call, _from, reg) do
-    {:reply, Adapter.eth_call(call, []), reg}
+    {:reply, AdapterServer.eth_call(call, []), reg}
   end
 end

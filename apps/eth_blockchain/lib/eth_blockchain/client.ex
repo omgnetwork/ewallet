@@ -16,11 +16,11 @@ defmodule EthBlockchain.Client do
   @moduledoc """
   The module for interacting with Ethereum's client-related calls.
   """
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.AdapterServer
   import Utils.Helpers.Encoding
 
   def get_eth_syncing(opts \\ []) do
-    case Adapter.eth_call({:get_eth_syncing}, opts) do
+    case AdapterServer.eth_call({:get_eth_syncing}, opts) do
       {:ok, %{}} -> {:ok, true}
       {:ok, false} -> {:ok, false}
       error -> error
@@ -28,15 +28,15 @@ defmodule EthBlockchain.Client do
   end
 
   def get_client_version(opts \\ []) do
-    Adapter.eth_call({:get_client_version}, opts)
+    AdapterServer.eth_call({:get_client_version}, opts)
   end
 
   def get_network_id(opts \\ []) do
-    Adapter.eth_call({:get_network_id}, opts)
+    AdapterServer.eth_call({:get_network_id}, opts)
   end
 
   def get_peer_count(opts \\ []) do
-    case Adapter.eth_call({:get_peer_count}, opts) do
+    case AdapterServer.eth_call({:get_peer_count}, opts) do
       {:ok, number} -> {:ok, int_from_hex(number)}
       error -> error
     end

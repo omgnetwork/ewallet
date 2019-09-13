@@ -15,7 +15,7 @@
 defmodule EthBlockchain.EthBlockchainCase do
   @moduledoc false
   use ExUnit.CaseTemplate
-  alias EthBlockchain.{Adapter, Transaction}
+  alias EthBlockchain.{AdapterServer, Transaction}
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
   alias Keychain.{Repo, Signature}
@@ -38,7 +38,7 @@ defmodule EthBlockchain.EthBlockchainCase do
       )
 
     {:ok, pid} =
-      Adapter.start_link(
+      AdapterServer.start_link(
         supervisor: supervisor,
         adapters: [
           {:dumb, EthBlockchain.DumbAdapter},

@@ -15,9 +15,9 @@
 defmodule EthBlockchain.TransactionReceipt do
   @moduledoc false
 
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.AdapterServer
 
   def get(%{tx_hash: tx_hash}, opts \\ []) do
-    Adapter.eth_call({:get_transaction_receipt, tx_hash}, opts)
+    AdapterServer.eth_call({:get_transaction_receipt, tx_hash}, opts)
   end
 end

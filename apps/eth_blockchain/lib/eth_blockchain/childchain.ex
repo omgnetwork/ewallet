@@ -14,7 +14,7 @@
 
 defmodule EthBlockchain.Childchain do
   @moduledoc false
-  alias EthBlockchain.{Adapter, Helper, Transaction}
+  alias EthBlockchain.{AdapterServer, Helper, Transaction}
 
   @eth Helper.default_address()
 
@@ -37,9 +37,9 @@ defmodule EthBlockchain.Childchain do
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier),
-         {:ok, contract_address} <- Adapter.childchain_call({:get_contract_address}, opts),
+         {:ok, contract_address} <- AdapterServer.childchain_call({:get_contract_address}, opts),
          {:ok, tx_bytes} <-
-           Adapter.childchain_call({:get_deposit_tx_bytes, to, amount, currency}, opts) do
+           AdapterServer.childchain_call({:get_deposit_tx_bytes, to, amount, currency}, opts) do
       submit_deposit(tx_bytes, to, amount, currency, contract_address, opts)
     end
   end
@@ -100,7 +100,7 @@ defmodule EthBlockchain.Childchain do
             transaction_index: transaction_index,
             transaction_hash: transaction_hash
           }} <-
-           Adapter.childchain_call({:send, from, to, amount, currency}, opts) do
+           AdapterServer.childchain_call({:send, from, to, amount, currency}, opts) do
       {:ok, transaction_hash, transaction_index, block_number}
     end
   end
@@ -119,11 +119,11 @@ defmodule EthBlockchain.Childchain do
   end
 
   def get_transaction_receipt(%{tx_hash: tx_hash}, opts \\ []) do
-    Adapter.childchain_call({:get_transaction_receipt, tx_hash}, opts)
+    AdapterServer.childchain_call({:get_transaction_receipt, tx_hash}, opts)
   end
 
   def get_balance(%{address: address}, opts \\ []) do
-    Adapter.childchain_call({:get_balance, address}, opts)
+    AdapterServer.childchain_call({:get_balance, address}, opts)
   end
 
   # def get_block do

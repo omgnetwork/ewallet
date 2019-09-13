@@ -17,7 +17,7 @@ defmodule EthBlockchain.Token do
   import Utils.Helpers.Encoding
   import EthBlockchain.ErrorHandler
 
-  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias EthBlockchain.{AdapterServer, ABIEncoder}
   alias ABI.{TypeDecoder, FunctionSelector}
 
   @allowed_fields ["name", "symbol", "decimals", "totalSupply", "mintingFinished"]
@@ -38,7 +38,7 @@ defmodule EthBlockchain.Token do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
         {:get_field, contract_address, to_hex(encoded_abi_data)}
-        |> Adapter.eth_call(opts)
+        |> AdapterServer.eth_call(opts)
         |> parse_response(field, opts)
 
       error ->

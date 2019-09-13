@@ -16,7 +16,7 @@ defmodule EthBlockchain.ErrorHandler do
   @moduledoc """
   Handles errors by mapping the error to its response code and description.
   """
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.AdapterServer
 
   @errors %{
     token_not_erc20: %{
@@ -41,10 +41,10 @@ defmodule EthBlockchain.ErrorHandler do
           required(atom()) => %{code: String.t(), description: String.t()}
         }
   def errors(opts \\ []) do
-    eth_errors = Adapter.eth_call({:get_errors}, opts)
+    eth_errors = AdapterServer.eth_call({:get_errors}, opts)
 
     {:get_errors}
-    |> Adapter.childchain_call(opts)
+    |> AdapterServer.childchain_call(opts)
     |> Map.merge(eth_errors)
     |> Map.merge(@errors)
   end

@@ -16,7 +16,7 @@ defmodule EthBlockchain.Balance do
   @moduledoc false
   import Utils.Helpers.Encoding
 
-  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias EthBlockchain.{AdapterServer, ABIEncoder}
 
   @doc """
   Retrieve the balance of all given `contract_addresses` for the provided wallet `address`.
@@ -55,7 +55,7 @@ defmodule EthBlockchain.Balance do
     case ABIEncoder.balance_of(address) do
       {:ok, encoded_abi_data} ->
         {:get_balances, address, contract_addresses, to_hex(encoded_abi_data), block}
-        |> Adapter.eth_call(opts)
+        |> AdapterServer.eth_call(opts)
         |> parse_response()
         |> respond(contract_addresses)
 

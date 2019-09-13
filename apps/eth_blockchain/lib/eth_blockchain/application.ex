@@ -34,7 +34,7 @@ defmodule EthBlockchain.Application do
     ]
 
     children = [
-      worker(EthBlockchain.Adapter, [adapter_opts]),
+      worker(EthBlockchain.AdapterServer, [adapter_opts]),
       {DynamicSupervisor, name: EthBlockchain.DynamicSupervisor, strategy: :one_for_one},
       {DynamicSupervisor, name: EthBlockchain.DynamicListenerSupervisor, strategy: :one_for_one},
       {DynamicSupervisor, name: EthBlockchain.DynamicNonceSupervisor, strategy: :one_for_one},

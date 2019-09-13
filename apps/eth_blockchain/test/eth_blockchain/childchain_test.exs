@@ -17,7 +17,7 @@ defmodule EthBlockchain.ChildchainTest do
 
   import Utils.Helpers.Encoding
 
-  alias EthBlockchain.{ABIEncoder, Adapter, Childchain, GasHelper, Helper}
+  alias EthBlockchain.{ABIEncoder, AdapterServer, Childchain, GasHelper, Helper}
   alias Keychain.Wallet
   alias Utils.Helpers.Crypto
 
@@ -54,7 +54,7 @@ defmodule EthBlockchain.ChildchainTest do
       assert res == :ok
 
       {:ok, tx_bytes} =
-        Adapter.childchain_call(
+        AdapterServer.childchain_call(
           {:get_deposit_tx_bytes, address, amount, currency},
           state[:adapter_opts]
         )
@@ -62,7 +62,7 @@ defmodule EthBlockchain.ChildchainTest do
       {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
 
       {:ok, contract_address} =
-        Adapter.childchain_call({:get_contract_address}, state[:adapter_opts])
+        AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
 
       trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
@@ -94,7 +94,7 @@ defmodule EthBlockchain.ChildchainTest do
       assert res == :ok
 
       {:ok, tx_bytes} =
-        Adapter.childchain_call(
+        AdapterServer.childchain_call(
           {:get_deposit_tx_bytes, address, amount, currency},
           state[:adapter_opts]
         )
@@ -102,7 +102,7 @@ defmodule EthBlockchain.ChildchainTest do
       {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
 
       {:ok, contract_address} =
-        Adapter.childchain_call({:get_contract_address}, state[:adapter_opts])
+        AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
 
       trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
