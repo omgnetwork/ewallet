@@ -69,7 +69,7 @@ const BlockchainWalletModal = ({ createBlockchainWallet, open, onRequestClose })
         />
         <Input
           className='field'
-          placeholder='Ethereum address'
+          placeholder='Blockchain address'
           value={address}
           onChange={e => setAddress(e.target.value)}
         />

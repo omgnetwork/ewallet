@@ -49,7 +49,7 @@ const BlockchainSettings = (props) => {
                 onSelectItem={props.onSelectBlockchainNetwork}
                 onChange={props.onChangeInput('blockchainNetwork')}
                 type='select'
-                options={configurations.blockchain_netowrk
+                options={configurations.blockchain_network
                   ? configurations.blockchain_network.options.map(option => ({
                     key: option,
                     value: option

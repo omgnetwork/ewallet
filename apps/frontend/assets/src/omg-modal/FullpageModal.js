@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import Modal from '../omg-modal'
 import { Icon } from '../omg-uikit'
 
-const FullpageModalContainer = styled.div`
+const FullPageModalContainer = styled.div`
   width: 100vw;
   height: 100vh;
   position: relative;
@@ -27,10 +27,10 @@ function FullPageModal ({ isOpen, onRequestClose, children }) {
       contentLabel='full page modal'
       overlayClassName='full-page-class-name'
     >
-      <FullpageModalContainer>
+      <FullPageModalContainer>
         <Icon name='Close' onClick={onRequestClose} />
         {children}
-      </FullpageModalContainer>
+      </FullPageModalContainer>
     </Modal>
   )
 }

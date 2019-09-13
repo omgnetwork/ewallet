@@ -26,7 +26,6 @@ import {
   FromToContainer,
   StyledSelectInput,
   StyledInput,
-  PasswordInput,
   Label,
   Collapsable,
   FeeContainer,
@@ -63,7 +62,6 @@ class TokenTransferStep extends Component {
     gasLimit: 21000,
     gasPrice: '',
     metaData: '',
-    password: '',
     fromTokenSelected: {}
   }
   async componentDidMount () {
@@ -327,7 +325,7 @@ class TokenTransferStep extends Component {
           <>
             <SuccessIcon name='Checked' />
             <h4>Successful transaction</h4>
-            <div>The transaction was successfull.</div>
+            <div>The transaction was successful.</div>
           </>
         )}
       </Title>
@@ -352,14 +350,6 @@ class TokenTransferStep extends Component {
         )}
         {this.state.step === 2 && (
           <>
-            {!web3Utils.isAddress(this.state.fromAddress) && (
-              <PasswordInput
-                placeholder='Enter password to confirm'
-                type='password'
-                onChange={e => this.setState({ password: e.target.value })}
-                value={this.state.password}
-              />
-            )}
             <ButtonContainer>
               <Button
                 size='small'

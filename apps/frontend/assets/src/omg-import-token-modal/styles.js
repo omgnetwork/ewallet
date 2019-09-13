@@ -85,9 +85,6 @@ export const StyledSelectInput = styled(SelectInput)`
 export const StyledInput = styled(Input)`
   margin-bottom: 20px;
 `
-export const PasswordInput = styled(Input)`
-  margin-top: 40px;
-`
 export const Label = styled.div`
   color: ${props => props.theme.colors.S400};
 `

@@ -233,7 +233,7 @@ class CreateTransaction extends Component {
             return (
               <StyledInput
                 inputProps={{
-                  label: 'External Ethereum Address',
+                  label: 'External Blockchain Address',
                   clearable: true,
                   value: this.state.toAddress,
                   onChange: this.onChangeInputToAddress

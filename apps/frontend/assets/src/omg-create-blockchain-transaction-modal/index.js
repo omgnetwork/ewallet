@@ -397,7 +397,7 @@ class CreateBlockchainTransaction extends Component {
           <>
             <SuccessIcon name='Checked' />
             <h4>Successful transaction</h4>
-            <div>The transaction was successfull.</div>
+            <div>The transaction was successful.</div>
           </>
         )}
       </Title>

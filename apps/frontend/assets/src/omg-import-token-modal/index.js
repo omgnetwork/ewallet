@@ -166,7 +166,6 @@ class ImportToken extends Component {
   checkErc20 = async e => {
     e.preventDefault()
     const existingToken = !!this.props.selectBlockchainTokenByAddress(this.state.blockchainAddress)
-    // TODO: if existing token balance is 0, go to transfer step
     if (existingToken) {
       return this.setState({ error: 'This token has already been imported.' })
     }
