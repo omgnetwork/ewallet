@@ -241,7 +241,7 @@ defmodule EthBlockchain.Transaction do
         opts \\ []
       ) do
     with {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
-         {:ok, encoded_abi_data} <- ABIEncoder.finishMinting() do
+         {:ok, encoded_abi_data} <- ABIEncoder.finish_minting() do
       %__MODULE__{
         to: from_hex(contract_address),
         data: encoded_abi_data

@@ -105,7 +105,7 @@ defmodule EthBlockchain.TransactionTest do
       sender_public_key = recover_public_key(trx)
 
       assert trx.init == ""
-      {:ok, data} = ABIEncoder.finishMinting()
+      {:ok, data} = ABIEncoder.finish_minting()
       assert trx.data == data
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 

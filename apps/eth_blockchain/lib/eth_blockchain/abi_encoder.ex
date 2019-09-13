@@ -72,7 +72,7 @@ defmodule EthBlockchain.ABIEncoder do
      ])}
   end
 
-  def finishMinting() do
+  def finish_minting do
     {:ok, ABI.encode("finishMinting()", [])}
   end
 end
