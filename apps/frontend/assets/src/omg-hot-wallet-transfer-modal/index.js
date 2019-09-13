@@ -321,7 +321,7 @@ export default class HotWalletTransferModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
         contentLabel='create transaction modal'
-        overlayClassName='dummy2'
+        overlayClassName='create-transaction-modal'
       >
         <EnhancedCreateTransaction
           onRequestClose={this.props.onRequestClose}

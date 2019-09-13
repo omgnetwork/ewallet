@@ -109,7 +109,7 @@ function CreateAdminKeyModal (props) {
       onRequestClose={onRequestClose}
       contentLabel='invite modal'
       shouldCloseOnOverlayClick={false}
-      overlayClassName='dummy'
+      overlayClassName='invite-modal'
     >
       <CreateAdminKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />

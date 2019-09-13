@@ -249,31 +249,25 @@ export const alertsReducer = createReducer([], {
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
     return [
       ...state,
-      createAlertState(
-        'Updated configuration successfully, reloading application...',
-        'success'
-      )
+      createAlertState('Updated configuration successfully, reloading application...', 'success')
     ]
   },
   'TRANSACTION_REQUEST/CANCEL/SUCCESS': state => {
     return [
       ...state,
-      createAlertState(
-        'Transaction request was successfully canceled.',
-        'success'
-      )
+      createAlertState('Transaction request was successfully cancelled.', 'success')
     ]
   },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
     return [
       ...state,
-      createAlertState(<div>Exported transactions successfully.</div>, 'success')
+      createAlertState('Exported transactions successfully.', 'success')
     ]
   },
   'WEB3/SEND_TRANSACTION/SUCCESS': state => {
     return [
       ...state,
-      createAlertState(<div>Submitted transaction to Ethereum successfully.</div>, 'success')
+      createAlertState('Submitted transaction to Ethereum successfully.', 'success')
     ]
   },
   'ADMIN/INVITE/SUCCESS': state => {

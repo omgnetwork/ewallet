@@ -288,7 +288,7 @@ export default class InternalToExternalModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
         contentLabel='internal to external modal'
-        overlayClassName='dummy2'
+        overlayClassName='internal-to-external-modal'
       >
         <EnhancedCreateTransaction
           onRequestClose={this.props.onRequestClose}

@@ -35,7 +35,7 @@ function BlockchainDepositModalContainer ({ open, onRequestClose }) {
       isOpen={open}
       onRequestClose={onRequestClose}
       contentLabel='blockchain deposit modal'
-      overlayClassName='dummy2'
+      overlayClassName='blockchain-deposit-modal'
     >
       <BlockchainDeposit />
     </FullpageModal>

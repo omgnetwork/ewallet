@@ -501,7 +501,7 @@ export default class CreateBlockchainTransactionModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
         contentLabel='create blockchain transaction modal'
-        overlayClassName='dummy-blockchain-transaction-modal'
+        overlayClassName='create-blockchain-transaction-modal'
       >
         <EnhancedCreateBlockchainTransaction
           onRequestClose={this.props.onRequestClose}
