@@ -71,7 +71,7 @@ async function bootAdminPanelApp () {
     ])
   }
 
-  // CHECK METAMASK EXISTANCE
+  // CHECK METAMASK EXISTENCE
   const { ethereum } = window
 
   if (ethereum) {

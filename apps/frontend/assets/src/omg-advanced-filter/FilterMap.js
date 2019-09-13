@@ -646,7 +646,7 @@ export const FILTER_MAP = [
     key: 'blockchain_transactions-status',
     icon: 'Option-Horizontal',
     page: 'blockchain_transactions',
-    height: 196,
+    height: 344,
     component: filters.Checkbox,
     default: true,
     options: [
@@ -659,18 +659,38 @@ export const FILTER_MAP = [
         value: 'pending'
       },
       {
-        label: 'Submitted',
-        value: 'submitted'
-      },
-      {
         label: 'Failed',
         value: 'failed'
+      },
+      {
+        label: 'Blockchain Confirmed',
+        value: 'blockchain_confirmed'
+      },
+      {
+        label: 'Blockchain Failed',
+        value: 'blockchain_failed'
+      },
+      {
+        label: 'Blockchain Submitted',
+        value: 'blockchain_submitted'
+      },
+      {
+        label: 'Ledger Pending',
+        value: 'ledger_pending'
+      },
+      {
+        label: 'Pending Confirmations',
+        value: 'pending_confirmations'
+      },
+      {
+        label: 'Ledger Pending Blockchain Confirmed',
+        value: 'ledger_pending_blockchain_confirmed'
       }
     ],
     matchAll: [
       {
         field: 'status',
-        comparator: 'contains'
+        comparator: 'eq'
       }
     ]
   }
