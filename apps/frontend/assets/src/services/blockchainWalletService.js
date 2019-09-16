@@ -1,9 +1,17 @@
 import { authenticatedRequest } from './apiService'
 
-export function getBlockchainWalletBalance (address) {
+export function getBlockchainWalletBalance ({ address, perPage, page, sort, matchAny, matchAll }) {
   return authenticatedRequest({
     path: '/blockchain_wallet.get_balances',
-    data: { address }
+    data: {
+      address,
+      page,
+      per_page: perPage,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      match_all: matchAll,
+      match_any: matchAny
+    }
   })
 }
 

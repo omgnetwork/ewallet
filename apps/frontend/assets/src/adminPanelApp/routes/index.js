@@ -33,7 +33,6 @@ import AccountLayout from '../../omg-page-each-account/AccountLayout'
 import VerifyEmail from '../../omg-page-verify-email'
 import ModalController from '../../omg-modal/ModalController'
 import Alert from '../../omg-alert'
-import BlockchainPage from '../../omg-page-blockchain-connect'
 // prettier-ignore
 
 const createRoute = () => (

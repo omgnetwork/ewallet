@@ -1,12 +1,20 @@
 import * as blockchainWalletService from '../services/blockchainWalletService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
 
-export const getBlockchainWalletBalance = ({ address }) =>
+export const getBlockchainWalletBalance = ({ address, cacheKey, page, perPage, matchAll, matchAny }) =>
   createPaginationActionCreator({
     actionName: 'BLOCKCHAIN_WALLET_BALANCE',
     action: 'REQUEST',
-    service: () => blockchainWalletService.getBlockchainWalletBalance(address),
-    cacheKey: address
+    service: () =>
+      blockchainWalletService.getBlockchainWalletBalance({
+        address,
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        matchAll,
+        matchAny
+      }),
+    cacheKey
   })
 
 export const getBlockchainWallet = (address) =>

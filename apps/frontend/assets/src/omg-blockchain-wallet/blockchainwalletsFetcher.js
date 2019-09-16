@@ -3,7 +3,7 @@ import { getAllBlockchainWallets, getBlockchainWalletBalance } from './action'
 import {
   selectBlockchainWalletsLoadingStatus,
   selectBlockchainWalletsCachedQuery,
-  selectBlockchainWalletBalance,
+  selectBlockchainWalletBalanceCachedQuery,
   selectBlockchainWallets
 } from './selector'
 import { selectCachedQueryPagination } from '../omg-cache/selector'
@@ -16,9 +16,10 @@ export const AllBlockchainWalletsFetcher = createFetcher('blockchainwallets', ge
 }))
 
 export const BlockchainWalletBalanceFetcher = createFetcher('blockchainwalletbalance', getBlockchainWalletBalance, (state, props) => {
+  const key = JSON.parse(props.cacheKey).address
   return {
     loadingStatus: selectBlockchainWalletsLoadingStatus(state),
     pagination: selectCachedQueryPagination(state)(props.cacheKey),
-    data: selectBlockchainWalletBalance(state)(props.query.address)
+    data: selectBlockchainWalletBalanceCachedQuery(state)(key)
   }
 })

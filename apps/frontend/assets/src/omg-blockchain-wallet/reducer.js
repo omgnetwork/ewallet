@@ -21,7 +21,8 @@ export const blockchainWalletBalanceReducer = createReducer(
   {},
   {
     'BLOCKCHAIN_WALLET_BALANCE/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, [action.cacheKey]: action.data }
+      const request = JSON.parse(action.cacheKey)
+      return { ...state, [request.address]: action.data }
     }
   }
 )

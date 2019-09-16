@@ -154,8 +154,8 @@ class BlockchainTokensPage extends Component {
             columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
-            isFirstPage={_.get(pagination, 'is_first_page', true)}
-            isLastPage={_.get(pagination, 'is_last_page', true)}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
             navigation
           />
         </SortableTableContainer>
@@ -172,7 +172,7 @@ class BlockchainTokensPage extends Component {
         query={{
           address: this.props.match.params.address,
           page: queryString.parse(this.props.location.search).page,
-          perPage: Math.floor(window.innerHeight / 65),
+          perPage: 10,
           matchAll: this.state.matchAll,
           matchAny: this.state.matchAny,
           searchTerm: {
