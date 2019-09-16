@@ -27,7 +27,9 @@ export const selectGetTokenById = state => id => {
 }
 export const selectTokenCapabilitiesById = state => id => {
   const token = state.tokens[id]
-  return state.tokenCapabilities[token.blockchain_address]
+  if (token) {
+    return state.tokenCapabilities[token.blockchain_address]
+  }
 }
 export const selectGetMintedTokenHistryById = state => id => {
   return state.mintedTokenHistory[id]
