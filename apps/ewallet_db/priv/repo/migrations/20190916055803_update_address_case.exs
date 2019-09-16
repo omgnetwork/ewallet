@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Migrations.UpdateAddressCase do
   use Ecto.Migration
 
   def up do
-    execute "CREATE EXTENSION IF NOT EXISTS citext",  "DROP EXTENSION IF EXISTS citext"
+    execute "CREATE EXTENSION IF NOT EXISTS citext"
     alter table(:blockchain_wallet) do
       modify :address, :citext
     end
@@ -40,5 +40,6 @@ defmodule EWalletDB.Repo.Migrations.UpdateAddressCase do
       modify :address, :string
       modify :wallet_address, :string
     end
+    execute "DROP EXTENSION IF EXISTS citext"
   end
 end
