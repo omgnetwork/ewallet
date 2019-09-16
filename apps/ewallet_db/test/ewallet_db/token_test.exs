@@ -17,7 +17,7 @@ defmodule EWalletDB.TokenTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWalletDB.{Token, Repo}
-  alias Utils.Helpers.Crypto
+  alias Utils.Helpers.{Crypto, EIP55}
 
   describe "Token factory" do
     test_has_valid_factory(Token)
@@ -56,6 +56,15 @@ defmodule EWalletDB.TokenTest do
         :token |> params_for(subunit_to_unit: 1_000_000_000_000_000_000) |> Token.insert()
 
       assert token.subunit_to_unit == 1_000_000_000_000_000_000
+    end
+
+    test "saves the blockchain address in lower case" do
+      address = Crypto.fake_eth_address()
+      {:ok, eip55_address} = EIP55.encode(address)
+
+      {:ok, token} = :token |> params_for(%{blockchain_address: eip55_address}) |> Token.insert()
+
+      assert token.blockchain_address == String.downcase(address)
     end
 
     test "fails to insert when subunit is equal to 1.0e19" do
@@ -250,6 +259,43 @@ defmodule EWalletDB.TokenTest do
       refute Enum.member?(token_addresses, addr_3)
       refute Enum.member?(token_addresses, addr_4)
     end
+
+    test "ignore case" do
+      addr_1 = Crypto.fake_eth_address()
+      addr_2 = Crypto.fake_eth_address()
+
+      :token
+      |> params_for(%{
+        blockchain_address: String.downcase(addr_1),
+        blockchain_identifier: "ethereum"
+      })
+      |> Token.insert()
+
+      :token
+      |> params_for(%{
+        blockchain_address: String.downcase(addr_2),
+        blockchain_identifier: "ethereum"
+      })
+      |> Token.insert()
+
+      :token
+      |> params_for(%{
+        blockchain_address: Crypto.fake_eth_address(),
+        blockchain_identifier: "ethereum"
+      })
+      |> Token.insert()
+
+      token_addresses =
+        [String.upcase(addr_1), String.upcase(addr_2)]
+        |> Token.query_all_by_blockchain_addresses("ethereum")
+        |> Repo.all()
+        |> Enum.map(fn t -> t.blockchain_address end)
+
+      assert length(token_addresses) == 2
+
+      assert Enum.member?(token_addresses, addr_1)
+      assert Enum.member?(token_addresses, addr_2)
+    end
   end
 
   describe "query_all_by_ids/2" do
@@ -388,6 +434,24 @@ defmodule EWalletDB.TokenTest do
 
       assert status == :error
       refute changeset.valid?
+    end
+
+    test "saves the blockchain address in lower case" do
+      address = Crypto.fake_eth_address()
+      {:ok, eip55_address} = EIP55.encode(address)
+
+      {:ok, token} = :token |> params_for(%{blockchain_address: nil}) |> Token.insert()
+
+      {:ok, updated_token} =
+        Token.set_blockchain_address(token, %{
+          blockchain_address: eip55_address,
+          blockchain_status: Token.blockchain_status_pending(),
+          blockchain_identifier: "ethereum",
+          originator: %System{}
+        })
+
+      assert eip55_address != String.downcase(address)
+      assert updated_token.blockchain_address == String.downcase(address)
     end
   end
 end

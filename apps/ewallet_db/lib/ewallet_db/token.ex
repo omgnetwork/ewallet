@@ -156,6 +156,8 @@ defmodule EWalletDB.Token do
     |> validate_length(:blockchain_address, count: :bytes, max: 255)
     |> validate_inclusion(:blockchain_status, @blockchain_status)
     |> validate_blockchain()
+    # Note: We validate before force downcasing
+    |> update_change(:blockchain_address, &String.downcase/1)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
