@@ -210,6 +210,8 @@ defmodule EWalletDB.Token do
       name: :token_blockchain_identifier_blockchain_address_index
     )
     |> validate_blockchain()
+    # Note: We validate before force downcasing
+    |> update_change(:blockchain_address, &String.downcase/1)
     |> merge(blockchain_status_changeset(token, attrs))
   end
 
