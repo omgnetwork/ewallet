@@ -78,8 +78,11 @@ defmodule EWallet.BlockchainDepositWalletGate do
     end
   end
 
-  def store_balances(address, blockchain_identifier, tokens \\ nil) do
-    tokens = tokens || Token.all_blockchain(blockchain_identifier)
+  @doc """
+  Creates or updates the local copy of the blockchain balances
+  for the given wallet address and tokens.
+  """
+  def refresh_balances(address, blockchain_identifier, tokens) do
     deposit_wallet = BlockchainDepositWallet.get(address)
 
     {:ok, [deposit_wallet_with_balances]} =

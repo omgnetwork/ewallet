@@ -80,28 +80,18 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
     |> assoc_constraint(:token)
   end
 
-  def all_with_balances([first | tokens], blockchain_identifier) when not is_nil(first) do
-    query =
-      where(
-        BlockchainDepositWalletBalance,
-        [b],
-        b.amount > 0 and b.token_uuid == ^first.uuid and
-          b.blockchain_identifier == ^blockchain_identifier
-      )
+  @spec all_for_token(%Token{} | [%Token{}], String.t()) :: [%__MODULE__{}]
+  def all_for_token(tokens, blockchain_identifier) do
+    token_uuids =
+      tokens
+      |> List.wrap()
+      |> Enum.map(fn t -> t.uuid end)
 
-    tokens
-    |> Enum.reduce(query, fn token, query ->
-      or_where(
-        query,
-        [b],
-        b.amount > 0 and b.token_uuid == ^token.uuid and
-          b.blockchain_identifier == ^blockchain_identifier
-      )
-    end)
+    BlockchainDepositWalletBalance
+    |> where([b], b.token_uuid in ^token_uuids)
+    |> where([b], b.blockchain_identifier == ^blockchain_identifier)
     |> Repo.all()
   end
-
-  def all_with_balances(_tokens, _blockchain_identifier), do: []
 
   def create_or_update_all(%{address: address, balances: balances}, blockchain_identifier) do
     Enum.map(balances, fn %{amount: amount, token: token} ->

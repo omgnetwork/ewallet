@@ -16,6 +16,7 @@ defmodule EWallet.DepositPoolingGate do
   @moduledoc """
   Monitors deposit wallets and moves the funds into a pooled wallet when criteria are met.
   """
+  alias ActivityLogger.System
   alias EWallet.{BlockchainHelper, TransactionRegistry, TransactionTracker}
 
   alias EWalletDB.{
@@ -27,44 +28,45 @@ defmodule EWallet.DepositPoolingGate do
     TransactionState
   }
 
-  alias ActivityLogger.System
+  # TODO: get real gas price
+  @gas_price 20_000_000_000
 
   def move_deposits_to_pooled_funds(blockchain_identifier) do
-    # for each token, get all deposit wallets that have balance > 0
-    # get total value in all deposit wallets and in hot wallet
-    # if sum > 3% of hot wallet, transfer until amount is 0.5%
     primary_token_address = BlockchainHelper.adapter().helper().default_token()[:address]
-
-    {[primary_token], secondary_tokens} =
-      blockchain_identifier
-      |> Token.all_blockchain()
-      |> Enum.split(fn t -> t.blockchain_address == primary_token_address end)
-
     hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
 
-    # TODO: get real gas cost
-    check_and_move_primary(primary_token, hot_wallet, 20_000_000_000, 21_000)
-    check_and_move_secondary(secondary_tokens, hot_wallet, 20_000_000_000, 90_000)
+    # We loop by token because it's likely we pool per specific token than a specific wallet.
+    # E.g. some tokens have more deposits than others, or the hot wallet may run out of one token
+    # more often than others. In this case, loop by token is O(n) while loop by wallet is O(n2).
+    blockchain_identifier
+    |> Token.all_blockchain()
+    |> Enum.map(fn token ->
+      case token.blockchain_address do
+        ^primary_token_address ->
+          pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 21_000)
+
+        _ ->
+          pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 90_000)
+      end
+    end)
   end
 
-  defp check_and_move_primary(primary_token, gas_price, gas_limit) do
-    # DOING: Rapatriate Ethereum
-    [primary_token]
-    |> BlockchainDepositWalletBalance.all_with_balances(blockchain_identifier)
+  defp pool_token_deposits(token, hot_wallet, blockchain_identifier, gas_price, gas_limit) do
+    token
+    |> BlockchainDepositWalletBalance.all_for_token(blockchain_identifier)
     |> Enum.map(fn balance ->
       gas_cost = gas_price * gas_limit
-      amount = balance.amount - gas_cost
+      amount = poolable_amount(balance) - gas_cost
 
-      # TODO: Check for pending transaction with same from / to / status = pending
-      with true <- amount > 0 || {:error, :invalid_amount},
-           # TODO: Query balance from blockchain and check > 0
+      # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
+      with true <- amount > 0 || {:skipped, :amount_too_low},
            {:ok, transaction} <-
              DepositTransaction.insert(%{
                type: DepositTransaction.incoming(),
                amount: amount,
                token_uuid: primary_token.uuid,
-               cost: gas_price,
-               limit: gas_limit,
+               gas_price: gas_price,
+               gas_limit: gas_limit,
                from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
                to_blockchain_wallet_address: hot_wallet.address,
                blockchain_identifier: blockchain_identifier,
@@ -88,17 +90,29 @@ defmodule EWallet.DepositPoolingGate do
              }) do
         {:ok, transaction}
       else
+        {:skipped, reason} = error ->
+          Logger.debug("Skipped deposit pooling: #{inspect(reason)}.")
+          error
+
         error ->
+          Logger.error("An error occured while trying to pool deposits: #{inspect(reason)}.")
           error
       end
     end)
   end
 
-  # TODO: Rapatriate ERC-20 token
-  defp check_and_move_secondary(tokens, gas_price, gas_limit) do
-    secondary_tokens
-    |> BlockchainDepositWalletBalance.all_with_balances(blockchain_identifier)
-    |> Enum.map(fn balance -> balance end)
+  # Checks the poolable amount by subtracting the balance amount from all ongoing
+  # pooling transactions (transactions going out of the deposit wallet).
+  defp poolable_amount(balance) do
+    pending_amount =
+      [
+        from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
+        token_uuid: balance.token_uuid
+      ]
+      |> DepositTransaction.all_in_progress_by()
+      |> Enum.reduce(0, fn dt, sum -> sum + dt.amount end)
+
+    balance.amount - pending_amount
   end
 
   defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet} = balance) do

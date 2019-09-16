@@ -12,23 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.FundManagementTracker do
+defmodule EWallet.DepositWalletTracker do
   @moduledoc """
 
   """
   use GenServer
   require Logger
-
-  alias EWallet.{
-    BlockchainHelper,
-    BlockchainAddressFetcher,
-    BlockchainStateGate,
-    BlockchainTransactionGate,
-    DepositPoolingGate
-  }
-
-  alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
-  alias ActivityLogger.System
+  alias EWallet.DepositPoolingGate
 
   # TODO: only starts when blockchain is enabled
 
@@ -42,11 +32,13 @@ defmodule EWallet.FundManagementTracker do
     GenServer.start_link(__MODULE__, attrs, name: name)
   end
 
-  def init(%{blockchain_identifier: blockchain_identifier} = attrs) do
-    {:ok,
-     %{
-       blockchain_identifier: blockchain_identifier
-     }, {:continue, :start_polling}}
+  def init(attrs) do
+    state = %{
+      blockchain_identifier: attrs.blockchain_identifier,
+      timer: nil
+    }
+
+    {:ok, state, {:continue, :start_polling}}
   end
 
   def handle_continue(:start_polling, state) do
@@ -58,21 +50,21 @@ defmodule EWallet.FundManagementTracker do
   end
 
   defp poll(state) do
-    case run(state) do
-      new_state when is_map(new_state) ->
+    case DepositPoolingGate.move_deposits_to_pooled_funds(state.blockchain_identifier) do
+      {:ok, transactions} ->
         timer = Process.send_after(self(), :poll, @checking_interval)
-        {:noreply, %{new_state | timer: timer}}
+        {:noreply, %{state | timer: timer}}
 
       error ->
-        error
-    end
-  end
+        timer = Process.send_after(self(), :poll, @checking_interval)
 
-  defp run(
-         %{
-           blockchain_identifier: blockchain_identifier
-         } = state
-       ) do
-    DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
+        _ =
+          Logger.error(
+            "Errored trying to pool funds from deposit wallets." <>
+              " Retrying in #{@checking_interval} ms. Got: #{inspect(error)}."
+          )
+
+        {:noreply, %{state | timer: timer}}
+    end
   end
 end

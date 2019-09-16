@@ -41,6 +41,14 @@ defmodule EWalletDB.DepositTransaction do
   def outgoing, do: @outgoing
   def incoming, do: @incoming
 
+  # List of transaction status that are considered to be in progress, and hence transactions
+  # with these statuses are not reflected in the deposit wallet balance yet.
+  @in_progress_statuses [
+    TransactionState.blockchain_submitted(),
+    TransactionState.pending_confirmations(),
+    TransactionState.blockchain_confirmed()
+  ]
+
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
@@ -49,8 +57,8 @@ defmodule EWalletDB.DepositTransaction do
 
     field(:type, :string, default: @incoming)
     field(:amount, Utils.Types.Integer)
-    field(:cost, Utils.Types.Integer)
-    field(:limit, Utils.Types.Integer)
+    field(:gas_price, Utils.Types.Integer)
+    field(:gas_limit, Utils.Types.Integer)
     field(:status, :string, default: TransactionState.pending())
     field(:blockchain_tx_hash, :string)
     field(:blockchain_identifier, :string)
@@ -231,8 +239,8 @@ defmodule EWalletDB.DepositTransaction do
   Get a transaction using one or more fields.
   """
   @spec get_by(keyword() | map(), keyword()) :: %DepositTransaction{} | nil
-  def get_by(map, opts \\ []) do
-    query = DepositTransaction |> Repo.get_by(map)
+  def get_by(clauses, opts \\ []) do
+    query = Repo.get_by(DepositTransaction, clauses)
 
     case opts[:preload] do
       nil -> query
@@ -248,6 +256,20 @@ defmodule EWalletDB.DepositTransaction do
     %DepositTransaction{}
     |> insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Retrieves all deposit transactions from the given deposit address that are in progress.
+
+  This is useful for retrieving transactions that are happening and so need to be excluded
+  from the wallet's spendable amount.
+  """
+  @spec all_in_progress_by(keyword() | map()) :: [%__MODULE__{}]
+  def all_in_progress_by(clauses) do
+    DepositTransaction
+    |> where(^Enum.to_list(clauses))
+    |> where([dt], dt.status in @in_progress_statuses)
+    |> Repo.all()
   end
 
   def get_error(nil), do: nil

@@ -81,13 +81,13 @@ defmodule EWallet.TransactionTracker do
   # Threshold reached, finalizing the transaction...
   defp update_confirmations_count(
          adapter,
-         %{transaction: transaction, transaction_type: transaction_type} = state,
+         %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          true
        ) do
     # The transaction may have staled as it may took time before this function is invoked.
     # So we'll re-retrieve the transaction from the database before transitioning.
-    transaction = Transaction.get(transaction.id)
+    transaction = schema.get(transaction.id)
 
     {:ok, transaction} =
       TransactionState.transition_to(
@@ -103,7 +103,8 @@ defmodule EWallet.TransactionTracker do
     # TODO: handle error
     {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
 
-    # If to a deposit wallet, make sure it's stored
+    # If the transaction is to a deposit wallet, make sure the deposit wallet's
+    # local copy of its blockchain balances is refreshed.
     _ =
       case BlockchainDepositWallet.get(transaction.to) do
         nil ->
@@ -111,14 +112,17 @@ defmodule EWallet.TransactionTracker do
 
         _deposit_wallet ->
           {:ok, _} =
-            BlockchainDepositWalletGate.store_balances(
+            BlockchainDepositWalletGate.refresh_balances(
               transaction.to,
               blockchain_identifier,
               [transaction.to_token]
             )
       end
 
-    # Unsubscribing from the blockchain subapp
+    #
+    # The transaction is now confirmed. Stop the tracker.
+    #
+
     # TODO: :ok / {:error, :not_found} handling?
     :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
 
@@ -132,16 +136,16 @@ defmodule EWallet.TransactionTracker do
     end
   end
 
-  # Treshold not reached yet, updating and continuing to track...
+  # Threshold not reached yet, updating and continuing to track...
   defp update_confirmations_count(
          _adapter,
-         %{transaction: transaction, transaction_type: transaction_type} = state,
+         %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
          confirmations_count,
          false
        ) do
     # The transaction may have staled as it may took time before this function is invoked.
     # So we'll re-retrieve the transaction from the database before transitioning.
-    transaction = Transaction.get(transaction.id)
+    transaction = schema.get(transaction.id)
 
     {:ok, transaction} =
       TransactionState.transition_to(

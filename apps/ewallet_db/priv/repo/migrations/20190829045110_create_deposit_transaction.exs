@@ -17,10 +17,10 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
       add :amount, :decimal, precision: 36,
                                   scale: 0,
                                   null: true
-      add :cost, :decimal, precision: 36,
+      add :gas_price, :decimal, precision: 36,
                                   scale: 0,
                                   null: true
-      add :limit, :decimal, precision: 36,
+      add :gas_limit, :decimal, precision: 36,
                                   scale: 0,
                                   null: true
       add :blockchain_tx_hash, :string

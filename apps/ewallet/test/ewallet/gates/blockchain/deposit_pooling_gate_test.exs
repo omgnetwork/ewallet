@@ -21,7 +21,6 @@ defmodule EWallet.DepositPoolingGateTest do
 
   alias EWalletDB.{
     BlockchainDepositWallet,
-    BlockchainDepositWalletBalance,
     BlockchainWallet,
     BlockchainHDWallet,
     Repo

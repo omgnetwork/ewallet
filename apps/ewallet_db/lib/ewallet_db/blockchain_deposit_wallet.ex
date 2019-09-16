@@ -21,9 +21,15 @@ defmodule EWalletDB.BlockchainDepositWallet do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   import EWalletDB.Helpers.Preloader
-
   alias Ecto.UUID
-  alias EWalletDB.{Repo, BlockchainDepositWallet, BlockchainHDWallet, Wallet}
+
+  alias EWalletDB.{
+    BlockchainDepositWallet,
+    BlockchainDepositWalletBalance,
+    BlockchainHDWallet,
+    Repo,
+    Wallet
+  }
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -49,6 +55,13 @@ defmodule EWalletDB.BlockchainDepositWallet do
       foreign_key: :blockchain_hd_wallet_uuid,
       references: :uuid,
       type: UUID
+    )
+
+    has_many(
+      :balances,
+      BlockchainDepositWalletBalance,
+      foreign_key: :blockchain_deposit_wallet_address,
+      references: :address
     )
 
     activity_logging()
