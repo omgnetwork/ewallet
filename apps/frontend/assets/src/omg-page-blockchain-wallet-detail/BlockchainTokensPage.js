@@ -20,6 +20,7 @@ const BlockchainTokensPageContainer = styled.div`
   td:first-child {
     border: none;
     position: relative;
+    width: 50%;
     :before {
       content: '';
       position: absolute;
