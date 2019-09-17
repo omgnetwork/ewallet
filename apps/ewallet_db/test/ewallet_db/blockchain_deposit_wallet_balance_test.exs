@@ -17,10 +17,6 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
   import EWalletDB.Factory
   alias EWalletDB.BlockchainDepositWalletBalance
 
-  describe "factory" do
-    test_has_valid_factory(BlockchainDepositWalletBalance)
-  end
-
   describe "all_for_token/2" do
     test "returns the list of all blockchain deposit wallet balances for the given tokens"
   end

@@ -21,18 +21,15 @@ defmodule EWalletDB.DepositTransaction do
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.{Validator, BlockchainValidator}
-  alias Ecto.{Multi, UUID}
+  alias Ecto.UUID
 
   alias EWalletDB.{
-    Account,
     BlockchainWallet,
-    ExchangePair,
+    BlockchainDepositWallet,
+    DepositTransaction,
     Repo,
     Token,
-    DepositTransaction,
-    TransactionState,
-    User,
-    Wallet
+    TransactionState
   }
 
   @outgoing "outgoing"
@@ -78,7 +75,7 @@ defmodule EWalletDB.DepositTransaction do
 
     belongs_to(
       :from_deposit_wallet,
-      DepositWallet,
+      BlockchainDepositWallet,
       foreign_key: :from_deposit_wallet_address,
       references: :address,
       type: :string
@@ -94,7 +91,7 @@ defmodule EWalletDB.DepositTransaction do
 
     belongs_to(
       :to_deposit_wallet,
-      DepositWallet,
+      BlockchainDepositWallet,
       foreign_key: :to_deposit_wallet_address,
       references: :address,
       type: :string
@@ -121,6 +118,8 @@ defmodule EWalletDB.DepositTransaction do
         :type,
         :token_uuid,
         :amount,
+        :gas_price,
+        :gas_limit,
         :to_blockchain_wallet_address,
         :from_blockchain_wallet_address,
         :to_deposit_wallet_address,
@@ -136,12 +135,16 @@ defmodule EWalletDB.DepositTransaction do
         :type,
         :token_uuid,
         :amount,
+        :gas_price,
+        :gas_limit,
         :blockchain_identifier
       ]
     )
     |> validate_required_exclusive([:from_blockchain_wallet_address, :from_deposit_wallet_address])
     |> validate_required_exclusive([:to_blockchain_wallet_address, :to_deposit_wallet_address])
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(:gas_price, greater_than: 0)
+    |> validate_number(:gas_limit, greater_than: 0)
     |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:blockchain_tx_hash)
@@ -154,53 +157,19 @@ defmodule EWalletDB.DepositTransaction do
     |> assoc_constraint(:to_blockchain_wallet)
   end
 
-  # TODO: Clean that up once working on updating transaction
   defp update_changeset(%DepositTransaction{} = transaction, attrs) do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
         :blockchain_tx_hash,
-        :status,
-        :type,
-        :token_uuid,
-        :amount,
-        :to_blockchain_wallet_address,
-        :from_blockchain_wallet_address,
-        :to_deposit_wallet_address,
-        :from_deposit_wallet_address,
-        :blockchain_identifier,
         :blk_number,
         :error_code,
         :error_description,
         :confirmations_count
       ],
-      required: [
-        :blockchain_tx_hash,
-        :status,
-        :type,
-        :token_uuid,
-        :amount,
-        :to_blockchain_wallet_address,
-        :from_blockchain_wallet_address,
-        :to_deposit_wallet_address,
-        :from_deposit_wallet_address,
-        :blockchain_identifier,
-        :blk_number,
-        :error_code,
-        :error_description,
-        :confirmations_count
-      ]
+      required: []
     )
-    |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
-    |> validate_inclusion(:status, TransactionState.statuses())
-    |> validate_inclusion(:type, @types)
-    |> validate_blockchain_address(:from_blockchain_address)
-    |> validate_blockchain_address(:to_blockchain_address)
-    |> validate_blockchain_identifier(:blockchain_identifier)
-    |> assoc_constraint(:token)
-    |> assoc_constraint(:from_blockchain_wallet)
-    |> assoc_constraint(:to_blockchain_wallet)
   end
 
   def state_changeset(%DepositTransaction{} = transaction, attrs, cast_fields, required_fields) do

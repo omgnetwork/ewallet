@@ -42,7 +42,7 @@ defmodule EWalletDB.DepositTransactionTest do
       inserted = insert(:deposit_transaction)
 
       transaction =
-        DepositTransaction.get_by(%{idempotency_token: inserted.idempotency_token})
+        DepositTransaction.get_by(uuid: inserted.uuid})
 
       assert transaction.id == inserted.id
     end

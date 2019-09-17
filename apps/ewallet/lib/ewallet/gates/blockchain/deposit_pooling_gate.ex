@@ -29,6 +29,8 @@ defmodule EWallet.DepositPoolingGate do
     TransactionState
   }
 
+  alias Keychain.Wallet
+
   # TODO: get real gas price
   @gas_price 20_000_000_000
 
@@ -41,7 +43,7 @@ defmodule EWallet.DepositPoolingGate do
     # more often than others. In this case, loop by token is O(n) while loop by wallet is O(n2).
     blockchain_identifier
     |> Token.all_blockchain()
-    |> Enum.map(fn token ->
+    |> Enum.flat_map(fn token ->
       case token.blockchain_address do
         ^primary_token_address ->
           pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 21_000)
@@ -125,10 +127,11 @@ defmodule EWallet.DepositPoolingGate do
       to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
       amount: transaction.amount,
       contract_address: transaction.token.blockchain_address,
-      gas_limit: transaction.limit,
-      gas_price: transaction.price,
+      gas_limit: transaction.gas_limit,
+      gas_price: transaction.gas_price,
       wallet: %{
         wallet_uuid: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
+        derivation_path: Wallet.root_derivation_path(),
         account_ref: blockchain_deposit_wallet.path_ref,
         deposit_ref: 0
       }

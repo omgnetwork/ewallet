@@ -26,6 +26,12 @@ defmodule Keychain.Wallet do
   @root_derivation_path "M/44'/60'/0'/0'"
 
   @doc """
+  Returns the root derivation path used as the base for
+  generating the actual wallet's derivation path.
+  """
+  def root_derivation_path, do: @root_derivation_path
+
+  @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
 
   Returns a tuple of `{:ok, {wallet_address, public_key}}`.
