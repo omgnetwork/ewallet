@@ -20,7 +20,6 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
-  import EWalletDB.Helpers.Preloader
 
   alias Ecto.UUID
 
@@ -28,9 +27,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
     Repo,
     BlockchainDepositWalletBalance,
     BlockchainDepositWallet,
-    BlockchainHDWallet,
     Token,
-    Wallet
   }
 
   alias ActivityLogger.System
@@ -93,7 +90,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
     |> Repo.all()
   end
 
-  def create_or_update_all(%{address: address, balances: balances}, blockchain_identifier) do
+  def create_or_update_all(address, balances, blockchain_identifier) do
     Enum.map(balances, fn %{amount: amount, token: token} ->
       %BlockchainDepositWalletBalance{}
       |> changeset(%{

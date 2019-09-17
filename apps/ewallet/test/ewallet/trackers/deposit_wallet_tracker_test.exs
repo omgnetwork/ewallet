@@ -14,10 +14,18 @@
 
 defmodule EWallet.DepositWalletTrackerTest do
   use EWallet.DBCase, async: false
-  import EWalletDB.Factory
   alias EWallet.DepositWalletTracker
 
   describe "start_link/1" do
-    test "starts a deposit wallet tracker"
+    test "starts a deposit wallet tracker" do
+      opts = [
+        name: :test_deposit_wallet_tracker_start_link,
+        attrs: %{blockchain_identifier: "dumb"}
+      ]
+
+      assert {:ok, pid} = DepositWalletTracker.start_link(opts)
+      assert Process.alive?(pid)
+      assert GenServer.stop(pid) == :ok
+    end
   end
 end

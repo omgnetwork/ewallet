@@ -13,7 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.DepositPoolingGateTest do
-  use EWallet.DBCase, async: true
+  use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWallet.{DepositPoolingGate, BlockchainDepositWalletGate}

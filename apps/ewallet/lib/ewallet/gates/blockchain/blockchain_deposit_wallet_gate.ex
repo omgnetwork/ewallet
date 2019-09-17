@@ -88,7 +88,8 @@ defmodule EWallet.BlockchainDepositWalletGate do
       BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens)
 
     BlockchainDepositWalletBalance.create_or_update_all(
-      deposit_wallet_with_balances,
+      deposit_wallet_with_balances.address,
+      deposit_wallet_with_balances.balances,
       blockchain_identifier
     )
   end

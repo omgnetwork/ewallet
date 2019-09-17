@@ -41,17 +41,20 @@ defmodule EWallet.DepositPoolingGate do
     # We loop by token because it's likely we pool per specific token than a specific wallet.
     # E.g. some tokens have more deposits than others, or the hot wallet may run out of one token
     # more often than others. In this case, loop by token is O(n) while loop by wallet is O(n2).
-    blockchain_identifier
-    |> Token.all_blockchain()
-    |> Enum.flat_map(fn token ->
-      case token.blockchain_address do
-        ^primary_token_address ->
-          pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 21_000)
+    pool_transactions =
+      blockchain_identifier
+      |> Token.all_blockchain()
+      |> Enum.flat_map(fn token ->
+        case token.blockchain_address do
+          ^primary_token_address ->
+            pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 21_000)
 
-        _ ->
-          pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 90_000)
-      end
-    end)
+          _ ->
+            pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 90_000)
+        end
+      end)
+
+    {:ok, pool_transactions}
   end
 
   defp pool_token_deposits(token, hot_wallet, blockchain_identifier, gas_price, gas_limit) do
