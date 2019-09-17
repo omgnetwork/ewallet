@@ -16,7 +16,7 @@ defmodule EthOmisegoNetworkAdapter.Balance do
   @moduledoc """
   Interface with balances on plasma chain.
   """
-  alias EthOmisegoNetworkAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HTTPClient
 
   @doc """
   Retrieve the balance of the specified address on the plasma chain.
@@ -35,7 +35,7 @@ defmodule EthOmisegoNetworkAdapter.Balance do
   def get(address) do
     %{address: address}
     |> Jason.encode!()
-    |> HttpClient.post_request("account.get_balance")
+    |> HTTPClient.post_request("account.get_balance")
     |> respond()
   end
 

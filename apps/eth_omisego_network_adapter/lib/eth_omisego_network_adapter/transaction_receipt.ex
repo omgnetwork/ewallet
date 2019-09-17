@@ -17,7 +17,7 @@ defmodule EthOmisegoNetworkAdapter.TransactionReceipt do
   Represents a receipt of a plasma omg transaction
   """
 
-  alias EthOmisegoNetworkAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HTTPClient
 
   defstruct eth_block: nil,
             cc_block_number: 0,
@@ -56,7 +56,7 @@ defmodule EthOmisegoNetworkAdapter.TransactionReceipt do
       id: transaction_hash
     }
     |> Jason.encode!()
-    |> HttpClient.post_request("transaction.get")
+    |> HTTPClient.post_request("transaction.get")
     |> parse_response()
   end
 

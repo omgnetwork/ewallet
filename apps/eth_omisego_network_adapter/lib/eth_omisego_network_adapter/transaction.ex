@@ -18,7 +18,7 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
   """
   import Utils.Helpers.Encoding
 
-  alias EthOmisegoNetworkAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HTTPClient
   alias Keychain.Signature
 
   @eth "0x0000000000000000000000000000000000000000"
@@ -124,7 +124,7 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
       }
     }
     |> Jason.encode!()
-    |> HttpClient.post_request("transaction.create")
+    |> HTTPClient.post_request("transaction.create")
   end
 
   defp sign(sign_hash, from, inputs) do
@@ -140,7 +140,7 @@ defmodule EthOmisegoNetworkAdapter.Transaction do
     typed_data
     |> Map.put_new("signatures", signatures)
     |> Jason.encode!()
-    |> HttpClient.post_request("transaction.submit_typed")
+    |> HTTPClient.post_request("transaction.submit_typed")
   end
 
   defp new(inputs, outputs)

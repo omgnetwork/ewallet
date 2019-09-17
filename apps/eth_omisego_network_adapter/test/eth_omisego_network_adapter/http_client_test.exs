@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.HttpClientTest do
+defmodule EthOmisegoNetworkAdapter.HTTPClient do
   use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
 
-  alias EthOmisegoNetworkAdapter.HttpClient
+  alias EthOmisegoNetworkAdapter.HTTPClient
 
   describe "post_request/2" do
     test "success" do
@@ -24,7 +24,7 @@ defmodule EthOmisegoNetworkAdapter.HttpClientTest do
       {status, response} =
         %{"expect" => "success", "data" => data}
         |> Jason.encode!()
-        |> HttpClient.post_request("post_request_test")
+        |> HTTPClient.post_request("post_request_test")
 
       assert status == :ok
       assert response == data
@@ -36,7 +36,7 @@ defmodule EthOmisegoNetworkAdapter.HttpClientTest do
       {status, error, message} =
         %{"expect" => "handled_failure", "code" => code}
         |> Jason.encode!()
-        |> HttpClient.post_request("post_request_test")
+        |> HTTPClient.post_request("post_request_test")
 
       assert status == :error
       assert error == :omisego_network_bad_request
@@ -47,7 +47,7 @@ defmodule EthOmisegoNetworkAdapter.HttpClientTest do
       {status, error, message} =
         %{"expect" => "unhandled_failure"}
         |> Jason.encode!()
-        |> HttpClient.post_request("post_request_test")
+        |> HTTPClient.post_request("post_request_test")
 
       assert status == :error
       assert error == :omisego_network_bad_request
@@ -58,7 +58,7 @@ defmodule EthOmisegoNetworkAdapter.HttpClientTest do
       {status, error, message} =
         %{"expect" => "decoding_failure"}
         |> Jason.encode!()
-        |> HttpClient.post_request("post_request_test")
+        |> HTTPClient.post_request("post_request_test")
 
       assert status == :error
       assert error == :omisego_network_bad_request
