@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
 
-import TokenTransferStep from './TokenTransferStep'
+import TokenTransferStep from './tokenTransferStep'
 
 import { generateDepositAddress, getWallets } from '../omg-wallet/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
