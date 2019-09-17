@@ -9,10 +9,10 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
       add :id, :string, null: false
       add :status, :string, default: "pending", null: false
       add :type, :string, null: false
-      add :from_blockchain_wallet_address, references(:blockchain_wallet, type: :string, column: :address)
-      add :to_blockchain_wallet_address, references(:blockchain_wallet, type: :string, column: :address)
-      add :from_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :string, column: :address)
-      add :to_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :string, column: :address)
+      add :from_blockchain_wallet_address, references(:blockchain_wallet, type: :citext, column: :address)
+      add :to_blockchain_wallet_address, references(:blockchain_wallet, type: :citext, column: :address)
+      add :from_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :citext, column: :address)
+      add :to_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :citext, column: :address)
       add :token_uuid, references(:token, column: :uuid, type: :uuid), null: true
       add :amount, :decimal, precision: 36,
                                   scale: 0,
