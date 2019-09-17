@@ -30,11 +30,11 @@ defmodule EthBlockchain.AdapterServer do
   require Logger
 
   @doc """
-  Starts EthBlockchain.Adapter.
+  Starts EthBlockchain.AdapterServer.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    :ok = Logger.info("Running EthBlockchain Adapter supervisor.")
+    :ok = Logger.info("Running EthBlockchain AdapterServer supervisor.")
 
     {supervisor, opts} = Keyword.pop(opts, :supervisor)
     {adapters, opts} = Keyword.pop(opts, :adapters, [])
@@ -66,11 +66,11 @@ defmodule EthBlockchain.AdapterServer do
   end
 
   @doc """
-  Stops EthBlockchain.Adapter.
+  Stops EthBlockchain.AdapterServer.
   """
   @spec stop(server()) :: :ok
   def stop(pid \\ __MODULE__) do
-    :ok = Logger.info("Stopping EthBlockchain Adapter supervisor")
+    :ok = Logger.info("Stopping EthBlockchain AdapterServer supervisor")
     GenServer.stop(pid)
   end
 
