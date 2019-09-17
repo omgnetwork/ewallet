@@ -22,8 +22,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
   alias EWalletDB.{
     BlockchainDepositWallet,
     BlockchainDepositWalletBalance,
-    BlockchainHDWallet,
-    Token
+    BlockchainHDWallet
   }
 
   alias Keychain.Wallet

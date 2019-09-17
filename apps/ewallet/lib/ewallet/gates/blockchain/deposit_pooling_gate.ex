@@ -16,6 +16,7 @@ defmodule EWallet.DepositPoolingGate do
   @moduledoc """
   Monitors deposit wallets and moves the funds into a pooled wallet when criteria are met.
   """
+  require Logger
   alias ActivityLogger.System
   alias EWallet.{BlockchainHelper, TransactionRegistry, TransactionTracker}
 
@@ -64,7 +65,7 @@ defmodule EWallet.DepositPoolingGate do
              DepositTransaction.insert(%{
                type: DepositTransaction.incoming(),
                amount: amount,
-               token_uuid: primary_token.uuid,
+               token_uuid: token.uuid,
                gas_price: gas_price,
                gas_limit: gas_limit,
                from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
@@ -95,7 +96,7 @@ defmodule EWallet.DepositPoolingGate do
           error
 
         error ->
-          Logger.error("An error occured while trying to pool deposits: #{inspect(reason)}.")
+          Logger.error("An error occured while trying to pool deposits: #{inspect(error)}.")
           error
       end
     end)
@@ -115,7 +116,7 @@ defmodule EWallet.DepositPoolingGate do
     balance.amount - pending_amount
   end
 
-  defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet} = balance) do
+  defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet}) do
     blockchain_adapter = BlockchainHelper.adapter()
     node_adapter = Application.get_env(:ewallet, :node_adapter)
 

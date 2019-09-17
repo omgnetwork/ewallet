@@ -208,11 +208,7 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _adapter, _pid), do: error
 
-  defp get_transaction_count(%{address: address}, adapter, pid) do
-    Adapter.call({:get_transaction_count, address}, adapter, pid)
-  end
-
-  defp sign_transaction(transaction, wallet_address, %{
+  defp sign_transaction(transaction, _wallet_address, %{
          wallet: %{
            wallet_uuid: wallet_uuid,
            account_ref: account_ref,

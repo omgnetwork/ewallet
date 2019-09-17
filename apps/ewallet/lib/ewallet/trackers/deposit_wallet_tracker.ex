@@ -51,7 +51,7 @@ defmodule EWallet.DepositWalletTracker do
 
   defp poll(state) do
     case DepositPoolingGate.move_deposits_to_pooled_funds(state.blockchain_identifier) do
-      {:ok, transactions} ->
+      {:ok, _} ->
         timer = Process.send_after(self(), :poll, @checking_interval)
         {:noreply, %{state | timer: timer}}
 

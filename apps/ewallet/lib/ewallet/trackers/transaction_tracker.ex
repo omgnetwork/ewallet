@@ -22,9 +22,9 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.{BlockchainHelper, BlockchainTransactionGate}
-  alias EWalletDB.{Transaction, TransactionState}
   alias ActivityLogger.System
+  alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper, BlockchainTransactionGate}
+  alias EWalletDB.{BlockchainDepositWallet, TransactionState}
 
   @backup_confirmations_threshold 10
 
@@ -114,7 +114,7 @@ defmodule EWallet.TransactionTracker do
           {:ok, _} =
             BlockchainDepositWalletGate.refresh_balances(
               transaction.to,
-              blockchain_identifier,
+              transaction.blockchain_identifier,
               [transaction.to_token]
             )
       end
