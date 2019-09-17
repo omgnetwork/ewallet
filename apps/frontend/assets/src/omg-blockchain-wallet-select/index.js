@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Icon, Id } from '../omg-uikit'
+import { Icon } from '../omg-uikit'
 
 const WalletSelectItemContainer = styled.div`
   display: flex;
