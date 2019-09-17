@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.HTTPClient do
+defmodule EthOmiseGOAdapter.HTTPClient do
   @moduledoc """
   Simple HTTP client to perform request on the watcher's API
   """
 
-  alias EthOmisegoNetworkAdapter.Config
+  alias EthOmiseGOAdapter.Config
   alias HTTPoison.Response
 
   @doc """

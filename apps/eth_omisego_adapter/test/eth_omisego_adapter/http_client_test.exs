@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.HTTPClient do
-  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
+defmodule EthOmiseGOAdapter.HTTPClientTest do
+  use EthOmiseGOAdapter.EthOmiseGOAdapterCase, async: true
 
-  alias EthOmisegoNetworkAdapter.HTTPClient
+  alias EthOmiseGOAdapter.HTTPClient
 
   describe "post_request/2" do
     test "success" do

@@ -12,14 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.Config do
-  @moduledoc false
+defmodule EthOmiseGOAdapter.BalanceTest do
+  use EthOmiseGOAdapter.EthOmiseGOAdapterCase, async: true
 
-  def get_contract_address do
-    Application.get_env(:eth_omisego_network_adapter, :contract_address)
-  end
+  alias EthOmiseGOAdapter.Balance
 
-  def get_watcher_url do
-    Application.get_env(:eth_omisego_network_adapter, :watcher_url)
+  describe "get/1" do
+    test "get and parse balances for an address" do
+      {res, data} = Balance.get("valid")
+      assert res == :ok
+
+      assert data == %{
+               "0x0000000000000000000000000000000000000000" => 100,
+               "0x0000000000000000000000000000000000000001" => 1
+             }
+    end
   end
 end

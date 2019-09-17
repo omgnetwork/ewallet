@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.ErrorHandler do
+defmodule EthOmiseGOAdapter.ErrorHandler do
   @moduledoc """
   Handles errors by mapping the error to its response code and description.
   """

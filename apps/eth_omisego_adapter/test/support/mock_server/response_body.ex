@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.ResponseBody do
+defmodule EthOmiseGOAdapter.ResponseBody do
   @moduledoc """
   Contains the different resposnses used by the MockServer
   """

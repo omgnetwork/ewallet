@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.Transaction do
+defmodule EthOmiseGOAdapter.Transaction do
   @moduledoc """
   Internal representation of transaction spent on Plasma chain.
   """
   import Utils.Helpers.Encoding
 
-  alias EthOmisegoNetworkAdapter.HTTPClient
+  alias EthOmiseGOAdapter.HTTPClient
   alias Keychain.Signature
 
   @eth "0x0000000000000000000000000000000000000000"

@@ -12,25 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase do
+defmodule EthOmiseGOAdapter.Config do
   @moduledoc false
-  use ExUnit.CaseTemplate
-  alias Ecto.Adapters.SQL.Sandbox
-  alias Keychain.Repo
 
-  using do
-    quote do
-      import EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase
-    end
+  def get_contract_address do
+    Application.get_env(:eth_omisego_adapter, :contract_address)
   end
 
-  setup tags do
-    :ok = Sandbox.checkout(Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Repo, {:shared, self()})
-    end
-
-    tags
+  def get_watcher_url do
+    Application.get_env(:eth_omisego_adapter, :watcher_url)
   end
 end

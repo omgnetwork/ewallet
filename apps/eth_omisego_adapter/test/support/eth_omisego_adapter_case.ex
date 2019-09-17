@@ -12,20 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.BalanceTest do
-  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
+defmodule EthOmiseGOAdapter.EthOmiseGOAdapterCase do
+  @moduledoc false
+  use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Keychain.Repo
 
-  alias EthOmisegoNetworkAdapter.Balance
-
-  describe "get/1" do
-    test "get and parse balances for an address" do
-      {res, data} = Balance.get("valid")
-      assert res == :ok
-
-      assert data == %{
-               "0x0000000000000000000000000000000000000000" => 100,
-               "0x0000000000000000000000000000000000000001" => 1
-             }
+  using do
+    quote do
+      import EthOmiseGOAdapter.EthOmiseGOAdapterCase
     end
+  end
+
+  setup tags do
+    :ok = Sandbox.checkout(Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(Repo, {:shared, self()})
+    end
+
+    tags
   end
 end

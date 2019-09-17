@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.MockServer do
+defmodule EthOmiseGOAdapter.MockServer do
   @moduledoc """
   Dumb server that serves request with dummy response during tests.
   """
 
   use Plug.Router
 
-  alias EthOmisegoNetworkAdapter.ResponseBody
+  alias EthOmiseGOAdapter.ResponseBody
   alias Plug.{Conn, Parsers}
 
   plug(Parsers,

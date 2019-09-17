@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.TransactionReceiptTest do
-  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
+defmodule EthOmiseGOAdapter.TransactionReceiptTest do
+  use EthOmiseGOAdapter.EthOmiseGOAdapterCase, async: true
 
-  alias EthOmisegoNetworkAdapter.{TransactionReceipt, ResponseBody}
+  alias EthOmiseGOAdapter.{TransactionReceipt, ResponseBody}
 
   describe "get/1" do
     test "get a valid transaction" do

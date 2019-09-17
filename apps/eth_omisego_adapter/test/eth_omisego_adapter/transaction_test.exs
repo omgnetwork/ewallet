@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.TransactionTest do
-  use EthOmisegoNetworkAdapter.EthOmisegoNetworkAdapterCase, async: true
+defmodule EthOmiseGOAdapter.TransactionTest do
+  use EthOmiseGOAdapter.EthOmiseGOAdapterCase, async: true
 
   import Utils.Helpers.Encoding
 
-  alias EthOmisegoNetworkAdapter.{MockServer, Transaction, ResponseBody}
+  alias EthOmiseGOAdapter.{MockServer, Transaction, ResponseBody}
   alias Utils.Helpers.Crypto
   alias Keychain.Wallet
 

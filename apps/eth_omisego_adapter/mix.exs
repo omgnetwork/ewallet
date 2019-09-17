@@ -1,9 +1,9 @@
-defmodule EthOmisegoNetworkAdapter.MixProject do
+defmodule EthOmiseGOAdapter.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :eth_omisego_network_adapter,
+      app: :eth_omisego_adapter,
       version: "2.0.0-dev",
       build_path: "../../_build",
       config_path: "../../config/config.exs",

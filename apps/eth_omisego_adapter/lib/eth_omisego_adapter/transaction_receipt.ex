@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmisegoNetworkAdapter.TransactionReceipt do
+defmodule EthOmiseGOAdapter.TransactionReceipt do
   @moduledoc """
   Represents a receipt of a plasma omg transaction
   """
 
-  alias EthOmisegoNetworkAdapter.HTTPClient
+  alias EthOmiseGOAdapter.HTTPClient
 
   defstruct eth_block: nil,
             cc_block_number: 0,
