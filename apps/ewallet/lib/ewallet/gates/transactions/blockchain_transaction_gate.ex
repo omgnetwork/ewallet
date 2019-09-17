@@ -362,6 +362,7 @@ defmodule EWallet.BlockchainTransactionGate do
            }) do
       {:ok, transaction}
     end
+    # TODO: Handle submit failure -> Change tx status to failed -> Record error
   end
 
   defp submit_if_needed(transaction, _type), do: {:ok, transaction}
