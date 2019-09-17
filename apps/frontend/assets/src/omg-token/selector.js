@@ -7,7 +7,7 @@ export const selectTokens = (state, search) => {
     })
 }
 export const selectBlockchainTokenByAddress = state => blockchainAddress => {
-  const tokenKey = _.findKey(state.tokens, ['blockchain_address', blockchainAddress.toLowerCase()])
+  const tokenKey = _.findKey(state.tokens, ['blockchain_address', blockchainAddress])
   return state.tokens[tokenKey]
 }
 export const selectTokensCachedQuery = state => cacheKey => {

@@ -156,7 +156,7 @@ class TokenDetailPage extends Component {
           title={token.name}
           buttons={[
             this.renderCreateExchangePairButton(),
-            !token.locked ? this.renderMintTokenButton() : null
+            (token.blockchain_address || token.locked) ? null : this.renderMintTokenButton()
           ]}
         />
       </>

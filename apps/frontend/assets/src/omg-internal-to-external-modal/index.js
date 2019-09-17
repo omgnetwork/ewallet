@@ -140,7 +140,7 @@ class CreateTransaction extends Component {
       )
       const result = await this.props.transfer({
         fromAddress: this.props.wallet.address,
-        toAddress: this.state.toAddress.trim().toLowerCase(),
+        toAddress: this.state.toAddress.trim(),
         fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
         toTokenId:
           _.get(this.state.toTokenSelected, 'token.id') ||
