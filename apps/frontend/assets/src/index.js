@@ -2,6 +2,8 @@ import { render } from 'react-dom'
 
 import React from 'react'
 import moment from 'moment'
+import Web3 from 'web3'
+
 import { getCurrentUser } from './services/currentUserService'
 import SocketConnector from './socket/connector'
 import { WEBSOCKET_URL } from './config'
@@ -11,8 +13,10 @@ import {
   setRecentAccount
 } from './services/sessionService'
 import { getAccountById, deleteAccount } from './omg-account/action'
+import { setMetamaskSettings } from './omg-web3/action'
 import { configureStore } from './store'
 import tokenExpireMiddleware from './adminPanelApp/middlewares/tokenExpireMiddleware'
+
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
 // ===================================== ADMIN APP =====================================
@@ -48,7 +52,6 @@ async function bootAdminPanelApp () {
       { socket },
       [tokenExpireMiddleware]
     )
-
     // PREFETCH ACCOUNT IN RECENT TAB SIDE BAR
     toInjectRecentAccount.forEach(accountId => {
       const getAccountAction = getAccountById(accountId)
@@ -66,6 +69,17 @@ async function bootAdminPanelApp () {
     store = configureStore({ session: { authenticated: false } }, { socket }, [
       tokenExpireMiddleware
     ])
+  }
+
+  // CHECK METAMASK EXISTENCE
+  const { ethereum } = window
+
+  if (ethereum) {
+    window.web3 = new Web3(ethereum)
+    store.dispatch(setMetamaskSettings(ethereum.publicConfigStore._state))
+    ethereum.publicConfigStore.on('update', metamaskSettings => {
+      store.dispatch(setMetamaskSettings(metamaskSettings))
+    })
   }
 
   // HANDLE WEBSOCKET MESSAGES
@@ -123,4 +137,6 @@ async function bootApp () {
   }
 }
 
-bootApp()
+window.addEventListener('load', () => {
+  bootApp()
+})

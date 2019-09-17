@@ -1,39 +1,38 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Select, Checkbox } from '../omg-uikit'
 const ConfigRowContainer = styled.div`
   display: flex;
-  border-bottom: ${props => (props.border ? `1px solid ${props.theme.colors.S200}` : 'none')};
+  flex-direction: column;
+  width: calc(50% - 60px);
+  margin: 20px 60px 20px 0;
 `
 const ConfigCol = styled.div`
-  flex: 1 1 auto;
-  padding: 20px;
   vertical-align: bottom;
   :first-child {
-    flex: 0 1 220px;
-    padding-left: 0;
     font-weight: 600;
-  }
-  :nth-child(2) {
-    flex: 0 1 300px;
+    margin-bottom: 10px;
   }
   :last-child {
-    padding-right: 0;
-    flex: 0 1 400px;
+    margin-top: 10px;
   }
 `
 const RadioButtonsContainer = styled.div`
   display: flex;
+  flex-direction: row;
   > div {
     display: inline-block;
     :first-child {
-      margin-right: 25px;
+      margin-right: 15px;
+    }
+    :last-child {
+      margin-top: 0;
     }
   }
 `
 
-export default class ConfigRow extends Component {
+class ConfigRow extends Component {
   static propTypes = {
     description: PropTypes.string,
     value: PropTypes.any,
@@ -59,7 +58,7 @@ export default class ConfigRow extends Component {
 
   renderInputType () {
     return (
-      <Fragment>
+      <>
         {this.props.type === 'input' && (
           <Input
             suffix={this.props.suffix}
@@ -83,12 +82,7 @@ export default class ConfigRow extends Component {
             errorText={this.props.inputErrorMessage}
           />
         )}
-        {this.props.type === 'boolean' && (
-          <RadioButtonsContainer>
-            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
-          </RadioButtonsContainer>
-        )}
-      </Fragment>
+      </>
     )
   }
 
@@ -96,11 +90,24 @@ export default class ConfigRow extends Component {
     return (
       <ConfigRowContainer border={this.props.border}>
         <ConfigCol>{this.props.name}</ConfigCol>
-        <ConfigCol>{this.props.description}</ConfigCol>
-        <ConfigCol>
-          {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
-        </ConfigCol>
+        {this.props.type === 'boolean' && (
+          <RadioButtonsContainer>
+            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
+            <ConfigCol>{this.props.description}</ConfigCol>
+          </RadioButtonsContainer>
+        )}
+
+        {this.props.type !== 'boolean' && (
+          <>
+            <ConfigCol>{this.props.description}</ConfigCol>
+            <ConfigCol>
+              {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
+            </ConfigCol>
+          </>
+        )}
       </ConfigRowContainer>
     )
   }
 }
+
+export default ConfigRow

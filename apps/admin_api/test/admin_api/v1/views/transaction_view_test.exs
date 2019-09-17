@@ -33,6 +33,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
           idempotency_token: transaction.idempotency_token,
           blockchain_tx_hash: nil,
           confirmations_count: nil,
+          from_blockchain_address: nil,
+          to_blockchain_address: nil,
           from: %{
             object: "transaction_source",
             address: transaction.from,
@@ -110,6 +112,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               idempotency_token: transaction1.idempotency_token,
               blockchain_tx_hash: nil,
               confirmations_count: nil,
+              from_blockchain_address: nil,
+              to_blockchain_address: nil,
               from: %{
                 object: "transaction_source",
                 address: transaction1.from,
@@ -157,6 +161,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               blockchain_tx_hash: nil,
               confirmations_count: nil,
               idempotency_token: transaction2.idempotency_token,
+              from_blockchain_address: nil,
+              to_blockchain_address: nil,
               from: %{
                 object: "transaction_source",
                 address: transaction2.from,

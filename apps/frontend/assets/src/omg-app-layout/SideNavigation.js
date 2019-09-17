@@ -110,7 +110,7 @@ class SideNavigation extends PureComponent {
       },
       {
         icon: 'Setting',
-        to: '/configuration',
+        to: '/configuration/global_settings',
         text: 'Configuration'
       }
     ]
@@ -119,6 +119,11 @@ class SideNavigation extends PureComponent {
         icon: 'Wallet',
         to: '/wallets',
         text: 'Wallets'
+      },
+      {
+        icon: 'Wallet',
+        to: '/blockchain_wallets',
+        text: 'Blockchain Wallets'
       },
       {
         icon: 'Transaction',
@@ -177,7 +182,7 @@ class SideNavigation extends PureComponent {
         {this.overviewLinks.map(link => {
           return (
             <Link to={link.to} key={link.to}>
-              <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+              <NavigationItem active={link.to.includes(`/${firstSubPath}`)}>
                 <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>
@@ -204,7 +209,7 @@ class SideNavigation extends PureComponent {
         {this.dataLink.map(link => {
           return (
             <Link to={link.to} key={link.to}>
-              <NavigationItem active={fuzzySearch(link.to, `/${firstSubPath}`)}>
+              <NavigationItem active={link.to.includes(`/${firstSubPath}`)}>
                 <Icon name={link.icon} /><span>{link.text}</span>
               </NavigationItem>
             </Link>

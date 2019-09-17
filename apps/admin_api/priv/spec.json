@@ -6150,6 +6150,9 @@
                                               }
                                             }
                                           },
+                                          "from_blockchain_address": {
+                                            "type": "string"
+                                          },
                                           "to": {
                                             "type": "object",
                                             "properties": {
@@ -6235,6 +6238,9 @@
                                                 ]
                                               }
                                             }
+                                          },
+                                          "to_blockchain_address": {
+                                            "type": "string"
                                           },
                                           "exchange": {
                                             "type": "object",
@@ -17726,6 +17732,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -17811,6 +17820,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -28574,6 +28586,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -28659,6 +28674,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -33771,6 +33789,12 @@
                                       "blockchain_status": {
                                         "type": "string"
                                       },
+                                      "blockchain_identifier": {
+                                        "type": "string"
+                                      },
+                                      "tx_hash": {
+                                        "type": "string"
+                                      },
                                       "metadata": {
                                         "type": "object"
                                       },
@@ -33778,6 +33802,9 @@
                                         "type": "object"
                                       },
                                       "enabled": {
+                                        "type": "boolean"
+                                      },
+                                      "locked": {
                                         "type": "boolean"
                                       }
                                     },
@@ -33790,7 +33817,12 @@
                                       "avatar",
                                       "created_at",
                                       "updated_at",
-                                      "enabled"
+                                      "blockchain_address",
+                                      "blockchain_status",
+                                      "blockchain_identifier",
+                                      "tx_hash",
+                                      "enabled",
+                                      "locked"
                                     ]
                                   },
                                   "amount": {
@@ -35618,6 +35650,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -35703,6 +35738,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -36382,6 +36420,9 @@
                                 }
                               }
                             },
+                            "from_blockchain_address": {
+                              "type": "string"
+                            },
                             "to": {
                               "type": "object",
                               "properties": {
@@ -36467,6 +36508,9 @@
                                   ]
                                 }
                               }
+                            },
+                            "to_blockchain_address": {
+                              "type": "string"
                             },
                             "exchange": {
                               "type": "object",
@@ -36896,6 +36940,9 @@
                                 }
                               }
                             },
+                            "from_blockchain_address": {
+                              "type": "string"
+                            },
                             "to": {
                               "type": "object",
                               "properties": {
@@ -36981,6 +37028,9 @@
                                   ]
                                 }
                               }
+                            },
+                            "to_blockchain_address": {
+                              "type": "string"
                             },
                             "exchange": {
                               "type": "object",
