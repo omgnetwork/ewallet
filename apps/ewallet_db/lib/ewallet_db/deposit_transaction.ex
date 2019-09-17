@@ -38,9 +38,11 @@ defmodule EWalletDB.DepositTransaction do
   def outgoing, do: @outgoing
   def incoming, do: @incoming
 
-  # List of transaction status that are considered to be in progress, and hence transactions
-  # with these statuses are not reflected in the deposit wallet balance yet.
-  @in_progress_statuses [
+  # List of transaction statuses that already affect the blockchain balances,
+  # but we consider them unfinalized and hence should not be spent.
+  # Note that non-blockchain statuses like pending() are not included
+  # since pending transactions do not yet affect the blockchain balance.
+  @unfinalized_statuses [
     TransactionState.blockchain_submitted(),
     TransactionState.pending_confirmations(),
     TransactionState.blockchain_confirmed()
@@ -228,16 +230,16 @@ defmodule EWalletDB.DepositTransaction do
   end
 
   @doc """
-  Retrieves all deposit transactions from the given deposit address that are in progress.
+  Retrieves all deposit transactions from the given deposit address that are not yet finalized.
 
-  This is useful for retrieving transactions that are happening and so need to be excluded
-  from the wallet's spendable amount.
+  This is useful for retrieving transactions that are happening and so to be excluded
+  from the wallet's spendable balance.
   """
-  @spec all_in_progress_by(keyword() | map()) :: [%__MODULE__{}]
-  def all_in_progress_by(clauses) do
+  @spec all_unfinalized_by(keyword() | map()) :: [%__MODULE__{}]
+  def all_unfinalized_by(clauses) do
     DepositTransaction
     |> where(^Enum.to_list(clauses))
-    |> where([dt], dt.status in @in_progress_statuses)
+    |> where([dt], dt.status in @unfinalized_statuses)
     |> Repo.all()
   end
 

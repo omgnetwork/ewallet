@@ -15,11 +15,7 @@
 defmodule EWalletDB.DepositTransactionTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias EWalletDB.DepositTransaction
-
-  describe "get_highest_blk_number/1" do
-    test "returns the highest block number present in the deposit transactions"
-  end
+  alias EWalletDB.{DepositTransaction, TransactionState}
 
   describe "get/1" do
     test "retrieves a deposit transaction by its id" do
@@ -42,7 +38,7 @@ defmodule EWalletDB.DepositTransactionTest do
       inserted = insert(:deposit_transaction)
 
       transaction =
-        DepositTransaction.get_by(uuid: inserted.uuid})
+        DepositTransaction.get_by(uuid: inserted.uuid)
 
       assert transaction.id == inserted.id
     end
@@ -53,8 +49,37 @@ defmodule EWalletDB.DepositTransactionTest do
     test_insert_generate_external_id(DepositTransaction, :id, "dtx_")
   end
 
-  describe "all_in_progress_by/1" do
-    test "returns all deposit transactions that are in progress"
+  describe "all_unfinalized_by/1" do
+    test "returns all deposit transactions that are not yet finalized" do
+      wallet = insert(:blockchain_deposit_wallet)
+
+      # Transactions that are not finalized and match the address
+      dtx_1 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted(), to_deposit_wallet: wallet)
+      dtx_2 = insert(:deposit_transaction, status: TransactionState.pending_confirmations(), to_deposit_wallet: wallet)
+      dtx_3 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed(), to_deposit_wallet: wallet)
+
+      # Transactions that are not finalized but have a differing address
+      dtx_4 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted())
+      dtx_5 = insert(:deposit_transaction, status: TransactionState.pending_confirmations())
+      dtx_6 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed())
+
+      # Transactions that are excluded but does match the address
+      dtx_7 = insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
+      dtx_8 = insert(:deposit_transaction, status: TransactionState.confirmed(), to_deposit_wallet: wallet)
+      dtx_9 = insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
+
+      txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
+
+      assert Enum.any?(txns, fn t -> t.uuid == dtx_1.uuid end)
+      assert Enum.any?(txns, fn t -> t.uuid == dtx_2.uuid end)
+      assert Enum.any?(txns, fn t -> t.uuid == dtx_3.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_4.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_5.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_6.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_7.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_8.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_9.uuid end)
+    end
   end
 
   describe "get_error/1" do

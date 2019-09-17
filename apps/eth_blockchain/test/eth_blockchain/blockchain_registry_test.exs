@@ -46,7 +46,28 @@ defmodule EthBlockchain.BlockchainRegistryTest do
   end
 
   describe "stop_listener/2" do
-    test "stops the listener"
+    test "stops the listener" do
+      assert {:ok, pid} = BlockchainRegistry.start_link(name: :test_registry)
+      :ok = BlockchainRegistry.start_listener(DumbListener, %{id: "dumb"}, pid)
+
+      {:ok, %{pid: listener_pid}} = BlockchainRegistry.lookup("dumb", pid)
+      assert Process.alive?(listener_pid)
+
+      # Link to the process so this test is notified when it exits
+      ref = Process.monitor(listener_pid)
+
+      :ok = BlockchainRegistry.stop_listener("dumb", pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          refute Process.alive?(listener_pid)
+      after
+        1_000 ->
+          refute Process.alive?(listener_pid)
+      end
+
+      assert GenServer.stop(pid) == :ok
+    end
   end
 
   describe "subscribe/3" do
@@ -101,6 +122,9 @@ defmodule EthBlockchain.BlockchainRegistryTest do
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
+          refute Process.alive?(listener_pid)
+      after
+        1_000 ->
           refute Process.alive?(listener_pid)
       end
 

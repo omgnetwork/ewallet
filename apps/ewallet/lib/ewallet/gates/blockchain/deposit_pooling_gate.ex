@@ -112,7 +112,7 @@ defmodule EWallet.DepositPoolingGate do
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
         token_uuid: balance.token_uuid
       ]
-      |> DepositTransaction.all_in_progress_by()
+      |> DepositTransaction.all_unfinalized_by()
       |> Enum.reduce(0, fn dt, sum -> sum + dt.amount end)
 
     balance.amount - pending_amount
