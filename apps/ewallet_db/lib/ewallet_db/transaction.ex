@@ -301,6 +301,9 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
     |> validate_blockchain()
+    # Note: We validate before force downcasing
+    |> update_change(:from_blockchain_address, &String.downcase/1)
+    |> update_change(:to_blockchain_address, &String.downcase/1)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)

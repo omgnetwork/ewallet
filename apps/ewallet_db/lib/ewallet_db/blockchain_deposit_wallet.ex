@@ -81,6 +81,9 @@ defmodule EWalletDB.BlockchainDepositWallet do
       ],
       required: [:address, :wallet_address, :blockchain_hd_wallet_uuid, :blockchain_identifier]
     )
+    |> update_change(:address, &String.downcase/1)
+    |> update_change(:public_key, &String.downcase/1)
+    |> update_change(:wallet_address, &String.downcase/1)
     |> unique_constraint(:address)
     |> unique_constraint(:public_key)
     |> validate_immutable(:address)

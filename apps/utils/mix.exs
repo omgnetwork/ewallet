@@ -26,7 +26,8 @@ defmodule Utils.MixProject do
   defp deps do
     [
       {:appsignal, "~> 1.9"},
-      {:ex_ulid, github: "omisego/ex_ulid"}
+      {:ex_ulid, github: "omisego/ex_ulid"},
+      {:ex_sha3, "~> 0.1"}
     ]
   end
 end
