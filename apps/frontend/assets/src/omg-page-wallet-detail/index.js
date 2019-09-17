@@ -1,15 +1,20 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
 
+import { Tag, Button, Icon } from '../omg-uikit'
+import { enableMetamaskEthereumConnection } from '../omg-web3/action'
+import { selectMetamaskUsable } from '../omg-web3/selector'
+import { generateDepositAddress } from '../omg-wallet/action'
 import WalletProvider from '../omg-wallet/walletProvider'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
+import CreateInternalToExternalButton from '../omg-transaction/CreateInternalToExternalButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import { Tag } from '../omg-uikit'
 import WalletBalance from './WalletBalances'
 import Copy from '../omg-copy'
 import CONSTANT from '../constants'
@@ -53,11 +58,42 @@ const MenuContainer = styled.div`
   }
 `
 
-const enhance = compose(withRouter)
+const enhance = compose(
+  withRouter,
+  connect(
+    state => ({ metamaskUsable: selectMetamaskUsable(state) }),
+    { generateDepositAddress, enableMetamaskEthereumConnection }
+  )
+)
 class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    divider: PropTypes.bool
+    divider: PropTypes.bool,
+    generateDepositAddress: PropTypes.func,
+    enableMetamaskEthereumConnection: PropTypes.func,
+    metamaskUsable: PropTypes.bool
+  }
+  renderInternalToExternalButton = wallet => {
+    if (this.props.metamaskUsable) {
+      return (
+        <CreateInternalToExternalButton
+          wallet={wallet}
+          key='internalToExternal'
+        />
+      )
+    }
+    return (
+      <Button
+        key='create'
+        size='small'
+        styleType='primary'
+        onClick={this.props.enableMetamaskEthereumConnection}
+        disabled={!window.ethereum || !window.web3}
+      >
+        <Icon name='Transaction' />
+        <span>External Transfer</span>
+      </Button>
+    )
   }
   renderTopBar = wallet => {
     return (
@@ -65,12 +101,14 @@ class WalletDetaillPage extends Component {
         searchBar={false}
         divider={this.props.divider}
         title={wallet.name}
-        buttons={[
-          <CreateTransactionButton
-            fromAddress={wallet.address}
-            key='transfer'
-          />
-        ]}
+        buttons={
+          wallet.identifier !== 'burn' ? [
+            this.renderInternalToExternalButton(wallet),
+            <CreateTransactionButton
+              fromAddress={wallet.address}
+              key='transfer'
+            />
+          ] : []}
       />
     )
   }
@@ -101,6 +139,21 @@ class WalletDetaillPage extends Component {
             <Link to={`/users/${wallet.user.id}`}>
               {_.get(wallet, 'user.id', '-')}
             </Link>
+          </DetailGroup>
+        )}
+        {(!wallet.identifier.includes('burn') && !wallet.identifier.includes('genesis')) && (
+          <DetailGroup>
+            <b>Blockchain Deposit Address:</b>{' '}
+            {wallet.blockchain_deposit_address && (
+              <>
+                <span>{wallet.blockchain_deposit_address}</span> <Copy data={wallet.blockchain_deposit_address} />
+              </>
+            )}
+            {!wallet.blockchain_deposit_address && (
+              <a onClick={() => this.props.generateDepositAddress(wallet.address)}>
+                Generate deposit address
+              </a>
+            )}
           </DetailGroup>
         )}
         <DetailGroup>
@@ -195,6 +248,7 @@ class WalletDetaillPage extends Component {
       <WalletProvider
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
+        {...this.props}
       />
     )
   }

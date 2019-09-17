@@ -1,19 +1,20 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import styled from 'styled-components'
 
+import { openModal } from '../omg-modal/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
-import CreateTokenModal from '../omg-create-token-modal'
-import ExportModal from '../omg-export-modal'
+import { Button, Avatar, Icon, Tooltip } from '../omg-uikit'
 import TokensFetcher from '../omg-token/tokensFetcher'
-import { NameColumn } from '../omg-page-account'
-import ExchangePairModal from '../omg-exchange-rate-modal'
+import CreateTokenChooser from '../omg-token/CreateTokenChooser'
 import { createSearchTokenQuery } from '../omg-token/searchField'
+import { NameColumn } from '../omg-page-account'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -35,84 +36,88 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
+const EwalletBlockchain = styled.div`
+  display: flex;
+  align-items: center;
+  i {
+    margin-left: 5px;
+    font-size: 12px;
+  }
+  .triangle {
+    right: 2px;
+  }
+  .tooltip-text {
+    width: 200px;
+    transform: translateX(50%);
+    top: -54px;
+  }
+`
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },
+  { key: 'blockchainStatus', title: 'TYPE', sort: true },
+  { key: 'status', title: 'STATUS', sort: true },
+  { key: 'created', title: 'CREATED AT', sort: true },
   { key: 'id', title: 'TOKEN ID', sort: true },
-  { key: 'symbol', title: 'SYMBOL', sort: true },
-  { key: 'created', title: 'CREATED AT', sort: true }
+  { key: 'symbol', title: 'SYMBOL', sort: true }
 ]
+
 class TokenDetailPage extends Component {
   static propTypes = {
     divider: PropTypes.bool,
     history: PropTypes.object,
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
-  }
-  state = {
-    createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
-    exportModalOpen: false,
-    createExchangePairModalOpen: false
-  }
-
-  onClickCreateToken = () => {
-    this.setState({ createTokenModalOpen: true })
-  }
-  onClickCreateExchangePair = () => {
-    this.setState({ createExchangePairModalOpen: true })
-  }
-  onRequestCloseCreateToken = () => {
-    this.setState({ createTokenModalOpen: false })
-  }
-  onRequestCloseCreateExchangePair = () => {
-    this.setState({ createExchangePairModalOpen: false })
-  }
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
-  }
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
+    scrollTopContentContainer: PropTypes.func,
+    openModal: PropTypes.func
   }
   onClickLoadMore = e => {
     this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
-  renderExportButton = () => {
+  renderCreateTokenButton = refetch => {
     return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'exports'}>
-        <Icon name='Export' /><span>Export</span>
-      </Button>
-    )
-  }
-  renderTransferToken = () => {
-    return (
-      <Button size='small' styleType='secondary' onClick={this.onClickCreateToken} key={'transfer'}>
-        <span>Transfer Token</span>
-      </Button>
-    )
-  }
-  renderMintTokenButton = () => {
-    return (
-      <Button
-        key='mint'
-        size='small'
-        onClick={this.onClickCreateToken}
-      >
-        <Icon name='Plus' /><span>Create Token</span>
-      </Button>
+      <CreateTokenChooser
+        style={{ marginLeft: '10px' }}
+        key='create-token-chooser'
+        refetch={refetch}
+        {...this.props}
+      />
     )
   }
   renderCreateExchangePairButton = () => {
     return (
       <Button
-        key='create pair'
+        key='create-exchange-pair'
         size='small'
         styleType='secondary'
-        onClick={this.onClickCreateExchangePair}
+        onClick={() => {
+          this.props.openModal({ id: 'exchangePairModal', action: 'create' })
+        }}
       >
         <span>Create Exchange Pair</span>
       </Button>
     )
   }
   rowRenderer (key, data, rows) {
+    if (key === 'status') {
+      if (rows.blockchainStatus) {
+        return _.capitalize(rows.blockchainStatus)
+      }
+    }
+    if (key === 'blockchainStatus') {
+      if (rows.txHash) {
+        return (
+          <EwalletBlockchain>
+            <span>Blockchain</span>
+            <Tooltip text='This is a blockchain token controlled by the eWallet.'>
+              <Icon name='Wallet' />
+            </Tooltip>
+          </EwalletBlockchain>
+        )
+      }
+
+      return data
+        ? 'Blockchain'
+        : 'Internal'
+    }
     if (key === 'created') {
       return moment(data).format()
     }
@@ -135,7 +140,9 @@ class TokenDetailPage extends Component {
         token: token.name,
         symbol: token.symbol,
         created: token.created_at,
-        id: token.id
+        id: token.id,
+        blockchainStatus: token.blockchain_status,
+        txHash: token.tx_hash
       }
     })
 
@@ -146,7 +153,7 @@ class TokenDetailPage extends Component {
           title={'Tokens'}
           buttons={[
             tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
-            this.renderMintTokenButton()
+            this.renderCreateTokenButton(fetch)
           ]}
         />
         <SortableTable
@@ -159,18 +166,6 @@ class TokenDetailPage extends Component {
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
-        />
-
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
-        <CreateTokenModal
-          open={this.state.createTokenModalOpen}
-          onRequestClose={this.onRequestCloseCreateToken}
-          onFetchSuccess={fetch}
-        />
-        <ExchangePairModal
-          action='create'
-          open={this.state.createExchangePairModalOpen}
-          onRequestClose={this.onRequestCloseCreateExchangePair}
         />
       </TokenPageContainer>
     )
@@ -193,4 +188,12 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default withRouter(TokenDetailPage)
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { openModal }
+  )
+)
+
+export default enhance(TokenDetailPage)

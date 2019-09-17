@@ -7,6 +7,7 @@ export const getWallets = ({ search, page, perPage, cacheKey, matchAll, matchAny
     action: 'REQUEST',
     service: async () =>
       walletService.getWallets({
+        search,
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
@@ -78,4 +79,11 @@ export const createWallet = ({ name, identifier, accountId }) =>
       identifier,
       accountId
     })
+  })
+
+export const generateDepositAddress = address =>
+  createActionCreator({
+    actionName: 'DEPOSIT_ADDRESS',
+    action: 'CREATE',
+    service: async () => walletService.generateDepositAddress(address)
   })
