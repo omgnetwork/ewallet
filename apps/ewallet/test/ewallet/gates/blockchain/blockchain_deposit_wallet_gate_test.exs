@@ -89,4 +89,8 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       assert error == :hd_wallet_not_found
     end
   end
+
+  describe "refresh_balances/3" do
+    test "updates the deposit wallet balances with the latest blockchain state"
+  end
 end

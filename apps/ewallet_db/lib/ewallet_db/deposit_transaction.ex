@@ -213,7 +213,7 @@ defmodule EWalletDB.DepositTransaction do
     |> validate_inclusion(:status, TransactionState.statuses())
   end
 
-  def get_last_blk_number(blockchain) do
+  def get_highest_blk_number(blockchain) do
     Transaction
     |> where([t], t.blockchain_identifier == ^blockchain and not is_nil(t.blk_number))
     |> order_by([t], desc: t.blk_number)

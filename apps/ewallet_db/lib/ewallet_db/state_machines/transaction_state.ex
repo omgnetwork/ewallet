@@ -205,7 +205,7 @@ defmodule EWalletDB.TransactionState do
       attrs = Map.merge(attrs, %{status: new_state})
       %mod{} = transaction
 
-      # Implement @behavior to mod.state_changeset
+      # TODO: Implement @behavior to mod.state_changeset
       transaction
       |> mod.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
       |> Repo.update_record_with_activity_log()

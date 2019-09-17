@@ -95,6 +95,8 @@ defmodule EWallet.TransactionTrackerTest do
       refute Process.alive?(pid)
     end
 
+    test "recalculates the deposit wallet's balances when transaction is confirmed"
+
     test "handles invalid tx_hash" do
       transaction = insert(:blockchain_transaction)
       transaction_receipt = %{transaction_hash: "fake"}

@@ -189,6 +189,8 @@ defmodule EthBlockchain.TransactionTest do
                  state[:pid]
                )
     end
+
+    test "signs with a child key"
   end
 
   describe "transaction_hash/2" do

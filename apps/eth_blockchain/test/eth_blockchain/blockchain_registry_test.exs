@@ -45,6 +45,10 @@ defmodule EthBlockchain.BlockchainRegistryTest do
     end
   end
 
+  describe "stop_listener/2" do
+    test "stops the listener"
+  end
+
   describe "subscribe/3" do
     test "subscribe a process to the given listener based on id" do
       id = "dumb"

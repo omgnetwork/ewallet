@@ -13,9 +13,7 @@
 # limitations under the License.
 
 defmodule EWallet.DepositWalletTracker do
-  @moduledoc """
-
-  """
+  # TODO: add moduledoc
   use GenServer
   require Logger
   alias EWallet.DepositPoolingGate

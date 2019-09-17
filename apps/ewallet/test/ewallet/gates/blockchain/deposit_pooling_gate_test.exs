@@ -27,7 +27,7 @@ defmodule EWallet.DepositPoolingGateTest do
   }
 
   describe "move_deposits_to_pooled_funds/2" do
-    test "pools the funds" do
+    test "pools the funds if a deposit wallet reaches the threshold" do
       blockchain_identifier = "ethereum"
       hd_wallet = BlockchainHDWallet.get_primary()
 
@@ -62,5 +62,9 @@ defmodule EWallet.DepositPoolingGateTest do
       assert [{:ok, _transaction}] =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
     end
+
+    test "avoids pooling funds that have a pooling transaction in progress"
+
+    test "keeps the deposit wallets' funds intact if none reaches the threshold"
   end
 end
