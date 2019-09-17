@@ -32,11 +32,11 @@ defmodule Utils.Helpers.Encoding do
   end
 
   def from_hex("0x" <> encoded) when is_binary(encoded) and rem(byte_size(encoded), 2) == 0 do
-    Base.decode16!(encoded, case: :lower)
+    Base.decode16!(encoded, case: :mixed)
   end
 
   def from_hex(encoded) when is_binary(encoded) do
-    Base.decode16!(encoded, case: :lower)
+    Base.decode16!(encoded, case: :mixed)
   end
 
   def sliced("0x" <> data) do

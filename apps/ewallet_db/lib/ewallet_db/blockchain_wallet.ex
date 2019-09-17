@@ -63,6 +63,9 @@ defmodule EWalletDB.BlockchainWallet do
     )
     |> unique_constraint(:name)
     |> validate_blockchain()
+    # Note: We validate before force downcasing
+    |> update_change(:address, &String.downcase/1)
+    |> update_change(:public_key, &String.downcase/1)
     |> validate_inclusion(:type, @wallet_types)
     |> validate_length(:address, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)

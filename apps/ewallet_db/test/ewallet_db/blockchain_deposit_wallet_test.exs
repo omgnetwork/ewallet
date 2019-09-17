@@ -16,6 +16,7 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias EWalletDB.BlockchainDepositWallet
+  alias Utils.Helpers.{Crypto, EIP55}
 
   describe "all/1" do
     test "returns the list of all blockchain deposit wallets" do
@@ -78,6 +79,18 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
       assert res == :ok
       assert %BlockchainDepositWallet{} = wallet
       assert attrs.address == wallet.address
+    end
+
+    test "saves the addresses in lower case" do
+      address = Crypto.fake_eth_address()
+      {:ok, eip55_address} = EIP55.encode(address)
+
+      {:ok, wallet} =
+        :blockchain_deposit_wallet
+        |> params_for(%{address: eip55_address})
+        |> BlockchainDepositWallet.insert()
+
+      assert wallet.address == String.downcase(address)
     end
   end
 end
