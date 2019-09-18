@@ -32,7 +32,7 @@ defmodule EWallet.BlockchainHelperTest do
 
   describe "identifier/0" do
     test "returns the blockchain identifier" do
-      assert BlockchainHelper.identifier()
+      assert BlockchainHelper.rootchain_identifier()
     end
   end
 

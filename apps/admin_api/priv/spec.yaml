@@ -1244,6 +1244,8 @@ paths:
                                           type: string
                                         id:
                                           type: string
+                                        type:
+                                          type: string
                                         from:
                                           type: object
                                           properties:
@@ -1302,6 +1304,7 @@ paths:
                                       required: &ref_35
                                         - object
                                         - id
+                                        - type
                                         - idempotency_token
                                         - from
                                         - to
@@ -2652,6 +2655,7 @@ paths:
                         data:
                           - object: transaction
                             id: txn_01ce842dxrrprkak0rzq716ax1
+                            ype: internal
                             from:
                               object: transaction_source
                               address: bec66785-f0d8-416c-a650-2859aa680166
@@ -4784,6 +4788,41 @@ paths:
       responses:
         '200': *ref_54
         '500': *ref_7
+  /blockchain_wallet.deposit_to_childchain:
+    post:
+      tags:
+        - Blockchain wallet
+      summary: Deposit the amount to the childchain for the specified address.
+      operationId: blockchain_wallet_deposit_to_childchain
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        description: The parameters to use for depositing to a childchain
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              example:
+                token_id: tok_ETH_01dft2tk077p5chqx1d05v3epz
+                amount: 100
+                address: '0x48b91d5f363892592bf836777dc73b54a10b72ae'
+                idempotency_token: 7831c0be5-15d1-4463-9ec2-02bc8ded7120
+              properties:
+                address:
+                  type: string
+                amount:
+                  type: integer
+                token_id:
+                  type: string
+              required:
+                - amount
+                - token_id
+                - address
+                - idempotency_token
+      responses:
+        '200': *ref_54
+        '500': *ref_7
   /transaction.all:
     post:
       tags:
@@ -4943,6 +4982,7 @@ paths:
                     example:
                       data:
                         object: transaction
+                        type: internal
                         id: txn_01ce840q5svw6058r8yk6jzf65
                         idempotency_token: 123982f5-4a27-498d-a91b-7bb2e2a8d3d1
                         from:

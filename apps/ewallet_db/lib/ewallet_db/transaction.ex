@@ -37,9 +37,11 @@ defmodule EWalletDB.Transaction do
 
   @internal "internal"
   @external "external"
-  @types [@internal, @external]
+  @deposit "deposit"
+  @types [@internal, @external, @deposit]
   def internal, do: @internal
   def external, do: @external
+  def deposit, do: @deposit
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -455,7 +457,10 @@ defmodule EWalletDB.Transaction do
 
     changeset =
       case attrs["type"] || attrs[:type] do
-        "external" ->
+        @external ->
+          blockchain_changeset(%Transaction{}, attrs)
+
+        @deposit ->
           blockchain_changeset(%Transaction{}, attrs)
 
         _ ->

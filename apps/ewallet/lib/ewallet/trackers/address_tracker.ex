@@ -119,7 +119,7 @@ defmodule EWallet.AddressTracker do
       contract_addresses: contract_addresses
     }
 
-    case BlockchainHelper.call(:get_transactions, attrs, nil, node_adapter) do
+    case BlockchainHelper.call(:get_transactions, attrs, eth_node_adapter: node_adapter) do
       {:error, :block_not_found} ->
         case stop_once_synced do
           false ->

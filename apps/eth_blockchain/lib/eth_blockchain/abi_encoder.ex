@@ -35,6 +35,14 @@ defmodule EthBlockchain.ABIEncoder do
 
   def transfer(_to_address, _amount), do: {:error, :invalid_input}
 
+  def approve("0x" <> _ = to_address, amount) when is_integer(amount) do
+    {:ok,
+     ABI.encode("approve(address,uint)", [
+       from_hex(to_address),
+       amount
+     ])}
+  end
+
   def get_field(field) do
     {:ok, ABI.encode("#{field}()", [])}
   end
@@ -46,5 +54,25 @@ defmodule EthBlockchain.ABIEncoder do
       types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
     })
     |> Base.encode16(case: :lower)
+  end
+
+  def child_chain_eth_deposit(tx_bytes) do
+    {:ok, ABI.encode("deposit(bytes)", [tx_bytes])}
+  end
+
+  def child_chain_erc20_deposit(tx_bytes) do
+    {:ok, ABI.encode("depositFrom(bytes)", [tx_bytes])}
+  end
+
+  def mint("0x" <> _ = address, amount) do
+    {:ok,
+     ABI.encode("mint(address,uint)", [
+       from_hex(address),
+       amount
+     ])}
+  end
+
+  def finish_minting do
+    {:ok, ABI.encode("finishMinting()", [])}
   end
 end

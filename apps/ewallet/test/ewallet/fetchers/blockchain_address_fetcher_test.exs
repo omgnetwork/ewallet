@@ -19,7 +19,7 @@ defmodule EWallet.BlockchainAddressFetcherTest do
 
   describe "get_all_trackable_wallet_addresses/1" do
     test "returns the list of all trackable wallet addresses" do
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
       result = BlockchainAddressFetcher.get_all_trackable_wallet_addresses(identifier)
 
@@ -29,7 +29,7 @@ defmodule EWallet.BlockchainAddressFetcherTest do
 
   describe "get_all_trackable_contract_address/1" do
     test "returns the list of all trackable contract addresses" do
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       result = BlockchainAddressFetcher.get_all_trackable_contract_address(identifier)
 
       assert result == []

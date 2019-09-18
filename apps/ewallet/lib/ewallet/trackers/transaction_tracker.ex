@@ -28,6 +28,8 @@ defmodule EWallet.TransactionTracker do
 
   @backup_confirmations_threshold 10
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+
   # TODO: handle failed transactions
 
   def start_link(attrs) do
@@ -36,7 +38,14 @@ defmodule EWallet.TransactionTracker do
 
   def init(%{transaction: transaction, transaction_type: transaction_type} = attrs) do
     adapter = BlockchainHelper.adapter()
-    :ok = adapter.subscribe(:transaction, transaction.blockchain_tx_hash, self())
+
+    :ok =
+      adapter.subscribe(
+        :transaction,
+        transaction.blockchain_tx_hash,
+        transaction.blockchain_identifier != @rootchain_identifier,
+        self()
+      )
 
     {:ok,
      %{
@@ -49,10 +58,10 @@ defmodule EWallet.TransactionTracker do
   end
 
   def handle_cast(
-        {:confirmations_count, transaction_receipt, confirmations_count},
+        {:confirmations_count, transaction_hash, confirmations_count, block_number},
         %{transaction: transaction} = state
       ) do
-    case transaction.blockchain_tx_hash == transaction_receipt.transaction_hash do
+    case transaction.blockchain_tx_hash == transaction_hash do
       true ->
         adapter = BlockchainHelper.adapter()
         threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
@@ -65,24 +74,35 @@ defmodule EWallet.TransactionTracker do
           adapter,
           state,
           confirmations_count,
+          block_number,
           confirmations_count >= (threshold || @backup_confirmations_threshold)
         )
 
       false ->
         Logger.error(
           "Unable to update the confirmation count for #{transaction.blockchain_tx_hash}." <>
-            " The receipt has a mismatched hash: #{transaction_receipt.transaction_hash}."
+            " The receipt has a mismatched hash: #{transaction_hash}."
         )
 
         {:noreply, state}
     end
   end
 
+  # Transaction not yet included in a block / or invalid tx_hash
+  def handle_cast({:not_found}, state) do
+    # TODO Implement threshold to stop tracking an invalid transactioon
+    # If the transaction remains not_found for xxxx blocks, unsubscribe.
+    {:noreply, state}
+  end
+
+  # TODO handle_cast for failures
+
   # Threshold reached, finalizing the transaction...
   defp update_confirmations_count(
          adapter,
          %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
          confirmations_count,
+         _block_number,
          true
        ) do
     # The transaction may have staled as it may took time before this function is invoked.
@@ -143,6 +163,7 @@ defmodule EWallet.TransactionTracker do
          _adapter,
          %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
          confirmations_count,
+         block_number,
          false
        ) do
     # The transaction may have staled as it may took time before this function is invoked.
@@ -155,6 +176,7 @@ defmodule EWallet.TransactionTracker do
         TransactionState.pending_confirmations(),
         transaction,
         %{
+          blk_number: block_number,
           confirmations_count: confirmations_count,
           originator: %System{}
         }

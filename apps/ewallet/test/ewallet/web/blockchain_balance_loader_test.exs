@@ -16,6 +16,7 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias EWallet.Web.BlockchainBalanceLoader
+  alias EWallet.BlockchainHelper
 
   describe "balances/2" do
     test "returns a list of balances of given tokens when given wallet address and non-empty tokens" do
@@ -31,11 +32,17 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       _token_3 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000002"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       assert {:ok, balances} =
-               BlockchainBalanceLoader.balances(blockchain_wallet.address, [
-                 token_1,
-                 token_2
-               ])
+               BlockchainBalanceLoader.balances(
+                 blockchain_wallet.address,
+                 [
+                   token_1,
+                   token_2
+                 ],
+                 identifier
+               )
 
       assert [balance_token_1, balance_token_2] = balances
 
@@ -47,7 +54,10 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      assert {:ok, balances} = BlockchainBalanceLoader.balances(blockchain_wallet.address, [])
+      identifier = BlockchainHelper.rootchain_identifier()
+
+      assert {:ok, balances} =
+               BlockchainBalanceLoader.balances(blockchain_wallet.address, [], identifier)
 
       assert balances == []
     end
@@ -64,8 +74,14 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
       token_2 =
         insert(:token, %{blockchain_address: "0x0000000000000000000000000000000000000001"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       assert {:ok, blockchain_wallet_with_balances} =
-               BlockchainBalanceLoader.wallet_balances(blockchain_wallet, [token_1, token_2])
+               BlockchainBalanceLoader.wallet_balances(
+                 blockchain_wallet,
+                 [token_1, token_2],
+                 identifier
+               )
 
       assert blockchain_wallet_with_balances.address == blockchain_wallet.address
       assert [balance_token_1, balance_token_2] = blockchain_wallet_with_balances.balances
@@ -88,9 +104,10 @@ defmodule EWallet.Web.BlockchainBalanceLoaderTest do
 
       wallets = [blockchain_wallet_1, blockchain_wallet_2]
       tokens = [token_1, token_2]
+      identifier = BlockchainHelper.rootchain_identifier()
 
       assert {:ok, wallets_with_balances} =
-               BlockchainBalanceLoader.wallet_balances(wallets, tokens)
+               BlockchainBalanceLoader.wallet_balances(wallets, tokens, identifier)
 
       assert [wallet_with_balances_1, wallet_with_balances_2] = wallets_with_balances
       assert wallet_with_balances_1.address == blockchain_wallet_1.address

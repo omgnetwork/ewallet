@@ -478,6 +478,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "blockchain:exchange_not_allowed",
       description: "Blockchain exchanges aren't currently allowed."
     },
+    blockchain_invalid_identifier: %{
+      code: "blockchain:invalid_identifier",
+      description: "The given blockchain identifier is invalid."
+    },
     invalid_blockchain_address: %{
       code: "blockchain:invalid_address",
       description: "The given blockchain address is not in a valid format."
@@ -489,6 +493,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     blockchain_deposit_wallet_for_burn_wallet_not_allowed: %{
       code: "blockchain:deposit_wallet_for_burn_wallet_not_allowed",
       description: "Generating a deposit wallet for a burn wallet is not allowed."
+    },
+    insufficient_funds_in_hot_wallet: %{
+      code: "blockchain:insufficient_funds",
+      description: "Not enough funds in the hot wallet to perfom this operation."
     }
   }
 

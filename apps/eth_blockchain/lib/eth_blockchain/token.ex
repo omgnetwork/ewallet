@@ -17,59 +17,70 @@ defmodule EthBlockchain.Token do
   import Utils.Helpers.Encoding
   import EthBlockchain.ErrorHandler
 
-  alias EthBlockchain.{Adapter, ABIEncoder}
+  alias EthBlockchain.{AdapterServer, ABIEncoder}
   alias ABI.{TypeDecoder, FunctionSelector}
 
-  @allowed_fields ["name", "symbol", "decimals", "totalSupply"]
+  @allowed_fields ["name", "symbol", "decimals", "totalSupply", "mintingFinished"]
 
   @doc """
   Attempt to query the value of the field for the given contract address.
-  Possible fields are: "name", "symbol", "decimals", "totalSupply"
+  Possible fields are: "name", "symbol", "decimals", "totalSupply", "mintingFinished"
   Returns {:ok, value} if found.
   If the given field is not allowed, returns {:error, :invalid_field}
   If the given field cannot be found in the contract, returns: {:error, :field_not_found}
   """
-  @spec get_field(map(), atom() | nil, pid() | nil) ::
+  @spec get_field(map(), list()) ::
           {atom(), String.t()} | {atom(), atom()} | {atom(), atom(), String.t()}
-  def get_field(attrs, adapter \\ nil, pid \\ nil)
+  def get_field(attrs, opts \\ [])
 
-  def get_field(%{field: field, contract_address: contract_address}, adapter, pid)
+  def get_field(%{field: field, contract_address: contract_address}, opts)
       when field in @allowed_fields do
     case ABIEncoder.get_field(field) do
       {:ok, encoded_abi_data} ->
         {:get_field, contract_address, to_hex(encoded_abi_data)}
-        |> Adapter.call(adapter, pid)
-        |> parse_response(field, adapter, pid)
+        |> AdapterServer.eth_call(opts)
+        |> parse_response(field, opts)
 
       error ->
         error
     end
   end
 
-  def get_field(_, _, _), do: {:error, :invalid_field}
+  def get_field(_, _), do: {:error, :invalid_field}
 
-  defp parse_response({:ok, "0x" <> ""}, _field, _adapter, _pid) do
+  def locked?(attrs, opts \\ []) do
+    attrs
+    |> Map.put(:field, "mintingFinished")
+    |> get_field(opts)
+  end
+
+  defp parse_response({:ok, "0x" <> ""}, _field, _opts) do
     {:error, :field_not_found}
   end
 
-  defp parse_response({:ok, "0x" <> data}, "decimals", _adapter, _pid) do
+  defp parse_response({:ok, "0x" <> data}, "decimals", _opts) do
     [decimals] = decode_abi(data, [{:uint, 256}])
     {:ok, decimals}
   end
 
-  defp parse_response({:ok, "0x" <> data}, "totalSupply", _adapter, _pid) do
+  defp parse_response({:ok, "0x" <> data}, "totalSupply", _opts) do
     [supply] = decode_abi(data, [{:uint, 256}])
     {:ok, supply}
   end
 
-  defp parse_response({:ok, "0x" <> data}, _field, _adapter, _pid) do
+  defp parse_response({:ok, "0x" <> data}, "mintingFinished", _opts) do
+    [result] = decode_abi(data, [:bool])
+    {:ok, result}
+  end
+
+  defp parse_response({:ok, "0x" <> data}, _field, _opts) do
     [{str}] = decode_abi(data, [{:tuple, [:string]}])
     {:ok, str}
   end
 
-  defp parse_response({:error, code}, _field, _adapter, _pid), do: handle_error(code)
+  defp parse_response({:error, code}, _field, _opts), do: handle_error(code)
 
-  defp parse_response({:error, code, description}, _field, _adapter, _pid),
+  defp parse_response({:error, code, description}, _field, _opts),
     do: handle_error(code, description)
 
   defp decode_abi(data, types) do

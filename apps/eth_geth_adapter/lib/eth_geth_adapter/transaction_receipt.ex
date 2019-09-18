@@ -13,12 +13,13 @@
 # limitations under the License.
 
 defmodule EthGethAdapter.TransactionReceipt do
-  @moduledoc false
+  @moduledoc """
+  Represents a receipt of an ethereum transaction
+  """
 
   import Utils.Helpers.Encoding
 
   alias Ethereumex.HttpClient, as: Client
-  alias EthGethAdapter.TransactionReceipt
 
   defstruct block_hash: nil,
             block_number: nil,
@@ -71,7 +72,7 @@ defmodule EthGethAdapter.TransactionReceipt do
   end
 
   defp parse_receipt(receipt) do
-    %TransactionReceipt{
+    %__MODULE__{
       block_hash: receipt["blockHash"],
       block_number: int_from_hex(receipt["blockNumber"]),
       contract_address: receipt["contractAddress"],

@@ -130,7 +130,8 @@ defmodule AdminAPI.V1.TokenController do
     with {:ok, _} <- authorize(:set_blockchain_address, conn.assigns, attrs),
          :ok <- BlockchainHelper.validate_blockchain_address(blockchain_address),
          {:ok, status} <- TokenGate.validate_erc20_readiness(blockchain_address, attrs),
-         attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
+         attrs <-
+           Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier()),
          attrs <- Map.put(attrs, "blockchain_status", status),
          {:ok, token} <- Token.insert(attrs) do
       respond_single(token, conn)
@@ -238,7 +239,8 @@ defmodule AdminAPI.V1.TokenController do
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
          {:ok, blockchain_status} <-
            TokenGate.validate_erc20_readiness(blockchain_address, token),
-         attrs <- Map.put(attrs, "blockchain_identifier", BlockchainHelper.identifier()),
+         attrs <-
+           Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier()),
          attrs <- Map.put(attrs, "blockchain_status", blockchain_status),
          {:ok, updated} <- Token.set_blockchain_address(token, attrs) do
       respond_single(updated, conn)

@@ -14,7 +14,7 @@
 
 defmodule AdminAPI.StatusController do
   use AdminAPI, :controller
-  alias EthBlockchain.Status
+  alias EWallet.BlockchainHelper
 
   def status(conn, _attrs) do
     json(conn, %{
@@ -34,7 +34,7 @@ defmodule AdminAPI.StatusController do
   end
 
   defp ethereum_status do
-    case Status.get_status() do
+    case BlockchainHelper.call(:get_status) do
       {:ok, status} -> status
       _ -> false
     end

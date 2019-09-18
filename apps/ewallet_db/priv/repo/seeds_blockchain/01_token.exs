@@ -26,7 +26,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
 
   def run(writer, _args) do
     adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-    identifier = adapter.helper().identifier()
+    identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
     token = adapter.helper().default_token()
     token = Map.put(token, :blockchain_identifier, identifier)
     run_with(writer, token)

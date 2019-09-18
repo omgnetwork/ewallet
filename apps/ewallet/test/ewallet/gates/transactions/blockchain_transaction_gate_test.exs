@@ -38,7 +38,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
       mint!(primary_blockchain_token)
@@ -51,6 +51,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => master_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -89,7 +90,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
@@ -97,6 +98,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -124,6 +126,101 @@ defmodule EWallet.BlockchainTransactionGateTest do
       end
     end
 
+    test "submits a childchain transaction to the blockchain subapp (hot wallet plasma to blockchain plasma address)",
+         meta do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
+
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.external()
+      assert transaction.blockchain_identifier == cc_identifier
+      assert transaction.confirmations_count == nil
+
+      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
+      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+
+      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = res
+
+      ref = Process.monitor(blockchain_listener_pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.confirmations_count == 13
+          assert transaction.status == TransactionState.confirmed()
+      end
+    end
+
+    test "returns an error for a childchain transaction if there is no balance for the token" do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000999")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
+    end
+
+    test "returns an error for a childchain transaction if there is not enough funds for the transaction" do
+      # TODO: switch to using the seeded Ethereum address
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      cc_identifier = BlockchainHelper.childchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => cc_identifier,
+        "amount" => 125,
+        "originator" => %System{}
+      }
+
+      assert {:error, :insufficient_funds_in_hot_wallet} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
+    end
+
     test "returns an error when trying to exchange" do
       admin = insert(:admin, global_role: "super_admin")
 
@@ -131,7 +228,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
@@ -139,6 +236,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "from_token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "to_token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
@@ -154,7 +252,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
@@ -162,6 +260,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "from_amount" => 1,
         "to_amount" => 2,
         "originator" => %System{}
@@ -182,7 +281,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
@@ -190,6 +289,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
+        "blockchain_identifier" => identifier,
         "amount" => 125,
         "originator" => %System{}
       }
@@ -202,13 +302,14 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
       token = insert(:token)
 
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
+        "blockchain_identifier" => identifier,
         "token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
@@ -222,7 +323,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   describe "create_from_tracker/2" do
     test "creates the blockchain transaction and tracks it" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
       tx_hash = Crypto.fake_eth_address()
 
@@ -267,7 +368,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "creates the local transaction and starts tracking the blockchain transaction" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, wallet} =
@@ -320,7 +421,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "creates the local transaction and confirms it right away when enough confirmations" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, wallet} =
@@ -370,7 +471,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   describe "get_or_insert/1" do
     test "returns a newly inserted local transaction if the idempotency_token is new" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, wallet} =
@@ -409,7 +510,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "returns the existing local transaction if the idempotency_token already exists" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, wallet} =
@@ -473,7 +574,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
   describe "handle_local_insert/1" do
     test "transitions the transaction to confirmed if transaction.to is nil" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
       tx_hash = Crypto.fake_eth_address()
 
@@ -511,7 +612,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
     test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil" do
       token = insert(:token)
-      identifier = BlockchainHelper.identifier()
+      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, wallet} =

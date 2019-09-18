@@ -290,6 +290,8 @@ paths:
     $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.all'
   /blockchain_wallet.create:
     $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.create'
+  /blockchain_wallet.deposit_to_childchain:
+    $ref: 'blockchain_wallet/paths.yaml#/blockchain_wallet.deposit_to_childchain'
 
   # TRANSACTION
   /transaction.all:

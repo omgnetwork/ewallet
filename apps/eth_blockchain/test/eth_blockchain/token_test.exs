@@ -18,7 +18,7 @@ defmodule EthBlockchain.TokenTest do
   alias EthBlockchain.Token
   alias Utils.Helpers.Crypto
 
-  describe "get_field/3" do
+  describe "get_field/2" do
     test "get a valid field with the given adapter spec", state do
       resp =
         Token.get_field(
@@ -26,8 +26,7 @@ defmodule EthBlockchain.TokenTest do
             field: "name",
             contract_address: Crypto.fake_eth_address()
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:ok, "OMGToken"}
@@ -40,8 +39,7 @@ defmodule EthBlockchain.TokenTest do
             field: "invalid field",
             contract_address: Crypto.fake_eth_address()
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:error, :invalid_field}
@@ -54,8 +52,7 @@ defmodule EthBlockchain.TokenTest do
             field: "name",
             contract_address: DumbAdapter.invalid_erc20_contract_address()
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:error, :field_not_found}
@@ -68,9 +65,16 @@ defmodule EthBlockchain.TokenTest do
                    field: "name",
                    contract_address: Crypto.fake_eth_address()
                  },
-                 :blah,
-                 state[:pid]
+                 state[:invalid_adapter_opts]
                )
+    end
+  end
+
+  describe "locked?/2" do
+    test "returns a boolean indicating if the minting is still possible or not", state do
+      resp = Token.locked?(%{contract_address: Crypto.fake_eth_address()}, state[:adapter_opts])
+
+      assert resp == {:ok, true}
     end
   end
 end

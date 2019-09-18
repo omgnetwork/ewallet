@@ -18,7 +18,7 @@ defmodule EWallet.BlockchainStateGateTest do
   alias EWallet.{BlockchainHelper, BlockchainStateGate}
   alias EWalletDB.BlockchainState
 
-  @identifier BlockchainHelper.identifier()
+  @identifier BlockchainHelper.rootchain_identifier()
 
   setup do
     # As test default, the blockchain state's block number is higher than the latest transaction's

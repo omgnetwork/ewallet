@@ -110,11 +110,9 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, :success, receipt}, reg}
   end
 
-  def handle_call({:send_raw, data}, _from, reg) do
-    # Here we just pass the encoded data in the response for testing purpose.
-    # When doing a real transaction, this will not be the case,
-    # the transaction hash will be returned instead.
-    {:reply, {:ok, data}, reg}
+  def handle_call({:send_raw, _data}, _from, reg) do
+    data = 32 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
+    {:reply, {:ok, "0x" <> data}, reg}
   end
 
   # name
@@ -157,6 +155,12 @@ defmodule EthBlockchain.DumbAdapter do
      {:ok,
       "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034f4d470000000000000000000000000000000000000000000000000000000000"},
      reg}
+  end
+
+  # minting finished
+  def handle_call({:get_field, _, "0x05d2035b"}, _from, reg) do
+    # "0x05d2035b" is the hex encoded value of the ABI encoded "finishMinting()"
+    {:reply, {:ok, "0x0000000000000000000000000000000000000000000000000000000000000001"}, reg}
   end
 
   def handle_call({:get_eth_syncing}, _from, reg) do

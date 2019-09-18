@@ -27,7 +27,7 @@ defmodule EthBlockchain.Nonce do
 
   import Utils.Helpers.Encoding
 
-  alias EthBlockchain.Adapter
+  alias EthBlockchain.AdapterServer
 
   def start_link(opts) do
     args = Keyword.get(opts, :args, %{})
@@ -92,12 +92,12 @@ defmodule EthBlockchain.Nonce do
     GenServer.call(pid, :force_refresh)
   end
 
-  defp get_nonce(address, node_adapter, blockchain_adapter_pid) do
+  defp get_nonce(address, eth_node_adapter, eth_node_adapter_pid) do
     with {:ok, nonce} <-
-           Adapter.call(
+           AdapterServer.eth_call(
              {:get_transaction_count, address, "pending"},
-             node_adapter,
-             blockchain_adapter_pid
+             eth_node_adapter: eth_node_adapter,
+             eth_node_adapter_pid: eth_node_adapter_pid
            ) do
       {:ok, int_from_hex(nonce)}
     end

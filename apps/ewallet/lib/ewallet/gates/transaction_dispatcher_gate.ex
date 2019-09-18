@@ -18,6 +18,7 @@ defmodule EWallet.TransactionDispatcherGate do
   actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
   """
   alias EWallet.{
+    BlockchainHelper,
     LocalTransactionGate,
     BlockchainTransactionGate
   }
@@ -28,7 +29,30 @@ defmodule EWallet.TransactionDispatcherGate do
         LocalTransactionGate.create(actor, attrs)
 
       [from, to] ->
-        BlockchainTransactionGate.create(actor, attrs, {from, to})
+        create_blockchain_tx(actor, attrs, {from, to})
     end
+  end
+
+  defp create_blockchain_tx(
+         actor,
+         %{"blockchain_identifier" => blockchain_identifier} = attrs,
+         address_validation
+       ) do
+    case blockchain_identifier in [
+           BlockchainHelper.rootchain_identifier(),
+           BlockchainHelper.childchain_identifier()
+         ] do
+      true ->
+        BlockchainTransactionGate.create(actor, attrs, address_validation)
+
+      false ->
+        {:error, :invalid_parameter,
+         "Invalid parameter provided. `blockchain_identifier` is invalid."}
+    end
+  end
+
+  defp create_blockchain_tx(actor, attrs, address_validation) do
+    attrs = Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier())
+    create_blockchain_tx(actor, attrs, address_validation)
   end
 end

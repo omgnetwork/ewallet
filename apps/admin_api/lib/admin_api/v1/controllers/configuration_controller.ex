@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.ConfigurationController do
   defp validate_primary_hot_wallet(
          {%{"primary_hot_wallet" => primary_hot_wallet_address} = attrs, errors}
        ) do
-    identifier = BlockchainHelper.identifier()
+    identifier = BlockchainHelper.rootchain_identifier()
 
     case BlockchainWallet.get(primary_hot_wallet_address, "hot", identifier) do
       nil ->

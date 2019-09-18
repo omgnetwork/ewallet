@@ -15,27 +15,26 @@
 defmodule EthBlockchain.Block do
   @moduledoc false
   import Utils.Helpers.Encoding
-  alias EthBlockchain.{Adapter, Helper}
+  alias EthBlockchain.{AdapterServer, Helper}
 
-  def get_number(adapter \\ nil, pid \\ nil) do
-    case Adapter.call({:get_block_number}, adapter, pid) do
+  def get_number(opts \\ []) do
+    case AdapterServer.eth_call({:get_block_number}, opts) do
       {:ok, number} -> {:ok, int_from_hex(number)}
       error -> error
     end
   end
 
-  def get(number, adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_block, number}, adapter, pid)
+  def get(number, opts \\ []) do
+    AdapterServer.eth_call({:get_block, number}, opts)
   end
 
   def get_transactions(
         %{
           blk_number: blk_number
         } = attrs,
-        adapter \\ nil,
-        pid \\ nil
+        opts \\ []
       ) do
-    case get(blk_number, adapter, pid) do
+    case get(blk_number, opts) do
       {:ok, nil} ->
         {:error, :block_not_found}
 

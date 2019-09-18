@@ -4,6 +4,9 @@ config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
   blockchain_adapter: EthBlockchain.Adapter,
+  # TODO: move this to config / refactor
+  rootchain_identifier: "ethereum",
+  childchain_identifier: "omisego_network",
   settings: [
     :base_url,
     :primary_hot_wallet,

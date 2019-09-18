@@ -140,7 +140,7 @@ defmodule AdminAPI.ConnCase do
         name: "Hot Wallet",
         address: address,
         public_key: public_key,
-        blockchain_identifier: BlockchainHelper.identifier(),
+        blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         type: "hot",
         originator: %ActivityLogger.System{}
       })
@@ -152,7 +152,7 @@ defmodule AdminAPI.ConnCase do
     {:ok, _} =
       BlockchainHDWallet.insert(%{
         keychain_uuid: keychain_hd_wallet_uuid,
-        blockchain_identifier: BlockchainHelper.identifier(),
+        blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %System{}
       })
 

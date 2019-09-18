@@ -29,19 +29,41 @@ defmodule EWallet.BlockchainHelper do
   end
 
   @doc """
-  Returns the blockchain identifier corresponding to the default adapter
+  Returns :ok if the given identifier is supported by the system
+  or {:error, :blockchain_invalid_identifier} otherwise.
   """
-  def identifier do
-    adapter().helper().identifier()
+  def validate_identifier(identifier) do
+    case identifier in [rootchain_identifier(), childchain_identifier()] do
+      true -> :ok
+      false -> {:error, :blockchain_invalid_identifier}
+    end
+  end
+
+  @doc """
+  Returns the main rootchain identifier
+  """
+  def rootchain_identifier do
+    Application.get_env(:ewallet_db, :rootchain_identifier)
+  end
+
+  @doc """
+  Returns the main childchain identifier
+  """
+  def childchain_identifier do
+    Application.get_env(:ewallet_db, :childchain_identifier)
   end
 
   @doc """
   Call the default blockchain adapter with the specifed function spec
   and the default node adapter
   """
-  def call(func_name, func_attrs \\ %{}, pid \\ nil, node_adapter \\ nil) do
-    node_adapter = node_adapter || Application.get_env(:ewallet, :node_adapter)
-    adapter().call({func_name, func_attrs}, node_adapter, pid)
+  def call(func_name, func_attrs \\ %{}, opts \\ []) do
+    opts =
+      opts
+      |> Keyword.put_new(:eth_node_adapter, Application.get_env(:ewallet, :eth_node_adapter))
+      |> Keyword.put_new(:cc_node_adapter, Application.get_env(:ewallet, :cc_node_adapter))
+
+    adapter().call({func_name, func_attrs}, opts)
   end
 
   @doc """

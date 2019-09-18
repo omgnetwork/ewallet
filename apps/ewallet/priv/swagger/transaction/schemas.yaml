@@ -6,6 +6,8 @@ TransactionSchema:
       type: string
     id:
       type: string
+    type:
+      type: string
     from:
       type: object
       properties:
@@ -60,6 +62,7 @@ TransactionSchema:
   required:
     - object
     - id
+    - type
     - idempotency_token
     - from
     - to
