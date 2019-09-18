@@ -63,29 +63,26 @@ defmodule Keychain.Wallet do
     :crypto.generate_key(:ecdh, :secp256k1, :crypto.strong_rand_bytes(32))
   end
 
-  @spec generate_hd :: {:ok, <<_::288>>}
+  @spec generate_hd :: {:ok, String.t()}
   def generate_hd do
     %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
     public_key = CKD.derive(root_key, @root_derivation_path)
     wallet_address = Address.from_xpub(public_key)
     uuid = UUID.generate()
 
-    {:ok, _} =
-      Key.insert(%{
-        wallet_id: wallet_address,
-        public_key: public_key,
-        private_key: root_key,
-        uuid: uuid
-      })
-
-    {:ok, uuid}
+    Key.insert(%{
+      wallet_id: wallet_address,
+      public_key: public_key,
+      private_key: root_key,
+      uuid: uuid
+    })
   end
 
-  @spec derive_child_address(any, any, any) :: String.t() | {:error, :key_not_found}
-  def derive_child_address(uuid, account_ref, deposit_ref) do
-    case Key.public_key_for_uuid(uuid) do
+  @spec derive_child_address(String.t(), integer(), integer()) :: String.t() | {:error, :key_not_found}
+  def derive_child_address(wallet_id, account_ref, deposit_ref) do
+    case Key.public_key_for_wallet_id(wallet_id) do
       nil ->
-        {:error, :invalid_uuid}
+        {:error, :key_not_found}
 
       public_key ->
         path = "M/#{account_ref}/#{deposit_ref}"

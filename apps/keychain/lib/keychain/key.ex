@@ -44,7 +44,7 @@ defmodule Keychain.Key do
   @doc """
   Retrieve a private key using wallet ID.
   """
-  def private_key_for_wallet(wallet_id) do
+  def private_key_for_wallet_id(wallet_id) do
     Key
     |> select([k], k.private_key)
     |> where([k], k.wallet_id == ^wallet_id)

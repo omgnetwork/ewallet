@@ -49,10 +49,10 @@ defmodule Keychain.WalletTest do
   describe "generate_hd/0" do
     test "inserts a Key record and returns the uuid" do
       count = Repo.aggregate(Key, :count, :wallet_id)
-      {:ok, uuid} = Wallet.generate_hd()
+      {:ok, hd_wallet} = Wallet.generate_hd()
 
       assert Repo.aggregate(Key, :count, :wallet_id) == count + 1
-      assert byte_size(uuid) == 36
+      assert byte_size(hd_wallet.uuid) == 36
     end
   end
 
@@ -62,13 +62,13 @@ defmodule Keychain.WalletTest do
         "xpub6EGmE1yp5TMVqfoZwbQLDvSu411rZejQoGUCqFfuC71XNXN2ddMHxWqFUTtQEbL3ksL3dgDjqjTcFxFkuZ3mecaNdjvqYNWQbq3EoQCeuT5"
 
       key = insert(:hd_key, public_key: public_key)
-      address = Wallet.derive_child_address(key.uuid, 0, 0)
+      address = Wallet.derive_child_address(key.wallet_id, 0, 0)
 
       assert address == "0x42bbec7435986ad45d921d64fd130afd046f8d48"
     end
 
-    test "returns :invalid_uuid error if the given uuid could not be found" do
-      assert Wallet.derive_child_address(UUID.generate(), 0, 0) == {:error, :invalid_uuid}
+    test "returns :invalid_uuid error if the given wallet_id could not be found" do
+      assert Wallet.derive_child_address("invalid_id", 0, 0) == {:error, :key_not_found}
     end
   end
 end

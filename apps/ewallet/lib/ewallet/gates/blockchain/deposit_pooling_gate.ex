@@ -133,7 +133,7 @@ defmodule EWallet.DepositPoolingGate do
       gas_limit: transaction.gas_limit,
       gas_price: transaction.gas_price,
       wallet: %{
-        wallet_uuid: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
+        wallet_id: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_id,
         derivation_path: Wallet.root_derivation_path(),
         account_ref: blockchain_deposit_wallet.path_ref,
         deposit_ref: 0

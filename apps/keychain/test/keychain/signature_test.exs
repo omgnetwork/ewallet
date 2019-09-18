@@ -15,7 +15,6 @@
 defmodule Keychain.SignatureTest do
   use Keychain.DBCase
   import Keychain.Factory
-  alias Ecto.UUID
   alias ExthCrypto.Hash.Keccak
   alias Keychain.Signature
 
@@ -24,7 +23,7 @@ defmodule Keychain.SignatureTest do
       key = insert(:key)
       hash = Keccak.kec("some data")
 
-      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_id)
+      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_id, 0)
 
       assert is_integer(v)
       assert is_integer(r)
@@ -42,12 +41,13 @@ defmodule Keychain.SignatureTest do
     end
   end
 
-  describe "sign_with_child_key/5" do
-    test "returns an ECDSA signature when given hash, wallet_uuid and child key specified via account_ref & deposit_ref" do
+  describe "sign_transaction_hash/6" do
+    test "returns an ECDSA signature when given hash, wallet_id and child key specified via account_ref & deposit_ref" do
       key = insert(:hd_key)
       hash = Keccak.kec("some data")
 
-      {:ok, {v, r, s}} = Signature.sign_with_child_key(hash, key.uuid, "M/44'/60'/0'/0'", 0, 0)
+      {:ok, {v, r, s}} =
+        Signature.sign_transaction_hash(hash, key.wallet_id, "M/44'/60'/0'/0'", 0, 0, 0)
 
       assert is_integer(v)
       assert is_integer(r)
@@ -57,11 +57,11 @@ defmodule Keychain.SignatureTest do
       assert byte_size(:binary.encode_unsigned(s)) == 32
     end
 
-    test "returns :invalid_uuid error if the uuid could not be found" do
+    test "returns :invalid_address error if the uuid could not be found" do
       hash = Keccak.kec("some data")
-      result = Signature.sign_with_child_key(hash, UUID.generate(), "M/44'/60'/0'/0'", 0, 0)
+      result = Signature.sign_transaction_hash(hash, "invalid address", "M/44'/60'/0'/0'", 0, 0)
 
-      assert result == {:error, :invalid_uuid}
+      assert result == {:error, :invalid_address}
     end
   end
 

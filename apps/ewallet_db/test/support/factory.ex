@@ -138,7 +138,7 @@ defmodule EWalletDB.Factory do
   def blockchain_hd_wallet_factory do
     %BlockchainHDWallet{
       blockchain_identifier: "dumb",
-      keychain_uuid: UUID.generate()
+      keychain_id: sequence("keychain_id_")
     }
   end
 
