@@ -221,7 +221,13 @@ defmodule EthBlockchain.Transaction do
     result =
       transaction
       |> transaction_hash(chain_id)
-      |> Signature.sign_with_child_key(wallet_uuid, derivation_path, account_ref, deposit_ref, chain_id)
+      |> Signature.sign_with_child_key(
+        wallet_uuid,
+        derivation_path,
+        account_ref,
+        deposit_ref,
+        chain_id
+      )
 
     case result do
       {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}

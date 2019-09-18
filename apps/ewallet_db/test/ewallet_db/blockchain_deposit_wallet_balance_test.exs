@@ -55,16 +55,26 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       wallet = insert(:blockchain_deposit_wallet)
       token_1 = insert(:token)
       token_2 = insert(:token)
+
       balance_data = [
         %{token: token_1, amount: 100},
         %{token: token_2, amount: 200}
       ]
 
-      balances = BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
+      balances =
+        BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
 
-      assert Enum.all?(balances, fn {:ok, b} -> b.blockchain_deposit_wallet_address == wallet.address end)
-      assert Enum.any?(balances, fn {:ok, b} -> b.token_uuid == token_1.uuid && b.amount == 100 end)
-      assert Enum.any?(balances, fn {:ok, b} -> b.token_uuid == token_2.uuid && b.amount == 200 end)
+      assert Enum.all?(balances, fn {:ok, b} ->
+               b.blockchain_deposit_wallet_address == wallet.address
+             end)
+
+      assert Enum.any?(balances, fn {:ok, b} ->
+               b.token_uuid == token_1.uuid && b.amount == 100
+             end)
+
+      assert Enum.any?(balances, fn {:ok, b} ->
+               b.token_uuid == token_2.uuid && b.amount == 200
+             end)
     end
 
     test "updates the balances with the given wallet address and balances" do
@@ -72,19 +82,39 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       token_1 = insert(:token)
       token_2 = insert(:token)
 
-      _ = insert(:blockchain_deposit_wallet_balance, token: token_1, amount: 99, blockchain_deposit_wallet: wallet)
-      _ = insert(:blockchain_deposit_wallet_balance, token: token_2, amount: 99, blockchain_deposit_wallet: wallet)
+      _ =
+        insert(:blockchain_deposit_wallet_balance,
+          token: token_1,
+          amount: 99,
+          blockchain_deposit_wallet: wallet
+        )
+
+      _ =
+        insert(:blockchain_deposit_wallet_balance,
+          token: token_2,
+          amount: 99,
+          blockchain_deposit_wallet: wallet
+        )
 
       balance_data = [
         %{token: token_1, amount: 100},
         %{token: token_2, amount: 200}
       ]
 
-      balances = BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
+      balances =
+        BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
 
-      assert Enum.all?(balances, fn {:ok, b} -> b.blockchain_deposit_wallet_address == wallet.address end)
-      assert Enum.any?(balances, fn {:ok, b} -> b.token_uuid == token_1.uuid && b.amount == 100 end)
-      assert Enum.any?(balances, fn {:ok, b} -> b.token_uuid == token_2.uuid && b.amount == 200 end)
+      assert Enum.all?(balances, fn {:ok, b} ->
+               b.blockchain_deposit_wallet_address == wallet.address
+             end)
+
+      assert Enum.any?(balances, fn {:ok, b} ->
+               b.token_uuid == token_1.uuid && b.amount == 100
+             end)
+
+      assert Enum.any?(balances, fn {:ok, b} ->
+               b.token_uuid == token_2.uuid && b.amount == 200
+             end)
     end
   end
 end

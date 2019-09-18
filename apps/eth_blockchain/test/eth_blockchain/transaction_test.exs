@@ -186,18 +186,17 @@ defmodule EthBlockchain.TransactionTest do
       from_address = Wallet.derive_child_address(wallet_uuid, 0, 0)
       {:ok, {to_address, _}} = Wallet.generate()
 
-      attrs =
-        %{
-          from: from_address,
-          to: to_address,
-          amount: 100,
-          wallet: %{
-            derivation_path: "M/44'/60'/0'/0'",
-            wallet_uuid: wallet_uuid,
-            account_ref: 0,
-            deposit_ref: 0
-          }
+      attrs = %{
+        from: from_address,
+        to: to_address,
+        amount: 100,
+        wallet: %{
+          derivation_path: "M/44'/60'/0'/0'",
+          wallet_uuid: wallet_uuid,
+          account_ref: 0,
+          deposit_ref: 0
         }
+      }
 
       assert {:ok, _} = Transaction.send(attrs, :dumb, state[:pid])
     end

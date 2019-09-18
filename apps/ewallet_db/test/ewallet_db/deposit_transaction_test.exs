@@ -37,8 +37,7 @@ defmodule EWalletDB.DepositTransactionTest do
     test "returns a deposit transaction by the given fields" do
       inserted = insert(:deposit_transaction)
 
-      transaction =
-        DepositTransaction.get_by(uuid: inserted.uuid)
+      transaction = DepositTransaction.get_by(uuid: inserted.uuid)
 
       assert transaction.id == inserted.id
     end
@@ -54,18 +53,40 @@ defmodule EWalletDB.DepositTransactionTest do
       wallet = insert(:blockchain_deposit_wallet)
 
       # Transactions that are not finalized and match the address
-      dtx_1 = insert(:deposit_transaction, status: TransactionState.pending_confirmations(), to_deposit_wallet: wallet)
-      dtx_2 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed(), to_deposit_wallet: wallet)
+      dtx_1 =
+        insert(:deposit_transaction,
+          status: TransactionState.pending_confirmations(),
+          to_deposit_wallet: wallet
+        )
+
+      dtx_2 =
+        insert(:deposit_transaction,
+          status: TransactionState.blockchain_confirmed(),
+          to_deposit_wallet: wallet
+        )
 
       # Transactions that are not finalized but have a differing address
       dtx_3 = insert(:deposit_transaction, status: TransactionState.pending_confirmations())
       dtx_4 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed())
 
       # Transactions that are excluded but does match the address
-      dtx_5 = insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
-      dtx_6 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted(), to_deposit_wallet: wallet)
-      dtx_7 = insert(:deposit_transaction, status: TransactionState.confirmed(), to_deposit_wallet: wallet)
-      dtx_8 = insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
+      dtx_5 =
+        insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
+
+      dtx_6 =
+        insert(:deposit_transaction,
+          status: TransactionState.blockchain_submitted(),
+          to_deposit_wallet: wallet
+        )
+
+      dtx_7 =
+        insert(:deposit_transaction,
+          status: TransactionState.confirmed(),
+          to_deposit_wallet: wallet
+        )
+
+      dtx_8 =
+        insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
 
       txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
 
@@ -82,7 +103,9 @@ defmodule EWalletDB.DepositTransactionTest do
 
   describe "get_error/1" do
     test "returns a tuple with code and description when transaction has error code and description" do
-      transaction = insert(:deposit_transaction, error_code: "code", error_description: "description")
+      transaction =
+        insert(:deposit_transaction, error_code: "code", error_description: "description")
+
       assert DepositTransaction.get_error(transaction) == {"code", "description"}
     end
 
@@ -93,7 +116,11 @@ defmodule EWalletDB.DepositTransactionTest do
 
     test "returns the error description when the transaction has both error description and data" do
       transaction =
-        insert(:deposit_transaction, error_code: "code", error_description: "description", error_data: %{})
+        insert(:deposit_transaction,
+          error_code: "code",
+          error_description: "description",
+          error_data: %{}
+        )
 
       assert DepositTransaction.get_error(transaction) == {"code", "description"}
     end

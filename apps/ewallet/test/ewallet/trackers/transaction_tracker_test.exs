@@ -97,8 +97,13 @@ defmodule EWallet.TransactionTrackerTest do
 
     test "recalculates the deposit wallet's balances when higher than minimum" do
       deposit_wallet = insert(:blockchain_deposit_wallet)
+
       # The initial balance can be anything except 123 which the blockchain dumb adapter always return.
-      balance = insert(:blockchain_deposit_wallet_balance, blockchain_deposit_wallet: deposit_wallet, amount: 100)
+      balance =
+        insert(:blockchain_deposit_wallet_balance,
+          blockchain_deposit_wallet: deposit_wallet,
+          amount: 100
+        )
 
       transaction =
         insert(

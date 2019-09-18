@@ -27,7 +27,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
     Repo,
     BlockchainDepositWalletBalance,
     BlockchainDepositWallet,
-    Token,
+    Token
   }
 
   alias ActivityLogger.System
