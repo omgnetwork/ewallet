@@ -30,7 +30,7 @@ defmodule EthBlockchain.TransactionTest do
     |> Map.put(:adapter_opts, overwritten_opts)
   end
 
-  describe "create_contract/3" do
+  describe "create_contract/2" do
     test "generates a contract creation transaction", state do
       contract_data = "0x" <> "0123456789abcdef"
 
@@ -58,6 +58,63 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(trx.to) == "0x"
 
       assert contract_address != nil
+    end
+  end
+
+  describe "mint_erc20/2" do
+    test "generates a mint transaction", state do
+      {resp, encoded_trx} =
+        Transaction.mint_erc20(
+          %{from: state[:valid_sender], contract_address: state[:addr_1], amount: 100},
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      trx = decode_transaction_response(encoded_trx)
+
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.init == ""
+      {:ok, data} = ABIEncoder.mint(state[:valid_sender], 100)
+      assert trx.data == data
+
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
+    end
+  end
+
+  describe "lock_erc20/2" do
+    test "generates a `finish_minting` transaction", state do
+      {resp, encoded_trx} =
+        Transaction.lock_erc20(
+          %{from: state[:valid_sender], contract_address: state[:addr_1]},
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      trx = decode_transaction_response(encoded_trx)
+
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.init == ""
+      {:ok, data} = ABIEncoder.finish_minting()
+      assert trx.data == data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+
+      assert trx.gas_limit ==
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
+
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
   end
 

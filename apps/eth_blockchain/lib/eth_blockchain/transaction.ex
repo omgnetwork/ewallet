@@ -214,6 +214,43 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
+  def mint_erc20(
+        %{
+          from: address,
+          amount: amount,
+          contract_address: contract_address
+        } = attrs,
+        opts \\ []
+      ) do
+    with {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
+         {:ok, encoded_abi_data} <- ABIEncoder.mint(address, amount) do
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> prepare_and_send(meta, address, opts)
+      |> respond(address, opts)
+    end
+  end
+
+  def lock_erc20(
+        %{
+          from: address,
+          contract_address: contract_address
+        } = attrs,
+        opts \\ []
+      ) do
+    with {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
+         {:ok, encoded_abi_data} <- ABIEncoder.finish_minting() do
+      %__MODULE__{
+        to: from_hex(contract_address),
+        data: encoded_abi_data
+      }
+      |> prepare_and_send(meta, address, opts)
+      |> respond(address, opts)
+    end
+  end
+
   defp get_transaction_meta(%{from: from} = attrs, gas_limit_type, opts) do
     with {:ok, nonce_handler_pid} <-
            NonceRegistry.lookup(from, opts[:eth_node_adapter], opts[:eth_node_adapter_pid]),
