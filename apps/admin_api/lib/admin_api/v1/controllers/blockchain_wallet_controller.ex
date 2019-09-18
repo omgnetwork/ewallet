@@ -18,9 +18,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy}
-  alias EWalletDB.{BlockchainWallet, Token}
-  alias AdminAPI.V1.BalanceView
+  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy, ChildchainTransactionGate}
+  alias EWalletDB.{BlockchainWallet, Token, Transaction}
+  alias AdminAPI.V1.{BalanceView, TransactionView}
 
   alias EWallet.Web.{
     Orchestrator,
@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   def create(conn, %{"type" => "cold", "address" => _, "name" => _} = attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         identifier <- BlockchainHelper.identifier(),
+         identifier <- BlockchainHelper.rootchain_identifier(),
          attrs <- Map.put(attrs, "blockchain_identifier", identifier),
          {:ok, wallet} <- BlockchainWallet.insert_cold(attrs) do
       respond_single(wallet, conn)
@@ -108,7 +108,9 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- paginated_tokens(attrs),
-         {:ok, data} <- BlockchainBalanceLoader.balances(wallet.address, tokens) do
+         identifier <- attrs["blockchain_identifier"] || BlockchainHelper.rootchain_identifier(),
+         :ok <- BlockchainHelper.validate_identifier(identifier),
+         {:ok, data} <- BlockchainBalanceLoader.balances(wallet.address, tokens, identifier) do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
     else
       {:error, error} -> handle_error(conn, error)
@@ -120,8 +122,33 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
-  defp respond_single(blockchain_wallet, conn) do
+  def deposit_to_childchain(conn, %{"address" => address} = attrs) when not is_nil(address) do
+    with %BlockchainWallet{} = wallet <-
+           BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
+         {:ok, _} <- authorize(:deposit_to_childchain, conn.assigns, wallet),
+         attrs <- Originator.set_in_attrs(attrs, conn.assigns),
+         {:ok, transaction} <- ChildchainTransactionGate.deposit(conn.assigns, attrs) do
+      respond_single(transaction, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+      {:error, error, description} -> handle_error(conn, error, description)
+    end
+  end
+
+  def deposit_to_childchain(conn, _) do
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Invalid parameter provided. `address` is required."
+    )
+  end
+
+  defp respond_single(%BlockchainWallet{} = blockchain_wallet, conn) do
     render(conn, :blockchain_wallet, %{blockchain_wallet: blockchain_wallet})
+  end
+
+  defp respond_single(%Transaction{} = transaction, conn) do
+    render(conn, TransactionView, :transaction, %{transaction: transaction})
   end
 
   defp respond_multiple(%Paginator{} = paged_wallets, conn) do
@@ -129,7 +156,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do
-    identifier = BlockchainHelper.identifier()
+    identifier = BlockchainHelper.rootchain_identifier()
 
     addresses
     |> Token.query_all_by_blockchain_addresses(identifier)
@@ -145,7 +172,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
 
   defp paginated_blockchain_tokens(query, attrs) do
-    BlockchainHelper.identifier()
+    BlockchainHelper.rootchain_identifier()
     |> Token.query_all_blockchain(query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end

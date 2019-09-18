@@ -36,6 +36,7 @@ defmodule EthBlockchain.Adapter do
     Balance,
     Block,
     Contract,
+    Childchain,
     DumbAdapter,
     ErrorHandler,
     Helper,
@@ -174,7 +175,7 @@ defmodule EthBlockchain.Adapter do
   ##
 
   @doc """
-  Handles the call from the client API call/4.
+  Handles the call from the client API.
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do
@@ -200,64 +201,78 @@ defmodule EthBlockchain.Adapter do
   Returns `{:ok, response}` if the request was successful or
   `{:error, error_code}` in case of failure.
   """
-  @spec call(call(), atom() | adapter() | nil) :: resp({:ok, any()})
-  @spec call(call(), atom() | adapter() | nil, server()) :: resp({:ok, any()})
-  def call(func_spec, adapter_spec \\ nil, pid \\ nil)
+  # TODO: Move these calls to a separate file (`adapter.ex`) along with the `subscribe`, `unsubscribe`, ...
+  # and rename this file to `adapter_server.ex`
+  @spec call(call(), list()) :: resp({:ok, any()})
+  def call(func_spec, opts \\ [])
 
-  def call({:get_transactions, attrs}, adapter, pid) do
-    Block.get_transactions(attrs, adapter, pid)
+  def call({:get_transactions, attrs}, opts) do
+    Block.get_transactions(attrs, opts)
   end
 
-  def call({:send, attrs}, adapter, pid) do
-    Transaction.send(attrs, adapter, pid)
+  def call({:get_block, attrs}, opts) do
+    Block.get(attrs, opts)
   end
 
-  def call({:get_balances, attrs}, adapter, pid) do
-    Balance.get(attrs, adapter, pid)
+  def call({:send, attrs}, opts) do
+    Transaction.send(attrs, opts)
   end
 
-  def call({:get_field, attrs}, adapter, pid) do
-    Token.get_field(attrs, adapter, pid)
+  def call({:get_balances, attrs}, opts) do
+    Balance.get(attrs, opts)
   end
 
-  def call({:deploy_erc20, attrs}, adapter, pid) do
-    Contract.deploy_erc20(attrs, adapter, pid)
+  def call({:get_field, attrs}, opts) do
+    Token.get_field(attrs, opts)
   end
 
-  def call(func_spec, nil, pid) do
-    adapter =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:default_adapter)
-
-    call(func_spec, adapter, pid)
+  def call({:deposit_to_childchain, attrs}, opts) do
+    Childchain.deposit(attrs, opts)
   end
 
-  def call(func_spec, adapter_spec, pid) do
-    pid = pid || __MODULE__
+  def call({:transfer_on_childchain, attrs}, opts) do
+    Childchain.send(attrs, opts)
+  end
 
-    case GenServer.call(pid, {:call, adapter_spec, func_spec}) do
-      {:ok, resp} ->
-        resp
+  def call({:get_childchain_balance, attrs}, opts) do
+    Childchain.get_balance(attrs, opts)
+  end
 
-      error ->
-        error
+  def call({:deploy_erc20, attrs}, opts) do
+    Contract.deploy_erc20(attrs, opts)
+  end
+
+  def call({:get_childchain_contract_address, _attrs}, opts) do
+    childchain_call({:get_contract_address}, opts)
+  end
+
+  def eth_call(func_spec, opts) do
+    with opts <- process_adapter_opts(opts),
+         {:ok, resp} <-
+           GenServer.call(
+             opts[:eth_node_adapter_pid],
+             {:call, opts[:eth_node_adapter], func_spec}
+           ) do
+      resp
     end
   end
 
-  def subscribe(
-        :transaction,
-        tx_hash,
-        subscriber_pid,
-        node_adapter \\ nil,
-        blockchain_adapter_pid \\ nil
-      ) do
+  def childchain_call(func_spec, opts) do
+    with opts <- process_adapter_opts(opts),
+         {:ok, resp} <-
+           GenServer.call(opts[:cc_node_adapter_pid], {:call, opts[:cc_node_adapter], func_spec}) do
+      resp
+    end
+  end
+
+  def subscribe(:transaction, tx_hash, is_childchain_transaction, subscriber_pid, opts \\ []) do
     :ok =
       BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
+        is_childchain_transaction: is_childchain_transaction,
         interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
-        blockchain_adapter_pid: blockchain_adapter_pid,
-        node_adapter: node_adapter
+        blockchain_adapter_pid: opts[:eth_node_adapter_pid],
+        node_adapter: opts[:eth_node_adapter]
       })
 
     BlockchainRegistry.subscribe(tx_hash, subscriber_pid)
@@ -269,5 +284,15 @@ defmodule EthBlockchain.Adapter do
 
   def lookup_listener(tx_hash) do
     BlockchainRegistry.lookup(tx_hash)
+  end
+
+  defp process_adapter_opts(opts) do
+    conf = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+
+    opts
+    |> Keyword.put(:eth_node_adapter, opts[:eth_node_adapter] || conf[:default_eth_node_adapter])
+    |> Keyword.put(:eth_node_adapter_pid, opts[:eth_node_adapter_pid] || __MODULE__)
+    |> Keyword.put(:cc_node_adapter, opts[:cc_node_adapter] || conf[:default_cc_node_adapter])
+    |> Keyword.put(:cc_node_adapter_pid, opts[:cc_node_adapter_pid] || __MODULE__)
   end
 end

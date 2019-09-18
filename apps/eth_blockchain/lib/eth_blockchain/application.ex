@@ -21,14 +21,14 @@ defmodule EthBlockchain.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:eth_blockchain)
 
-    adapters =
-      :eth_blockchain
-      |> Application.get_env(EthBlockchain.Adapter)
-      |> Keyword.get(:adapters)
+    config = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
+    eth_node_adapters = Keyword.get(config, :eth_node_adapters)
+    cc_node_adapters = Keyword.get(config, :cc_node_adapters)
 
     adapter_opts = [
-      adapters: adapters,
+      adapters: eth_node_adapters ++ cc_node_adapters,
       named: true,
       supervisor: EthBlockchain.DynamicSupervisor
     ]

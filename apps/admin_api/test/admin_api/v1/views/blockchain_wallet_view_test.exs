@@ -36,7 +36,11 @@ defmodule AdminAPI.V1.BlockchainWalletViewTest do
       blockchain_wallets = [blockchain_wallet_1, blockchain_wallet_2]
 
       {:ok, blockchain_wallets_with_balances} =
-        BlockchainBalanceLoader.wallet_balances(blockchain_wallets, [token_1, token_2])
+        BlockchainBalanceLoader.wallet_balances(
+          blockchain_wallets,
+          [token_1, token_2],
+          "ethereum"
+        )
 
       paginator = %Paginator{
         data: blockchain_wallets_with_balances,

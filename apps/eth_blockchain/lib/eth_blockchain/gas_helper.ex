@@ -16,7 +16,12 @@ defmodule EthBlockchain.GasHelper do
   @moduledoc false
 
   def get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
-  def get_gas_limit_or_default(type, _attrs), do: Application.get_env(:eth_blockchain, type)
+
+  def get_gas_limit_or_default(type, _attrs) do
+    :eth_blockchain
+    |> Application.get_env(:gas_limit)
+    |> Keyword.get(type)
+  end
 
   def get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
 

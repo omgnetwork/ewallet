@@ -19,24 +19,24 @@ defmodule EthBlockchain.Client do
   alias EthBlockchain.Adapter
   import Utils.Helpers.Encoding
 
-  def get_eth_syncing(adapter \\ nil, pid \\ nil) do
-    case Adapter.call({:get_eth_syncing}, adapter, pid) do
+  def get_eth_syncing(opts \\ []) do
+    case Adapter.eth_call({:get_eth_syncing}, opts) do
       {:ok, %{}} -> {:ok, true}
       {:ok, false} -> {:ok, false}
       error -> error
     end
   end
 
-  def get_client_version(adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_client_version}, adapter, pid)
+  def get_client_version(opts \\ []) do
+    Adapter.eth_call({:get_client_version}, opts)
   end
 
-  def get_network_id(adapter \\ nil, pid \\ nil) do
-    Adapter.call({:get_network_id}, adapter, pid)
+  def get_network_id(opts \\ []) do
+    Adapter.eth_call({:get_network_id}, opts)
   end
 
-  def get_peer_count(adapter \\ nil, pid \\ nil) do
-    case Adapter.call({:get_peer_count}, adapter, pid) do
+  def get_peer_count(opts \\ []) do
+    case Adapter.eth_call({:get_peer_count}, opts) do
       {:ok, number} -> {:ok, int_from_hex(number)}
       error -> error
     end

@@ -51,7 +51,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
           wallet_address: wallet.address,
           blockchain_hd_wallet_uuid: hd_wallet.uuid,
           originator: originator,
-          blockchain_identifier: BlockchainHelper.identifier()
+          blockchain_identifier: BlockchainHelper.rootchain_identifier()
         }
         |> BlockchainDepositWallet.insert()
         |> case do

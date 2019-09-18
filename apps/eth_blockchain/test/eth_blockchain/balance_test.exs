@@ -25,8 +25,7 @@ defmodule EthBlockchain.BalanceTest do
             address: state[:addr_0],
             contract_addresses: [state[:addr_1], state[:addr_2], state[:addr_3]]
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == {:ok, %{state[:addr_1] => 123, state[:addr_2] => 123, state[:addr_3] => 123}}
@@ -36,8 +35,7 @@ defmodule EthBlockchain.BalanceTest do
       assert {:error, :no_handler} ==
                Balance.get(
                  %{address: state[:addr_0], contract_addresses: [state[:addr_1], state[:addr_2]]},
-                 :blah,
-                 state[:pid]
+                 state[:invalid_adapter_opts]
                )
     end
   end

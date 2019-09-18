@@ -74,8 +74,7 @@ defmodule EWalletDB.BlockchainValidatorTest do
 
   describe "validate_blockchain_identifier/2" do
     test "returns valid if the blockchain identifier is valid" do
-      adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-      valid_identifier = adapter.helper().identifier()
+      valid_identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
 
       struct = %SampleStruct{
         blockchain_identifier: valid_identifier

@@ -109,11 +109,9 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, :success, receipt}, reg}
   end
 
-  def handle_call({:send_raw, data}, _from, reg) do
-    # Here we just pass the encoded data in the response for testing purpose.
-    # When doing a real transaction, this will not be the case,
-    # the transaction hash will be returned instead.
-    {:reply, {:ok, data}, reg}
+  def handle_call({:send_raw, _data}, _from, reg) do
+    data = 32 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
+    {:reply, {:ok, "0x" <> data}, reg}
   end
 
   # name

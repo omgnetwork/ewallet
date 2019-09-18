@@ -16,7 +16,9 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias Utils.Helpers.{Crypto, DateFormatter}
-  alias EWalletDB.{BlockchainWallet, Repo}
+  alias EWalletDB.{BlockchainWallet, Transaction, Repo}
+  alias EWallet.{BlockchainHelper, TransactionRegistry}
+  alias Ecto.UUID
 
   describe "/blockchain_wallet.create" do
     test_with_auths "inserts a cold wallet with the given attributes" do
@@ -56,6 +58,54 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         })
 
       refute response["success"]
+    end
+  end
+
+  describe "/blockchain_wallet.deposit_to_childchain" do
+    test_with_auths "deposit to childchain with the given attributes" do
+      identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      adapter = BlockchainHelper.adapter()
+      {:ok, _adapter_pid} = adapter.start_link([])
+
+      attrs = %{
+        token_id: token.id,
+        amount: 100,
+        address: hot_wallet.address,
+        idempotency_token: UUID.generate()
+      }
+
+      response = request("/blockchain_wallet.deposit_to_childchain", attrs)
+
+      assert response["success"]
+      assert response["data"]["blockchain_tx_hash"] != nil
+      assert response["data"]["type"] == "deposit"
+
+      transaction = Transaction.get(response["data"]["id"])
+      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+
+      {:ok, %{pid: blockchain_listener_pid}} =
+        adapter.lookup_listener(transaction.blockchain_tx_hash)
+
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
+    end
+
+    test_with_auths "fails to deposit with a missing address" do
+      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      response =
+        request("/blockchain_wallet.deposit_to_childchain", %{
+          token_id: token.id,
+          amount: 100
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
   end
 
@@ -220,22 +270,24 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
@@ -244,7 +296,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         "per_page" => 2,
         "start_after" => nil,
         "start_by" => "id",
-        "address" => blockchain_wallet.address
+        "address" => blockchain_wallet.address,
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -265,25 +318,27 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       token_2 =
         insert(:token, %{
           id: "tkn_2",
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
@@ -292,7 +347,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         "per_page" => 2,
         "start_after" => token_2.id,
         "start_by" => "id",
-        "address" => blockchain_wallet.address
+        "address" => blockchain_wallet.address,
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -312,22 +368,24 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
@@ -335,7 +393,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         "token_addresses" => [
           "0x0000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000001"
-        ]
+        ],
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -357,22 +416,24 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
@@ -383,7 +444,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         "token_addresses" => [
           "0x0000000000000000000000000000000000000000",
           "0x0000000000000000000000000000000000000001"
-        ]
+        ],
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -405,25 +467,27 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 =
         insert(:token, %{
           id: "tkn_2",
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
@@ -431,7 +495,8 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         "token_ids" => [
           "tkn_1",
           "tkn_2"
-        ]
+        ],
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -453,10 +518,12 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 = insert(:token, %{blockchain_address: nil})
@@ -464,11 +531,12 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       _token_3 =
         insert(:token, %{
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
-        "address" => blockchain_wallet.address
+        "address" => blockchain_wallet.address,
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -489,30 +557,33 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 =
         insert(:token, %{
           id: "tkn_2",
           blockchain_address: "0x0000000000000000000000000000000000000001",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_3 =
         insert(:token, %{
           id: "tkn_3",
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
         "address" => blockchain_wallet.address,
-        "token_ids" => ["tkn_1", "tkn_2", "tkn_4"]
+        "token_ids" => ["tkn_1", "tkn_2", "tkn_4"],
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -533,11 +604,13 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
+      identifier = BlockchainHelper.rootchain_identifier()
+
       _token_1 =
         insert(:token, %{
           id: "tkn_1",
           blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       _token_2 = insert(:token, %{id: "tkn_2", blockchain_address: nil})
@@ -546,12 +619,13 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
         insert(:token, %{
           id: "tkn_3",
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: "ethereum"
+          blockchain_identifier: identifier
         })
 
       attrs = %{
         "address" => blockchain_wallet.address,
-        "token_ids" => ["tkn_1", "tkn_2", "tkn_3"]
+        "token_ids" => ["tkn_1", "tkn_2", "tkn_3"],
+        "blockchain_identifier" => identifier
       }
 
       response = request("/blockchain_wallet.get_balances", attrs)
@@ -566,6 +640,27 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       assert length(balances) == 2
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000000", 123})
       assert Enum.member?(balances, {"0x0000000000000000000000000000000000000002", 123})
+    end
+
+    test_with_auths "returns and error when given an invalid blockchain identifier" do
+      insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
+      identifier = BlockchainHelper.rootchain_identifier()
+
+      _token_1 =
+        insert(:token, %{
+          id: "tkn_1",
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_identifier: identifier
+        })
+
+      response =
+        request("/blockchain_wallet.get_balances", %{
+          "address" => "0x0000000000000000000000000000000000000123",
+          "blockchain_identifier" => "invalid"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "blockchain:invalid_identifier"
     end
 
     test_with_auths "returns an error when given a non-existing address" do

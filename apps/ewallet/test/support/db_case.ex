@@ -58,7 +58,7 @@ defmodule EWallet.DBCase do
         address: address,
         public_key: public_key,
         type: "hot",
-        blockchain_identifier: BlockchainHelper.identifier(),
+        blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %ActivityLogger.System{}
       })
 
@@ -67,7 +67,7 @@ defmodule EWallet.DBCase do
     {:ok, _} =
       BlockchainHDWallet.insert(%{
         keychain_uuid: keychain_hd_wallet_uuid,
-        blockchain_identifier: BlockchainHelper.identifier(),
+        blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %System{}
       })
 

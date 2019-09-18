@@ -24,6 +24,10 @@ defmodule EthBlockchain.ErrorHandler do
       description:
         "The provided contract address does not implement the required erc20 functions."
     },
+    childchain_not_supported: %{
+      code: "blockchain:childchain_not_supported",
+      description: "The provided childchain is not currently supported."
+    },
     unknown_error: %{
       code: "blockchain:unknown_error",
       description: "Something went wrong when communicating with the blockchain."
@@ -33,12 +37,15 @@ defmodule EthBlockchain.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors(atom() | nil, pid() | nil) :: %{
+  @spec errors(list()) :: %{
           required(atom()) => %{code: String.t(), description: String.t()}
         }
-  def errors(adapter \\ nil, pid \\ nil) do
+  def errors(opts \\ []) do
+    eth_errors = Adapter.eth_call({:get_errors}, opts)
+
     {:get_errors}
-    |> Adapter.call(adapter, pid)
+    |> Adapter.childchain_call(opts)
+    |> Map.merge(eth_errors)
     |> Map.merge(@errors)
   end
 

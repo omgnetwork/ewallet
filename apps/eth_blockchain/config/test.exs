@@ -2,11 +2,15 @@ use Mix.Config
 
 config :eth_blockchain,
        EthBlockchain.Adapter,
-       adapters: [
+       eth_node_adapters: [
          {:dumb, EthBlockchain.DumbAdapter},
          {:dumb_receiver, EthBlockchain.DumbReceivingAdapter}
        ],
-       default_adapter: :dumb
+       cc_node_adapters: [
+         {:dumb_cc, EthBlockchain.DumbCCAdapter}
+       ],
+       default_eth_node_adapter: :dumb,
+       default_cc_node_adapter: :dumb_cc
 
 config :eth_blockchain,
   transaction_poll_interval: 100

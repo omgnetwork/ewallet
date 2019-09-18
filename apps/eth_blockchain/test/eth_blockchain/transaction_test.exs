@@ -15,28 +15,19 @@
 defmodule EthBlockchain.TransactionTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
-  alias EthBlockchain.{Transaction, ABIEncoder}
+  alias EthBlockchain.{GasHelper, Transaction, ABIEncoder}
   alias ExthCrypto.Math
-  alias Keychain.{Signature, Wallet}
+  alias Keychain.Wallet
   alias Utils.Helpers.Encoding
 
   setup state do
     {:ok, {address, public_key}} = Wallet.generate()
+    overwritten_opts = Keyword.merge(state[:adapter_opts], eth_node_adapter: :dumb_tx)
 
     state
     |> Map.put(:valid_sender, address)
     |> Map.put(:public_key, public_key)
-  end
-
-  defp recover_public_key(trx) do
-    chain_id = Application.get_env(:eth_blockchain, :chain_id)
-
-    {:ok, pub_key} =
-      trx
-      |> Transaction.transaction_hash(chain_id)
-      |> Signature.recover_public_key(trx.r, trx.s, trx.v, chain_id)
-
-    pub_key
+    |> Map.put(:adapter_opts, overwritten_opts)
   end
 
   describe "create_contract/3" do
@@ -46,8 +37,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx, contract_address} =
         Transaction.create_contract(
           %{from: state[:valid_sender], contract_data: contract_data},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -61,7 +51,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_creation_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_creation, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 0
@@ -76,8 +66,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -89,7 +78,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:eth_transaction, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 100
@@ -100,8 +89,7 @@ defmodule EthBlockchain.TransactionTest do
       {resp, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100, gas_price: 50_000},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -113,7 +101,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_eth_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:eth_transaction, %{})
 
       assert trx.gas_price == 50_000
       assert trx.value == 100
@@ -129,8 +117,7 @@ defmodule EthBlockchain.TransactionTest do
             amount: 100,
             contract_address: state[:addr_2]
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -142,7 +129,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
       assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
       assert trx.value == 0
@@ -160,8 +147,7 @@ defmodule EthBlockchain.TransactionTest do
             contract_address: state[:addr_2],
             gas_price: 50_000
           },
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       assert resp == :ok
@@ -173,7 +159,7 @@ defmodule EthBlockchain.TransactionTest do
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
 
       assert trx.gas_limit ==
-               Application.get_env(:eth_blockchain, :default_contract_transaction_gas_limit)
+               GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
       assert trx.gas_price == 50_000
       assert trx.value == 0
@@ -185,8 +171,7 @@ defmodule EthBlockchain.TransactionTest do
       assert {:error, :no_handler} ==
                Transaction.send(
                  %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-                 :blah,
-                 state[:pid]
+                 state[:invalid_adapter_opts]
                )
     end
   end
@@ -196,8 +181,7 @@ defmodule EthBlockchain.TransactionTest do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -212,8 +196,7 @@ defmodule EthBlockchain.TransactionTest do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -226,23 +209,22 @@ defmodule EthBlockchain.TransactionTest do
                <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1>>,
                "d",
                "",
-               _,
-               _,
-               _
+               v,
+               r,
+               s
              ] = serialized
 
       # vrs change for every call, so assert only their size
-      assert serialized |> Enum.at(6) |> byte_size() == 3
-      assert (serialized |> Enum.at(7) |> byte_size()) in 31..32
-      assert (serialized |> Enum.at(8) |> byte_size()) in 31..32
+      assert v != nil
+      assert byte_size(r) in 31..32
+      assert byte_size(s) in 31..32
     end
 
     test "returns the RLP-encoded transaction excluding vrs", state do
       {:ok, encoded_trx} =
         Transaction.send(
           %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
-          :dumb,
-          state[:pid]
+          state[:adapter_opts]
         )
 
       trx = decode_transaction_response(encoded_trx)
@@ -255,6 +237,99 @@ defmodule EthBlockchain.TransactionTest do
                "d",
                ""
              ]
+    end
+  end
+
+  describe "deposit_eth/2" do
+    test "generates a desposit transaction for eth currency", state do
+      tx_bytes = "0x01"
+      amount = 100
+
+      {resp, encoded_trx} =
+        Transaction.deposit_eth(
+          %{
+            tx_bytes: tx_bytes,
+            from: state[:valid_sender],
+            amount: amount,
+            root_chain_contract: state[:addr_1]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == amount
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
+    end
+  end
+
+  describe "deposit_erc20/2" do
+    test "generates a desposit transaction for erc20 currency", state do
+      tx_bytes = "0x01"
+
+      {resp, encoded_trx} =
+        Transaction.deposit_erc20(
+          %{
+            tx_bytes: tx_bytes,
+            from: state[:valid_sender],
+            root_chain_contract: state[:addr_1]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_1]
+    end
+  end
+
+  describe "approve_erc20/2" do
+    test "generates a desposit transaction for erc20 currency", state do
+      amount = 100
+
+      {resp, encoded_trx} =
+        Transaction.approve_erc20(
+          %{
+            from: state[:valid_sender],
+            to: state[:addr_1],
+            amount: amount,
+            contract_address: state[:addr_2]
+          },
+          state[:adapter_opts]
+        )
+
+      assert resp == :ok
+
+      {:ok, encoded_abi_data} = ABIEncoder.approve(state[:addr_1], amount)
+
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == state[:addr_2]
     end
   end
 

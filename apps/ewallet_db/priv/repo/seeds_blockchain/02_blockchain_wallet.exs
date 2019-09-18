@@ -25,8 +25,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   end
 
   def run(writer, _args) do
-    adapter = Application.get_env(:ewallet_db, :blockchain_adapter)
-    identifier = adapter.helper().identifier()
+    identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
 
     case BlockchainWallet.get_primary_hot_wallet(identifier) do
       nil -> insert_wallet(writer, identifier)

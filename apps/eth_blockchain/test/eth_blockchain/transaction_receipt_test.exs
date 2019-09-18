@@ -19,7 +19,8 @@ defmodule EthBlockchain.TransactionReceiptTest do
 
   describe "get/3" do
     test "gets a transaction receipt", state do
-      receipt = TransactionReceipt.get(%{tx_hash: "fu"}, :dumb, state[:pid])
+      receipt = TransactionReceipt.get(%{tx_hash: "fu"}, state[:adapter_opts])
+
       assert {:ok, :success, _} = receipt
     end
   end

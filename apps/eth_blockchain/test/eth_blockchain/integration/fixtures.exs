@@ -22,7 +22,7 @@ defmodule EthBlockchain.Integration.Fixtures do
 
   deffixture node_adapter do
     {:ok, datadir} = Briefly.create(directory: true)
-    {:ok, exit_fn} = Adapter.call({:boot_adapter, datadir})
+    {:ok, exit_fn} = Adapter.eth_call({:boot_adapter, datadir}, [])
     on_exit(exit_fn)
     :ok
   end

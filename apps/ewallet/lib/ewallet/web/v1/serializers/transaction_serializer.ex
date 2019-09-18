@@ -47,6 +47,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       from_blockchain_address: transaction.from_blockchain_address,
       to_blockchain_address: transaction.to_blockchain_address,
       confirmations_count: transaction.confirmations_count,
+      type: transaction.type,
       from: %{
         object: "transaction_source",
         user_id: Assoc.get(transaction, [:from_user, :id]),
