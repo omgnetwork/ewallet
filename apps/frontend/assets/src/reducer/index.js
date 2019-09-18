@@ -1,14 +1,18 @@
 import { combineReducers } from 'redux'
 import { loadingBarReducer } from 'react-redux-loading-bar'
 
+import { blockchainWalletReducer, blockchainWalletBalanceReducer } from '../omg-blockchain-wallet/reducer'
 import { sessionReducer } from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
 import { inviteListReducer } from '../omg-member/reducer'
 import { apiKeysReducer } from '../omg-api-keys/reducer'
-import { accessKeysReducer, accessKeyMembershipsReducer } from '../omg-access-key/reducer'
+import {
+  accessKeysReducer,
+  accessKeyMembershipsReducer
+} from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
-import { tokensReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
+import { tokensReducer, mintedTokenHistoryReducer, tokenCapabilitiesReducer } from '../omg-token/reducer'
 import { usersReducer } from '../omg-users/reducer'
 import { consumptionsReducer } from '../omg-consumption/reducer'
 import { transactionsReducer } from '../omg-transaction/reducer'
@@ -24,7 +28,11 @@ import { exportsReducer } from '../omg-export/reducer'
 import { adminsReducer } from '../omg-admins/reducer'
 import { recentAccountsReducer } from '../omg-recent-account/reducer'
 import { modalReducer } from '../omg-modal/reducer'
+import { metamaskReducer, blockchainBalanceReducer } from '../omg-web3/reducer'
+
 export default combineReducers({
+  blockchainWallets: blockchainWalletReducer,
+  blockchainWalletBalance: blockchainWalletBalanceReducer,
   admins: adminsReducer,
   loadingBar: loadingBarReducer,
   session: sessionReducer,
@@ -37,6 +45,7 @@ export default combineReducers({
   apiKeys: apiKeysReducer,
   alerts: alertsReducer,
   tokens: tokensReducer,
+  tokenCapabilities: tokenCapabilitiesReducer,
   transactionRequests: transactionRequestsReducer,
   users: usersReducer,
   transactions: transactionsReducer,
@@ -50,5 +59,7 @@ export default combineReducers({
   exports: exportsReducer,
   loadingStatus: loadingStatusReducer,
   recentAccounts: recentAccountsReducer,
-  modals: modalReducer
+  modals: modalReducer,
+  metamask: metamaskReducer,
+  blockchainBalance: blockchainBalanceReducer
 })

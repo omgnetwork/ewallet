@@ -99,7 +99,7 @@ function CreateClientKeyModal (props) {
       onRequestClose={onRequestClose}
       contentLabel='invite modal'
       shouldCloseOnOverlayClick={false}
-      overlayClassName='dummy'
+      overlayClassName='invite-modal'
     >
       <CreateClientKeyModalContainer onSubmit={onSubmit}>
         <Icon name='Close' onClick={onRequestClose} />

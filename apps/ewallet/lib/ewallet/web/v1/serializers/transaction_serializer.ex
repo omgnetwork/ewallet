@@ -44,6 +44,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       id: transaction.id,
       idempotency_token: transaction.idempotency_token,
       blockchain_tx_hash: transaction.blockchain_tx_hash,
+      from_blockchain_address: transaction.from_blockchain_address,
+      to_blockchain_address: transaction.to_blockchain_address,
       confirmations_count: transaction.confirmations_count,
       type: transaction.type,
       from: %{

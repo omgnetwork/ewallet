@@ -18,6 +18,7 @@ defmodule EWalletDB.TransactionTest do
   alias ActivityLogger.System
   alias Ecto.Changeset
   alias EWalletDB.{Transaction, Repo}
+  alias Utils.Helpers.{Crypto, EIP55}
 
   describe "Transaction factory" do
     test_has_valid_factory(Transaction)
@@ -237,6 +238,24 @@ defmodule EWalletDB.TransactionTest do
 
       assert transaction.id == inserted_transaction.id
     end
+
+    test "saves the blockchain addresses in lower case" do
+      address_1 = Crypto.fake_eth_address()
+      {:ok, eip55_address_1} = EIP55.encode(address_1)
+      address_2 = Crypto.fake_eth_address()
+      {:ok, eip55_address_2} = EIP55.encode(address_2)
+
+      {:ok, inserted_transaction} =
+        :blockchain_transaction
+        |> params_for(%{
+          from_blockchain_address: eip55_address_1,
+          to_blockchain_address: eip55_address_2
+        })
+        |> Transaction.get_or_insert()
+
+      assert inserted_transaction.from_blockchain_address == String.downcase(address_1)
+      assert inserted_transaction.to_blockchain_address == String.downcase(address_2)
+    end
   end
 
   describe "get/1" do
@@ -256,6 +275,27 @@ defmodule EWalletDB.TransactionTest do
         Transaction.get_by(%{idempotency_token: inserted_transaction.idempotency_token})
 
       assert transaction.id == inserted_transaction.id
+    end
+
+    test "ignore the case for `from_blockchain_address` and `to_blockchain_address`" do
+      address_1 = Crypto.fake_eth_address()
+      address_2 = Crypto.fake_eth_address()
+
+      {:ok, inserted_transaction_1} =
+        :blockchain_transaction
+        |> params_for(%{from_blockchain_address: String.downcase(address_1)})
+        |> Transaction.get_or_insert()
+
+      {:ok, inserted_transaction_2} =
+        :blockchain_transaction
+        |> params_for(%{to_blockchain_address: String.downcase(address_2)})
+        |> Transaction.get_or_insert()
+
+      transaction_1 = Transaction.get_by(%{from_blockchain_address: String.upcase(address_1)})
+      transaction_2 = Transaction.get_by(%{to_blockchain_address: String.upcase(address_2)})
+
+      assert transaction_1.id == inserted_transaction_1.id
+      assert transaction_2.id == inserted_transaction_2.id
     end
   end
 

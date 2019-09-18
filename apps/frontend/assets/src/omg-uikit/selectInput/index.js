@@ -57,7 +57,10 @@ const StyledSelect = styled(Select)`
 const StyledInput = styled(Input)`
   flex: 2 1 0;
   padding: 0 10px;
-  border-left: 1px solid ${props => props.theme.colors.S400};
+  height: 60px;
+  border-left: ${props => !props.onlyInput ? `1px solid ${props.theme.colors.S400}` : 'none'};
+  display: ${props => props.onlyInput ? 'flex' : 'initial'};
+  align-items: ${props => props.onlyInput ? 'center' : 'initial'};
 `
 const EmptyAvatar = styled.div`
   width: 30px;
@@ -77,8 +80,12 @@ const SelectInput = ({ inputProps = {}, selectProps = {}, className }) => {
   return (
     <Wrapper className={className}>
       <Labels>
-        <div>{selectLabel}</div>
-        <div>{inputLabel}</div>
+        {!_.isEmpty(selectProps) && (
+          <div>{selectLabel}</div>
+        )}
+        {!_.isEmpty(inputProps) && (
+          <div>{inputLabel}</div>
+        )}
       </Labels>
       <SelectInputContainer focused={focused}>
         {!_.isEmpty(selectProps) && (
@@ -92,6 +99,7 @@ const SelectInput = ({ inputProps = {}, selectProps = {}, className }) => {
         )}
         {!_.isEmpty(inputProps) && (
           <StyledInput
+            onlyInput={!!_.isEmpty(selectProps)}
             noBorder
             placeholder={inputProps.placeholder}
             onFocus={() => setFocused(true)}

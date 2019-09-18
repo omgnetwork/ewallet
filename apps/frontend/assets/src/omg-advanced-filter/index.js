@@ -192,7 +192,7 @@ const AdvancedFilter = ({
         onRequestClose={onClose}
         contentLabel='advanced-filter-modal'
         shouldCloseOnOverlayClick={false}
-        overlayClassName='dummy'
+        overlayClassName='advanced-filter-modal'
       >
         <AdvancedFilterContainer>
           <Icon name='Close' onClick={onClose} />

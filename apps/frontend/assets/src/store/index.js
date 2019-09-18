@@ -5,7 +5,7 @@ import reducer from '../reducer'
 let _store
 
 export function configureStore (
-  initialState = {},
+  initialState = { metamask: { exist: false } },
   injectedThunk = {},
   middlewares = []
 ) {

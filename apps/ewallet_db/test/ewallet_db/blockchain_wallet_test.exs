@@ -16,7 +16,7 @@ defmodule EWalletDB.BlockchainWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias EWalletDB.{BlockchainWallet}
-  alias Utils.Helpers.Crypto
+  alias Utils.Helpers.{Crypto, EIP55}
 
   describe "BlockchainWallet factory" do
     test_has_valid_factory(BlockchainWallet)
@@ -37,6 +37,22 @@ defmodule EWalletDB.BlockchainWalletTest do
       wallet = insert(:blockchain_wallet, type: "hot", blockchain_identifier: "test")
 
       stored_wallet = BlockchainWallet.get(wallet.address, "hot", "test")
+      assert stored_wallet.uuid == wallet.uuid
+    end
+
+    test "returns the blockchain wallet with the given address, type and blockchain identifier case insensitive" do
+      address = Crypto.fake_eth_address()
+
+      wallet =
+        insert(:blockchain_wallet,
+          type: "hot",
+          blockchain_identifier: "test",
+          address: String.downcase(address)
+        )
+
+      stored_wallet = BlockchainWallet.get(String.upcase(address), "hot", "test")
+
+      assert stored_wallet != nil
       assert stored_wallet.uuid == wallet.uuid
     end
 
@@ -71,6 +87,22 @@ defmodule EWalletDB.BlockchainWalletTest do
 
       assert res_1 == :ok
       assert res_2 == :ok
+    end
+
+    test "saves the address in lower case" do
+      address = Crypto.fake_eth_address()
+      {:ok, eip55_address} = EIP55.encode(address)
+
+      {:ok, wallet} =
+        :blockchain_wallet
+        |> params_for(%{
+          address: eip55_address,
+          type: "hot",
+          blockchain_identifier: "ethereum"
+        })
+        |> BlockchainWallet.insert()
+
+      assert wallet.address == String.downcase(address)
     end
 
     test "fails to insert when type is invalid" do

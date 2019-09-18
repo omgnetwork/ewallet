@@ -566,5 +566,132 @@ export const FILTER_MAP = [
         comparator: 'contains'
       }
     ]
+  },
+  // BLOCKCHAIN WALLETS TRANSACTIONS PAGE
+  {
+    title: 'Transfer From',
+    key: 'blockchain_transactions-transfer-from',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    placeholder: 'Enter blockchain address',
+    matchAll: [
+      {
+        field: 'from_blockchain_address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Transfer To',
+    key: 'blockchain_transactions-transfer-to',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    placeholder: 'Enter blockchain address',
+    matchAll: [
+      {
+        field: 'to_blockchain_address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Target',
+    key: 'blockchain_transactions-target',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 110,
+    component: filters.InputFilter,
+    default: false,
+    placeholder: 'Enter blockchain address',
+    matchAny: [
+      {
+        field: 'from_blockchain_address',
+        comparator: 'contains'
+      },
+      {
+        field: 'to_blockchain_address',
+        comparator: 'contains'
+      }
+    ]
+  },
+  {
+    title: 'Date & Time',
+    key: 'blockchain_transactions-date-time',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 205,
+    component: filters.DateTime,
+    default: true,
+    matchAll: [
+      {
+        field: 'created_at',
+        comparator: 'gte',
+        value: '{{ startDate }}'
+      },
+      {
+        field: 'created_at',
+        comparator: 'lte',
+        value: '{{ endDate }}'
+      }
+    ]
+  },
+  {
+    title: 'Status',
+    key: 'blockchain_transactions-status',
+    icon: 'Option-Horizontal',
+    page: 'blockchain_transactions',
+    height: 344,
+    component: filters.Checkbox,
+    default: true,
+    options: [
+      {
+        label: 'Confirmed',
+        value: 'confirmed'
+      },
+      {
+        label: 'Pending',
+        value: 'pending'
+      },
+      {
+        label: 'Failed',
+        value: 'failed'
+      },
+      {
+        label: 'Blockchain Confirmed',
+        value: 'blockchain_confirmed'
+      },
+      {
+        label: 'Blockchain Failed',
+        value: 'blockchain_failed'
+      },
+      {
+        label: 'Blockchain Submitted',
+        value: 'blockchain_submitted'
+      },
+      {
+        label: 'Ledger Pending',
+        value: 'ledger_pending'
+      },
+      {
+        label: 'Pending Confirmations',
+        value: 'pending_confirmations'
+      },
+      {
+        label: 'Ledger Pending Blockchain Confirmed',
+        value: 'ledger_pending_blockchain_confirmed'
+      }
+    ],
+    matchAll: [
+      {
+        field: 'status',
+        comparator: 'eq'
+      }
+    ]
   }
 ]

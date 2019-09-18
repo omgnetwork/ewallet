@@ -14,7 +14,7 @@ function CreateTransactionButton (props) {
       }
     >
       <Icon name='Transaction' />
-      <span>Transfer</span>
+      <span>Internal Transfer</span>
     </Button>
   )
 }
