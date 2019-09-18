@@ -78,7 +78,8 @@ defmodule Keychain.Wallet do
     })
   end
 
-  @spec derive_child_address(String.t(), integer(), integer()) :: String.t() | {:error, :key_not_found}
+  @spec derive_child_address(String.t(), integer(), integer()) ::
+          String.t() | {:error, :key_not_found}
   def derive_child_address(wallet_id, account_ref, deposit_ref) do
     case Key.public_key_for_wallet_id(wallet_id) do
       nil ->

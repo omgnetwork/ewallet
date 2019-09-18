@@ -15,7 +15,6 @@
 defmodule Keychain.WalletTest do
   use Keychain.DBCase
   import Keychain.Factory
-  alias Ecto.UUID
   alias Keychain.{Key, Repo, Wallet}
 
   describe "generate/0" do

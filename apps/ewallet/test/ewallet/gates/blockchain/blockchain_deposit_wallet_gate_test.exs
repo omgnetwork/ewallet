@@ -118,7 +118,10 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
 
       # Assert two successful refreshes
       {res, data} =
-        BlockchainDepositWalletGate.refresh_balances(wallet.address, "ethereum", [token_1, token_2])
+        BlockchainDepositWalletGate.refresh_balances(wallet.address, "ethereum", [
+          token_1,
+          token_2
+        ])
 
       assert res == :ok
       assert [{:ok, _}, {:ok, _}] = data
