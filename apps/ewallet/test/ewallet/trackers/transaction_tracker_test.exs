@@ -17,7 +17,7 @@ defmodule EWallet.TransactionTrackerTest do
   import EWalletDB.Factory
   import ExUnit.CaptureLog
   alias EWallet.TransactionTracker
-  alias EWalletDB.Transaction
+  alias EWalletDB.{BlockchainDepositWallet, Transaction}
 
   describe "start_link/1" do
     test "starts a new server" do
@@ -95,7 +95,48 @@ defmodule EWallet.TransactionTrackerTest do
       refute Process.alive?(pid)
     end
 
-    test "recalculates the deposit wallet's balances when transaction is confirmed"
+    test "recalculates the deposit wallet's balances when higher than minimum" do
+      deposit_wallet = insert(:blockchain_deposit_wallet)
+      # The initial balance can be anything except 123 which the blockchain dumb adapter always return.
+      balance = insert(:blockchain_deposit_wallet_balance, blockchain_deposit_wallet: deposit_wallet, amount: 100)
+
+      transaction =
+        insert(
+          :blockchain_transaction,
+          to_blockchain_address: deposit_wallet.address,
+          from_token: balance.token,
+          to_token: balance.token,
+          blockchain_identifier: "dumb"
+        )
+
+      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
+
+      {:ok, pid} =
+        TransactionTracker.start_link(%{
+          transaction: transaction,
+          transaction_type: :from_blockchain_to_ledger
+        })
+
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
+
+      # Wait until the tracker winds down, reload the balances and assert for the new amount
+      ref = Process.monitor(pid)
+
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          new_balance =
+            deposit_wallet
+            |> BlockchainDepositWallet.reload_balances()
+            |> Map.fetch!(:balances)
+            |> Enum.find(fn b -> b.uuid == balance.uuid end)
+
+          # The balance is retrieved from the blockchain adapter, in which case
+          # the dumb adapter is always returning 123.
+          assert new_balance.amount == 123
+      after
+        5000 -> refute true
+      end
+    end
 
     test "handles invalid tx_hash" do
       transaction = insert(:blockchain_transaction)

@@ -83,15 +83,16 @@ defmodule EWallet.BlockchainDepositWalletGate do
   """
   def refresh_balances(address, blockchain_identifier, tokens) do
     deposit_wallet = BlockchainDepositWallet.get(address)
+    tokens = List.wrap(tokens)
 
     {:ok, [deposit_wallet_with_balances]} =
       BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens)
 
-    BlockchainDepositWalletBalance.create_or_update_all(
+    {:ok, BlockchainDepositWalletBalance.create_or_update_all(
       deposit_wallet_with_balances.address,
       deposit_wallet_with_balances.balances,
       blockchain_identifier
-    )
+    )}
   end
 
   # TODO: Handle the possibility of generating clashing numbers

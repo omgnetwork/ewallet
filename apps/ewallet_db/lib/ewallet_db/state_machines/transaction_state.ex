@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionState do
   @moduledoc """
   State machine module for transactions.
   """
-  alias EWalletDB.{DepositTransaction, Transaction, Repo}
+  alias EWalletDB.Repo
 
   @pending "pending"
   @confirmed "confirmed"
@@ -96,7 +96,7 @@ defmodule EWalletDB.TransactionState do
     },
     # TODO: add a check so this flow only works for deposit transaction
     from_deposit_to_pooled: %{
-      @pending => [@blockchain_submitted],
+      @pending => [@blockchain_submitted, @blockchain_confirmed],
       @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
       @pending_confirmations => [@blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],

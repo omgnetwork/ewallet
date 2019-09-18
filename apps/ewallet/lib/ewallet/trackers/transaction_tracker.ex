@@ -21,9 +21,9 @@ defmodule EWallet.TransactionTracker do
   """
   use GenServer, restart: :temporary
   require Logger
-
   alias ActivityLogger.System
   alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper, BlockchainTransactionGate}
+  alias EWallet.Web.Preloader
   alias EWalletDB.{BlockchainDepositWallet, TransactionState}
 
   @backup_confirmations_threshold 10
@@ -106,16 +106,18 @@ defmodule EWallet.TransactionTracker do
     # If the transaction is to a deposit wallet, make sure the deposit wallet's
     # local copy of its blockchain balances is refreshed.
     _ =
-      case BlockchainDepositWallet.get(transaction.to) do
+      case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
         nil ->
           :noop
 
         _deposit_wallet ->
+          {:ok, transaction} = Preloader.preload_one(transaction, :to_token)
+
           {:ok, _} =
             BlockchainDepositWalletGate.refresh_balances(
-              transaction.to,
+              transaction.to_blockchain_address,
               transaction.blockchain_identifier,
-              [transaction.to_token]
+              transaction.to_token
             )
       end
 

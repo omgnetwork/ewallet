@@ -141,4 +141,11 @@ defmodule EWalletDB.BlockchainDepositWallet do
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
+
+  @doc """
+  Re-retrieve the balances from the database.
+  """
+  def reload_balances(deposit_wallet) do
+    Repo.preload(deposit_wallet, :balances, force: true)
+  end
 end

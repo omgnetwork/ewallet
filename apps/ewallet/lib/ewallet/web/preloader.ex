@@ -33,7 +33,7 @@ defmodule EWallet.Web.Preloader do
   @doc """
   Preloads associations into the given record.
   """
-  @spec preload_one(map, atom() | [atom()]) :: {:ok, Ecto.Schema.t()} | {:error, nil}
+  @spec preload_one(map(), atom() | [atom()]) :: {:ok, Ecto.Schema.t()} | {:error, nil}
   def preload_one(record, preloads) when is_map(record) do
     case Repo.preload(record, List.wrap(preloads)) do
       nil -> {:error, nil}

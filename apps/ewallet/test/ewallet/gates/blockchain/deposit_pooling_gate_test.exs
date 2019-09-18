@@ -17,13 +17,10 @@ defmodule EWallet.DepositPoolingGateTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWallet.{DepositPoolingGate, BlockchainDepositWalletGate}
-  alias EWalletDB.Wallet, as: DBWallet
 
   alias EWalletDB.{
-    BlockchainDepositWallet,
     BlockchainWallet,
-    BlockchainHDWallet,
-    Repo
+    BlockchainHDWallet
   }
 
   describe "move_deposits_to_pooled_funds/2" do
@@ -59,7 +56,7 @@ defmodule EWallet.DepositPoolingGateTest do
 
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
 
-      assert [{:ok, _transaction}] =
+      assert {:ok, [{:ok, _transaction}]} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
     end
 

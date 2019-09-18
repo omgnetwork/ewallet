@@ -36,6 +36,7 @@ defmodule EthBlockchain.DumbAdapter do
   end
 
   def handle_call({:get_balances, _address, contract_addresses, _abi, _block}, _from, reg) do
+    # 0x7B == 123
     balances = Enum.into(contract_addresses, [], fn _ -> "0x7B" end)
     {:reply, {:ok, balances}, reg}
   end
