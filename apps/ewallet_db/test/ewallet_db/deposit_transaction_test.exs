@@ -54,31 +54,29 @@ defmodule EWalletDB.DepositTransactionTest do
       wallet = insert(:blockchain_deposit_wallet)
 
       # Transactions that are not finalized and match the address
-      dtx_1 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted(), to_deposit_wallet: wallet)
-      dtx_2 = insert(:deposit_transaction, status: TransactionState.pending_confirmations(), to_deposit_wallet: wallet)
-      dtx_3 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed(), to_deposit_wallet: wallet)
+      dtx_1 = insert(:deposit_transaction, status: TransactionState.pending_confirmations(), to_deposit_wallet: wallet)
+      dtx_2 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed(), to_deposit_wallet: wallet)
 
       # Transactions that are not finalized but have a differing address
-      dtx_4 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted())
-      dtx_5 = insert(:deposit_transaction, status: TransactionState.pending_confirmations())
-      dtx_6 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed())
+      dtx_3 = insert(:deposit_transaction, status: TransactionState.pending_confirmations())
+      dtx_4 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed())
 
       # Transactions that are excluded but does match the address
-      dtx_7 = insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
-      dtx_8 = insert(:deposit_transaction, status: TransactionState.confirmed(), to_deposit_wallet: wallet)
-      dtx_9 = insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
+      dtx_5 = insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
+      dtx_6 = insert(:deposit_transaction, status: TransactionState.blockchain_submitted(), to_deposit_wallet: wallet)
+      dtx_7 = insert(:deposit_transaction, status: TransactionState.confirmed(), to_deposit_wallet: wallet)
+      dtx_8 = insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
 
       txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
 
       assert Enum.any?(txns, fn t -> t.uuid == dtx_1.uuid end)
       assert Enum.any?(txns, fn t -> t.uuid == dtx_2.uuid end)
-      assert Enum.any?(txns, fn t -> t.uuid == dtx_3.uuid end)
+      refute Enum.any?(txns, fn t -> t.uuid == dtx_3.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_4.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_5.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_6.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_7.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_8.uuid end)
-      refute Enum.any?(txns, fn t -> t.uuid == dtx_9.uuid end)
     end
   end
 

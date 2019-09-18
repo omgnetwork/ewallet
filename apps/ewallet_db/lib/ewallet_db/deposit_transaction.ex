@@ -43,7 +43,6 @@ defmodule EWalletDB.DepositTransaction do
   # Note that non-blockchain statuses like pending() are not included
   # since pending transactions do not yet affect the blockchain balance.
   @unfinalized_statuses [
-    TransactionState.blockchain_submitted(),
     TransactionState.pending_confirmations(),
     TransactionState.blockchain_confirmed()
   ]

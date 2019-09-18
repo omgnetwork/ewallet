@@ -96,7 +96,7 @@ defmodule EWalletDB.TransactionState do
     },
     # TODO: add a check so this flow only works for deposit transaction
     from_deposit_to_pooled: %{
-      @pending => [@blockchain_submitted, @blockchain_confirmed],
+      @pending => [@blockchain_submitted],
       @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
       @pending_confirmations => [@blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],
