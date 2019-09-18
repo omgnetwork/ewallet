@@ -54,13 +54,6 @@ const BreadcrumbContainer = styled.div`
   margin-top: 30px;
 `
 
-const enhance = compose(
-  withRouter,
-  connect(
-    null,
-    { getMintedTokenHistory }
-  )
-)
 class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -115,7 +108,6 @@ class TokenDetailPage extends Component {
       exchangeRateToDelete: pair
     })
   }
-
   renderCreateExchangePairButton = () => {
     return (
       <TokensFetcher
@@ -138,7 +130,17 @@ class TokenDetailPage extends Component {
       />
     )
   }
-
+  renderMintTokenButton = () => {
+    return (
+      <Button
+        key='mint'
+        size='small'
+        onClick={this.onClickMintTopen}
+      >
+        <span>Mint Token</span>
+      </Button>
+    )
+  }
   renderTopBar = token => {
     return (
       <>
@@ -154,19 +156,13 @@ class TokenDetailPage extends Component {
           title={token.name}
           buttons={[
             this.renderCreateExchangePairButton(),
-            <Button
-              key='mint'
-              size='small'
-              onClick={this.onClickMintTopen}
-            >
-              <span>Mint Token</span>
-            </Button>
+            (token.blockchain_address || token.locked) ? null : this.renderMintTokenButton()
           ]}
         />
       </>
     )
   }
-  renderDetail = token => {
+  renderDetail = (token, blockchainBalance) => {
     return (
       <Section title={{ text: 'Details', icon: 'Option-Horizontal' }}>
         <DetailGroup>
@@ -184,21 +180,42 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Subunit To Unit:</b> <span>{formatNumber(token.subunit_to_unit)}</span>
         </DetailGroup>
-        <DetailGroup>
-          <b>Total Supply:</b>{' '}
-          <span style={{ marginRight: '10px' }}>
-            {token.total_supply === undefined
-              ? '...'
-              : formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)}{' '}
-            {token.symbol}
-          </span>
-          <Link to={`${this.props.location.pathname}/history`}>view history</Link>
-        </DetailGroup>
+        {!_.isEmpty(blockchainBalance) && (
+          <DetailGroup>
+            <b>Total Supply:</b>{' '}
+            <span>{formatReceiveAmountToTotal(blockchainBalance.total_supply, 10 ** blockchainBalance.decimals)}</span>
+          </DetailGroup>
+        )}
+        {!token.blockchain_address && (
+          <DetailGroup>
+            <b>Total Supply:</b>{' '}
+            <span style={{ marginRight: '10px' }}>
+              {token.total_supply === undefined
+                ? '...'
+                : formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)}{' '}
+              {token.symbol}
+            </span>
+            <Link to={`${this.props.location.pathname}/history`}>view history</Link>
+          </DetailGroup>
+        )}
         <DetailGroup>
           <b>Created At:</b> <span>{moment(token.created_at).format()}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Updated At:</b> <span>{moment(token.updated_at).format()}</span>
+        </DetailGroup>
+        {token.blockchain_address && (
+          <>
+            <DetailGroup>
+              <b>Blockchain Address:</b> <Id withCopy>{token.blockchain_address}</Id>
+            </DetailGroup>
+            <DetailGroup>
+              <b>Blockchain Status:</b> <span>{_.capitalize(token.blockchain_status)}</span>
+            </DetailGroup>
+          </>
+        )}
+        <DetailGroup>
+          <b>Locked:</b> <span>{token.locked ? 'True' : 'False'}</span>
         </DetailGroup>
       </Section>
     )
@@ -208,7 +225,7 @@ class TokenDetailPage extends Component {
     return (
       <TokenProvider
         tokenId={this.props.match.params.viewTokenId}
-        render={({ token }) => {
+        render={({ token, blockchainBalance }) => {
           return token ? (
             <div>
               <ContentContainer>
@@ -216,7 +233,9 @@ class TokenDetailPage extends Component {
                 <ContentDetailContainer>
                   {this.props.match.params.state !== 'history' && (
                     <Fragment>
-                      <DetailContainer>{this.renderDetail(token)}</DetailContainer>
+                      <DetailContainer>
+                        {this.renderDetail(token, blockchainBalance)}
+                      </DetailContainer>
                       {this.renderExchangeRate(token)}
                     </Fragment>
                   )}
@@ -287,10 +306,17 @@ class TokenDetailPage extends Component {
       />
     )
   }
-
   render () {
     return <TokenDetailContainer>{this.renderTokenDetail()}</TokenDetailContainer>
   }
 }
+
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { getMintedTokenHistory }
+  )
+)
 
 export default enhance(TokenDetailPage)

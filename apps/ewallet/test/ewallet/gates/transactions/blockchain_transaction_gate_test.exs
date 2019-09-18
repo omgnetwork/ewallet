@@ -161,15 +161,14 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
       assert %{listener: _, pid: blockchain_listener_pid} = res
 
-      assert Process.alive?(pid)
-      assert Process.alive?(blockchain_listener_pid)
+      ref = Process.monitor(blockchain_listener_pid)
 
-      # Turn off the listeners before exiting so it does not try
-      # to update the transactions after the test is done.
-      on_exit(fn ->
-        :ok = GenServer.stop(pid)
-        :ok = GenServer.stop(blockchain_listener_pid)
-      end)
+      receive do
+        {:DOWN, ^ref, _, _, _} ->
+          transaction = Transaction.get(transaction.id)
+          assert transaction.confirmations_count == 13
+          assert transaction.status == TransactionState.confirmed()
+      end
     end
 
     test "returns an error for a childchain transaction if there is no balance for the token" do

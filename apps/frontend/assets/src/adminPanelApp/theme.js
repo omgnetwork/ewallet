@@ -1,7 +1,7 @@
 
 export default {
   colors: {
-    BL100: '#DBE9FF',
+    BL100: '#F2F6FF',
     BL200: '#A4C4F8',
     BL300: '#2176FF',
     BL400: '#1A56F0',

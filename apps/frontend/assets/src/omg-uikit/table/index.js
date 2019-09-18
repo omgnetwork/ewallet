@@ -128,7 +128,7 @@ class Table extends Component {
           key={d.id || i}
           ref={row => (this.row = row)}
           onClick={this.props.onClickRow(d, i)}
-          active={this.props.activeIndexKey === d.id}
+          active={this.props.activeIndexKey && (this.props.activeIndexKey === d.id)}
           new={d.__new}
         >
           {this.props.columns

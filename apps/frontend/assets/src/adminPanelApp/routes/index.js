@@ -11,6 +11,8 @@ import AccountPage from '../../omg-page-account'
 import TokenPage from '../../omg-page-token'
 import TransactionPage from '../../omg-page-transaction'
 import WalletPage from '../../omg-page-wallets'
+import BlockchainWalletDetailPage from '../../omg-page-blockchain-wallet-detail'
+import BlockchainWalletsPage from '../../omg-page-blockchain-wallets'
 import UserSettingPage from '../../omg-page-user-setting'
 import ApiKeyPage from '../../omg-page-api'
 import ApiKeyDetailPage from '../../omg-page-api-detail'
@@ -50,6 +52,8 @@ const createRoute = () => (
       <AuthenticatedRoute path='/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/tokens/:viewTokenId' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/wallets' exact component={WalletPage} />
+      <AuthenticatedRoute path='/blockchain_wallets' exact component={BlockchainWalletsPage} />
+      <AuthenticatedRoute path='/blockchain_wallets/:address' component={BlockchainWalletDetailPage} />
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/transaction/export' exact component={TransactionExportPage} />
 
@@ -57,7 +61,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/keys/:keyType/:keyId' exact component={ApiKeyDetailPage} />
       <AuthenticatedRoute path='/keys/:keyType' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/keys' exact component={ApiKeyPage} />
-      <AuthenticatedRoute path='/configuration' exact component={ConfigurationPage} />
+      <AuthenticatedRoute path='/configuration' component={ConfigurationPage} />
 
       <AuthenticatedRoute path='/user_setting' exact component={UserSettingPage} />
 
@@ -67,7 +71,7 @@ const createRoute = () => (
 
       {/* OVERVIEW */}
       <AuthenticatedRoute path='/users/:userId/:type' exact component={() => <UserDetailPage withBreadCrumb />} />
-      <AuthenticatedRoute path='/users/:userId' excact component={() => <UserDetailPage withBreadCrumb />} />
+      <AuthenticatedRoute path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
 
       <AuthenticatedRoute path='/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/requests' exact component={TransactionRequestPage} />
@@ -77,6 +81,7 @@ const createRoute = () => (
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={WalletDetailPage} />
+
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />
     </Switch>

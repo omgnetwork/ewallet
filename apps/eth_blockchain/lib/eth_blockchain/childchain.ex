@@ -19,7 +19,7 @@ defmodule EthBlockchain.Childchain do
   @eth Helper.default_address()
 
   @doc """
-  Submits a deposit transaction to the plsma chain.
+  Submits a deposit transaction to the plasma chain.
   For ERC20 deposits, an `approve(address, amount)` call will be made
   first, then the deposit will be done.
   Returns
@@ -76,7 +76,7 @@ defmodule EthBlockchain.Childchain do
   end
 
   @doc """
-  Submits a transfer transaction to the plsma chain.
+  Submits a transfer transaction to the plasma chain.
 
   Returns
   {:ok, transaction_hash, transaction_index, block_number} if success
@@ -106,10 +106,11 @@ defmodule EthBlockchain.Childchain do
   end
 
   defp check_childchain(childchain_identifier) do
-    case :eth_blockchain
-         |> Application.get_env(EthBlockchain.Adapter)
-         |> Keyword.get(:cc_node_adapters)
-         |> Enum.find(fn {id, _} -> id == childchain_identifier end) do
+    :eth_blockchain
+    |> Application.get_env(EthBlockchain.Adapter)
+    |> Keyword.get(:cc_node_adapters)
+    |> Enum.find(fn {id, _} -> id == childchain_identifier end)
+    |> case do
       nil ->
         {:error, :childchain_not_supported}
 
@@ -125,22 +126,4 @@ defmodule EthBlockchain.Childchain do
   def get_balance(%{address: address}, opts \\ []) do
     AdapterServer.childchain_call({:get_balance, address}, opts)
   end
-
-  # def get_block do
-  # TODO: get block and parse transactions to find relevant ones
-  # to be used by a childchain AddressTracker
-  # end
-
-  # def get_exitable_utxos do
-  # TODO: Check if childchain is supported
-  # TODO: Retrieve exitable utxos from Watcher API
-  # end
-
-  # def exit(
-  # %{childchain_identifier: childchain_identifier, address: address, utxos: utxos} = attrs,
-  # opts \\ []
-  # ) do
-  # TODO: 1. Check if childchain is supported
-  # TODO: 2. Attempt to exit all given utxos
-  # end
 end

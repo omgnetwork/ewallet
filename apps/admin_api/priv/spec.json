@@ -6153,6 +6153,9 @@
                                               }
                                             }
                                           },
+                                          "from_blockchain_address": {
+                                            "type": "string"
+                                          },
                                           "to": {
                                             "type": "object",
                                             "properties": {
@@ -6238,6 +6241,9 @@
                                                 ]
                                               }
                                             }
+                                          },
+                                          "to_blockchain_address": {
+                                            "type": "string"
                                           },
                                           "exchange": {
                                             "type": "object",
@@ -17733,6 +17739,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -17818,6 +17827,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -28586,6 +28598,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -28671,6 +28686,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -35880,6 +35898,9 @@
                                           }
                                         }
                                       },
+                                      "from_blockchain_address": {
+                                        "type": "string"
+                                      },
                                       "to": {
                                         "type": "object",
                                         "properties": {
@@ -35965,6 +35986,9 @@
                                             ]
                                           }
                                         }
+                                      },
+                                      "to_blockchain_address": {
+                                        "type": "string"
                                       },
                                       "exchange": {
                                         "type": "object",
@@ -36649,6 +36673,9 @@
                                 }
                               }
                             },
+                            "from_blockchain_address": {
+                              "type": "string"
+                            },
                             "to": {
                               "type": "object",
                               "properties": {
@@ -36734,6 +36761,9 @@
                                   ]
                                 }
                               }
+                            },
+                            "to_blockchain_address": {
+                              "type": "string"
                             },
                             "exchange": {
                               "type": "object",
@@ -37168,6 +37198,9 @@
                                 }
                               }
                             },
+                            "from_blockchain_address": {
+                              "type": "string"
+                            },
                             "to": {
                               "type": "object",
                               "properties": {
@@ -37253,6 +37286,9 @@
                                   ]
                                 }
                               }
+                            },
+                            "to_blockchain_address": {
+                              "type": "string"
                             },
                             "exchange": {
                               "type": "object",

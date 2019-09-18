@@ -58,7 +58,13 @@ const BoldSpan = styled.span`
 const FromOrToRow = styled.div`
   white-space: nowrap;
 `
-
+const renderBlockchainAddress = address => {
+  return (
+    <FromOrToRow>
+      <BoldSpan>{address}</BoldSpan>
+    </FromOrToRow>
+  )
+}
 const renderFromOrTo = fromOrTo => {
   return (
     <FromOrToRow>
@@ -103,8 +109,18 @@ export default (key, data, rows) => {
   if (key === 'toFrom') {
     return (
       <FromToContainer>
-        <div>{renderFromOrTo(rows.from)}</div>
-        <div>{renderFromOrTo(rows.to)}</div>
+        <div>
+          {_.get(rows, 'from_blockchain_address')
+            ? renderBlockchainAddress(rows.from_blockchain_address)
+            : renderFromOrTo(rows.from)
+          }
+        </div>
+        <div>
+          {_.get(rows, 'to_blockchain_address')
+            ? renderBlockchainAddress(rows.to_blockchain_address)
+            : renderFromOrTo(rows.to)
+          }
+        </div>
       </FromToContainer>
     )
   }

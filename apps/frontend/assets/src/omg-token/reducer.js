@@ -45,6 +45,15 @@ export const mintedTokenHistoryReducer = createReducer(
   }
 )
 
+export const tokenCapabilitiesReducer = createReducer(
+  {},
+  {
+    'TOKEN_CAPABILITIES/REQUEST/SUCCESS': (state, { data, params }) => {
+      return { ...state, [params.address]: data }
+    }
+  }
+)
+
 export const tokensLoadingStatusReducer = createReducer('DEFAULT', {
   'TOKENS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'TOKENS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',

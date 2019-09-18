@@ -15,6 +15,8 @@
 defmodule EthBlockchain.Helper do
   @moduledoc false
 
+  alias Utils.Helpers.EIP55
+
   @token_address "0x0000000000000000000000000000000000000000"
   @token_symbol "ETH"
   @token_name "Ether"
@@ -25,13 +27,18 @@ defmodule EthBlockchain.Helper do
   @doc """
   Checks if the given address is a valid ethereum address.
   The address must start with `0x` and be 42 byte long (including the `0x`)
+  And ensure the validity of the EIP55 (https://github.com/ethereum/EIPs/blob/master/EIPS/eip-55.md)
   Returns `true` if the address is valid or `false` otherwise.
   """
-  def adapter_address?("0x" <> _ = address)
-      when is_binary(address) and byte_size(address) == 42,
-      do: true
+  def adapter_address?("0x" <> _ = address) when byte_size(address) == 42 do
+    # If the given address is all downcased, we don't perform checksum
+    case address == String.downcase(address) do
+      true -> true
+      false -> EIP55.valid?(address)
+    end
+  end
 
-  def adapter_address?(_address), do: false
+  def adapter_address?(_), do: false
 
   def default_address, do: @token_address
 

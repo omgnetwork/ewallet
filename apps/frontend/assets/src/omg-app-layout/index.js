@@ -32,6 +32,8 @@ const ContentContainer = styled.div`
 `
 const Content = styled.div`
   padding: 0 7% 50px 7%;
+  height: 100%;
+  box-sizing: border-box;
 `
 class AppLayout extends Component {
   static propTypes = {

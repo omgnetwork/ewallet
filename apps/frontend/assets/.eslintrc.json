@@ -21,7 +21,8 @@
     "space-before-function-paren": ["error", "always"],
     "camelcase": "off",
     "react/no-unescaped-entities": "warn",
-    "import/first": [ "error", "absolute-first" ]
+    "import/first": [ "error", "absolute-first" ],
+    "react/no-did-update-set-state": 0
   },
   "env": {
     "jquery": true,

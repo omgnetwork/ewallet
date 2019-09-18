@@ -21,7 +21,8 @@ const OptionsContainer = styled.div`
   box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
   left: 0;
-  max-height: ${props => (props.optionBoxHeight ? props.optionBoxHeight : '150px')};
+  max-height: ${props =>
+    props.optionBoxHeight ? props.optionBoxHeight : '150px'};
   overflow: auto;
   min-width: 100%;
 `
@@ -33,7 +34,7 @@ const OptionItem = styled.div`
   }
 `
 const ValueRendererContainer = styled.div`
-  cursor: ${props => props.disabled ? 'initial' : 'pointer'};
+  cursor: ${props => (props.disabled ? 'initial' : 'pointer')};
   position: relative;
   display: flex;
   flex-direction: row;
@@ -76,6 +77,11 @@ export default class Select extends PureComponent {
   state = {
     active: false
   }
+  componentDidUpdate (prevProps) {
+    if (!!this.props.valueRenderer !== !!prevProps.valueRenderer) {
+      this.props.onBlur()
+    }
+  }
 
   registerRef = input => {
     this.input = input
@@ -110,22 +116,12 @@ export default class Select extends PureComponent {
       return null
     }
     if (this.props.clearable && this.props.value) {
-      return (
-        <Icon
-          name='Close'
-          onMouseDown={this.onClickClear}
-        />
-      )
+      return <Icon name='Close' onMouseDown={this.onClickClear} />
     }
     if (this.state.active) {
       return <Icon name='Chevron-Up' />
     }
-    return (
-      <Icon
-        name='Chevron-Down'
-        onMouseDown={this.onClickChevronDown}
-      />
-    )
+    return <Icon name='Chevron-Down' onMouseDown={this.onClickChevronDown} />
   }
   render () {
     const filteredOption = this.props.filterByKey
@@ -157,9 +153,7 @@ export default class Select extends PureComponent {
             tabIndex='-1'
           >
             {valueRenderer(value)}
-            <ValueRendererSuffix>
-              {this.renderSuffix()}
-            </ValueRendererSuffix>
+            <ValueRendererSuffix>{this.renderSuffix()}</ValueRendererSuffix>
           </ValueRendererContainer>
         )}
         {(!value || !valueRenderer) && (
@@ -178,8 +172,13 @@ export default class Select extends PureComponent {
           <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
             {filteredOption.map(option => {
               return (
-                <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
-                  {this.props.optionRenderer ? this.props.optionRenderer(option.value) : option.value}
+                <OptionItem
+                  onMouseDown={this.onClickItem(option)}
+                  key={option.key}
+                >
+                  {this.props.optionRenderer
+                    ? this.props.optionRenderer(option.value)
+                    : option.value}
                 </OptionItem>
               )
             })}

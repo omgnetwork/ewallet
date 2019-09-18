@@ -81,23 +81,31 @@ class TransactionRequestPanel extends Component {
       search: queryString.stringify(searchObject)
     })
   }
-  renderTransactionInfo = (transaction, title) => {
-    const address = _.get(transaction, 'address')
-    const accountName = _.get(transaction, 'account.name')
-    const accountId = _.get(transaction, 'account.id')
-    const user = _.get(transaction, 'user')
-    const tokenId = _.get(transaction, 'token.id')
+  renderTransactionInfo = (transactionDetail, title, transaction) => {
+    const address = _.get(transactionDetail, 'address')
+    const accountName = _.get(transactionDetail, 'account.name')
+    const accountId = _.get(transactionDetail, 'account.id')
+    const user = _.get(transactionDetail, 'user')
+    const tokenId = _.get(transactionDetail, 'token.id')
+
+    const fromBlockchain = title === 'From' && _.get(transaction, 'from_blockchain_address')
+    const toBlockchain = title === 'To' && _.get(transaction, 'to_blockchain_address')
 
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to={{ pathname: `/wallets/${address}`, search: this.props.location.search }}>
-            {address}
-          </Link>
+          {!!fromBlockchain && fromBlockchain}
+          {!!toBlockchain && toBlockchain}
+
+          {!fromBlockchain && !toBlockchain && (
+            <Link to={{ pathname: `/wallets/${address}`, search: this.props.location.search }}>
+              {address}
+            </Link>
+          )}
         </InformationItem>
-        {_.get(transaction, 'account') && (
+        {_.get(transactionDetail, 'account') && (
           <InformationItem>
             <b>Account : </b>
             <Link
@@ -134,16 +142,16 @@ class TransactionRequestPanel extends Component {
         <InformationItem>
           <b>Token : </b>
           <Link to={{ pathname: `/tokens/${tokenId}`, search: this.props.location.search }}>
-            {_.get(transaction, 'token.name')}
+            {_.get(transactionDetail, 'token.name')}
           </Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
           {formatReceiveAmountToTotal(
-            _.get(transaction, 'amount'),
-            _.get(transaction, 'token.subunit_to_unit')
+            _.get(transactionDetail, 'amount'),
+            _.get(transactionDetail, 'token.subunit_to_unit')
           )}{' '}
-          {_.get(transaction, 'token.symbol')}
+          {_.get(transactionDetail, 'token.symbol')}
         </InformationItem>
       </TransactionInfoContainer>
     )
@@ -198,8 +206,8 @@ class TransactionRequestPanel extends Component {
                   <p>{_.get(transaction, 'error_description')}</p>
                 </InformationItem>
               )}
-              {this.renderTransactionInfo(transaction.from, 'From')}
-              {this.renderTransactionInfo(transaction.to, 'To')}
+              {this.renderTransactionInfo(transaction.from, 'From', transaction)}
+              {this.renderTransactionInfo(transaction.to, 'To', transaction)}
               {_.get(transaction, 'exchange.exchange_pair') && this.renderExchangeInfo(transaction)}
             </PanelContainer>
           )

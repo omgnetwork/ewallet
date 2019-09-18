@@ -1260,6 +1260,8 @@ paths:
                                               description: The object schema for a token
                                               properties: *ref_13
                                               required: *ref_14
+                                        from_blockchain_address:
+                                          type: string
                                         to:
                                           type: object
                                           properties:
@@ -1274,6 +1276,8 @@ paths:
                                               description: The object schema for a token
                                               properties: *ref_13
                                               required: *ref_14
+                                        to_blockchain_address:
+                                          type: string
                                         exchange:
                                           type: object
                                           properties:

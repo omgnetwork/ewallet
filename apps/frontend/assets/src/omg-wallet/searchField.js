@@ -2,11 +2,17 @@ export function createSearchAddressQuery (value = '') {
   const matchValue = value && value.trim()
   if (!matchValue) {
     return {
-      matchAny: []
+      matchAny: [],
+      matchAll: [
+        { field: 'account.name', comparator: 'neq', value: 'genesis' }
+      ]
     }
   }
 
   return {
+    matchAll: [
+      { field: 'account.name', comparator: 'neq', value: 'genesis' }
+    ],
     matchAny: [
       {
         field: 'address',

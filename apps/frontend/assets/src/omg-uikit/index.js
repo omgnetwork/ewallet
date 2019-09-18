@@ -24,6 +24,7 @@ import MultiSelect from './multiselect'
 import DatePicker from './datepicker'
 import TimePicker from './timepicker'
 import SelectInput from './selectInput'
+import Banner from './banner'
 
 export {
   Input,
@@ -52,5 +53,6 @@ export {
   NavCard,
   DetailRow,
   QrCode,
-  SelectInput
+  SelectInput,
+  Banner
 }

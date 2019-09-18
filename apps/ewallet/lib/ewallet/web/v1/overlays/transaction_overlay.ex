@@ -93,6 +93,8 @@ defmodule EWallet.Web.V1.TransactionOverlay do
       calculated_at: :datetime,
       inserted_at: :datetime,
       updated_at: :datetime,
+      from_blockchain_address: nil,
+      to_blockchain_address: nil,
       # From
       from_amount: nil,
       from_token: TokenOverlay.self_filter_fields(),

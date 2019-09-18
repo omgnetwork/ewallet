@@ -1,6 +1,21 @@
 import * as tokenService from '../services/tokenService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const createToken = ({ name, symbol, decimal, amount }) =>
+
+export const createBlockchainToken = ({ name, symbol, decimal, amount, locked }) =>
+  createActionCreator({
+    actionName: 'TOKEN',
+    action: 'CREATE',
+    service: () =>
+      tokenService.createBlockchainToken({
+        name,
+        symbol,
+        decimal,
+        amount,
+        locked
+      })
+  })
+
+export const createToken = ({ name, symbol, decimal, amount, blockchain_address }) =>
   createActionCreator({
     actionName: 'TOKEN',
     action: 'CREATE',
@@ -9,7 +24,8 @@ export const createToken = ({ name, symbol, decimal, amount }) =>
         name,
         symbol,
         decimal,
-        amount
+        amount,
+        blockchain_address
       })
   })
 
@@ -60,4 +76,12 @@ export const getTokenById = id =>
     actionName: 'TOKEN',
     action: 'REQUEST',
     service: () => tokenService.getTokenStatsById(id)
+  })
+
+export const getErc20Capabilities = address =>
+  createActionCreator({
+    actionName: 'TOKEN_CAPABILITIES',
+    action: 'REQUEST',
+    params: { address },
+    service: () => tokenService.getErc20Capabilities(address)
   })
