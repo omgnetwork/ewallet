@@ -89,7 +89,7 @@ defmodule EWallet.DBCase do
     )
 
     adapter = BlockchainHelper.adapter()
-    {:ok, adapter_pid} = adapter.start_link([])
+    {:ok, adapter_pid} = adapter.server().start_link([])
 
     %{
       adapter: adapter,

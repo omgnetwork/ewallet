@@ -15,17 +15,17 @@
 defmodule EthBlockchain.Block do
   @moduledoc false
   import Utils.Helpers.Encoding
-  alias EthBlockchain.{Adapter, Helper}
+  alias EthBlockchain.{AdapterServer, Helper}
 
   def get_number(opts \\ []) do
-    case Adapter.eth_call({:get_block_number}, opts) do
+    case AdapterServer.eth_call({:get_block_number}, opts) do
       {:ok, number} -> {:ok, int_from_hex(number)}
       error -> error
     end
   end
 
   def get(number, opts \\ []) do
-    Adapter.eth_call({:get_block, number}, opts)
+    AdapterServer.eth_call({:get_block, number}, opts)
   end
 
   def get_transactions(

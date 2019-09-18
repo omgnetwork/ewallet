@@ -68,7 +68,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
       adapter = BlockchainHelper.adapter()
-      {:ok, _adapter_pid} = adapter.start_link([])
+      {:ok, _adapter_pid} = adapter.server().start_link([])
 
       attrs = %{
         token_id: token.id,

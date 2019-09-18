@@ -30,14 +30,14 @@ defmodule EthBlockchain.Status do
   @doc """
   Returns the status of Ethereum blockchain connectivity.
   """
-  @spec get_status() :: {:ok, t()}
-  def get_status do
+  @spec get_status(list()) :: {:ok, t()}
+  def get_status(opts \\ []) do
     status = %{
-      eth_syncing: Client.get_eth_syncing() |> data_or_nil(),
-      client_version: Client.get_client_version() |> data_or_nil(),
-      network_id: Client.get_network_id() |> data_or_nil(),
-      peer_count: Client.get_peer_count() |> data_or_nil(),
-      last_seen_eth_block_number: Block.get_number() |> data_or_nil()
+      eth_syncing: opts |> Client.get_eth_syncing() |> data_or_nil(),
+      client_version: opts |> Client.get_client_version() |> data_or_nil(),
+      network_id: opts |> Client.get_network_id() |> data_or_nil(),
+      peer_count: opts |> Client.get_peer_count() |> data_or_nil(),
+      last_seen_eth_block_number: opts |> Block.get_number() |> data_or_nil()
     }
 
     {:ok, status}
