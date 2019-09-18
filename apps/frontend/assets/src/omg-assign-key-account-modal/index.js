@@ -140,7 +140,7 @@ function AssignKeyAccount (props) {
       isOpen={props.open}
       onRequestClose={onRequestClose}
       contentLabel='assign-key-modal'
-      overlayClassName='dummy'
+      overlayClassName='assign-key-modal'
       shouldCloseOnOverlayClick
     >
       {renderAssignKey()}

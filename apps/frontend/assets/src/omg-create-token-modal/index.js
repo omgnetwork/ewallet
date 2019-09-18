@@ -45,7 +45,7 @@ const Error = styled.div`
 class CreateToken extends Component {
   static propTypes = {
     createToken: PropTypes.func,
-    onFetchSuccess: PropTypes.func,
+    refetch: PropTypes.func,
     onRequestClose: PropTypes.func
   }
   state = {
@@ -81,8 +81,8 @@ class CreateToken extends Component {
           decimal: this.state.decimal
         })
         if (result.data) {
+          this.props.refetch()
           this.props.onRequestClose()
-          this.props.onFetchSuccess()
         } else {
           this.setState({
             submitting: false,
@@ -146,7 +146,7 @@ class CreateTokenModal extends Component {
     onRequestClose: PropTypes.func,
     open: PropTypes.bool,
     createToken: PropTypes.func,
-    onFetchSuccess: PropTypes.func
+    refetch: PropTypes.func
   }
   render () {
     return (
@@ -158,7 +158,7 @@ class CreateTokenModal extends Component {
         <CreateToken
           onRequestClose={this.props.onRequestClose}
           createToken={this.props.createToken}
-          onFetchSuccess={this.props.onFetchSuccess}
+          refetch={this.props.refetch}
         />
       </Modal>
     )

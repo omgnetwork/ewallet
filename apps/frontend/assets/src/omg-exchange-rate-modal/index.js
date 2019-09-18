@@ -26,7 +26,7 @@ const ExchangeRateModal = ({
 }
 
 ExchangeRateModal.propTypes = {
-  action: PropTypes.oneOf(['create', 'delete']).isRequired,
+  action: PropTypes.oneOf(['create', 'delete']),
   open: PropTypes.bool,
   onRequestClose: PropTypes.func
 }

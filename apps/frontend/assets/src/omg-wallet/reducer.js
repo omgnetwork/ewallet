@@ -16,7 +16,10 @@ export const walletsReducer = createReducer(
       const byKey = { [data.address]: data }
       return { ...state, ...byKey }
     },
-    'CURRENT_ACCOUNT/SWITCH': () => ({})
+    'CURRENT_ACCOUNT/SWITCH': () => ({}),
+    'DEPOSIT_ADDRESS/CREATE/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.address]: action.data } }
+    }
   }
 )
 

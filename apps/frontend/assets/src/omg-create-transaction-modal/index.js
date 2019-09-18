@@ -254,7 +254,7 @@ class CreateTransaction extends Component {
                   onSelectItem: this.onSelectFromAddressSelect,
                   value: this.state.fromAddress,
                   onChange: this.onChangeInputFromAddress,
-                  valueRenderer: this.state.fromAddressSelect
+                  valueRenderer: this.state.fromAddress
                     ? value => {
                       const wallet = _.find(data, i => i.address === value)
                       return wallet
@@ -345,13 +345,14 @@ class CreateTransaction extends Component {
                     : null,
                   options:
                     data
-                      ? data.map(d => {
-                        return {
-                          key: d.address,
-                          value: <WalletSelect wallet={d} />,
-                          ...d
-                        }
-                      })
+                      ? data.filter(d => d.address !== this.state.fromAddress)
+                        .map(d => {
+                          return {
+                            key: d.address,
+                            value: <WalletSelect wallet={d} />,
+                            ...d
+                          }
+                        })
                       : []
                 }}
               />
@@ -475,7 +476,7 @@ export default class CreateTransactionModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
         contentLabel='create transaction modal'
-        overlayClassName='dummy2'
+        overlayClassName='create-transaction-modal'
       >
         <EnhancedCreateTransaction
           onRequestClose={this.props.onRequestClose}

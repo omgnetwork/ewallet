@@ -20,15 +20,14 @@ const AlertContainer = styled.div`
   line-height: 1.5;
 `
 const AlertItemContainer = styled.div`
-  border-radius: 2px;
-  padding: 10px 40px 10px 10px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: 10px 24px;
   font-size: 12px;
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
-  display: flex;
-  border: 1px solid #c9d1e2;
   border-radius: 4px;
-  align-items: left;
   min-width: 400px;
   max-width: 500px;
   background-color: ${props => props.theme.colors.S100};
@@ -46,11 +45,12 @@ const AlertItemContainer = styled.div`
 
 const AlertItemSuccess = styled(AlertItemContainer)`
   background-color: #e8fbf7;
-  border: 1px solid #65d2bb;
 `
 const AlertItemError = styled(AlertItemContainer)`
-  border: 1px solid #fc7166;
   background-color: #ffefed;
+`
+const AlertItemWarn = styled(AlertItemContainer)`
+  background-color: #ffe29e;
 `
 const SuccessChecked = styled.div`
   border-radius: 50%;
@@ -76,39 +76,94 @@ const SuccessChecked = styled.div`
 const ErrorChecked = styled(SuccessChecked)`
   background-color: #ef3526;
 `
+const WarnChecked = styled(SuccessChecked)`
+  background-color: #f59701;
+`
+const Checked = styled(SuccessChecked)`
+  background-color: transparent;
+  i {
+    color: black;
+  }
+`
+const AlertAction = styled.div`
+  border: 1px solid ${props => props.theme.colors.B100};
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0 5px;
+  margin-left: 4px;
+`
+const AlertActions = styled.div`
+  display: flex;
+  flex-direction: row;
+  float: right;
+`
 class AlertItem extends Component {
   static propTypes = {
     id: PropTypes.string,
     children: PropTypes.node.isRequired,
     clearAlert: PropTypes.func,
-    type: PropTypes.string
+    type: PropTypes.oneOf(['default', 'success', 'error', 'warn']),
+    icon: PropTypes.string,
+    duration: PropTypes.number
   }
   static defaultProps = {
-    type: 'default'
+    type: 'default',
+    duration: 5000
   }
   componentDidMount = () => {
-    setTimeout(() => {
-      this.props.clearAlert(this.props.id)
-    }, 5000)
+    if (this.props.duration !== -1) {
+      setTimeout(() => {
+        this.props.clearAlert(this.props.id)
+      }, this.props.duration)
+    }
   }
 
   render () {
     const alertType = {
       success: (
         <AlertItemSuccess>
-          <SuccessChecked>
-            <Icon name='Checked' />
-          </SuccessChecked>
+          {this.props.icon && (
+            <Checked>
+              <Icon name={this.props.icon} />
+            </Checked>
+          )}
+          {!this.props.icon && (
+            <SuccessChecked>
+              <Icon name='Checked' />
+            </SuccessChecked>
+          )}
           {this.props.children}
         </AlertItemSuccess>
       ),
       error: (
         <AlertItemError>
-          <ErrorChecked>
-            <i>!</i>
-          </ErrorChecked>
+          {this.props.icon && (
+            <Checked>
+              <Icon name={this.props.icon} />
+            </Checked>
+          )}
+          {!this.props.icon && (
+            <ErrorChecked>
+              <i>!</i>
+            </ErrorChecked>
+          )}
           {this.props.children}
         </AlertItemError>
+      ),
+      warn: (
+        <AlertItemWarn>
+          {this.props.icon && (
+            <Checked>
+              <Icon name={this.props.icon} />
+            </Checked>
+          )}
+          {!this.props.icon && (
+            <WarnChecked>
+              <i>!</i>
+            </WarnChecked>
+          )}
+          {this.props.children}
+        </AlertItemWarn>
       ),
       default: <AlertItemContainer>{this.props.children}</AlertItemContainer>
     }
@@ -120,6 +175,11 @@ class Alert extends Component {
   static propTypes = {
     alerts: PropTypes.array,
     clearAlert: PropTypes.func
+  }
+
+  actionClick = (action, id) => {
+    action()
+    this.props.clearAlert(id)
   }
 
   render () {
@@ -136,9 +196,29 @@ class Alert extends Component {
                 }}
                 classNames='fade'
               >
-                <AlertItem id={alert.id} clearAlert={this.props.clearAlert} type={alert.type}>
+                <AlertItem
+                  id={alert.id}
+                  clearAlert={this.props.clearAlert}
+                  type={alert.type}
+                  icon={alert.icon}
+                  duration={alert.duration}
+                >
                   {alert.text}
-                  <Icon name='Close' onClick={e => this.props.clearAlert(alert.id)} />
+
+                  <AlertActions>
+                    {!!alert.actions && alert.actions.map((action, i) => (
+                      <AlertAction
+                        key={i}
+                        onClick={() => this.actionClick(action.onClick, alert.id)}
+                      >
+                        {action.text}
+                      </AlertAction>
+                    ))}
+                  </AlertActions>
+
+                  {!alert.actions && (
+                    <Icon name='Close' onClick={e => this.props.clearAlert(alert.id)} />
+                  )}
                 </AlertItem>
               </CSSTransition>
             )

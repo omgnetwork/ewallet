@@ -6,6 +6,7 @@ import styled from 'styled-components'
 import createReducer from '../reducer/createReducer'
 
 const CopyTextContainer = styled.div`
+  margin-right: 10px;
   b {
     display: inline-block;
     max-width: 280px;
@@ -15,8 +16,8 @@ const CopyTextContainer = styled.div`
     vertical-align: bottom;
   }
 `
-const createAlertState = (text, type) => {
-  return { id: uuid(), text, type }
+const createAlertState = (text, type, icon, duration, actions) => {
+  return { id: uuid(), text, type, icon, duration, actions }
 }
 
 const errorStateHandler = (state, { error }) => {
@@ -171,6 +172,12 @@ export const alertsReducer = createReducer([], {
     }
     return state
   },
+  'DEPOSIT_ADDRESS/CREATE/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState('Generated deposit address successfully.', 'success')
+    ]
+  },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (
       data.status === 'confirmed' &&
@@ -242,25 +249,25 @@ export const alertsReducer = createReducer([], {
   'CONFIGURATIONS/UPDATE/SUCCESS': (state, { data }) => {
     return [
       ...state,
-      createAlertState(
-        'Updated configuration successfully, reloading application...',
-        'success'
-      )
+      createAlertState('Updated configuration successfully, reloading application...', 'success')
     ]
   },
   'TRANSACTION_REQUEST/CANCEL/SUCCESS': state => {
     return [
       ...state,
-      createAlertState(
-        'Transaction request was successfully canceled.',
-        'success'
-      )
+      createAlertState('Transaction request was successfully cancelled.', 'success')
     ]
   },
   'TRANSACTIONS/EXPORT/SUCCESS': (state, { error }) => {
     return [
       ...state,
-      createAlertState(<div>Exported transactions successfully</div>, 'success')
+      createAlertState('Exported transactions successfully.', 'success')
+    ]
+  },
+  'WEB3/SEND_TRANSACTION/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState('Submitted transaction to Ethereum successfully.', 'success')
     ]
   },
   'ADMIN/INVITE/SUCCESS': state => {
@@ -268,6 +275,9 @@ export const alertsReducer = createReducer([], {
   },
   'INVITE_ADMIN/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invited admin successfully.', 'success')]
+  },
+  'BLOCKCHAIN_WALLET/CREATE/SUCCESS': state => {
+    return [...state, createAlertState('Created cold wallet reference successfully.', 'success')]
   },
   'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
   'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
@@ -294,5 +304,6 @@ export const alertsReducer = createReducer([], {
   'ADMIN/UPDATE/FAILED': errorStateHandler,
   'TRANSACTION_REQUEST/CANCEL/FAILED': errorStateHandler,
   'ADMIN/INVITE/FAILED': errorStateHandler,
-  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler
+  'INVITE_ADMIN/REQUEST/FAILED': errorStateHandler,
+  'BLOCKCHAIN_WALLET/CREATE/FAILED': errorStateHandler
 })

@@ -42,6 +42,7 @@
   "ex_doc": {:hex, :ex_doc, "0.19.3", "3c7b0f02851f5fc13b040e8e925051452e41248f685e40250d7e40b07b9f8c10", [:mix], [{:earmark, "~> 1.2", [hex: :earmark, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.10", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm"},
   "ex_machina": {:hex, :ex_machina, "2.2.2", "d84217a6fb7840ff771d2561b8aa6d74a0d8968e4b10ecc0d7e9890dc8fb1c6a", [:mix], [{:ecto, "~> 2.2 or ~> 3.0", [hex: :ecto, repo: "hexpm", optional: true]}, {:ecto_sql, "~> 3.0", [hex: :ecto_sql, repo: "hexpm", optional: true]}], "hexpm"},
   "ex_rlp": {:hex, :ex_rlp, "0.5.2", "7f4ce7bd55e543c054ce6d49629b01e9833c3462e3d547952be89865f39f2c58", [:mix], [], "hexpm"},
+  "ex_sha3": {:hex, :ex_sha3, "0.1.1", "8972638de7ded220cb885d6a8889c0df9da0d581d25c3b1b94a85a226b6fe874", [:mix], [], "hexpm"},
   "ex_ulid": {:git, "https://github.com/omisego/ex_ulid.git", "2572a88f2687c3aebc8e8657a999fa77bc769fa3", []},
   "ex_unit_fixtures": {:hex, :ex_unit_fixtures, "0.3.1", "8ea3fcf6973529c016792b9a424d9e94101e9f7f01a111bd41a2d4e13cc5fa59", [:mix], [], "hexpm"},
   "excoveralls": {:hex, :excoveralls, "0.9.2", "299ea4903be7cb2959af0f919d258af116736ca8d507f86c12ef2184698e21a0", [:mix], [{:hackney, ">= 0.12.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},

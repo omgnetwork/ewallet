@@ -14,14 +14,28 @@ export function getAllTokens ({ page, perPage, sort, matchAll, matchAny }) {
   })
 }
 
-export function createToken ({ name, symbol, decimal = 18, amount = 0 }) {
+export function createBlockchainToken ({ name, symbol, decimal = 18, amount, locked }) {
+  return authenticatedRequest({
+    path: '/token.deploy_erc20',
+    data: {
+      name,
+      symbol,
+      subunit_to_unit: parseInt(Math.pow(10, decimal)),
+      amount: parseInt(amount),
+      locked
+    }
+  })
+}
+
+export function createToken ({ name, symbol, decimal = 18, amount, blockchain_address }) {
   return authenticatedRequest({
     path: '/token.create',
     data: {
       name,
       symbol,
       subunit_to_unit: parseInt(Math.pow(10, decimal)),
-      amount
+      amount,
+      blockchain_address
     }
   })
 }
@@ -32,6 +46,7 @@ export function mintToken ({ id, amount }) {
     data: { id, amount }
   })
 }
+
 export function getTokenStatsById (id) {
   return authenticatedRequest({
     path: '/token.stats',
@@ -57,5 +72,12 @@ export function getTokenById (id) {
   return authenticatedRequest({
     path: '/token.get',
     data: { id }
+  })
+}
+
+export function getErc20Capabilities (blockchain_address) {
+  return authenticatedRequest({
+    path: '/token.get_erc20_capabilities',
+    data: { blockchain_address }
   })
 }

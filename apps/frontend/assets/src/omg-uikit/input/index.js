@@ -106,6 +106,14 @@ const Success = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity,
     0.3s ease padding ${props => (!props.success ? '0.3s' : '0s')};
 `
+const SubTitle = styled.div`
+  color: ${props => props.theme.colors.S400};
+  text-align: left;
+  padding-top: ${props => (props.subTitle ? '5px' : 0)};
+  overflow: hidden;
+  max-height: ${props => (props.subTitle ? '30px' : 0)};
+  opacity: ${props => (props.subTitle ? 1 : 0)};
+`
 const Prefix = styled.div`
   display: flex;
   align-items: center;
@@ -142,6 +150,7 @@ class InputComponent extends PureComponent {
     errorText: PropTypes.node,
     success: PropTypes.bool,
     successText: PropTypes.number,
+    subTitle: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     autofocus: PropTypes.bool,
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
@@ -275,6 +284,7 @@ class InputComponent extends PureComponent {
           {this.props.errorText}
         </Error>
         <Success success={this.props.success}>{this.props.successText}</Success>
+        <SubTitle subTitle={this.props.subTitle}>{this.props.subTitle}</SubTitle>
       </Container>
     )
   }

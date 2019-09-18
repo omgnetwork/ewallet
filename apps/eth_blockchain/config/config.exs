@@ -6,7 +6,7 @@ config :eth_blockchain,
          {:geth, EthGethAdapter.Worker}
        ],
        cc_node_adapters: [
-         {:omisego_network, EthOmisegoNetworkAdapter.Worker}
+         {:omisego_network, EthOmiseGOAdapter.Worker}
        ],
        default_eth_node_adapter: :geth,
        default_cc_node_adapter: :omisego_network,

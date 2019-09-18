@@ -53,6 +53,7 @@ const AdminPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
+  overflow: auto;
   td {
     white-space: nowrap;
   }
@@ -62,7 +63,7 @@ const UserIdContainer = styled.div`
   flex-direction: row;
 `
 
-class UsersPage extends Component {
+class AdminPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
@@ -195,4 +196,4 @@ class UsersPage extends Component {
   }
 }
 
-export default withRouter(UsersPage)
+export default withRouter(AdminPage)

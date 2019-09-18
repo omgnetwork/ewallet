@@ -20,6 +20,8 @@ TransactionSchema:
         token:
           type: object
           $ref: '../token/schemas.yaml#/TokenSchema'
+    from_blockchain_address:
+      type: string
     to:
       type: object
       properties:
@@ -32,6 +34,8 @@ TransactionSchema:
         token:
           type: object
           $ref: '../token/schemas.yaml#/TokenSchema'
+    to_blockchain_address:
+      type: string
     exchange:
       type: object
       properties:
