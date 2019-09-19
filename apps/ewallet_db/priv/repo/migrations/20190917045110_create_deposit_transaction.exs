@@ -9,11 +9,20 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
       add :id, :string, null: false
       add :status, :string, default: "pending", null: false
       add :type, :string, null: false
-      add :from_blockchain_wallet_address, references(:blockchain_wallet, type: :citext, column: :address)
-      add :to_blockchain_wallet_address, references(:blockchain_wallet, type: :citext, column: :address)
-      add :from_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :citext, column: :address)
-      add :to_deposit_wallet_address, references(:blockchain_deposit_wallet, type: :citext, column: :address)
+      add :from_blockchain_wallet_address, references(:blockchain_wallet,
+                                                      type: :citext, column: :address)
+
+      add :to_blockchain_wallet_address, references(:blockchain_wallet,
+                                                    type: :citext, column: :address)
+
+      add :from_deposit_wallet_address, references(:blockchain_deposit_wallet,
+                                                   type: :citext, column: :address)
+
+      add :to_deposit_wallet_address, references(:blockchain_deposit_wallet,
+                                                 type: :citext, column: :address)
+
       add :token_uuid, references(:token, column: :uuid, type: :uuid), null: true
+
       add :amount, :decimal, precision: 36,
                                   scale: 0,
                                   null: true
@@ -32,7 +41,6 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
       add :error_description, :string
       add :error_data, :map
 
-
       timestamps()
     end
 
@@ -43,7 +51,7 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
     create index(:deposit_transaction, [:to_deposit_wallet_address])
     create index(:deposit_transaction, [:token_uuid])
     create index(:deposit_transaction, [:id])
-    create unique_index(:deposit_transaction, [:blockchain_tx_hash, :blockchain_identifier], name: :unique_hash_constraint)
+    create unique_index(:deposit_transaction, [:blockchain_tx_hash, :blockchain_identifier],
+                        name: :unique_hash_constraint)
   end
 end
-

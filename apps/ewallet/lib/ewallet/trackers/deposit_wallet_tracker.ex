@@ -13,7 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.DepositWalletTracker do
-  # TODO: add moduledoc
+  @moduledoc """
+  Periodically triggers the check to move funds from deposit wallets to a hot wallet.
+  """
   use GenServer
   require Logger
   alias EWallet.DepositPoolingGate

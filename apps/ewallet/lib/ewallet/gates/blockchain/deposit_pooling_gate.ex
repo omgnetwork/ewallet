@@ -101,7 +101,10 @@ defmodule EWallet.DepositPoolingGate do
           error
 
         error ->
-          Logger.error(fn -> "An error occured while trying to pool deposits: #{inspect(error)}." end)
+          Logger.error(fn ->
+            "An error occured while trying to pool deposits: #{inspect(error)}."
+          end)
+
           error
       end
     end)
