@@ -21,8 +21,16 @@ export const blockchainWalletBalanceReducer = createReducer(
   {},
   {
     'BLOCKCHAIN_WALLET_BALANCE/REQUEST/SUCCESS': (state, action) => {
+      const [rootBalance, plasmaBalance] = action.data
+      const balances = rootBalance.map(balance => {
+        const fromPlasma = plasmaBalance.find(i => i.token.id === balance.token.id)
+        return {
+          ...balance,
+          plasmaAmount: fromPlasma.amount
+        }
+      })
       const request = JSON.parse(action.cacheKey)
-      return { ...state, [request.address]: action.data }
+      return { ...state, [request.address]: balances }
     }
   }
 )
