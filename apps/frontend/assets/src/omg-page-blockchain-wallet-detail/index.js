@@ -8,9 +8,9 @@ import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
 import { selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
 import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
-import CreateHotWalletTransferButton from '../omg-transaction/CreateHotWalletTransferButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 
+import HotWalletTransferChooser from './HotWalletTransferChooser'
 import BlockchainSettingsPage from './BlockchainSettingsPage'
 import BlockchainTransactionsPage from './BlockchainTransactionsPage'
 import BlockchainTokensPage from './BlockchainTokensPage'
@@ -36,7 +36,7 @@ const BlockchainWalletDetailPage = ({
   )
 
   const renderHotWalletTransferButton = () => (
-    <CreateHotWalletTransferButton
+    <HotWalletTransferChooser
       key='hot-wallet-transfer'
       fromAddress={match.params.address}
     />
@@ -55,8 +55,8 @@ const BlockchainWalletDetailPage = ({
   )
 
   const renderActionButton = () => {
-    if (walletType === 'hot') {
-      return balance ? renderHotWalletTransferButton() : null
+    if (walletType === 'hot' && balance) {
+      return renderHotWalletTransferButton()
     }
     if (metamaskUsable) {
       return balance ? renderBlockchainTransactionButton() : null
