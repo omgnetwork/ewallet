@@ -57,3 +57,41 @@ export const createPaginationActionCreator = ({
     return dispatch({ type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.FAILED}`, error })
   }
 }
+
+// Type for services: Promise<[resolves]>
+// we take pagination data from the first promise
+export const createPaginationMultiPromiseActionCreator = ({
+  actionName,
+  action,
+  services,
+  cacheKey
+}) => async dispatch => {
+  dispatch({
+    type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.INITIATED}`
+  })
+  try {
+    const result = await services()
+    const allSuccess = _.every(result, ['data.success', true])
+    const data = result.map(res => res.data.data.data)
+
+    if (allSuccess) {
+      return dispatch({
+        type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.SUCCESS}`,
+        pagination: result[0].data.data.pagination,
+        data,
+        cacheKey
+      })
+    } else {
+      const failedPromises = result.filter(res => !res.data.success)
+      const errors = failedPromises.map(res => res.data.data)
+
+      return dispatch({
+        type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.FAILED}`,
+        errors
+      })
+    }
+  } catch (error) {
+    console.error('failed to dispatch paginated action', `[${actionName}]`, 'with error', error)
+    return dispatch({ type: `${actionName}/${action}/${CONSTANT.LOADING_STATUS.FAILED}`, error })
+  }
+}
