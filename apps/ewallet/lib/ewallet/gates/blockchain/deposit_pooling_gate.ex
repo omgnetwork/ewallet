@@ -97,11 +97,11 @@ defmodule EWallet.DepositPoolingGate do
         {:ok, transaction}
       else
         {:skipped, reason} = error ->
-          Logger.debug("Skipped deposit pooling: #{inspect(reason)}.")
+          Logger.debug(fn -> "Skipped deposit pooling: #{inspect(reason)}." end)
           error
 
         error ->
-          Logger.error("An error occured while trying to pool deposits: #{inspect(error)}.")
+          Logger.error(fn -> "An error occured while trying to pool deposits: #{inspect(error)}." end)
           error
       end
     end)
