@@ -108,11 +108,8 @@ defmodule EWallet.TransactionTrackerTest do
           :blockchain_transaction,
           to_blockchain_address: deposit_wallet.address,
           from_token: balance.token,
-          to_token: balance.token,
-          blockchain_identifier: "dumb"
+          to_token: balance.token
         )
-
-      transaction_receipt = %{transaction_hash: transaction.blockchain_tx_hash}
 
       {:ok, pid} =
         TransactionTracker.start_link(%{
@@ -120,7 +117,7 @@ defmodule EWallet.TransactionTrackerTest do
           transaction_type: :from_blockchain_to_ledger
         })
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction_receipt, 12})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12, 1})
 
       # Wait until the tracker winds down, reload the balances and assert for the new amount
       ref = Process.monitor(pid)

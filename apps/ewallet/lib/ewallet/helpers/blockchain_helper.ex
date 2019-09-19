@@ -18,6 +18,20 @@ defmodule EWallet.BlockchainHelper do
   """
 
   @doc """
+  Returns the main rootchain identifier
+  """
+  def rootchain_identifier do
+    Application.get_env(:ewallet_db, :rootchain_identifier)
+  end
+
+  @doc """
+  Returns the main childchain identifier
+  """
+  def childchain_identifier do
+    Application.get_env(:ewallet_db, :childchain_identifier)
+  end
+
+  @doc """
   Returns :ok if the given address is a valid blockchain address
   for the current adapter or {:error, :invalid_blockchain_address} otherwise.
   """
@@ -37,20 +51,6 @@ defmodule EWallet.BlockchainHelper do
       true -> :ok
       false -> {:error, :blockchain_invalid_identifier}
     end
-  end
-
-  @doc """
-  Returns the main rootchain identifier
-  """
-  def rootchain_identifier do
-    Application.get_env(:ewallet_db, :rootchain_identifier)
-  end
-
-  @doc """
-  Returns the main childchain identifier
-  """
-  def childchain_identifier do
-    Application.get_env(:ewallet_db, :childchain_identifier)
   end
 
   @doc """

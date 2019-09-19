@@ -15,6 +15,7 @@
 defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
+  alias EWallet.BlockchainHelper
   alias EWalletDB.BlockchainDepositWalletBalance
 
   describe "all_for_token/2" do
@@ -25,7 +26,11 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       b3 = insert(:blockchain_deposit_wallet_balance, token: token)
       b4 = insert(:blockchain_deposit_wallet_balance)
 
-      balances = BlockchainDepositWalletBalance.all_for_token(token, "dumb")
+      balances =
+        BlockchainDepositWalletBalance.all_for_token(
+          token,
+          BlockchainHelper.rootchain_identifier()
+        )
 
       assert Enum.any?(balances, fn b -> b.uuid == b1.uuid end)
       refute Enum.any?(balances, fn b -> b.uuid == b2.uuid end)
@@ -41,7 +46,11 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       b3 = insert(:blockchain_deposit_wallet_balance, token: token_2)
       b4 = insert(:blockchain_deposit_wallet_balance)
 
-      balances = BlockchainDepositWalletBalance.all_for_token([token_1, token_2], "dumb")
+      balances =
+        BlockchainDepositWalletBalance.all_for_token(
+          [token_1, token_2],
+          BlockchainHelper.rootchain_identifier()
+        )
 
       assert Enum.any?(balances, fn b -> b.uuid == b1.uuid end)
       refute Enum.any?(balances, fn b -> b.uuid == b2.uuid end)
@@ -62,7 +71,11 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       ]
 
       balances =
-        BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
+        BlockchainDepositWalletBalance.create_or_update_all(
+          wallet.address,
+          balance_data,
+          BlockchainHelper.rootchain_identifier()
+        )
 
       assert Enum.all?(balances, fn {:ok, b} ->
                b.blockchain_deposit_wallet_address == wallet.address
@@ -102,7 +115,11 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       ]
 
       balances =
-        BlockchainDepositWalletBalance.create_or_update_all(wallet.address, balance_data, "dumb")
+        BlockchainDepositWalletBalance.create_or_update_all(
+          wallet.address,
+          balance_data,
+          BlockchainHelper.rootchain_identifier()
+        )
 
       assert Enum.all?(balances, fn {:ok, b} ->
                b.blockchain_deposit_wallet_address == wallet.address

@@ -122,9 +122,6 @@ defmodule EWallet.DepositPoolingGate do
   end
 
   defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet}) do
-    blockchain_adapter = BlockchainHelper.adapter()
-    node_adapter = Application.get_env(:ewallet, :node_adapter)
-
     attrs = %{
       from: transaction.from_deposit_wallet_address || transaction.from_deposit_wallet_address,
       to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
@@ -140,6 +137,6 @@ defmodule EWallet.DepositPoolingGate do
       }
     }
 
-    blockchain_adapter.call({:send, attrs}, node_adapter)
+    BlockchainHelper.call(:send, attrs)
   end
 end

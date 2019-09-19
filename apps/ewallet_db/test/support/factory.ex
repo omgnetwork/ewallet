@@ -127,7 +127,7 @@ defmodule EWalletDB.Factory do
   def blockchain_wallet_factory do
     %BlockchainWallet{
       address: Crypto.fake_eth_address(),
-      blockchain_identifier: "dumb",
+      blockchain_identifier: "ethereum",
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",
@@ -137,7 +137,7 @@ defmodule EWalletDB.Factory do
 
   def blockchain_hd_wallet_factory do
     %BlockchainHDWallet{
-      blockchain_identifier: "dumb",
+      blockchain_identifier: "ethereum",
       keychain_id: sequence("keychain_id_")
     }
   end
@@ -152,7 +152,7 @@ defmodule EWalletDB.Factory do
   def blockchain_deposit_wallet_factory do
     %BlockchainDepositWallet{
       address: Crypto.fake_eth_address(),
-      blockchain_identifier: "dumb",
+      blockchain_identifier: "ethereum",
       public_key: Crypto.fake_eth_address(),
       originator: %System{},
       path_ref: "12345",
@@ -164,8 +164,8 @@ defmodule EWalletDB.Factory do
   def blockchain_deposit_wallet_balance_factory do
     %BlockchainDepositWalletBalance{
       amount: 1,
-      blockchain_identifier: "dumb",
       blockchain_deposit_wallet: insert(:blockchain_deposit_wallet),
+      blockchain_identifier: "ethereum",
       token: insert(:token)
     }
   end

@@ -15,6 +15,7 @@
 defmodule EWalletDB.BlockchainDepositWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
+  alias EWallet.BlockchainHelper
   alias EWalletDB.BlockchainDepositWallet
   alias Utils.Helpers.{Crypto, EIP55}
 
@@ -22,7 +23,7 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
     test "returns the list of all blockchain deposit wallets" do
       deposit_wallet_1 = insert(:blockchain_deposit_wallet)
       deposit_wallet_2 = insert(:blockchain_deposit_wallet)
-      deposit_wallets = BlockchainDepositWallet.all("dumb")
+      deposit_wallets = BlockchainDepositWallet.all(BlockchainHelper.rootchain_identifier())
 
       assert is_list(deposit_wallets)
       assert Enum.any?(deposit_wallets, fn w -> w.address == deposit_wallet_1.address end)
