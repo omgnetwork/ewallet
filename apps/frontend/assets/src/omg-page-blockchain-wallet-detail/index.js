@@ -6,7 +6,7 @@ import { connect, useSelector, useDispatch } from 'react-redux'
 import { Button } from '../omg-uikit'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
-import { selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
+import { selectBlockchainWallets, selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
 import { getAllBlockchainWallets } from '../omg-blockchain-wallet/action'
 import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
@@ -21,6 +21,7 @@ const BlockchainWalletDetailPage = ({
   selectBlockchainWalletBalance,
   selectBlockchainWalletById,
   getAllBlockchainWallets,
+  selectBlockchainWallets,
   ...rest
 }) => {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ const BlockchainWalletDetailPage = ({
   const balance = selectBlockchainWalletBalance(match.params.address)
     .reduce((acc, curr) => acc + curr.amount, 0)
   const walletType = selectBlockchainWalletById(match.params.address).type
+  const isColdWallet = !!selectBlockchainWallets.filter(i => i.type === 'cold').length
 
   useEffect(() => {
     if (!walletType) {
@@ -63,6 +65,7 @@ const BlockchainWalletDetailPage = ({
         <HotWalletTransferChooser
           key='hot-wallet-transfer'
           fromAddress={match.params.address}
+          isColdWallet={isColdWallet}
         />
       )
     }
@@ -96,13 +99,15 @@ BlockchainWalletDetailPage.propTypes = {
   match: PropTypes.object,
   selectBlockchainWalletBalance: PropTypes.func,
   selectBlockchainWalletById: PropTypes.func,
+  selectBlockchainWallets: PropTypes.array,
   getAllBlockchainWallets: PropTypes.func
 }
 
 export default connect(
   state => ({
     selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
-    selectBlockchainWalletById: selectBlockchainWalletById(state)
+    selectBlockchainWalletById: selectBlockchainWalletById(state),
+    selectBlockchainWallets: selectBlockchainWallets(state)
   }),
   { getAllBlockchainWallets }
 )(BlockchainWalletDetailPage)
