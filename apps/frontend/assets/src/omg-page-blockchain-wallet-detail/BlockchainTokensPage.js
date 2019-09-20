@@ -117,7 +117,7 @@ class BlockchainTokensPage extends Component {
       return `${formatReceiveAmountToTotal(rows.plasmaAmount, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'plasmaPercentage') {
-      const rawPercent = rows.plasmaAmount / (rows.plasmaAmount + rows.amount)
+      const rawPercent = (rows.plasmaAmount / (rows.plasmaAmount + rows.amount)) * 100
       return `${rawPercent ? rawPercent.toFixed(2) : 0}%`
     }
     return data
