@@ -118,7 +118,7 @@ class BlockchainTokensPage extends Component {
     }
     if (key === 'plasmaPercentage') {
       const rawPercent = rows.plasmaAmount / (rows.plasmaAmount + rows.amount)
-      return `${rawPercent.toFixed(2)}%`
+      return `${rawPercent ? rawPercent.toFixed(2) : 0}%`
     }
     return data
   }

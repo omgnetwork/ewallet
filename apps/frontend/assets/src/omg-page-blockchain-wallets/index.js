@@ -28,7 +28,6 @@ const WalletAddressContainer = styled.div`
 
 const BlockchainWalletsPage = ({ match, history }) => {
   const dispatch = useDispatch()
-
   const onClickCreateWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
 
   const renderCreateWalletButton = () => {

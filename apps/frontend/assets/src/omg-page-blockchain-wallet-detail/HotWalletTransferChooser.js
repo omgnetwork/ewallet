@@ -39,6 +39,7 @@ class HotWalletTransferChooser extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onClickButton: PropTypes.func,
+    onDepositComplete: PropTypes.func,
     openModal: PropTypes.func,
     fromAddress: PropTypes.string
   }
@@ -61,7 +62,8 @@ class HotWalletTransferChooser extends Component {
           key='plasma-deposit'
           onClick={() => this.props.openModal({
             id: 'plasmaDepositModal',
-            fromAddress: this.props.fromAddress
+            fromAddress: this.props.fromAddress,
+            onDepositComplete: this.props.onDepositComplete
           })}
         >
           <Icon name='Download' />

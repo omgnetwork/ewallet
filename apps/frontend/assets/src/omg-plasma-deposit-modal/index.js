@@ -83,7 +83,8 @@ class PlasmaDeposit extends Component {
     fromAddress: PropTypes.string,
     selectBlockchainWalletBalance: PropTypes.func,
     getWalletById: PropTypes.func,
-    plasmaDeposit: PropTypes.func
+    plasmaDeposit: PropTypes.func,
+    onDepositComplete: PropTypes.func
   }
   state = {
     fromTokenAmount: '',
@@ -99,7 +100,7 @@ class PlasmaDeposit extends Component {
       [`${type}Selected`]: token
     })
   }
-  onSubmit = async e => {
+  onDeposit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
@@ -114,6 +115,9 @@ class PlasmaDeposit extends Component {
       })
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
+        if (this.props.onDepositComplete) {
+          this.props.onDepositComplete()
+        }
         this.onRequestClose()
       } else {
         this.setState({
@@ -191,7 +195,7 @@ class PlasmaDeposit extends Component {
   }
   render () {
     return (
-      <Form onSubmit={this.onSubmit} noValidate>
+      <Form onSubmit={this.onDeposit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerTransferContainer>
           <h4>OmiseGO Network Deposit</h4>
@@ -230,7 +234,8 @@ export default class PlasmaDepositModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    fromAddress: PropTypes.string
+    fromAddress: PropTypes.string,
+    onDepositComplete: PropTypes.func
   }
   render = () => {
     return (
@@ -243,6 +248,7 @@ export default class PlasmaDepositModal extends Component {
         <EnhancedPlasmaDeposit
           onRequestClose={this.props.onRequestClose}
           fromAddress={this.props.fromAddress}
+          onDepositComplete={this.props.onDepositComplete}
         />
       </Modal>
     )
