@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { connect, useSelector, useDispatch } from 'react-redux'
@@ -6,10 +6,16 @@ import { connect, useSelector, useDispatch } from 'react-redux'
 import { Button } from '../omg-uikit'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
-import { selectBlockchainWallets, selectBlockchainWalletBalance, selectBlockchainWalletById } from '../omg-blockchain-wallet/selector'
-import { getAllBlockchainWallets } from '../omg-blockchain-wallet/action'
+import {
+  selectBlockchainWallets,
+  selectBlockchainWalletBalance,
+  selectBlockchainWalletById,
+  selectPlasmaDepositByAddress
+} from '../omg-blockchain-wallet/selector'
+import { getAllBlockchainWallets, getBlockchainWalletBalance } from '../omg-blockchain-wallet/action'
 import CreateBlockchainTransactionButton from '../omg-transaction/CreateBlockchainTransactionButton'
 import TopNavigation from '../omg-page-layout/TopNavigation'
+import { getTransactionById } from '../omg-transaction/action'
 
 import HotWalletTransferChooser from './HotWalletTransferChooser'
 import BlockchainSettingsPage from './BlockchainSettingsPage'
@@ -20,16 +26,22 @@ const BlockchainWalletDetailPage = ({
   match,
   selectBlockchainWalletBalance,
   selectBlockchainWalletById,
+  selectPlasmaDepositByAddress,
   getAllBlockchainWallets,
+  getBlockchainWalletBalance,
+  getTransactionById,
   selectBlockchainWallets,
   ...rest
 }) => {
+  const { address } = match.params
   const dispatch = useDispatch()
   const metamaskUsable = useSelector(selectMetamaskUsable)
-  const balance = selectBlockchainWalletBalance(match.params.address)
+  const balance = selectBlockchainWalletBalance(address)
     .reduce((acc, curr) => acc + curr.amount, 0)
-  const walletType = selectBlockchainWalletById(match.params.address).type
+  const walletType = selectBlockchainWalletById(address).type
   const isColdWallet = !!selectBlockchainWallets.filter(i => i.type === 'cold').length
+
+  const [pollingState, setPollingState] = useState(false)
 
   useEffect(() => {
     if (!walletType) {
@@ -40,10 +52,37 @@ const BlockchainWalletDetailPage = ({
     }
   }, [walletType])
 
+  useEffect(() => {
+    if (pollingState) {
+      const pollBalance = async () => {
+        try {
+          const { id: depositTransactionId } = selectPlasmaDepositByAddress(address)
+          const { data: { status } } = await getTransactionById(depositTransactionId)
+
+          if (status === 'confirmed') {
+            getBlockchainWalletBalance({
+              address: address,
+              cacheKey: { address: address, entity: 'plasmadeposits' }
+            })
+            clearInterval(balancePolling)
+            setPollingState(false)
+          } else {
+            // keep polling until confirmed
+          }
+        } catch (e) {
+          clearInterval(balancePolling)
+          setPollingState(false)
+        }
+      }
+      const balancePolling = setInterval(pollBalance, 2000)
+      return () => clearInterval(balancePolling)
+    }
+  }, [pollingState])
+
   const renderTopupButton = () => (
     <CreateBlockchainTransactionButton
       key='blockchain-transfer'
-      fromAddress={match.params.address}
+      fromAddress={address}
     />
   )
 
@@ -64,8 +103,9 @@ const BlockchainWalletDetailPage = ({
       return (
         <HotWalletTransferChooser
           key='hot-wallet-transfer'
-          fromAddress={match.params.address}
+          fromAddress={address}
           isColdWallet={isColdWallet}
+          onDepositComplete={() => setPollingState(true)}
         />
       )
     }
@@ -82,7 +122,7 @@ const BlockchainWalletDetailPage = ({
         title='Blockchain Wallet'
         types={false}
         searchBar={false}
-        description={match.params.address}
+        description={address}
         buttons={[renderActionButton()]}
       />
       <Switch>
@@ -100,14 +140,18 @@ BlockchainWalletDetailPage.propTypes = {
   selectBlockchainWalletBalance: PropTypes.func,
   selectBlockchainWalletById: PropTypes.func,
   selectBlockchainWallets: PropTypes.array,
-  getAllBlockchainWallets: PropTypes.func
+  selectPlasmaDepositByAddress: PropTypes.func,
+  getAllBlockchainWallets: PropTypes.func,
+  getBlockchainWalletBalance: PropTypes.func,
+  getTransactionById: PropTypes.func
 }
 
 export default connect(
   state => ({
     selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
     selectBlockchainWalletById: selectBlockchainWalletById(state),
-    selectBlockchainWallets: selectBlockchainWallets(state)
+    selectBlockchainWallets: selectBlockchainWallets(state),
+    selectPlasmaDepositByAddress: selectPlasmaDepositByAddress(state)
   }),
-  { getAllBlockchainWallets }
+  { getAllBlockchainWallets, getBlockchainWalletBalance, getTransactionById }
 )(BlockchainWalletDetailPage)

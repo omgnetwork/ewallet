@@ -17,6 +17,15 @@ export const blockchainWalletReducer = createReducer(
   }
 )
 
+export const plasmaDepositReducer = createReducer(
+  {},
+  {
+    'BLOCKCHAIN_WALLET/DEPOSIT/SUCCESS': (state, action) => {
+      return { ...state, [action.data.from_blockchain_address]: action.data }
+    }
+  }
+)
+
 export const blockchainWalletBalanceReducer = createReducer(
   {},
   {
@@ -29,7 +38,9 @@ export const blockchainWalletBalanceReducer = createReducer(
           plasmaAmount: fromPlasma.amount
         }
       })
-      const request = JSON.parse(action.cacheKey)
+      const request = typeof action.cacheKey === 'string'
+        ? JSON.parse(action.cacheKey)
+        : action.cacheKey
       return { ...state, [request.address]: balances }
     }
   }

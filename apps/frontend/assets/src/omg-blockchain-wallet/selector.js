@@ -17,3 +17,7 @@ export const selectBlockchainWalletsCachedQuery = state => cacheKey => {
 export const selectBlockchainWalletById = state => id => state.blockchainWallets[id] || {}
 
 export const selectBlockchainWalletsLoadingStatus = state => state.loadingStatus.blockchainWallets
+
+export const selectPlasmaDepositByAddress = state => address => {
+  return state.plasmaDeposits[address]
+}

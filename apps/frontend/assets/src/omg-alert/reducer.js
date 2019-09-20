@@ -280,7 +280,7 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Created cold wallet reference successfully.', 'success')]
   },
   'BLOCKCHAIN_WALLET/DEPOSIT/SUCCESS': state => {
-    return [...state, createAlertState('Deposited to Plasma successfully.', 'success')]
+    return [...state, createAlertState('Deposit successful. Balances will update after block confirmation.', 'success')]
   },
   'CONFIGURATIONS/UPDATE/FAILED': errorStateHandler,
   'TRANSACTIONS/EXPORT/FAILED': errorStateHandler,
