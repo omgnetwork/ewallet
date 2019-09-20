@@ -23,18 +23,21 @@ defmodule EWallet.DepositWalletTracker do
   # TODO: only starts when blockchain is enabled
 
   # TODO: make these numbers admin-configurable
-  @checking_interval 600_000
+  @default_interval 60 * 60 * 1_000
 
-  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
-    name = Keyword.get(opts, :name, __MODULE__)
-    attrs = Keyword.get(opts, :attrs, %{})
-    GenServer.start_link(__MODULE__, attrs, name: name)
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  def init(attrs) do
+  def init(opts) do
+    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
+    pooling_interval = Application.get_env(:ewallet, :deposit_pooling_interval, @default_interval)
+
     state = %{
-      blockchain_identifier: attrs.blockchain_identifier,
+      blockchain_identifier: blockchain_identifier,
+      pooling_interval: pooling_interval,
       timer: nil
     }
 
@@ -49,19 +52,24 @@ defmodule EWallet.DepositWalletTracker do
     poll(state)
   end
 
+  # Does not pool if the interval is too low
+  defp poll(%{pooling_interval: interval} = state) when interval <= 0 do
+    {:noreply, state}
+  end
+
   defp poll(state) do
     case DepositPoolingGate.move_deposits_to_pooled_funds(state.blockchain_identifier) do
       {:ok, _} ->
-        timer = Process.send_after(self(), :poll, @checking_interval)
+        timer = Process.send_after(self(), :poll, state.pooling_interval)
         {:noreply, %{state | timer: timer}}
 
       error ->
-        timer = Process.send_after(self(), :poll, @checking_interval)
+        timer = Process.send_after(self(), :poll, state.pooling_interval)
 
         _ =
           Logger.error(
             "Errored trying to pool funds from deposit wallets." <>
-              " Retrying in #{@checking_interval} ms. Got: #{inspect(error)}."
+              " Retrying in #{state.pooling_interval} ms. Got: #{inspect(error)}."
           )
 
         {:noreply, %{state | timer: timer}}

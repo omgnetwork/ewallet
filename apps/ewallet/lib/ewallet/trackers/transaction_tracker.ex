@@ -22,166 +22,204 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
   alias ActivityLogger.System
-  alias EWallet.{BlockchainDepositWalletGate, BlockchainHelper, BlockchainTransactionGate}
-  alias EWallet.Web.Preloader
+
+  alias EWallet.{
+    BlockchainDepositWalletGate,
+    BlockchainHelper,
+    BlockchainTransactionGate
+  }
+
   alias EWalletDB.{BlockchainDepositWallet, TransactionState}
 
-  @backup_confirmations_threshold 10
-
+  @default_confirmations_threshold 10
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
+
+  @registry EWallet.TransactionTrackerRegistry
+  @supervisor EWallet.TransactionTrackerSupervisor
 
   # TODO: handle failed transactions
 
-  def start_link(attrs) do
-    GenServer.start_link(__MODULE__, attrs)
+  @doc """
+  Lookup for an already running tracker by its transaction's uuid.
+  """
+  @spec lookup(String.t(), Registry.registry()) :: {:ok, pid()} | {:error, :not_found}
+  def lookup(transaction_uuid, registry \\ @registry) do
+    case Registry.lookup(registry, transaction_uuid) do
+      [{pid, _}] -> {:ok, pid}
+      [] -> {:error, :not_found}
+    end
   end
 
-  def init(%{transaction: transaction, transaction_type: transaction_type} = attrs) do
-    adapter = BlockchainHelper.adapter()
+  @doc """
+  Starts a new supervised TransactionTracker process for the given transaction.
+  The tracker is also registered with a registry and so can be looked up
+  by its tracking transaction's uuid via the registry.
+  """
+  def start(transaction, transaction_type, registry \\ @registry) do
+    opts = [
+      transaction: transaction,
+      transaction_type: transaction_type,
+      name: {:via, Registry, {registry, transaction.uuid}}
+    ]
 
+    DynamicSupervisor.start_child(@supervisor, {__MODULE__, opts})
+  end
+
+  @doc """
+  Starts the actual TransactionTracker process.
+  """
+  def start_link(opts) do
+    {name, opts} = Keyword.pop(opts, :name)
+    GenServer.start_link(__MODULE__, opts, name: name)
+  end
+
+  def init(opts) do
+    state = %{
+      transaction: Keyword.fetch!(opts, :transaction),
+      transaction_type: Keyword.fetch!(opts, :transaction_type)
+    }
+
+    {:ok, state, {:continue, :subscribe_adapter}}
+  end
+
+  def handle_continue(:subscribe_adapter, state) do
     :ok =
-      adapter.subscribe(
+      BlockchainHelper.adapter().subscribe(
         :transaction,
-        transaction.blockchain_tx_hash,
-        transaction.blockchain_identifier != @rootchain_identifier,
+        state.transaction.blockchain_tx_hash,
+        state.transaction.blockchain_identifier != @rootchain_identifier,
         self()
       )
 
-    {:ok,
-     %{
-       transaction: transaction,
-       # for state changes, see TransactionState.state()'s map keys
-       transaction_type: transaction_type,
-       # optional
-       registry: attrs[:registry]
-     }}
+    {:noreply, state}
   end
 
-  def handle_cast(
-        {:confirmations_count, transaction_hash, confirmations_count, block_number},
-        %{transaction: transaction} = state
-      ) do
-    case transaction.blockchain_tx_hash == transaction_hash do
+  def handle_cast({:confirmations_count, tx_hash, confirmations_count, block_num}, state) do
+    case state.transaction.blockchain_tx_hash == tx_hash do
       true ->
-        adapter = BlockchainHelper.adapter()
-        threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
+        # The transaction may have staled as it may took time before this function is invoked.
+        # So we'll re-retrieve the transaction from the database before transitioning.
+        state = %{state | transaction: refresh_transaction(state.transaction, preload: :to_token)}
 
-        if is_nil(threshold) do
-          Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
+        case confirmations_count >= get_confirmations_threshold() do
+          false ->
+            transaction = update_confirmations_count(state, confirmations_count, block_num)
+            {:noreply, %{state | transaction: transaction}}
+
+          true ->
+            transaction = finalize_transaction(state, confirmations_count, block_num)
+            {:stop, :normal, %{state | transaction: transaction}}
         end
-
-        update_confirmations_count(
-          adapter,
-          state,
-          confirmations_count,
-          block_number,
-          confirmations_count >= (threshold || @backup_confirmations_threshold)
-        )
 
       false ->
         Logger.error(
-          "Unable to update the confirmation count for #{transaction.blockchain_tx_hash}." <>
-            " The receipt has a mismatched hash: #{transaction_hash}."
+          "Unable to handle the confirmations count for #{state.transaction.blockchain_tx_hash}." <>
+            " The receipt has a mismatched hash: #{tx_hash}."
         )
 
         {:noreply, state}
     end
   end
 
-  # Transaction not yet included in a block / or invalid tx_hash
+  # TODO: handle_cast for failures
+
+  # Handle transactions that are not yet included in a block / or invalid tx_hash
   def handle_cast({:not_found}, state) do
-    # TODO Implement threshold to stop tracking an invalid transactioon
+    # TODO: Implement threshold to stop tracking an invalid transactioon
     # If the transaction remains not_found for xxxx blocks, unsubscribe.
     {:noreply, state}
   end
 
-  # TODO handle_cast for failures
+  defp refresh_transaction(%schema{} = transaction, opts) do
+    schema.get(transaction.id, opts)
+  end
 
-  # Threshold reached, finalizing the transaction...
-  defp update_confirmations_count(
-         adapter,
-         %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
-         confirmations_count,
-         _block_number,
-         true
-       ) do
-    # The transaction may have staled as it may took time before this function is invoked.
-    # So we'll re-retrieve the transaction from the database before transitioning.
-    transaction = schema.get(transaction.id)
+  defp get_confirmations_threshold do
+    case Application.get_env(:ewallet, :blockchain_confirmations_threshold) do
+      nil ->
+        _ = Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
+        @default_confirmations_threshold
 
-    {:ok, transaction} =
-      TransactionState.transition_to(
-        transaction_type,
-        TransactionState.blockchain_confirmed(),
-        transaction,
-        %{
-          confirmations_count: confirmations_count,
-          originator: %System{}
-        }
-      )
-
-    # TODO: handle error
-    {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
-
-    # If the transaction is to a deposit wallet, make sure the deposit wallet's
-    # local copy of its blockchain balances is refreshed.
-    _ =
-      case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
-        nil ->
-          :noop
-
-        _deposit_wallet ->
-          {:ok, transaction} = Preloader.preload_one(transaction, :to_token)
-
-          {:ok, _} =
-            BlockchainDepositWalletGate.refresh_balances(
-              transaction.to_blockchain_address,
-              transaction.blockchain_identifier,
-              transaction.to_token
-            )
-      end
-
-    #
-    # The transaction is now confirmed. Stop the tracker.
-    #
-
-    # TODO: :ok / {:error, :not_found} handling?
-    :ok = adapter.unsubscribe(:transaction, transaction.blockchain_tx_hash, self())
-
-    case is_nil(state[:registry]) do
-      true ->
-        {:stop, :normal, Map.put(state, :transaction, transaction)}
-
-      false ->
-        :ok = GenServer.cast(state[:registry], {:stop_tracker, transaction.uuid})
-        {:noreply, Map.put(state, :transaction, transaction)}
+      threshold ->
+        threshold
     end
   end
 
-  # Threshold not reached yet, updating and continuing to track...
-  defp update_confirmations_count(
-         _adapter,
-         %{transaction: %schema{} = transaction, transaction_type: transaction_type} = state,
-         confirmations_count,
-         block_number,
-         false
-       ) do
-    # The transaction may have staled as it may took time before this function is invoked.
-    # So we'll re-retrieve the transaction from the database before transitioning.
-    transaction = schema.get(transaction.id)
+  #
+  # Functions for ongoing transaction
+  #
 
+  defp update_confirmations_count(state, confirmations_count, block_num) do
     {:ok, transaction} =
       TransactionState.transition_to(
-        transaction_type,
+        state.transaction_type,
         TransactionState.pending_confirmations(),
-        transaction,
+        state.transaction,
         %{
-          blk_number: block_number,
+          blk_number: block_num,
           confirmations_count: confirmations_count,
           originator: %System{}
         }
       )
 
-    {:noreply, Map.put(state, :transaction, transaction)}
+    transaction
+  end
+
+  #
+  # Functions for finalizing a transaction
+  #
+
+  defp finalize_transaction(state, confirmations_count, block_num) do
+    with {:ok, updated} <-
+           confirm(state.transaction, state.transaction_type, confirmations_count, block_num),
+         {:ok, updated} <- BlockchainTransactionGate.handle_local_insert(updated),
+         :ok <- refresh_balances_if_to_deposit_wallet(updated) do
+      updated
+    else
+      {:error, _} = error ->
+        _ =
+          Logger.error(fn ->
+            "The transaction did not finalize completely after" <>
+              " the confirmations count have reached threshold. Got: #{inspect(error)}."
+          end)
+
+        state.transaction
+    end
+  end
+
+  defp refresh_balances_if_to_deposit_wallet(transaction) do
+    # If the transaction is to a deposit wallet, make sure the deposit wallet's
+    # local copy of its blockchain balances is refreshed.
+    case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
+      %BlockchainDepositWallet{} ->
+        _ =
+          BlockchainDepositWalletGate.refresh_balances(
+            transaction.to_blockchain_address,
+            transaction.blockchain_identifier,
+            transaction.to_token
+          )
+
+        BlockchainHelper.adapter().unsubscribe(
+          :transaction,
+          transaction.blockchain_tx_hash,
+          self()
+        )
+
+      _ ->
+        :ok
+    end
+  end
+
+  defp confirm(transaction, transaction_type, confirmations_count, block_num) do
+    TransactionState.transition_to(
+      transaction_type,
+      TransactionState.blockchain_confirmed(),
+      transaction,
+      %{
+        blk_number: block_num,
+        confirmations_count: confirmations_count,
+        originator: %System{}
+      }
+    )
   end
 end

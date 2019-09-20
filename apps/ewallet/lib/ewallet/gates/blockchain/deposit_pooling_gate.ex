@@ -18,7 +18,7 @@ defmodule EWallet.DepositPoolingGate do
   """
   require Logger
   alias ActivityLogger.System
-  alias EWallet.{BlockchainHelper, TransactionRegistry, TransactionTracker}
+  alias EWallet.{BlockchainHelper, TransactionTracker}
 
   alias EWalletDB.{
     Token,
@@ -89,11 +89,7 @@ defmodule EWallet.DepositPoolingGate do
                transaction,
                %{blockchain_tx_hash: tx_hash, originator: %System{}}
              ),
-           :ok <-
-             TransactionRegistry.start_tracker(TransactionTracker, %{
-               transaction: transaction,
-               transaction_type: :from_deposit_to_pooled
-             }) do
+           {:ok, _pid} <- TransactionTracker.start(transaction, :from_deposit_to_pooled) do
         {:ok, transaction}
       else
         {:skipped, reason} = error ->

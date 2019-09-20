@@ -8,6 +8,7 @@ config :ewallet,
   cors_origin: {:system, "CORS_ORIGIN", nil},
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
   cc_node_adapter: {:omisego_network, EthOmiseGOAdapter.Worker},
+  deposit_pooling_interval: 60 * 60 * 1_000,
   settings: [
     :base_url,
     :sender_email,

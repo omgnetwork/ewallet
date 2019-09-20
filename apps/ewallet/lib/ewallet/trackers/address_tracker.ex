@@ -37,33 +37,34 @@ defmodule EWallet.AddressTracker do
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50
-  # 15000
   @polling_interval 500
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
-    name = Keyword.get(opts, :name, __MODULE__)
-    attrs = Keyword.get(opts, :attrs, %{})
-    GenServer.start_link(__MODULE__, attrs, name: name)
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  def init(%{blockchain_identifier: blockchain_identifier} = attrs) do
-    {:ok,
-     %{
-       interval: @syncing_interval,
-       blockchain_identifier: blockchain_identifier,
-       timer: nil,
-       addresses:
-         BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
-       contract_addresses:
-         BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
-       blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
-       blk_retries: 0,
-       blk_syncing_save_count: 0,
-       blk_syncing_save_interval: @blk_syncing_save_interval,
-       node_adapter: attrs[:node_adapter],
-       stop_once_synced: attrs[:stop_once_synced] || false
-     }, {:continue, :start_polling}}
+  def init(opts) do
+    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
+
+    state = %{
+      interval: @syncing_interval,
+      blockchain_identifier: blockchain_identifier,
+      timer: nil,
+      addresses:
+        BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
+      contract_addresses:
+        BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
+      blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
+      blk_retries: 0,
+      blk_syncing_save_count: 0,
+      blk_syncing_save_interval: @blk_syncing_save_interval,
+      node_adapter: opts[:node_adapter],
+      stop_once_synced: opts[:stop_once_synced] || false
+    }
+
+    {:ok, state, {:continue, :start_polling}}
   end
 
   def handle_continue(:start_polling, state) do

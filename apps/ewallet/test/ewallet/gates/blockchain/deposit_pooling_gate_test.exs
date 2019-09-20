@@ -15,7 +15,7 @@
 defmodule EWallet.DepositPoolingGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
-  alias EWallet.{DepositPoolingGate, TransactionRegistry}
+  alias EWallet.{DepositPoolingGate, TransactionTracker}
   alias EWalletDB.{BlockchainHDWallet, BlockchainWallet, TransactionState}
 
   describe "move_deposits_to_pooled_funds/2" do
@@ -59,7 +59,7 @@ defmodule EWallet.DepositPoolingGateTest do
       # For this test, we only care that the transaction is submitted,
       # what happens after that is out of the scope of this module,
       # so we can stop the tracker immediately.
-      {:ok, %{pid: tracker_pid}} = TransactionRegistry.lookup(txn.uuid)
+      {:ok, tracker_pid} = TransactionTracker.lookup(txn.uuid)
       :ok = GenServer.stop(tracker_pid)
     end
 
@@ -105,7 +105,7 @@ defmodule EWallet.DepositPoolingGateTest do
       # For this test, we only care that the transaction is submitted,
       # what happens after that is out of the scope of this module,
       # so we can stop the tracker immediately.
-      {:ok, %{pid: tracker_pid}} = TransactionRegistry.lookup(txn.uuid)
+      {:ok, tracker_pid} = TransactionTracker.lookup(txn.uuid)
       :ok = GenServer.stop(tracker_pid)
     end
 

@@ -20,7 +20,7 @@ defmodule EWallet.DepositWalletTrackerTest do
     test "starts a deposit wallet tracker" do
       opts = [
         name: :test_deposit_wallet_tracker_start_link,
-        attrs: %{blockchain_identifier: "dumb"}
+        blockchain_identifier: "dumb"
       ]
 
       assert {:ok, pid} = DepositWalletTracker.start_link(opts)
