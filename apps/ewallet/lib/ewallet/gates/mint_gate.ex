@@ -32,10 +32,12 @@ defmodule EWallet.MintGate do
   end
 
   def mint_token(%{blockchain_address: address} = token, _) when not is_nil(address) do
-    with true <- Token.blockchain_confirmed?(token) || {:error, :token_is_not_confirmed} do
-      {:error, :invalid_parameter, "A blockchain-enabled token cannot be minted."}
-    else
-      error -> error
+    case Token.blockchain_confirmed?(token) do
+      true ->
+        {:error, :invalid_parameter, "A blockchain-enabled token cannot be minted."}
+
+      false ->
+        {:error, :token_is_not_confirmed}
     end
   end
 
