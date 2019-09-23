@@ -29,7 +29,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
     test "returns the HD wallet inserted with the given attributes" do
       attrs = %{
         blockchain_identifier: "dumb",
-        keychain_id: "test_keychain_id",
+        keychain_uuid: "test_keychain_uuid",
         originator: %System{}
       }
 
@@ -37,7 +37,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
 
       assert res == :ok
       assert wallet.blockchain_identifier == attrs.blockchain_identifier
-      assert wallet.keychain_id == attrs.keychain_id
+      assert wallet.keychain_uuid == attrs.keychain_uuid
     end
 
     test "returns :blockchain_hd_wallet_already_exists if an HD wallet already exists" do
@@ -45,7 +45,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
 
       attrs = %{
         blockchain_identifier: "dumb",
-        keychain_id: "test_keychain_id_exists"
+        keychain_uuid: "test_keychain_uuid_exists"
       }
 
       {res, error} = BlockchainHDWallet.insert(attrs)

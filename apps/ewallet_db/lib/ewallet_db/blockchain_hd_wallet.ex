@@ -28,7 +28,7 @@ defmodule EWalletDB.BlockchainHDWallet do
   @timestamps_opts [type: :naive_datetime_usec]
 
   schema "blockchain_hd_wallet" do
-    field(:keychain_id, :string)
+    field(:keychain_uuid, :string)
     field(:blockchain_identifier, :string)
 
     activity_logging()
@@ -41,13 +41,13 @@ defmodule EWalletDB.BlockchainHDWallet do
       attrs,
       cast: [
         :uuid,
-        :keychain_id,
+        :keychain_uuid,
         :blockchain_identifier
       ],
-      required: [:keychain_id, :blockchain_identifier]
+      required: [:keychain_uuid, :blockchain_identifier]
     )
-    |> unique_constraint(:keychain_id)
-    |> validate_immutable(:keychain_id)
+    |> unique_constraint(:keychain_uuid)
+    |> validate_immutable(:keychain_uuid)
   end
 
   def get_primary do

@@ -296,7 +296,7 @@ defmodule EthBlockchain.Transaction do
          wallet:
            %{
              derivation_path: _,
-             wallet_id: _,
+             keychain_uuid: _,
              account_ref: _,
              deposit_ref: _
            } = wallet
@@ -346,13 +346,13 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _opts), do: error
 
-  defp sign_transaction(transaction, address) when is_binary(address) do
+  defp sign_transaction(transaction, from) when is_binary(from) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
     result =
       transaction
       |> transaction_hash(chain_id)
-      |> Signature.sign_transaction_hash(address, chain_id)
+      |> Signature.sign_transaction_hash(from, chain_id)
 
     case result do
       {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}
@@ -361,7 +361,7 @@ defmodule EthBlockchain.Transaction do
   end
 
   defp sign_transaction(transaction, %{
-         wallet_id: wallet_id,
+         keychain_uuid: keychain_uuid,
          derivation_path: derivation_path,
          account_ref: account_ref,
          deposit_ref: deposit_ref
@@ -372,7 +372,7 @@ defmodule EthBlockchain.Transaction do
       transaction
       |> transaction_hash(chain_id)
       |> Signature.sign_transaction_hash(
-        wallet_id,
+        keychain_uuid,
         derivation_path,
         account_ref,
         deposit_ref,

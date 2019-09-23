@@ -151,7 +151,7 @@ defmodule AdminAPI.ConnCase do
 
     {:ok, _} =
       BlockchainHDWallet.insert(%{
-        keychain_id: keychain_hd_wallet.wallet_id,
+        keychain_uuid: keychain_hd_wallet.uuid,
         blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %System{}
       })

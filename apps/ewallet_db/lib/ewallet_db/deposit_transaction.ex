@@ -158,21 +158,6 @@ defmodule EWalletDB.DepositTransaction do
     |> assoc_constraint(:to_blockchain_wallet)
   end
 
-  defp update_changeset(%DepositTransaction{} = transaction, attrs) do
-    transaction
-    |> cast_and_validate_required_for_activity_log(
-      attrs,
-      cast: [
-        :blockchain_tx_hash,
-        :blk_number,
-        :error_code,
-        :error_description,
-        :confirmations_count
-      ],
-      required: []
-    )
-  end
-
   def state_changeset(%DepositTransaction{} = transaction, attrs, cast_fields, required_fields) do
     transaction
     |> cast_and_validate_required_for_activity_log(

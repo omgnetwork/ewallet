@@ -30,7 +30,7 @@ Look at the output and note the address:
 
 Get the private key for the generated wallet (replace the wallet address with the one from above):
 
-> `Keychain.Key.private_key_for_wallet_id("0xprimary_address")`
+> `Keychain.Key.private_key_for_wallet_address("0xprimary_address")`
 
 It will return the private key, keep it for later:
 

@@ -50,7 +50,7 @@ defmodule Keychain.Wallet do
 
     {:ok, _} =
       Key.insert(%{
-        wallet_id: wallet_address,
+        wallet_address: wallet_address,
         public_key: public_key_encoded,
         private_key: private_key_encoded
       })
@@ -71,7 +71,7 @@ defmodule Keychain.Wallet do
     uuid = UUID.generate()
 
     Key.insert(%{
-      wallet_id: wallet_address,
+      wallet_address: wallet_address,
       public_key: public_key,
       private_key: root_key,
       uuid: uuid
@@ -80,8 +80,8 @@ defmodule Keychain.Wallet do
 
   @spec derive_child_address(String.t(), integer(), integer()) ::
           String.t() | {:error, :key_not_found}
-  def derive_child_address(wallet_id, account_ref, deposit_ref) do
-    case Key.public_key_for_wallet_id(wallet_id) do
+  def derive_child_address(keychain_uuid, account_ref, deposit_ref) do
+    case Key.public_key_for_uuid(keychain_uuid) do
       nil ->
         {:error, :key_not_found}
 

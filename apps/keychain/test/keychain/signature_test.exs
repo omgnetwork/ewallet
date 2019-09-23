@@ -15,15 +15,16 @@
 defmodule Keychain.SignatureTest do
   use Keychain.DBCase
   import Keychain.Factory
+  alias Ecto.UUID
   alias ExthCrypto.Hash.Keccak
   alias Keychain.Signature
 
   describe "sign_transaction_hash/3" do
-    test "returns an ECDSA signature (v,r,s) when given hash and wallet_id" do
+    test "returns an ECDSA signature (v,r,s) when given hash and wallet address" do
       key = insert(:key)
       hash = Keccak.kec("some data")
 
-      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_id, 0)
+      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_address, 0)
 
       assert is_integer(v)
       assert is_integer(r)
@@ -33,21 +34,21 @@ defmodule Keychain.SignatureTest do
       assert byte_size(:binary.encode_unsigned(s)) == 32
     end
 
-    test "returns :invalid_address error if the wallet_id could not be found" do
+    test "returns :invalid_address error if the wallet address could not be found" do
       hash = Keccak.kec("some data")
 
-      assert Signature.sign_transaction_hash(hash, "some_unknown_wallet_id") ==
+      assert Signature.sign_transaction_hash(hash, "some_unknown_wallet_address") ==
                {:error, :invalid_address}
     end
   end
 
   describe "sign_transaction_hash/6" do
-    test "returns an ECDSA signature when given hash, wallet_id and child key specified via account_ref & deposit_ref" do
+    test "returns an ECDSA signature when given hash, keychain uuid and child key specified via account_ref & deposit_ref" do
       key = insert(:hd_key)
       hash = Keccak.kec("some data")
 
       {:ok, {v, r, s}} =
-        Signature.sign_transaction_hash(hash, key.wallet_id, "M/44'/60'/0'/0'", 0, 0, 0)
+        Signature.sign_transaction_hash(hash, key.uuid, "M/44'/60'/0'/0'", 0, 0, 0)
 
       assert is_integer(v)
       assert is_integer(r)
@@ -57,9 +58,9 @@ defmodule Keychain.SignatureTest do
       assert byte_size(:binary.encode_unsigned(s)) == 32
     end
 
-    test "returns :invalid_address error if the uuid could not be found" do
+    test "returns :invalid_address error if the key uuid could not be found" do
       hash = Keccak.kec("some data")
-      result = Signature.sign_transaction_hash(hash, "invalid address", "M/44'/60'/0'/0'", 0, 0)
+      result = Signature.sign_transaction_hash(hash, UUID.generate(), "M/44'/60'/0'/0'", 0, 0)
 
       assert result == {:error, :invalid_address}
     end
@@ -70,7 +71,7 @@ defmodule Keychain.SignatureTest do
       key = insert(:key)
       hash = Keccak.kec("some data")
 
-      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_id)
+      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_address)
       {res, public_key} = Signature.recover_public_key(hash, r, s, v)
 
       assert res == :ok
@@ -81,7 +82,7 @@ defmodule Keychain.SignatureTest do
       key = insert(:key)
       hash = Keccak.kec("some data")
 
-      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_id, 99)
+      {:ok, {v, r, s}} = Signature.sign_transaction_hash(hash, key.wallet_address, 99)
       {res, public_key} = Signature.recover_public_key(hash, r, s, v, 99)
 
       assert res == :ok

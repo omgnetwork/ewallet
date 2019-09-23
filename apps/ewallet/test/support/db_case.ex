@@ -66,7 +66,7 @@ defmodule EWallet.DBCase do
 
     {:ok, _} =
       BlockchainHDWallet.insert(%{
-        keychain_id: keychain_key.wallet_id,
+        keychain_uuid: keychain_key.uuid,
         blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %System{}
       })

@@ -50,7 +50,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
 
       hd_wallet ->
         ref = generate_unique_ref()
-        address = Wallet.derive_child_address(hd_wallet.keychain_id, ref, 0)
+        address = Wallet.derive_child_address(hd_wallet.keychain_uuid, ref, 0)
 
         %{
           address: address,

@@ -13,8 +13,9 @@
 # limitations under the License.
 
 defmodule Keychain.Signature do
-  @moduledoc false
-
+  @moduledoc """
+  Signs hashes with the given keychain information.
+  """
   import Utils.Helpers.Encoding
 
   alias Keychain.Key
@@ -31,12 +32,14 @@ defmodule Keychain.Signature do
   @base_recovery_id_eip_155 35
 
   @doc """
-  Returns a ECDSA signature (v,r,s) for a given hashed value.
+  Returns a ECDSA signature (v,r,s) for a given hashed value and wallet address.
+
+  The given wallet address must be associated with a `Keychain.Key`.
   """
-  @spec sign_transaction_hash(Keccak.keccak_hash(), String.t(), integer() | nil) ::
+  @spec sign_transaction_hash(Keccak.keccak_hash(), Ecto.UUID.t(), integer() | nil) ::
           {hash_v, hash_r, hash_s} | {:error, :invalid_address}
-  def sign_transaction_hash(hash, wallet_id, chain_id \\ nil) do
-    case Key.private_key_for_wallet_id(wallet_id) do
+  def sign_transaction_hash(hash, wallet_address, chain_id \\ nil) do
+    case Key.private_key_for_wallet_address(wallet_address) do
       nil ->
         {:error, :invalid_address}
 
@@ -48,7 +51,8 @@ defmodule Keychain.Signature do
   end
 
   @doc """
-  Returns a ECDSA signature (v,r,s) for a child key specified via account_ref & deposit_ref.
+  Returns a ECDSA signature (v,r,s) for a child key specified via
+  the given keychain's uuid, account_ref and deposit_ref.
   """
   @spec sign_transaction_hash(
           Keccak.keccak_hash(),
@@ -60,13 +64,13 @@ defmodule Keychain.Signature do
         ) :: {hash_v, hash_r, hash_s} | {:error, :invalid_address}
   def sign_transaction_hash(
         hash,
-        wallet_id,
+        keychain_uuid,
         derivation_path,
         account_ref,
         deposit_ref,
         chain_id \\ nil
       ) do
-    case Key.private_key_for_wallet_id(wallet_id) do
+    case Key.private_key_for_uuid(keychain_uuid) do
       nil ->
         {:error, :invalid_address}
 

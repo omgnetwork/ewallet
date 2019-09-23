@@ -225,8 +225,8 @@ defmodule EthBlockchain.TransactionTest do
     end
 
     test "supports sending with a child key", state do
-      {:ok, hd_wallet} = Wallet.generate_hd()
-      from_address = Wallet.derive_child_address(hd_wallet.wallet_id, 0, 0)
+      {:ok, keychain_key} = Wallet.generate_hd()
+      from_address = Wallet.derive_child_address(keychain_key.uuid, 0, 0)
       {:ok, {to_address, _}} = Wallet.generate()
 
       attrs = %{
@@ -235,7 +235,7 @@ defmodule EthBlockchain.TransactionTest do
         amount: 100,
         wallet: %{
           derivation_path: "M/44'/60'/0'/0'",
-          wallet_id: hd_wallet.wallet_id,
+          keychain_uuid: keychain_key.uuid,
           account_ref: 0,
           deposit_ref: 0
         }

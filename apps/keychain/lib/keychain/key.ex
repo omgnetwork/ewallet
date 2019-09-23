@@ -21,13 +21,13 @@ defmodule Keychain.Key do
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
 
-  @primary_key {:wallet_id, :string, []}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
   schema "keychain" do
-    field(:private_key, Keychain.Encrypted.Binary)
+    field(:wallet_address, :string)
     field(:public_key, :string)
-    field(:uuid, UUID)
+    field(:private_key, Keychain.Encrypted.Binary)
 
     timestamps()
   end
@@ -35,19 +35,18 @@ defmodule Keychain.Key do
   # Validates the keychain record.
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:wallet_id, :private_key, :public_key, :uuid])
-    |> validate_required([:wallet_id, :private_key, :public_key])
-    |> unique_constraint(:wallet_id)
-    |> unique_constraint(:uuid)
+    |> cast(attrs, [:wallet_address, :public_key, :private_key])
+    |> validate_required([:wallet_address, :public_key, :private_key])
+    |> unique_constraint(:wallet_address)
   end
 
   @doc """
-  Retrieve a private key using wallet ID.
+  Retrieve a private key using wallet address.
   """
-  def private_key_for_wallet_id(wallet_id) do
+  def private_key_for_wallet_address(address) do
     Key
     |> select([k], k.private_key)
-    |> where([k], k.wallet_id == ^wallet_id)
+    |> where([k], k.wallet_address == ^address)
     |> Repo.one()
   end
 
@@ -58,10 +57,10 @@ defmodule Keychain.Key do
     |> Repo.one()
   end
 
-  def public_key_for_wallet_id(wallet_id) do
+  def public_key_for_wallet_address(address) do
     Key
     |> select([k], k.public_key)
-    |> where([k], k.wallet_id == ^wallet_id)
+    |> where([k], k.wallet_address == ^address)
     |> Repo.one()
   end
 

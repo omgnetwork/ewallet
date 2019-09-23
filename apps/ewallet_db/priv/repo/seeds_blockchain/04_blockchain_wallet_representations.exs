@@ -40,14 +40,14 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWalletRepresentations do
     {:ok, keychain_hd_wallet} = Wallet.generate_hd()
 
     attrs = %{
-      keychain_id: keychain_hd_wallet.wallet_id,
+      keychain_uuid: keychain_hd_wallet.uuid,
       originator: %Seeder{}
     }
     case BlockchainHDWallet.insert(attrs) do
       {:ok, wallet} ->
         writer.success("""
           UUID              : #{wallet.uuid}
-          Keychain ID       : #{wallet.keychain_id}
+          Keychain UUID     : #{wallet.keychain_uuid}
         """)
       {:error, changeset} ->
         writer.error("  HD Wallet #{keychain_hd_wallet.uuid} could not be inserted.")
