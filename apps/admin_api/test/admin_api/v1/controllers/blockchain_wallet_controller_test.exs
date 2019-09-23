@@ -66,7 +66,11 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
   describe "/blockchain_wallet.deposit_to_childchain" do
     test_with_auths "deposit to childchain with the given attributes" do
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(@valid_rootchain_identifier)
-      token = insert_confirmed_token("0x0000000000000000000000000000000000000000")
+
+      token =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
 
       adapter = BlockchainHelper.adapter()
       {:ok, _adapter_pid} = adapter.server().start_link([])
@@ -97,7 +101,10 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
     end
 
     test_with_auths "fails to deposit with a missing address" do
-      token = insert_confirmed_token("0x0000000000000000000000000000000000000000")
+      token =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
 
       response =
         request("/blockchain_wallet.deposit_to_childchain", %{
@@ -271,9 +278,20 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "sort_by" => "inserted_at",
@@ -303,13 +321,19 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
 
       _token_3 =
-        insert(:token, %{
+        insert(:blockchain_confirmed_token, %{
           blockchain_address: "0x0000000000000000000000000000000000000002",
-          blockchain_identifier: @valid_rootchain_identifier,
           blockchain_status: Token.blockchain_status_pending()
         })
 
@@ -337,9 +361,23 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000", "tkn_1")
-      token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001", "tkn_2")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002", "tkn_3")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          id: "tkn_1"
+        })
+
+      token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          id: "tkn_2"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          id: "tkn_3"
+        })
 
       attrs = %{
         "sort_by" => "inserted_at",
@@ -368,9 +406,20 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -400,9 +449,20 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "per_page" => 1,
@@ -435,9 +495,23 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000", "tkn_1")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001", "tkn_2")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002", "tkn_3")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          id: "tkn_1"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          id: "tkn_2"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          id: "tkn_3"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -467,9 +541,17 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000")
-      _token_2 = insert_confirmed_token(nil)
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        })
+
+      _token_2 = insert(:blockchain_confirmed_token, %{blockchain_address: nil})
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -494,9 +576,23 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000", "tkn_1")
-      _token_2 = insert_confirmed_token("0x0000000000000000000000000000000000000001", "tkn_2")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002", "tkn_3")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          id: "tkn_1"
+        })
+
+      _token_2 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000001",
+          id: "tkn_2"
+        })
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          id: "tkn_3"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -522,9 +618,19 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       blockchain_wallet =
         insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000", "tkn_1")
-      _token_2 = insert_confirmed_token(nil, "tkn_2")
-      _token_3 = insert_confirmed_token("0x0000000000000000000000000000000000000002", "tkn_3")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          id: "tkn_1"
+        })
+
+      _token_2 = insert(:blockchain_confirmed_token, %{blockchain_address: nil, id: "tkn_2"})
+
+      _token_3 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000002",
+          id: "tkn_3"
+        })
 
       attrs = %{
         "address" => blockchain_wallet.address,
@@ -549,7 +655,11 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
     test_with_auths "returns and error when given an invalid blockchain identifier" do
       insert(:blockchain_wallet, %{address: "0x0000000000000000000000000000000000000123"})
 
-      _token_1 = insert_confirmed_token("0x0000000000000000000000000000000000000000", "tkn_1")
+      _token_1 =
+        insert(:blockchain_confirmed_token, %{
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          id: "tkn_1"
+        })
 
       response =
         request("/blockchain_wallet.get_balances", %{
@@ -577,21 +687,5 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
-  end
-
-  defp insert_confirmed_token(address, id \\ nil) do
-    attrs = %{
-      blockchain_address: address,
-      blockchain_identifier: @valid_rootchain_identifier,
-      blockchain_status: Token.blockchain_status_confirmed()
-    }
-
-    attrs =
-      case id do
-        nil -> attrs
-        value -> Map.put(attrs, :id, value)
-      end
-
-    insert(:token, attrs)
   end
 end

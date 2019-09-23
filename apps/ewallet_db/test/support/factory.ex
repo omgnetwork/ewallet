@@ -184,6 +184,32 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def blockchain_confirmed_token_factory do
+    symbol = sequence("jon")
+
+    %Token{
+      id: "tok_" <> symbol <> "_" <> ULID.generate(),
+      symbol: symbol,
+      iso_code: sequence("JON"),
+      name: sequence("John Currency"),
+      description: sequence("Official currency of Johndoeland"),
+      short_symbol: sequence("J"),
+      subunit: "Doe",
+      subunit_to_unit: 100,
+      symbol_first: true,
+      html_entity: "&curren;",
+      iso_numeric: sequence("990"),
+      smallest_denomination: 1,
+      locked: false,
+      account: insert(:account),
+      enabled: true,
+      blockchain_address: Crypto.fake_eth_address(),
+      blockchain_status: Token.blockchain_status_confirmed(),
+      blockchain_identifier: "ethereum",
+      originator: %System{}
+    }
+  end
+
   def user_factory do
     %User{
       is_admin: false,
