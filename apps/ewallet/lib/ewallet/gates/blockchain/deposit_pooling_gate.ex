@@ -33,10 +33,12 @@ defmodule EWallet.DepositPoolingGate do
 
   # TODO: get real gas price
   @gas_price 20_000_000_000
+  @gas_limit_eth 21_000
+  @gas_limit_erc20 90_000
 
   def move_deposits_to_pooled_funds(blockchain_identifier) do
     primary_token_address = BlockchainHelper.adapter().helper().default_token()[:address]
-    hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
+    pool = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
 
     # We loop by token because it's likely we pool per specific token than a specific wallet.
     # E.g. some tokens have more deposits than others, or the hot wallet may run out of one token
@@ -47,10 +49,10 @@ defmodule EWallet.DepositPoolingGate do
       |> Enum.flat_map(fn token ->
         case token.blockchain_address do
           ^primary_token_address ->
-            pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 21_000)
+            pool_token_deposits(token, pool, blockchain_identifier, @gas_price, @gas_limit_eth)
 
           _ ->
-            pool_token_deposits(token, hot_wallet, blockchain_identifier, @gas_price, 90_000)
+            pool_token_deposits(token, pool, blockchain_identifier, @gas_price, @gas_limit_erc20)
         end
       end)
 
