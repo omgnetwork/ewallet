@@ -73,20 +73,22 @@ defmodule Keychain.KeyTest do
     test "raises if wallet address already exists" do
       key_1 = insert(:key)
 
-      {res, changeset} = Key.insert(%{
-        wallet_address: key_1.wallet_address,
-        private_key: "private-key-1",
-        public_key: "public-key-1"
-      })
+      {res, changeset} =
+        Key.insert(%{
+          wallet_address: key_1.wallet_address,
+          private_key: "private-key-1",
+          public_key: "public-key-1"
+        })
 
       assert res == :error
       refute changeset.valid?
+
       assert changeset.errors == [
-        wallet_address: {
-          "has already been taken",
-          [constraint: :unique, constraint_name: "keychain_wallet_address_index"]
-        }
-      ]
+               wallet_address: {
+                 "has already been taken",
+                 [constraint: :unique, constraint_name: "keychain_wallet_address_index"]
+               }
+             ]
     end
   end
 end

@@ -30,9 +30,10 @@ defmodule EWallet.Application do
     settings = Application.get_env(:ewallet, :settings)
     _ = Config.register_and_load(:ewallet, settings)
 
-    _ = ActivityLogger.configure(%{
-      EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
-    })
+    _ =
+      ActivityLogger.configure(%{
+        EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
+      })
 
     children = [
       # Quantum scheduler
@@ -41,7 +42,6 @@ defmodule EWallet.Application do
       # Transaction tracker supervisor and registry
       {Registry, keys: :unique, name: EWallet.TransactionTrackerRegistry},
       {DynamicSupervisor, name: EWallet.TransactionTrackerSupervisor, strategy: :one_for_one},
-
       {EWallet.AddressTracker, [blockchain_identifier: @rootchain_identifier]},
       {EWallet.DepositWalletTracker, [blockchain_identifier: @rootchain_identifier]}
     ]
