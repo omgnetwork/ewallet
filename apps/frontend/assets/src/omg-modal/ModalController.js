@@ -17,6 +17,7 @@ import ExportModal from '../omg-export-modal'
 import ExchangePairModal from '../omg-exchange-rate-modal'
 import CreateTokenModal from '../omg-create-token-modal'
 import CreateBlockchainTokenModal from '../omg-create-blockchain-token-modal'
+import PlasmaDepositModal from '../omg-plasma-deposit-modal'
 
 // ADD YOUR NEW MODAL HERE
 const modals = [
@@ -33,7 +34,8 @@ const modals = [
   { id: 'exportModal', modal: ExportModal },
   { id: 'exchangePairModal', modal: ExchangePairModal },
   { id: 'createTokenModal', modal: CreateTokenModal },
-  { id: 'createBlockchainTokenModal', modal: CreateBlockchainTokenModal }
+  { id: 'createBlockchainTokenModal', modal: CreateBlockchainTokenModal },
+  { id: 'plasmaDepositModal', modal: PlasmaDepositModal }
 ]
 
 function ModalController (props) {
