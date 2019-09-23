@@ -31,6 +31,8 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     V1.TokenOverlay
   }
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+
   @doc """
   Creates a new blockchain wallet with the provided params.
   Currently, only `cold` type is supported.
@@ -41,7 +43,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   def create(conn, %{"type" => "cold", "address" => _, "name" => _} = attrs) do
     with {:ok, _} <- authorize(:create, conn.assigns, attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         identifier <- BlockchainHelper.rootchain_identifier(),
+         identifier <- @rootchain_identifier,
          attrs <- Map.put(attrs, "blockchain_identifier", identifier),
          {:ok, wallet} <- BlockchainWallet.insert_cold(attrs) do
       respond_single(wallet, conn)
@@ -108,7 +110,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:view_balance, conn.assigns, wallet),
          %Paginator{data: tokens, pagination: pagination} <- paginated_tokens(attrs),
-         identifier <- attrs["blockchain_identifier"] || BlockchainHelper.rootchain_identifier(),
+         identifier <- attrs["blockchain_identifier"] || @rootchain_identifier,
          :ok <- BlockchainHelper.validate_identifier(identifier),
          {:ok, data} <- BlockchainBalanceLoader.balances(wallet.address, tokens, identifier) do
       render(conn, BalanceView, :balances, %Paginator{pagination: pagination, data: data})
@@ -156,10 +158,8 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   end
 
   defp paginated_tokens(%{"token_addresses" => addresses} = attrs) do
-    identifier = BlockchainHelper.rootchain_identifier()
-
     addresses
-    |> Token.query_all_by_blockchain_addresses(identifier)
+    |> Token.query_all_by_blockchain_addresses(@rootchain_identifier)
     |> paginated_blockchain_tokens(attrs)
   end
 
@@ -172,8 +172,10 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   defp paginated_tokens(attrs), do: paginated_blockchain_tokens(Token, attrs)
 
   defp paginated_blockchain_tokens(query, attrs) do
-    BlockchainHelper.rootchain_identifier()
-    |> Token.query_all_blockchain(query)
+    blockchain_token_query = Token.query_all_blockchain(@rootchain_identifier, query)
+
+    Token.blockchain_status_confirmed()
+    |> Token.query_all_by_blockchain_status(blockchain_token_query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end
 

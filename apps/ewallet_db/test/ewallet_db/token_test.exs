@@ -336,6 +336,36 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
+  describe "query_all_by_blockchain_status/3" do
+    test "returns a query of tokens that have a blockchain status matching in the status" do
+      {:ok, tk_1} =
+        :token
+        |> params_for(%{blockchain_status: Token.blockchain_status_confirmed()})
+        |> Token.insert()
+
+      {:ok, tk_2} =
+        :token
+        |> params_for(%{blockchain_status: Token.blockchain_status_confirmed()})
+        |> Token.insert()
+
+      {:ok, tk_3} =
+        :token
+        |> params_for(%{blockchain_status: Token.blockchain_status_pending()})
+        |> Token.insert()
+
+      token_ids =
+        Token.blockchain_status_confirmed()
+        |> Token.query_all_by_blockchain_status()
+        |> Repo.all()
+        |> Enum.map(fn t -> t.id end)
+
+      assert length(token_ids) == 2
+
+      assert Enum.member?(token_ids, tk_1.id)
+      assert Enum.member?(token_ids, tk_2.id)
+      refute Enum.member?(token_ids, tk_3.id)
+    end
+  end
 
   describe "blockchain_confirmed?/1" do
     test "returns true if the token is confirmed on the blokchcain" do

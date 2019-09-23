@@ -297,6 +297,16 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
+  Returns a query of Tokens that have the given blockchain status
+  """
+  @spec query_all_by_blockchain_status(String.t(), Ecto.Queryable.t()) :: [
+          Ecto.Queryable.t()
+        ]
+  def query_all_by_blockchain_status(status, query \\ Token) do
+    where(query, [t], t.blockchain_status == ^status)
+  end
+
+  @doc """
   Returns a query of Tokens that have an id matching in the provided list
   """
   @spec query_all_by_ids([String.t()], Ecto.Queryable.t()) :: [Ecto.Queryable.t()]
