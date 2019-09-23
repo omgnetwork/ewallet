@@ -331,7 +331,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     token_is_not_confirmed: %{
       code: "token:not_confirmed",
-      description: "The token is not yet confirmed on the blockchain."
+      description: "The token is not confirmed on the blockchain."
     },
     from_token_is_disabled: %{
       code: "token:from_token_is_disabled",

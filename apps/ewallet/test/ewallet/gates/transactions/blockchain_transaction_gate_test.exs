@@ -24,7 +24,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
     TransactionRegistry
   }
 
-  alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState, Token}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID
@@ -36,7 +36,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       account = Account.get_master_account()
@@ -88,7 +91,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -132,7 +138,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
       cc_identifier = BlockchainHelper.childchain_identifier()
@@ -176,7 +185,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000999")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000999",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
       cc_identifier = BlockchainHelper.childchain_identifier()
@@ -201,7 +213,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
       cc_identifier = BlockchainHelper.childchain_identifier()
@@ -225,7 +240,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       token = insert(:token)
       identifier = BlockchainHelper.rootchain_identifier()
@@ -250,7 +268,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -279,7 +300,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -316,6 +340,32 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :token_not_blockchain_enabled} ==
+               BlockchainTransactionGate.create(admin, attrs, {true, true})
+    end
+
+    test "returns an error if the token is not confirmed" do
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_pending()
+        )
+
+      identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "from_address" => hot_wallet.address,
+        "to_address" => Crypto.fake_eth_address(),
+        "blockchain_identifier" => identifier,
+        "token_id" => primary_blockchain_token.id,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      assert {:error, :token_is_not_confirmed} ==
                BlockchainTransactionGate.create(admin, attrs, {true, true})
     end
   end

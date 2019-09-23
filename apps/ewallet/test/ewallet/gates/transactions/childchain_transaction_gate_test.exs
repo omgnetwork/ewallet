@@ -22,7 +22,7 @@ defmodule EWallet.ChildchainTransactionGateTest do
     TransactionRegistry
   }
 
-  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState, Token}
   alias Ecto.UUID
   alias ActivityLogger.System
 
@@ -32,7 +32,10 @@ defmodule EWallet.ChildchainTransactionGateTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_confirmed()
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -88,6 +91,31 @@ defmodule EWallet.ChildchainTransactionGateTest do
       assert res == :error
       assert code == :invalid_parameter
       assert error == "Invalid parameter provided. `amount` is required."
+    end
+
+    test "returns an error if the token is not confirmed" do
+      admin = insert(:admin, global_role: "super_admin")
+
+      primary_blockchain_token =
+        insert(:token,
+          blockchain_address: "0x0000000000000000000000000000000000000000",
+          blockchain_status: Token.blockchain_status_pending()
+        )
+
+      identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "address" => hot_wallet.address,
+        "token_id" => primary_blockchain_token.id,
+        "amount" => 1,
+        "originator" => %System{}
+      }
+
+      {res, code} = ChildchainTransactionGate.deposit(admin, attrs)
+      assert res == :error
+      assert code == :token_is_not_confirmed
     end
   end
 end

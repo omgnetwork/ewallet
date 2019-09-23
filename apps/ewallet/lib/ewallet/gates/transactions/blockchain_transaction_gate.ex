@@ -35,7 +35,7 @@ defmodule EWallet.BlockchainTransactionGate do
     BlockchainHelper
   }
 
-  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{BlockchainWallet, Token, Transaction, TransactionState}
   alias ActivityLogger.System
 
   @external_transaction Transaction.external()
@@ -231,12 +231,12 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp set_token(attrs) do
-    # TODO: add check for blockchain token status
     with {:ok, %{from_token: from_token}, %{to_token: to_token}} <-
            TokenFetcher.fetch(attrs, %{}, %{}),
          true <-
            is_binary(from_token.blockchain_address) || {:error, :token_not_blockchain_enabled},
-         true <- from_token.uuid == to_token.uuid || {:error, :blockchain_exchange_not_allowed} do
+         true <- from_token.uuid == to_token.uuid || {:error, :blockchain_exchange_not_allowed},
+         true <- Token.blockchain_confirmed?(from_token) || {:error, :token_is_not_confirmed} do
       attrs
       |> Map.put("from_token_uuid", from_token.uuid)
       |> Map.put("from_token", from_token)
