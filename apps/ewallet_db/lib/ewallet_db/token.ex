@@ -400,4 +400,12 @@ defmodule EWalletDB.Token do
     |> blockchain_changeset(attrs)
     |> Repo.update_record_with_activity_log()
   end
+
+  @doc """
+  Returns a boolean indicating if the token is confirmed and ready to be used in blockchain transactions.
+  """
+  @spec blockchain_confirmed?(%Token{}) :: boolean()
+  def blockchain_confirmed?(token) do
+    token.blockchain_status == @blockchain_status_confirmed
+  end
 end

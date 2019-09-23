@@ -21,12 +21,14 @@ defmodule EWallet.MintGateTest do
   alias ActivityLogger.System
 
   describe "mint_token/2" do
-    test "returns an error when minting a blockchain token" do
+    test "returns an error when minting a confirmed blockchain token" do
+      # TODO: this test should be updated when doing blockchain token minting
       {:ok, omg} =
         :token
         |> params_for(
           symbol: "OMG",
-          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a23"
+          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a23",
+          blockchain_status: Token.blockchain_status_confirmed()
         )
         |> Token.insert()
 
@@ -34,6 +36,21 @@ defmodule EWallet.MintGateTest do
       assert res == :error
       assert code == :invalid_parameter
       assert message == "A blockchain-enabled token cannot be minted."
+    end
+
+    test "returns an error when minting a pending blockchain token" do
+      {:ok, omg} =
+        :token
+        |> params_for(
+          symbol: "OMG",
+          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a23",
+          blockchain_status: Token.blockchain_status_pending()
+        )
+        |> Token.insert()
+
+      {res, code} = MintGate.mint_token(omg, %{"amount" => 100})
+      assert res == :error
+      assert code == :token_is_not_confirmed
     end
   end
 

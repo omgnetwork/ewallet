@@ -19,6 +19,8 @@ defmodule EWalletDB.TokenTest do
   alias EWalletDB.{Token, Repo}
   alias Utils.Helpers.{Crypto, EIP55}
 
+  @valid_rootchain_identifier "ethereum"
+
   describe "Token factory" do
     test_has_valid_factory(Token)
     test_encrypted_map_field(Token, "token", :encrypted_metadata)
@@ -196,11 +198,17 @@ defmodule EWalletDB.TokenTest do
       addr_3 = Crypto.fake_eth_address()
 
       :token
-      |> params_for(%{blockchain_address: addr_1, blockchain_identifier: "ethereum"})
+      |> params_for(%{
+        blockchain_address: addr_1,
+        blockchain_identifier: @valid_rootchain_identifier
+      })
       |> Token.insert()
 
       :token
-      |> params_for(%{blockchain_address: addr_2, blockchain_identifier: "ethereum"})
+      |> params_for(%{
+        blockchain_address: addr_2,
+        blockchain_identifier: @valid_rootchain_identifier
+      })
       |> Token.insert()
 
       :token
@@ -210,7 +218,7 @@ defmodule EWalletDB.TokenTest do
       :token |> params_for() |> Token.insert()
 
       token_addresses =
-        Token.query_all_blockchain("ethereum")
+        Token.query_all_blockchain(@valid_rootchain_identifier)
         |> Repo.all()
         |> Enum.map(fn t -> t.blockchain_address end)
 
@@ -229,15 +237,24 @@ defmodule EWalletDB.TokenTest do
       addr_4 = Crypto.fake_eth_address()
 
       :token
-      |> params_for(%{blockchain_address: addr_1, blockchain_identifier: "ethereum"})
+      |> params_for(%{
+        blockchain_address: addr_1,
+        blockchain_identifier: @valid_rootchain_identifier
+      })
       |> Token.insert()
 
       :token
-      |> params_for(%{blockchain_address: addr_2, blockchain_identifier: "ethereum"})
+      |> params_for(%{
+        blockchain_address: addr_2,
+        blockchain_identifier: @valid_rootchain_identifier
+      })
       |> Token.insert()
 
       :token
-      |> params_for(%{blockchain_address: addr_3, blockchain_identifier: "ethereum"})
+      |> params_for(%{
+        blockchain_address: addr_3,
+        blockchain_identifier: @valid_rootchain_identifier
+      })
       |> Token.insert()
 
       :token
@@ -248,7 +265,7 @@ defmodule EWalletDB.TokenTest do
 
       token_addresses =
         [addr_1, addr_2]
-        |> Token.query_all_by_blockchain_addresses("ethereum")
+        |> Token.query_all_by_blockchain_addresses(@valid_rootchain_identifier)
         |> Repo.all()
         |> Enum.map(fn t -> t.blockchain_address end)
 
@@ -267,27 +284,27 @@ defmodule EWalletDB.TokenTest do
       :token
       |> params_for(%{
         blockchain_address: String.downcase(addr_1),
-        blockchain_identifier: "ethereum"
+        blockchain_identifier: @valid_rootchain_identifier
       })
       |> Token.insert()
 
       :token
       |> params_for(%{
         blockchain_address: String.downcase(addr_2),
-        blockchain_identifier: "ethereum"
+        blockchain_identifier: @valid_rootchain_identifier
       })
       |> Token.insert()
 
       :token
       |> params_for(%{
         blockchain_address: Crypto.fake_eth_address(),
-        blockchain_identifier: "ethereum"
+        blockchain_identifier: @valid_rootchain_identifier
       })
       |> Token.insert()
 
       token_addresses =
         [String.upcase(addr_1), String.upcase(addr_2)]
-        |> Token.query_all_by_blockchain_addresses("ethereum")
+        |> Token.query_all_by_blockchain_addresses(@valid_rootchain_identifier)
         |> Repo.all()
         |> Enum.map(fn t -> t.blockchain_address end)
 
@@ -316,6 +333,27 @@ defmodule EWalletDB.TokenTest do
       assert Enum.member?(token_ids, tk_1.id)
       assert Enum.member?(token_ids, tk_2.id)
       refute Enum.member?(token_ids, tk_3.id)
+    end
+  end
+
+
+  describe "blockchain_confirmed?/1" do
+    test "returns true if the token is confirmed on the blokchcain" do
+      {:ok, token} =
+        :token
+        |> params_for(%{blockchain_status: Token.blockchain_status_confirmed()})
+        |> Token.insert()
+
+      assert Token.blockchain_confirmed?(token) == true
+    end
+
+    test "returns false if the token is not confirmed on the blokchcain" do
+      {:ok, token} =
+        :token
+        |> params_for(%{blockchain_status: Token.blockchain_status_pending()})
+        |> Token.insert()
+
+      assert Token.blockchain_confirmed?(token) == false
     end
   end
 
@@ -359,7 +397,7 @@ defmodule EWalletDB.TokenTest do
         Token.set_blockchain_address(token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
           blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
+          blockchain_identifier: @valid_rootchain_identifier,
           originator: %System{}
         })
 
@@ -376,7 +414,7 @@ defmodule EWalletDB.TokenTest do
         Token.set_blockchain_address(token, %{
           blockchain_address: "0x0000000000000000000000000000000000000000",
           blockchain_status: "invalid status",
-          blockchain_identifier: "ethereum",
+          blockchain_identifier: @valid_rootchain_identifier,
           originator: %System{}
         })
 
@@ -393,7 +431,7 @@ defmodule EWalletDB.TokenTest do
         Token.set_blockchain_address(token, %{
           blockchain_address: "123",
           blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
+          blockchain_identifier: @valid_rootchain_identifier,
           originator: %System{}
         })
 
@@ -428,7 +466,7 @@ defmodule EWalletDB.TokenTest do
         Token.set_blockchain_address(token, %{
           blockchain_address: address_2,
           blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
+          blockchain_identifier: @valid_rootchain_identifier,
           originator: %System{}
         })
 
@@ -446,7 +484,7 @@ defmodule EWalletDB.TokenTest do
         Token.set_blockchain_address(token, %{
           blockchain_address: eip55_address,
           blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
+          blockchain_identifier: @valid_rootchain_identifier,
           originator: %System{}
         })
 

@@ -178,6 +178,8 @@ defmodule EWalletDB.Factory do
       account: insert(:account),
       enabled: true,
       blockchain_address: nil,
+      blockchain_status: nil,
+      blockchain_identifier: nil,
       originator: %System{}
     }
   end
