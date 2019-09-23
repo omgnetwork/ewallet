@@ -153,7 +153,7 @@ defmodule EthBlockchain.Transaction do
   Submit a deposit eth transaction to the specified root chain contract
   """
   def deposit_eth(%{wallet: _}) do
-    raise ArgumentError, message: "Deposit ETH with a child key is not supported."
+    raise ArgumentError, message: "Depositing ETH with a child key is not supported."
   end
 
   def deposit_eth(
@@ -181,7 +181,7 @@ defmodule EthBlockchain.Transaction do
   Submit a deposit transaction of an ERC20 token to the specified childchain contract
   """
   def deposit_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Deposit an ERC-20 with a child key is not supported."
+    raise ArgumentError, message: "Depositing an ERC-20 with a child key is not supported."
   end
 
   def deposit_erc20(
@@ -207,7 +207,7 @@ defmodule EthBlockchain.Transaction do
   Submit an approve ERC20 transaction
   """
   def approve_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Approve an ERC-20 with a child key is not supported."
+    raise ArgumentError, message: "Approving an ERC-20 with a child key is not supported."
   end
 
   def approve_erc20(
@@ -234,7 +234,7 @@ defmodule EthBlockchain.Transaction do
   Submit a mint ERC20 transaction
   """
   def mint_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Mint an ERC-20 with a child key is not supported."
+    raise ArgumentError, message: "Minting an ERC-20 with a child key is not supported."
   end
 
   def mint_erc20(
@@ -260,7 +260,7 @@ defmodule EthBlockchain.Transaction do
   Submit a lock ERC20 transaction
   """
   def lock_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Lock an ERC-20 with a child key is not supported."
+    raise ArgumentError, message: "Locking an ERC-20 with a child key is not supported."
   end
 
   def lock_erc20(
