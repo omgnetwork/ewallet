@@ -61,8 +61,8 @@ const BlockchainWalletDetailPage = ({
 
           if (status === 'confirmed') {
             getBlockchainWalletBalance({
-              address: address,
-              cacheKey: { address: address, entity: 'plasmadeposits' }
+              address,
+              cacheKey: { address, entity: 'plasmadeposits' }
             })
             clearInterval(balancePolling)
             setPollingState(false)

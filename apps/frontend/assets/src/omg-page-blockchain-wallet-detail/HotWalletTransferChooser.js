@@ -42,7 +42,8 @@ class HotWalletTransferChooser extends Component {
     onDepositComplete: PropTypes.func,
     openModal: PropTypes.func,
     fromAddress: PropTypes.string,
-    isColdWallet: PropTypes.bool
+    isColdWallet: PropTypes.bool,
+    onCreateTransaction: PropTypes.func
   }
   renderDropdown = () => {
     return (
@@ -53,7 +54,8 @@ class HotWalletTransferChooser extends Component {
             onClick={() => {
               this.props.openModal({
                 id: 'hotWalletTransferModal',
-                fromAddress: this.props.fromAddress
+                fromAddress: this.props.fromAddress,
+                onCreateTransaction: this.props.onCreateTransaction
               })
             }}
           >

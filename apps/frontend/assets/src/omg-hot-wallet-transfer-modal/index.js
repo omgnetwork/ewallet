@@ -149,6 +149,7 @@ class CreateTransaction extends Component {
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
+        this.props.onCreateTransaction()
         this.onRequestClose()
       } else {
         this.setState({
@@ -156,7 +157,6 @@ class CreateTransaction extends Component {
           error: result.error.description || result.error.message
         })
       }
-      this.props.onCreateTransaction()
     } catch (e) {
       this.setState({ error: JSON.stringify(e.message) })
     }

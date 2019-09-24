@@ -66,12 +66,10 @@ class CreateBlockchainTransaction extends Component {
   }
   state = {
     fromTokenAmount: '',
-    toTokenAmount: '',
     fromAddress: this.props.fromAddress || '',
     toAddress: '',
     settingsOpen: false,
     transactionFee: 0,
-    amountToSend: 0,
     step: 1,
     gasLimit: 21000,
     gasPrice: '',
@@ -100,8 +98,9 @@ class CreateBlockchainTransaction extends Component {
   setGasPrice = async () => {
     const { estimateGasFromTransaction } = this.props
     if (web3Utils.isAddress(this.state.toAddress)) {
-      const { data: { gas } } = await estimateGasFromTransaction(this.getTransactionPayload())
-      this.setState({ gasPrice: weiToGwei(gas) })
+      const payload = this.getTransactionPayload()
+      const res = await estimateGasFromTransaction(payload)
+      this.setState({ gasPrice: weiToGwei(res.data.gas) })
     }
   }
 
@@ -127,8 +126,7 @@ class CreateBlockchainTransaction extends Component {
     } else {
       this.setState({
         toAddress: '',
-        toAddressSelect: false,
-        toTokenSearchToken: ''
+        toAddressSelect: false
       })
     }
   }
