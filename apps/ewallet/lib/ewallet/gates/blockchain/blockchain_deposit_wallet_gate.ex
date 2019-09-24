@@ -17,18 +17,27 @@ defmodule EWallet.BlockchainDepositWalletGate do
   Handles the logic for generating and retrieving a blockchain deposit wallet.
   """
   alias EWallet.{AddressTracker, BlockchainHelper}
-  alias EWallet.Web.BlockchainBalanceLoader
+  alias EWallet.Web.{BlockchainBalanceLoader, Preloader}
 
   alias EWalletDB.{
     BlockchainDepositWallet,
     BlockchainDepositWalletBalance,
-    BlockchainHDWallet
+    BlockchainHDWallet,
+    Wallet
   }
 
-  alias Keychain.Wallet
+  alias Keychain.Wallet, as: KeychainWallet
 
-  @burn_identifier EWalletDB.Wallet.burn()
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+  @burn_identifier Wallet.burn()
+  @deposit_ref 0
 
+  @doc """
+  Gets an existing blockchain deposit wallet for the given `EWalletDB.Wallet`,
+  creates a new one if it does not exist yet.
+
+  This effectively allows only 1 blockchain deposit wallet per `EWalletDB.Wallet`.
+  """
   def get_or_generate(%{identifier: @burn_identifier}, _) do
     {:error, :blockchain_deposit_wallet_for_burn_wallet_not_allowed}
   end
@@ -44,37 +53,37 @@ defmodule EWallet.BlockchainDepositWalletGate do
   end
 
   defp do_generate(wallet, originator) do
-    case BlockchainHDWallet.get_primary() do
-      nil ->
-        {:error, :hd_wallet_not_found}
+    with %BlockchainHDWallet{} = hd_wallet <-
+           BlockchainHDWallet.get_primary() || {:error, :hd_wallet_not_found},
+         {:ok, wallet_ref} <- Wallet.get_or_generate_hd_path(wallet),
+         {:ok, deposit_wallet} <-
+           do_insert(wallet, hd_wallet, wallet_ref, @deposit_ref, originator),
+         {:ok, deposit_wallet} <- Preloader.preload_one(deposit_wallet, :wallet) do
+      :ok =
+        AddressTracker.register_address(
+          deposit_wallet.address,
+          deposit_wallet.wallet.address
+        )
 
-      hd_wallet ->
-        ref = generate_unique_ref()
-        address = Wallet.derive_child_address(hd_wallet.keychain_uuid, ref, 0)
-
-        %{
-          address: address,
-          path_ref: ref,
-          wallet_address: wallet.address,
-          blockchain_hd_wallet_uuid: hd_wallet.uuid,
-          originator: originator,
-          blockchain_identifier: BlockchainHelper.rootchain_identifier()
-        }
-        |> BlockchainDepositWallet.insert()
-        |> case do
-          {:ok, deposit_wallet} ->
-            :ok =
-              AddressTracker.register_address(
-                deposit_wallet.address,
-                deposit_wallet.wallet_address
-              )
-
-            {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
-
-          error ->
-            error
-        end
+      {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
+    else
+      error ->
+        error
     end
+  end
+
+  defp do_insert(wallet, hd_wallet, wallet_ref, deposit_ref, originator) do
+    address =
+      KeychainWallet.derive_child_address(hd_wallet.keychain_uuid, wallet_ref, deposit_ref)
+
+    BlockchainDepositWallet.insert(%{
+      wallet_uuid: wallet.uuid,
+      blockchain_hd_wallet_uuid: hd_wallet.uuid,
+      relative_hd_path: deposit_ref,
+      address: address,
+      blockchain_identifier: @rootchain_identifier,
+      originator: originator
+    })
   end
 
   @doc """
@@ -94,10 +103,5 @@ defmodule EWallet.BlockchainDepositWalletGate do
        deposit_wallet_with_balances.balances,
        blockchain_identifier
      )}
-  end
-
-  # TODO: Handle the possibility of generating clashing numbers
-  defp generate_unique_ref do
-    :rand.uniform(999_999_999)
   end
 end

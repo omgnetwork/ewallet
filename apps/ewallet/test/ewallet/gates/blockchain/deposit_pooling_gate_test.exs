@@ -33,7 +33,7 @@ defmodule EWallet.DepositPoolingGateTest do
       deposit_wallet =
         insert(:blockchain_deposit_wallet,
           blockchain_identifier: blockchain_identifier,
-          blockchain_hd_wallet_uuid: BlockchainHDWallet.get_primary().uuid
+          blockchain_hd_wallet: BlockchainHDWallet.get_primary()
         )
 
       balance =
@@ -76,7 +76,7 @@ defmodule EWallet.DepositPoolingGateTest do
       deposit_wallet =
         insert(:blockchain_deposit_wallet,
           blockchain_identifier: blockchain_identifier,
-          blockchain_hd_wallet_uuid: BlockchainHDWallet.get_primary().uuid
+          blockchain_hd_wallet: BlockchainHDWallet.get_primary()
         )
 
       balance =
@@ -122,7 +122,7 @@ defmodule EWallet.DepositPoolingGateTest do
       deposit_wallet =
         insert(:blockchain_deposit_wallet,
           blockchain_identifier: blockchain_identifier,
-          blockchain_hd_wallet_uuid: BlockchainHDWallet.get_primary().uuid
+          blockchain_hd_wallet: BlockchainHDWallet.get_primary()
         )
 
       _ =

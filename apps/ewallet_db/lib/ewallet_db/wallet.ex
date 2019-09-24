@@ -23,7 +23,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias Utils.Types.WalletAddress
-  alias EWalletDB.{Account, Repo, User, Wallet, BlockchainDepositWallet}
+  alias EWalletDB.{Account, Repo, User, Wallet, BlockchainDepositWallet, BlockchainHDWallet}
   alias ExULID.ULID
   alias ActivityLogger.System
 
@@ -33,6 +33,8 @@ defmodule EWalletDB.Wallet do
   @secondary "secondary"
 
   @genesis_address "gnis000000000000"
+
+  @hd_path_max_retries 3
 
   def genesis, do: @genesis
   def burn, do: @burn
@@ -52,7 +54,8 @@ defmodule EWalletDB.Wallet do
     :metadata,
     :encrypted_metadata,
     :name,
-    :identifier
+    :identifier,
+    :relative_hd_path
   ]
 
   schema "wallet" do
@@ -63,7 +66,7 @@ defmodule EWalletDB.Wallet do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:enabled, :boolean)
-    activity_logging()
+    field(:relative_hd_path, :integer)
 
     belongs_to(
       :user,
@@ -84,10 +87,11 @@ defmodule EWalletDB.Wallet do
     has_many(
       :blockchain_deposit_wallets,
       BlockchainDepositWallet,
-      foreign_key: :wallet_address,
-      references: :address
+      foreign_key: :wallet_uuid,
+      references: :uuid
     )
 
+    activity_logging()
     timestamps()
   end
 
@@ -141,6 +145,9 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
     |> unique_constraint(:unique_account_identifier, name: :wallet_account_uuid_identifier_index)
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
+    |> unique_constraint(:relative_hd_path,
+      name: :walletblockchain_identifier_relative_hd_path_index
+    )
     |> validate_length(:name, count: :bytes, max: 255)
     |> validate_length(:identifier, count: :bytes, max: 255)
   end
@@ -288,5 +295,48 @@ defmodule EWalletDB.Wallet do
     wallet
     |> enable_changeset(attrs)
     |> Repo.update_record_with_activity_log()
+  end
+
+  @doc """
+  Retrieves the relative hierarchical-deterministic path for the given wallet,
+  or generates one if it does not exist.
+  """
+  def get_or_generate_hd_path(%{relative_hd_path: nil} = wallet) do
+    hd_wallet = BlockchainHDWallet.get_primary()
+
+    case do_generate_hd_path(hd_wallet) do
+      {:ok, path} ->
+        wallet
+        |> changeset(%{relative_hd_path: path, originator: %System{}})
+        |> Repo.update_record_with_activity_log()
+
+        {:ok, path}
+
+      error ->
+        error
+    end
+  end
+
+  def get_or_generate_hd_path(wallet), do: {:ok, wallet.relative_hd_path}
+
+  # Attempts to generate a unique HD path reference for up to 3 retries.
+  # This function is not concurrency-proof, the same reference could be generated concurrenntly,
+  # but this should be unlikely and would be caught by the unique index on relative_hd_path.
+  defp do_generate_hd_path(hd_wallet, retries \\ 0)
+
+  defp do_generate_hd_path(_, @hd_path_max_retries) do
+    {:error, :hd_path_generation_max_retried}
+  end
+
+  defp do_generate_hd_path(hd_wallet, retries) do
+    ref = :rand.uniform(999_999)
+
+    case BlockchainDepositWallet.get_by(
+           blockchain_hd_wallet_uuid: hd_wallet.uuid,
+           relative_hd_path: ref
+         ) do
+      nil -> {:ok, ref}
+      _existing -> do_generate_hd_path(hd_wallet, retries + 1)
+    end
   end
 end

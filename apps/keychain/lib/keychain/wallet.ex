@@ -80,13 +80,13 @@ defmodule Keychain.Wallet do
 
   @spec derive_child_address(String.t(), integer(), integer()) ::
           String.t() | {:error, :key_not_found}
-  def derive_child_address(keychain_uuid, account_ref, deposit_ref) do
+  def derive_child_address(keychain_uuid, wallet_ref, deposit_ref) do
     case Key.public_key_for_uuid(keychain_uuid) do
       nil ->
         {:error, :key_not_found}
 
       public_key ->
-        path = "M/#{account_ref}/#{deposit_ref}"
+        path = "M/#{wallet_ref}/#{deposit_ref}"
         Ethereum.address(public_key, path)
     end
   end

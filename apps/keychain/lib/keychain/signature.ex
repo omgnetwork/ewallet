@@ -52,7 +52,7 @@ defmodule Keychain.Signature do
 
   @doc """
   Returns a ECDSA signature (v,r,s) for a child key specified via
-  the given keychain's uuid, account_ref and deposit_ref.
+  the given keychain's uuid, wallet_ref and deposit_ref.
   """
   @spec sign_transaction_hash(
           Keccak.keccak_hash(),
@@ -66,7 +66,7 @@ defmodule Keychain.Signature do
         hash,
         keychain_uuid,
         derivation_path,
-        account_ref,
+        wallet_ref,
         deposit_ref,
         chain_id \\ nil
       ) do
@@ -75,7 +75,8 @@ defmodule Keychain.Signature do
         {:error, :invalid_address}
 
       xprv ->
-        child_xprv = CKD.derive(xprv, derivation_path <> "/#{account_ref}/#{deposit_ref}")
+        # We use the root key to derive child keys, so all path sections are hardened for privacy.
+        child_xprv = CKD.derive(xprv, derivation_path <> "/#{wallet_ref}'/#{deposit_ref}'")
 
         decoded = Encoding.decode_extended_key(child_xprv)
         <<_prefix::binary-1, pkey::binary-32>> = decoded[:key]

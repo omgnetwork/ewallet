@@ -236,7 +236,7 @@ defmodule EthBlockchain.TransactionTest do
         wallet: %{
           derivation_path: "M/44'/60'/0'/0'",
           keychain_uuid: keychain_key.uuid,
-          account_ref: 0,
+          wallet_ref: 0,
           deposit_ref: 0
         }
       }

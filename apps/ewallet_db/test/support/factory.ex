@@ -120,7 +120,8 @@ defmodule EWalletDB.Factory do
       enabled: true,
       metadata: %{},
       originator: %System{},
-      blockchain_deposit_wallets: []
+      blockchain_deposit_wallets: [],
+      relative_hd_path: :rand.uniform(999_999_999)
     }
   end
 
@@ -155,9 +156,9 @@ defmodule EWalletDB.Factory do
       blockchain_identifier: "ethereum",
       public_key: Crypto.fake_eth_address(),
       originator: %System{},
-      path_ref: "12345",
-      wallet_address: insert(:wallet).address,
-      blockchain_hd_wallet_uuid: insert(:blockchain_hd_wallet).uuid
+      relative_hd_path: :rand.uniform(999_999_999),
+      wallet: insert(:wallet),
+      blockchain_hd_wallet: insert(:blockchain_hd_wallet)
     }
   end
 

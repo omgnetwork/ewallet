@@ -112,10 +112,11 @@ defmodule EWallet.TransactionTracker do
         end
 
       false ->
-        Logger.error(
-          "Unable to handle the confirmations count for #{state.transaction.blockchain_tx_hash}." <>
-            " The receipt has a mismatched hash: #{tx_hash}."
-        )
+        _ =
+          Logger.error(
+            "Unable to handle the confirmations count for #{state.transaction.blockchain_tx_hash}." <>
+              " The receipt has a mismatched hash: #{tx_hash}."
+          )
 
         {:noreply, state}
     end

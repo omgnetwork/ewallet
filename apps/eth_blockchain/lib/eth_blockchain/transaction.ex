@@ -297,7 +297,7 @@ defmodule EthBlockchain.Transaction do
            %{
              derivation_path: _,
              keychain_uuid: _,
-             account_ref: _,
+             wallet_ref: _,
              deposit_ref: _
            } = wallet
        }) do
@@ -363,7 +363,7 @@ defmodule EthBlockchain.Transaction do
   defp sign_transaction(transaction, %{
          keychain_uuid: keychain_uuid,
          derivation_path: derivation_path,
-         account_ref: account_ref,
+         wallet_ref: wallet_ref,
          deposit_ref: deposit_ref
        }) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
@@ -374,7 +374,7 @@ defmodule EthBlockchain.Transaction do
       |> Signature.sign_transaction_hash(
         keychain_uuid,
         derivation_path,
-        account_ref,
+        wallet_ref,
         deposit_ref,
         chain_id
       )

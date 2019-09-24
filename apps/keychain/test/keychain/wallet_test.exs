@@ -57,7 +57,7 @@ defmodule Keychain.WalletTest do
   end
 
   describe "derive_child_address/3" do
-    test "returns the address for the given account_ref and deposit_ref" do
+    test "returns the address for the given wallet_ref and deposit_ref" do
       public_key =
         "xpub6EGmE1yp5TMVqfoZwbQLDvSu411rZejQoGUCqFfuC71XNXN2ddMHxWqFUTtQEbL3ksL3dgDjqjTcFxFkuZ3mecaNdjvqYNWQbq3EoQCeuT5"
 

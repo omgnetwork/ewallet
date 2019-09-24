@@ -47,9 +47,9 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
       wallet_2 = insert(:wallet)
 
       # The last wallet is the 3rd, but the last for wallet_1 should be the 2nd.
-      _ = insert(:blockchain_deposit_wallet, wallet_address: wallet_1.address)
-      w = insert(:blockchain_deposit_wallet, wallet_address: wallet_1.address)
-      _ = insert(:blockchain_deposit_wallet, wallet_address: wallet_2.address)
+      _ = insert(:blockchain_deposit_wallet, wallet: wallet_1)
+      w = insert(:blockchain_deposit_wallet, wallet: wallet_1)
+      _ = insert(:blockchain_deposit_wallet, wallet: wallet_2)
 
       assert BlockchainDepositWallet.get_last_for(wallet_1).uuid == w.uuid
     end

@@ -82,7 +82,9 @@ defmodule EWallet.DepositPoolingGate do
              }),
            transaction <- Preloader.preload(transaction, [:token]),
            balance <-
-             Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet]),
+             Preloader.preload(balance,
+               blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet]
+             ),
            {:ok, tx_hash} <- submit(transaction, balance),
            {:ok, transaction} <-
              TransactionState.transition_to(
@@ -133,8 +135,8 @@ defmodule EWallet.DepositPoolingGate do
       wallet: %{
         keychain_uuid: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
         derivation_path: Wallet.root_derivation_path(),
-        account_ref: blockchain_deposit_wallet.path_ref,
-        deposit_ref: 0
+        wallet_ref: blockchain_deposit_wallet.wallet.relative_hd_path,
+        deposit_ref: blockchain_deposit_wallet.relative_hd_path
       }
     }
 

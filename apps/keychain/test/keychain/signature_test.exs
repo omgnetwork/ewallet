@@ -30,8 +30,8 @@ defmodule Keychain.SignatureTest do
       assert is_integer(r)
       assert is_integer(s)
 
-      assert byte_size(:binary.encode_unsigned(r)) == 32
-      assert byte_size(:binary.encode_unsigned(s)) == 32
+      assert byte_size(:binary.encode_unsigned(r)) in 31..32
+      assert byte_size(:binary.encode_unsigned(s)) in 31..32
     end
 
     test "returns :invalid_address error if the wallet address could not be found" do
@@ -43,7 +43,7 @@ defmodule Keychain.SignatureTest do
   end
 
   describe "sign_transaction_hash/6" do
-    test "returns an ECDSA signature when given hash, keychain uuid and child key specified via account_ref & deposit_ref" do
+    test "returns an ECDSA signature when given hash, keychain uuid and child key specified via wallet_ref & deposit_ref" do
       key = insert(:hd_key)
       hash = Keccak.kec("some data")
 
@@ -54,8 +54,8 @@ defmodule Keychain.SignatureTest do
       assert is_integer(r)
       assert is_integer(s)
 
-      assert byte_size(:binary.encode_unsigned(r)) == 32
-      assert byte_size(:binary.encode_unsigned(s)) == 32
+      assert byte_size(:binary.encode_unsigned(r)) in 31..32
+      assert byte_size(:binary.encode_unsigned(s)) in 31..32
     end
 
     test "returns :invalid_address error if the key uuid could not be found" do

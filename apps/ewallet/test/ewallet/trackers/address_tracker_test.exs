@@ -84,7 +84,7 @@ defmodule EWallet.AddressTrackerTest do
       expected = %{
         addresses: %{
           hot_wallet.address => nil,
-          deposit_wallet.address => deposit_wallet.wallet_address
+          deposit_wallet.address => deposit_wallet.wallet.address
         },
         blk_number: 0,
         blk_retries: 0,
