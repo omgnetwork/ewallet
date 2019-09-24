@@ -16,11 +16,11 @@ const BlockchainTokensPageContainer = styled.div`
   padding-bottom: 50px;
   td {
     white-space: nowrap;
+    width: 25%;
   }
   td:first-child {
     border: none;
     position: relative;
-    width: 50%;
     :before {
       content: '';
       position: absolute;
@@ -91,7 +91,9 @@ class BlockchainTokensPage extends Component {
     super(props)
     this.columns = [
       { key: 'name', title: 'TOKEN', sort: true },
-      { key: 'balance', title: 'BALANCE', sort: true }
+      { key: 'balance', title: 'ROOT CHAIN BALANCE', sort: true },
+      { key: 'plasmaBalance', title: 'OMISEGO NETWORK BALANCE', sort: true },
+      { key: 'plasmaPercentage', title: 'OMISEGO NETWORK ALLOCATION', sort: true }
     ]
   }
   state = {
@@ -110,6 +112,13 @@ class BlockchainTokensPage extends Component {
     }
     if (key === 'balance') {
       return `${formatReceiveAmountToTotal(rows.amount, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+    }
+    if (key === 'plasmaBalance') {
+      return `${formatReceiveAmountToTotal(rows.plasmaAmount, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+    }
+    if (key === 'plasmaPercentage') {
+      const rawPercent = (rows.plasmaAmount / (rows.plasmaAmount + rows.amount)) * 100
+      return `${rawPercent ? rawPercent.toFixed(2) : 0}%`
     }
     return data
   }

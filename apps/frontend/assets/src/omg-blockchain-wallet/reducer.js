@@ -17,12 +17,31 @@ export const blockchainWalletReducer = createReducer(
   }
 )
 
+export const plasmaDepositReducer = createReducer(
+  {},
+  {
+    'BLOCKCHAIN_WALLET/DEPOSIT/SUCCESS': (state, action) => {
+      return { ...state, [action.data.from_blockchain_address]: action.data }
+    }
+  }
+)
+
 export const blockchainWalletBalanceReducer = createReducer(
   {},
   {
     'BLOCKCHAIN_WALLET_BALANCE/REQUEST/SUCCESS': (state, action) => {
-      const request = JSON.parse(action.cacheKey)
-      return { ...state, [request.address]: action.data }
+      const [rootBalance, plasmaBalance] = action.data
+      const balances = rootBalance.map(balance => {
+        const fromPlasma = plasmaBalance.find(i => i.token.id === balance.token.id)
+        return {
+          ...balance,
+          plasmaAmount: fromPlasma.amount
+        }
+      })
+      const request = typeof action.cacheKey === 'string'
+        ? JSON.parse(action.cacheKey)
+        : action.cacheKey
+      return { ...state, [request.address]: balances }
     }
   }
 )

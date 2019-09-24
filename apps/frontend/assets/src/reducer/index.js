@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux'
 import { loadingBarReducer } from 'react-redux-loading-bar'
 
-import { blockchainWalletReducer, blockchainWalletBalanceReducer } from '../omg-blockchain-wallet/reducer'
+import { blockchainWalletReducer, blockchainWalletBalanceReducer, plasmaDepositReducer } from '../omg-blockchain-wallet/reducer'
 import { sessionReducer } from '../omg-session/reducer'
 import { accountsReducer } from '../omg-account/reducer'
 import { currentUserReducer } from '../omg-user-current/reducer'
@@ -61,5 +61,6 @@ export default combineReducers({
   recentAccounts: recentAccountsReducer,
   modals: modalReducer,
   metamask: metamaskReducer,
-  blockchainBalance: blockchainBalanceReducer
+  blockchainBalance: blockchainBalanceReducer,
+  plasmaDeposits: plasmaDepositReducer
 })

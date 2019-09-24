@@ -1,23 +1,27 @@
 import * as blockchainWalletService from '../services/blockchainWalletService'
-import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+import { createActionCreator, createPaginationActionCreator, createPaginationMultiPromiseActionCreator } from '../utils/createActionCreator'
 
 export const getBlockchainWalletBalance = ({ address, cacheKey, page, perPage, matchAll, matchAny }) =>
-  createPaginationActionCreator({
+  createPaginationMultiPromiseActionCreator({
     actionName: 'BLOCKCHAIN_WALLET_BALANCE',
     action: 'REQUEST',
-    service: () =>
-      blockchainWalletService.getBlockchainWalletBalance({
+    services: () => {
+      const params = {
         address,
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
         matchAll,
         matchAny
-      }),
+      }
+      const rootPromise = blockchainWalletService.getBlockchainWalletBalance(params)
+      const plasmaPromise = blockchainWalletService.getBlockchainWalletPlasmaBalance(params)
+      return Promise.all([ rootPromise, plasmaPromise ])
+    },
     cacheKey
   })
 
-export const getBlockchainWallet = (address) =>
+export const getBlockchainWallet = address =>
   createActionCreator({
     actionName: 'BLOCKCHAIN_WALLET',
     action: 'REQUEST',
@@ -58,5 +62,21 @@ export const createBlockchainWallet = ({
         name,
         type,
         address
+      })
+  })
+
+export const plasmaDeposit = ({
+  address,
+  amount,
+  tokenId
+}) =>
+  createActionCreator({
+    actionName: 'BLOCKCHAIN_WALLET',
+    action: 'DEPOSIT',
+    service: () =>
+      blockchainWalletService.plasmaDeposit({
+        address,
+        amount,
+        tokenId
       })
   })

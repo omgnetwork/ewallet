@@ -16,9 +16,13 @@ export const cacheReducer = createReducer(
       }
     },
     'BLOCKCHAIN_WALLET_BALANCE/REQUEST/SUCCESS': (state, action) => {
+      const key = typeof action.cacheKey !== 'string'
+        ? JSON.stringify(action.cacheKey)
+        : action.cacheKey
+
       return {
         ...state,
-        [action.cacheKey]: { ids: action.data.map(d => d.token.id), pagination: action.pagination }
+        [key]: { ids: action.data[0].map(d => d.token.id), pagination: action.pagination }
       }
     },
     'API_KEYS/REQUEST/SUCCESS': (state, action) => {
