@@ -194,7 +194,10 @@ class CreateTransaction extends Component {
             onChange: this.onChangeAmount('fromToken'),
             type: 'amount',
             maxAmountLength: 18,
-            suffix: _.get(this.state.fromTokenSelected, 'token.symbol')
+            suffix: _.get(this.state.fromTokenSelected, 'amount')
+              ? _.get(this.state.fromTokenSelected, 'token.symbol')
+              : null,
+            disabled: !this.state.fromTokenSelected || this.state.fromTokenSelected.amount === 0
           }}
           selectProps={{
             label: 'Token',
@@ -269,10 +272,6 @@ class CreateTransaction extends Component {
     )
   }
 
-  toggle = network => {
-    this.setState({ onEthereum: network === 'ethereum' })
-  }
-
   renderChainSelect = () => {
     return (
       <ChainSelect>
@@ -302,14 +301,14 @@ class CreateTransaction extends Component {
                       <Checkbox
                         key='Ethereum'
                         label='Transfer on Ethereum'
-                        onClick={() => this.toggle('ethereum')}
+                        onClick={() => this.setState({ onEthereum: true })}
                         checked={this.state.onEthereum}
                       />
                       {onPlasma && (
                         <Checkbox
                           key='Plasma'
                           label='Transfer on Plasma'
-                          onClick={() => this.toggle('plasma')}
+                          onClick={() => this.setState({ onEthereum: false })}
                           checked={!this.state.onEthereum}
                         />
                       )}
@@ -330,7 +329,7 @@ class CreateTransaction extends Component {
         <InnerTransferContainer>
           <h4>External Transfer</h4>
           {this.renderFromSection()}
-          {this.state.fromTokenSelected && this.renderChainSelect()}
+          {!!_.get(this.state.fromTokenSelected, 'amount') && this.renderChainSelect()}
           {this.renderToSection()}
           <ButtonContainer>
             <Button

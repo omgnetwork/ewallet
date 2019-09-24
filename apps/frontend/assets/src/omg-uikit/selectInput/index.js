@@ -90,6 +90,7 @@ const SelectInput = ({ inputProps = {}, selectProps = {}, className }) => {
       <SelectInputContainer focused={focused}>
         {!_.isEmpty(selectProps) && (
           <StyledSelect
+            disabled={selectProps.disabled}
             noBorder
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
@@ -99,6 +100,7 @@ const SelectInput = ({ inputProps = {}, selectProps = {}, className }) => {
         )}
         {!_.isEmpty(inputProps) && (
           <StyledInput
+            disabled={inputProps.disabled}
             onlyInput={!!_.isEmpty(selectProps)}
             noBorder
             placeholder={inputProps.placeholder}
