@@ -6,15 +6,22 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import web3Utils from 'web3-utils'
 
-import { Button, Icon, SelectInput } from '../omg-uikit'
+import { Button, Icon, SelectInput, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { formatAmount } from '../utils/formatter'
-import { AllBlockchainWalletsFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
+import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
+import { AllBlockchainWalletsFetcher, BlockchainWalletBalanceFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import TokenSelect from '../omg-token-select'
 import WalletSelect from '../omg-wallet-select'
 
+const CheckboxGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+const LoadingCheckboxGroup = styled(CheckboxGroup)`
+  color: ${props => props.theme.colors.S300};
+`
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -79,13 +86,12 @@ const StyledSelectInput = styled(SelectInput)`
 `
 const StyledInput = styled(StyledSelectInput)`
 `
-const enhance = compose(
-  withRouter,
-  connect(
-    null,
-    { transfer, getWalletById }
-  )
-)
+const ChainSelect = styled.div`
+  background-color: ${props => props.theme.colors.S100};
+  border-radius: 6px;
+  padding: 20px;
+`
+
 class CreateTransaction extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
@@ -101,7 +107,8 @@ class CreateTransaction extends Component {
     fromTokenAmount: '',
     fromTokenSearchToken: '',
     wallet: this.props.wallet,
-    toAddress: ''
+    toAddress: '',
+    onEthereum: true
   }
   onChangeAmount = type => e => {
     this.setState({ [`${type}Amount`]: e.target.value })
@@ -245,6 +252,77 @@ class CreateTransaction extends Component {
       </FromToContainer>
     )
   }
+  renderPlasmaLoadingState = () => {
+    return (
+      <LoadingCheckboxGroup>
+        <Checkbox
+          key='Ethereum'
+          label='Transfer on Ethereum'
+          checked={false}
+        />
+        <Checkbox
+          key='Plasma'
+          label='Transfer on Plasma'
+          checked={false}
+        />
+      </LoadingCheckboxGroup>
+    )
+  }
+
+  toggle = network => {
+    this.setState({ onEthereum: network === 'ethereum' })
+  }
+
+  renderChainSelect = () => {
+    return (
+      <ChainSelect>
+        <AllBlockchainWalletsFetcher
+          render={({ blockchainWallets, individualLoadingStatus }) => {
+            const { address } = _.find(blockchainWallets, i => i.type === 'hot')
+            if (individualLoadingStatus !== 'SUCCESS') {
+              return this.renderPlasmaLoadingState()
+            }
+            return (
+              <BlockchainWalletBalanceFetcher
+                query={{ address }}
+                render={({ data, individualLoadingStatus }) => {
+                  if (individualLoadingStatus !== 'SUCCESS') {
+                    return this.renderPlasmaLoadingState()
+                  }
+                  const tokenBalances = _.find(data, i => i.token.id === this.state.fromTokenSelected.token.id)
+                  const { plasmaAmount } = tokenBalances
+                  const subunit = _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
+
+                  const internalAmount = this.state.fromTokenSelected.amount
+                  const formattedPlasmaAmount = formatReceiveAmountToTotal(plasmaAmount, subunit)
+                  const onPlasma = formattedPlasmaAmount > internalAmount
+
+                  return (
+                    <CheckboxGroup>
+                      <Checkbox
+                        key='Ethereum'
+                        label='Transfer on Ethereum'
+                        onClick={() => this.toggle('ethereum')}
+                        checked={this.state.onEthereum}
+                      />
+                      {onPlasma && (
+                        <Checkbox
+                          key='Plasma'
+                          label='Transfer on Plasma'
+                          onClick={() => this.toggle('plasma')}
+                          checked={!this.state.onEthereum}
+                        />
+                      )}
+                    </CheckboxGroup>
+                  )
+                }}
+              />
+            )
+          }}
+        />
+      </ChainSelect>
+    )
+  }
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
@@ -252,6 +330,7 @@ class CreateTransaction extends Component {
         <InnerTransferContainer>
           <h4>External Transfer</h4>
           {this.renderFromSection()}
+          {this.state.fromTokenSelected && this.renderChainSelect()}
           {this.renderToSection()}
           <ButtonContainer>
             <Button
@@ -274,6 +353,13 @@ class CreateTransaction extends Component {
     )
   }
 }
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { transfer, getWalletById }
+  )
+)
 const EnhancedCreateTransaction = enhance(CreateTransaction)
 export default class InternalToExternalModal extends Component {
   static propTypes = {
