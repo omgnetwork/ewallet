@@ -10,7 +10,7 @@ import { Button, Icon, SelectInput, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatAmount } from '../utils/formatter'
 import { AllBlockchainWalletsFetcher, BlockchainWalletBalanceFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import TokenSelect from '../omg-token-select'
 import WalletSelect from '../omg-wallet-select'
@@ -146,6 +146,7 @@ class CreateTransaction extends Component {
         _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
       )
       const result = await this.props.transfer({
+        onPlasma: !this.state.onEthereum,
         fromAddress: this.props.wallet.address,
         toAddress: this.state.toAddress.trim(),
         fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
@@ -290,11 +291,9 @@ class CreateTransaction extends Component {
                   }
                   const tokenBalances = _.find(data, i => i.token.id === this.state.fromTokenSelected.token.id)
                   const { plasmaAmount } = tokenBalances
-                  const subunit = _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
 
                   const internalAmount = this.state.fromTokenSelected.amount
-                  const formattedPlasmaAmount = formatReceiveAmountToTotal(plasmaAmount, subunit)
-                  const onPlasma = formattedPlasmaAmount > internalAmount
+                  const onPlasma = plasmaAmount > internalAmount
 
                   return (
                     <CheckboxGroup>

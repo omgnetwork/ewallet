@@ -12,13 +12,15 @@ export const transfer = ({
   fromAmount,
   toAmount,
   amount,
-  exchangeAddress
+  exchangeAddress,
+  onPlasma
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION',
     action: 'CREATE',
     service: () =>
       transactionService.transfer({
+        onPlasma,
         fromAddress,
         toAddress,
         tokenId,

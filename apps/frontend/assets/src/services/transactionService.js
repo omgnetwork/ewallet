@@ -60,11 +60,13 @@ export function transfer ({
   fromAmount,
   toAmount,
   amount,
-  exchangeAddress
+  exchangeAddress,
+  onPlasma
 }) {
   return authenticatedRequest({
     path: '/transaction.create',
     data: {
+      ...onPlasma && { blockchain_identifier: 'omisego_network' },
       from_address: fromAddress,
       to_address: toAddress,
       token_id: tokenId,
