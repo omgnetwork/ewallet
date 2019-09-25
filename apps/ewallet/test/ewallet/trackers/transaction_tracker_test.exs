@@ -68,7 +68,7 @@ defmodule EWallet.TransactionTrackerTest do
       # The initial balance can be anything except 123
       # which the blockchain dumb adapter always return.
       balance =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           blockchain_deposit_wallet: deposit_wallet,
           amount: 100
         )

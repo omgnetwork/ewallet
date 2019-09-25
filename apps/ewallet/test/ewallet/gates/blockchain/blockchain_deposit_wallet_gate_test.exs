@@ -97,14 +97,14 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       wallet = insert(:blockchain_deposit_wallet)
 
       _ =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           blockchain_deposit_wallet: wallet,
           amount: 10,
           token: token_1
         )
 
       _ =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           blockchain_deposit_wallet: wallet,
           amount: 20,
           token: token_2

@@ -12,9 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletDB.BlockchainDepositWalletBalance do
+defmodule EWalletDB.BlockchainDepositWalletCachedBalance do
   @moduledoc """
-  Ecto Schema representing a blockchain deposit wallet.
+  An Ecto schema representing a blockchain deposit wallet's cached balance.
+
+  Note that this cached balance may have some delay from the actual blockchain balance,
+  as it takes some time to periodically synchronize the balances.
+
+  With this sync delay, this cached balance must not be used to assume that transactions made
+  on it will be successful. However, it is useful for computing across many balances without
+  resorting to querying the blockchain balance one by one, e.g. comparing all balances to pick
+  a number of largest balances to pool funds into a hot wallet.
   """
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
@@ -25,7 +33,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
 
   alias EWalletDB.{
     Repo,
-    BlockchainDepositWalletBalance,
+    BlockchainDepositWalletCachedBalance,
     BlockchainDepositWallet,
     Token
   }
@@ -35,7 +43,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
-  schema "blockchain_deposit_wallet_balance" do
+  schema "blockchain_deposit_wallet_cached_balance" do
     field(:amount, Utils.Types.Integer)
     field(:blockchain_identifier, :string)
 
@@ -59,7 +67,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
     timestamps()
   end
 
-  defp changeset(%BlockchainDepositWalletBalance{} = wallet, attrs) do
+  defp changeset(%__MODULE__{} = wallet, attrs) do
     wallet
     |> cast_and_validate_required_for_activity_log(
       attrs,
@@ -84,7 +92,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
       |> List.wrap()
       |> Enum.map(fn t -> t.uuid end)
 
-    BlockchainDepositWalletBalance
+    BlockchainDepositWalletCachedBalance
     |> where([b], b.token_uuid in ^token_uuids)
     |> where([b], b.blockchain_identifier == ^blockchain_identifier)
     |> Repo.all()
@@ -92,7 +100,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalance do
 
   def create_or_update_all(address, balances, blockchain_identifier) do
     Enum.map(balances, fn %{amount: amount, token: token} ->
-      %BlockchainDepositWalletBalance{}
+      %BlockchainDepositWalletCachedBalance{}
       |> changeset(%{
         blockchain_deposit_wallet_address: address,
         token_uuid: token.uuid,

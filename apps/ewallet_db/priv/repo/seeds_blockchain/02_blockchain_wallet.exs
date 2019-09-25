@@ -33,7 +33,6 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
         writer.warn("""
           Skipping hot wallet generation, #{wallet.name} is already in the database.
 
-          Info:
           Name                : #{wallet.name}
           Address             : #{wallet.address}
           Public key          : #{wallet.public_key}
@@ -48,26 +47,31 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
     attrs = %{
       address: address,
       public_key: public_key,
-      name: "Hot wallet",
+      name: "Hot Wallet",
       type: BlockchainWallet.type_hot(),
       blockchain_identifier: identifier,
       originator: %Seeder{}
     }
+
     case BlockchainWallet.insert_hot(attrs) do
       {:ok, wallet} ->
-        {:ok, [primary_hot_wallet: {:ok, _}]} = Config.update(%{
-          primary_hot_wallet: wallet.address,
-          originator: %Seeder{}
-        })
+        {:ok, [primary_hot_wallet: {:ok, _}]} =
+          Config.update(%{
+            primary_hot_wallet: wallet.address,
+            originator: %Seeder{}
+          })
+
         writer.success("""
           Name                : #{wallet.name}
           Address             : #{wallet.address}
           Public key          : #{wallet.public_key}
           Type                : #{wallet.type}
         """)
+
       {:error, changeset} ->
         writer.error("  Wallet #{address} could not be inserted.")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  Wallet #{address} could not be inserted.")
         writer.error("  Unknown error.")

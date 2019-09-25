@@ -23,13 +23,14 @@ defmodule Keychain.Wallet do
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
-  @root_derivation_path "M/44'/60'/0'/0'"
+  @root_hd_path "44'/60'/0'/0'"
 
   @doc """
   Returns the root derivation path used as the base for
   generating the actual wallet's derivation path.
   """
-  def root_derivation_path, do: @root_derivation_path
+  def root_hd_path_public, do: "M/" <> @root_hd_path
+  def root_hd_path_private, do: "m/" <> @root_hd_path
 
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
@@ -66,7 +67,7 @@ defmodule Keychain.Wallet do
   @spec generate_hd :: {:ok, String.t()}
   def generate_hd do
     %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
-    public_key = CKD.derive(root_key, @root_derivation_path)
+    public_key = CKD.derive(root_key, root_hd_path_public())
     wallet_address = Address.from_xpub(public_key)
     uuid = UUID.generate()
 

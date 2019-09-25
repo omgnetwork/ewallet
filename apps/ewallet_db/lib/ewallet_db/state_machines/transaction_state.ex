@@ -98,7 +98,7 @@ defmodule EWalletDB.TransactionState do
     from_deposit_to_pooled: %{
       @pending => [@blockchain_submitted],
       @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
-      @pending_confirmations => [@blockchain_confirmed],
+      @pending_confirmations => [@pending_confirmations, @blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],
       @confirmed => []
     }

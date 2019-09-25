@@ -27,7 +27,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     BlockchainDepositWallet,
-    BlockchainDepositWalletBalance,
+    BlockchainDepositWalletCachedBalance,
     BlockchainHDWallet,
     BlockchainWallet,
     BlockchainState,
@@ -162,8 +162,8 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  def blockchain_deposit_wallet_balance_factory do
-    %BlockchainDepositWalletBalance{
+  def blockchain_deposit_wallet_cached_balance_factory do
+    %BlockchainDepositWalletCachedBalance{
       amount: 1,
       blockchain_deposit_wallet: insert(:blockchain_deposit_wallet),
       blockchain_identifier: "ethereum",

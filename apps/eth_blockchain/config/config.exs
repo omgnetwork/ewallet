@@ -15,7 +15,7 @@ config :eth_blockchain,
 config :eth_blockchain,
   # Custom id used for development/testing only, to be updated for production use
   # Note that the geth ran by elixir-omg docker-compose is using 1337 as well.
-  chain_id: 1337,
+  chain_id: {:system, "ROOTCHAIN_CHAIN_ID", 1337, {String, :to_integer}},
   transaction_poll_interval: 5000
 
 config :eth_blockchain,

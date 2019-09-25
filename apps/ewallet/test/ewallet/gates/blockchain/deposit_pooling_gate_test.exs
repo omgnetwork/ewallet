@@ -37,7 +37,7 @@ defmodule EWallet.DepositPoolingGateTest do
         )
 
       balance =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           token: token,
           amount: 100 * token.subunit_to_unit,
           blockchain_identifier: blockchain_identifier,
@@ -80,7 +80,7 @@ defmodule EWallet.DepositPoolingGateTest do
         )
 
       balance =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           token: token,
           amount: 200 * token.subunit_to_unit,
           blockchain_identifier: blockchain_identifier,
@@ -126,7 +126,7 @@ defmodule EWallet.DepositPoolingGateTest do
         )
 
       _ =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           token: token,
           amount: 0,
           blockchain_identifier: blockchain_identifier,

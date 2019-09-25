@@ -30,6 +30,7 @@ defmodule EWallet.TransactionTracker do
   }
 
   alias EWalletDB.{BlockchainDepositWallet, TransactionState}
+  alias EWalletDB.Helpers.Preloader
 
   @default_confirmations_threshold 10
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
@@ -99,7 +100,7 @@ defmodule EWallet.TransactionTracker do
       true ->
         # The transaction may have staled as it may took time before this function is invoked.
         # So we'll re-retrieve the transaction from the database before transitioning.
-        state = %{state | transaction: refresh_transaction(state.transaction, preload: :to_token)}
+        state = %{state | transaction: refresh_transaction(state.transaction)}
 
         case confirmations_count >= get_confirmations_threshold() do
           false ->
@@ -131,8 +132,8 @@ defmodule EWallet.TransactionTracker do
     {:noreply, state}
   end
 
-  defp refresh_transaction(%schema{} = transaction, opts) do
-    schema.get(transaction.id, opts)
+  defp refresh_transaction(%schema{} = transaction) do
+    schema.get(transaction.id)
   end
 
   defp get_confirmations_threshold do
@@ -189,6 +190,8 @@ defmodule EWallet.TransactionTracker do
   end
 
   defp refresh_balances_if_to_deposit_wallet(transaction) do
+    transaction = Preloader.preload(transaction, :to_token)
+
     # If the transaction is to a deposit wallet, make sure the deposit wallet's
     # local copy of its blockchain balances is refreshed.
     case BlockchainDepositWallet.get(transaction.to_blockchain_address) do

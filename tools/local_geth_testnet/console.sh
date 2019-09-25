@@ -8,4 +8,13 @@ if [ ! -d "${DATA_DIR}" ]; then
 fi
 
 echo "Starting geth console..."
-geth --identity "local-geth" --rpc --rpcvhosts "*" --rpccorsdomain "*" --datadir "${DATA_DIR}" --nodiscover --rpcapi "db,eth,net,web3" --nat "any" console
+
+geth \
+  --identity "local-geth" \
+  --networkid 1337 \
+  --datadir "${DATA_DIR}" --nodiscover \
+  --allow-insecure-unlock \
+  --rpc --rpcvhosts "*" --rpccorsdomain "*" \
+  --rpcapi "db,eth,net,web3" \
+  --nat "any" \
+  console

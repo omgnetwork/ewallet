@@ -23,7 +23,7 @@ defmodule EWallet.DepositPoolingGate do
   alias EWalletDB.{
     Token,
     BlockchainWallet,
-    BlockchainDepositWalletBalance,
+    BlockchainDepositWalletCachedBalance,
     DepositTransaction,
     Helpers.Preloader,
     TransactionState
@@ -32,7 +32,7 @@ defmodule EWallet.DepositPoolingGate do
   alias Keychain.Wallet
 
   # TODO: get real gas price
-  @gas_price 20_000_000_000
+  @gas_price 40_000_000_000
   @gas_limit_eth 21_000
   @gas_limit_erc20 90_000
 
@@ -47,6 +47,8 @@ defmodule EWallet.DepositPoolingGate do
       blockchain_identifier
       |> Token.all_blockchain()
       |> Enum.flat_map(fn token ->
+        Logger.debug("Checking deposit wallet balances for token #{token.symbol}.")
+
         case token.blockchain_address do
           ^primary_token_address ->
             pool_token_deposits(token, pool, blockchain_identifier, @gas_price, @gas_limit_eth)
@@ -61,50 +63,41 @@ defmodule EWallet.DepositPoolingGate do
 
   defp pool_token_deposits(token, hot_wallet, blockchain_identifier, gas_price, gas_limit) do
     token
-    |> BlockchainDepositWalletBalance.all_for_token(blockchain_identifier)
+    |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier)
+    |> Enum.filter(fn balance ->
+      poolable_amount(balance, gas_price, gas_limit) > 0
+    end)
     |> Enum.map(fn balance ->
-      gas_cost = gas_price * gas_limit
-      amount = poolable_amount(balance) - gas_cost
+      attrs = %{
+        type: DepositTransaction.outgoing(),
+        amount: poolable_amount(balance, gas_price, gas_limit),
+        token_uuid: token.uuid,
+        gas_price: gas_price,
+        gas_limit: gas_limit,
+        from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
+        to_blockchain_wallet_address: hot_wallet.address,
+        blockchain_identifier: blockchain_identifier,
+        originator: %System{}
+      }
 
-      # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
-      with true <- amount > 0 || {:skipped, :amount_too_low},
-           {:ok, transaction} <-
-             DepositTransaction.insert(%{
-               type: DepositTransaction.incoming(),
-               amount: amount,
-               token_uuid: token.uuid,
-               gas_price: gas_price,
-               gas_limit: gas_limit,
-               from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
-               to_blockchain_wallet_address: hot_wallet.address,
-               blockchain_identifier: blockchain_identifier,
-               originator: %System{}
-             }),
-           transaction <- Preloader.preload(transaction, [:token]),
-           balance <-
-             Preloader.preload(balance,
-               blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet]
-             ),
-           {:ok, tx_hash} <- submit(transaction, balance),
-           {:ok, transaction} <-
-             TransactionState.transition_to(
-               :from_deposit_to_pooled,
-               TransactionState.blockchain_submitted(),
-               transaction,
-               %{blockchain_tx_hash: tx_hash, originator: %System{}}
-             ),
-           {:ok, _pid} <- TransactionTracker.start(transaction, :from_deposit_to_pooled) do
-        {:ok, transaction}
-      else
-        {:skipped, reason} = error ->
-          Logger.debug(fn -> "Skipped deposit pooling: #{inspect(reason)}." end)
-          error
+      case DepositTransaction.insert(attrs) do
+        {:ok, transaction} ->
+          # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
+          with {:ok, tx_hash} <- submit(transaction, balance),
+               {:ok, transaction} <-
+                 TransactionState.transition_to(
+                   :from_deposit_to_pooled,
+                   TransactionState.blockchain_submitted(),
+                   transaction,
+                   %{blockchain_tx_hash: tx_hash, originator: %System{}}
+                 ),
+               {:ok, _pid} <- TransactionTracker.start(transaction, :from_deposit_to_pooled) do
+            {:ok, transaction}
+          else
+            error -> error
+          end
 
         error ->
-          Logger.error(fn ->
-            "An error occured while trying to pool deposits: #{inspect(error)}."
-          end)
-
           error
       end
     end)
@@ -112,7 +105,7 @@ defmodule EWallet.DepositPoolingGate do
 
   # Checks the poolable amount by subtracting the balance amount from all ongoing
   # pooling transactions (transactions going out of the deposit wallet).
-  defp poolable_amount(balance) do
+  defp poolable_amount(balance, gas_price, gas_limit) do
     pending_amount =
       [
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
@@ -121,22 +114,26 @@ defmodule EWallet.DepositPoolingGate do
       |> DepositTransaction.all_unfinalized_by()
       |> Enum.reduce(0, fn dt, sum -> sum + dt.amount end)
 
-    balance.amount - pending_amount
+    max_gas_cost = gas_price * gas_limit
+    balance.amount - pending_amount - max_gas_cost
   end
 
-  defp submit(transaction, %{blockchain_deposit_wallet: blockchain_deposit_wallet}) do
+  defp submit(transaction, balance) do
+    transaction = Preloader.preload(transaction, [:token])
+    balance = Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet])
+
     attrs = %{
-      from: transaction.from_deposit_wallet_address || transaction.from_deposit_wallet_address,
+      from: transaction.from_deposit_wallet_address || transaction.from_blockchain_wallet_address,
       to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
       amount: transaction.amount,
       contract_address: transaction.token.blockchain_address,
       gas_limit: transaction.gas_limit,
       gas_price: transaction.gas_price,
       wallet: %{
-        keychain_uuid: blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
-        derivation_path: Wallet.root_derivation_path(),
-        wallet_ref: blockchain_deposit_wallet.wallet.relative_hd_path,
-        deposit_ref: blockchain_deposit_wallet.relative_hd_path
+        keychain_uuid: balance.blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
+        derivation_path: Wallet.root_hd_path_private(),
+        wallet_ref: balance.blockchain_deposit_wallet.wallet.relative_hd_path,
+        deposit_ref: balance.blockchain_deposit_wallet.relative_hd_path
       }
     }
 

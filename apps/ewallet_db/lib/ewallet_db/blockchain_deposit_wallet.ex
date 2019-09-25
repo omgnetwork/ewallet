@@ -25,7 +25,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
 
   alias EWalletDB.{
     BlockchainDepositWallet,
-    BlockchainDepositWalletBalance,
+    BlockchainDepositWalletCachedBalance,
     BlockchainHDWallet,
     Repo,
     Wallet
@@ -59,7 +59,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
 
     has_many(
       :balances,
-      BlockchainDepositWalletBalance,
+      BlockchainDepositWalletCachedBalance,
       foreign_key: :blockchain_deposit_wallet_address,
       references: :address
     )

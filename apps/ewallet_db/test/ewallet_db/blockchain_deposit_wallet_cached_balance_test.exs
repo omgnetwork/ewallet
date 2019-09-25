@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
+defmodule EWalletDB.BlockchainDepositWalletCachedBalanceTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias EWallet.BlockchainHelper
-  alias EWalletDB.BlockchainDepositWalletBalance
+  alias EWalletDB.BlockchainDepositWalletCachedBalance
 
   describe "all_for_token/2" do
     test "returns the list of all blockchain deposit wallet balances for the given token" do
       token = insert(:token)
-      b1 = insert(:blockchain_deposit_wallet_balance, token: token)
-      b2 = insert(:blockchain_deposit_wallet_balance)
-      b3 = insert(:blockchain_deposit_wallet_balance, token: token)
-      b4 = insert(:blockchain_deposit_wallet_balance)
+      b1 = insert(:blockchain_deposit_wallet_cached_balance, token: token)
+      b2 = insert(:blockchain_deposit_wallet_cached_balance)
+      b3 = insert(:blockchain_deposit_wallet_cached_balance, token: token)
+      b4 = insert(:blockchain_deposit_wallet_cached_balance)
 
       balances =
-        BlockchainDepositWalletBalance.all_for_token(
+        BlockchainDepositWalletCachedBalance.all_for_token(
           token,
           BlockchainHelper.rootchain_identifier()
         )
@@ -41,13 +41,13 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
     test "returns the list of all blockchain deposit wallet balances for the given tokens" do
       token_1 = insert(:token)
       token_2 = insert(:token)
-      b1 = insert(:blockchain_deposit_wallet_balance, token: token_1)
-      b2 = insert(:blockchain_deposit_wallet_balance)
-      b3 = insert(:blockchain_deposit_wallet_balance, token: token_2)
-      b4 = insert(:blockchain_deposit_wallet_balance)
+      b1 = insert(:blockchain_deposit_wallet_cached_balance, token: token_1)
+      b2 = insert(:blockchain_deposit_wallet_cached_balance)
+      b3 = insert(:blockchain_deposit_wallet_cached_balance, token: token_2)
+      b4 = insert(:blockchain_deposit_wallet_cached_balance)
 
       balances =
-        BlockchainDepositWalletBalance.all_for_token(
+        BlockchainDepositWalletCachedBalance.all_for_token(
           [token_1, token_2],
           BlockchainHelper.rootchain_identifier()
         )
@@ -71,7 +71,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       ]
 
       balances =
-        BlockchainDepositWalletBalance.create_or_update_all(
+        BlockchainDepositWalletCachedBalance.create_or_update_all(
           wallet.address,
           balance_data,
           BlockchainHelper.rootchain_identifier()
@@ -96,14 +96,14 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       token_2 = insert(:token)
 
       _ =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           token: token_1,
           amount: 99,
           blockchain_deposit_wallet: wallet
         )
 
       _ =
-        insert(:blockchain_deposit_wallet_balance,
+        insert(:blockchain_deposit_wallet_cached_balance,
           token: token_2,
           amount: 99,
           blockchain_deposit_wallet: wallet
@@ -115,7 +115,7 @@ defmodule EWalletDB.BlockchainDepositWalletBalanceTest do
       ]
 
       balances =
-        BlockchainDepositWalletBalance.create_or_update_all(
+        BlockchainDepositWalletCachedBalance.create_or_update_all(
           wallet.address,
           balance_data,
           BlockchainHelper.rootchain_identifier()

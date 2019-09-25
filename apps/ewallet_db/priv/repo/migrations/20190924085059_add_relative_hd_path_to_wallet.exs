@@ -6,6 +6,6 @@ defmodule EWalletDB.Repo.Migrations.AddRelativeHDPathToWallet do
       add :relative_hd_path, :integer
     end
 
-    create unique_index(:wallet, [:blockchain_identifier, :relative_hd_path])
+    create unique_index(:wallet, [:relative_hd_path])
   end
 end
