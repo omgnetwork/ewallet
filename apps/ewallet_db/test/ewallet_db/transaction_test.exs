@@ -75,16 +75,6 @@ defmodule EWalletDB.TransactionTest do
     end
   end
 
-  describe "get_last_blk_number/1" do
-    test "returns the last known block number for the given blockchain identifier" do
-      insert(:transaction, blockchain_identifier: "ethereum", blk_number: 230)
-      insert(:transaction, blockchain_identifier: "ethereum", blk_number: 123)
-
-      blk_number = Transaction.get_last_blk_number("ethereum")
-      assert blk_number == 230
-    end
-  end
-
   describe "all_for_address/1" do
     test "returns all transactions from or to the given address" do
       wallet_1 = insert(:wallet)

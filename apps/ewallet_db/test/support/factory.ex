@@ -29,6 +29,7 @@ defmodule EWalletDB.Factory do
     BlockchainDepositWallet,
     BlockchainHDWallet,
     BlockchainWallet,
+    BlockchainTransaction,
     BlockchainState,
     PreAuthToken,
     Category,
@@ -377,26 +378,21 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  def blockchain_transaction_factory do
-    token = insert(:token)
+  # TODO Need to add a factory for `transaction` that have a `blockchain_transaction
+  # (previously `blockchain_transaction_factory`)
 
-    %Transaction{
-      idempotency_token: UUID.generate(),
-      payload: %{example: "Payload"},
-      metadata: %{some: "metadata"},
-      from_amount: 100,
-      from_token: token,
-      to_token: token,
-      from_blockchain_address: insert(:blockchain_wallet).address,
-      to_blockchain_address: insert(:blockchain_wallet).address,
-      from_wallet: nil,
-      to_wallet: nil,
-      local_ledger_uuid: nil,
-      blockchain_tx_hash: sequence("0xabcdefabcdef"),
-      blockchain_identifier: "ethereum",
-      to_amount: 100,
-      blk_number: nil,
-      type: "external",
+  def blockchain_transaction_factory do
+    %BlockchainTransaction{
+      hash: Crypto.fake_eth_address(),
+      rootchain_identifier: "ethereum",
+      childchain_identifier: nil,
+      status: "submitted",
+      block_number: nil,
+      confirmed_at_block_number: nil,
+      gas_price: 20_000_000_000,
+      gas_limit: 21_000,
+      error: nil,
+      metadata: %{},
       originator: %System{}
     }
   end
