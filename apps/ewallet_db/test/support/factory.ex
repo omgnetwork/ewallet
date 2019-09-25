@@ -369,6 +369,8 @@ defmodule EWalletDB.Factory do
       to_wallet: to_wallet,
       to_user_uuid: to_wallet.user_uuid,
       to_account_uuid: to_wallet.account_uuid,
+      from_blockchain_address: nil,
+      to_blockchain_address: nil,
       exchange_account: nil,
       type: "internal",
       error_code: nil,

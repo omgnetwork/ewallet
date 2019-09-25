@@ -25,7 +25,7 @@ defmodule EWalletDB.Transaction do
 
   alias EWalletDB.{
     Account,
-    BlockchainWallet,
+    BlockchainTransaction,
     ExchangePair,
     Repo,
     Token,
@@ -56,11 +56,6 @@ defmodule EWalletDB.Transaction do
     field(:status, :string, default: TransactionState.pending())
     # internal / external
     field(:type, :string, default: @internal)
-    field(:blockchain_tx_hash, :string)
-    field(:blockchain_identifier, :string)
-    field(:confirmations_count, :integer)
-    field(:to_blockchain_address, :string)
-    field(:blk_number, :integer)
 
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
@@ -74,8 +69,10 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime_usec)
 
     field(:metadata, :map, default: %{})
-    field(:blockchain_metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+
+    field(:from_blockchain_address, :string)
+    field(:to_blockchain_address, :string)
 
     belongs_to(
       :from_token,
@@ -113,14 +110,6 @@ defmodule EWalletDB.Transaction do
       :from_wallet,
       Wallet,
       foreign_key: :from,
-      references: :address,
-      type: :string
-    )
-
-    belongs_to(
-      :from_blockchain_wallet,
-      BlockchainWallet,
-      foreign_key: :from_blockchain_address,
       references: :address,
       type: :string
     )
@@ -171,6 +160,14 @@ defmodule EWalletDB.Transaction do
       foreign_key: :exchange_wallet_address,
       references: :address,
       type: :string
+    )
+
+    belongs_to(
+      :blockchain_transaction,
+      BlockchainTransaction,
+      foreign_key: :blockchain_transaction_uuid,
+      references: :uuid,
+      type: UUID
     )
 
     timestamps()
@@ -250,13 +247,11 @@ defmodule EWalletDB.Transaction do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
-        :blockchain_tx_hash,
         :idempotency_token,
         :status,
         :type,
         :payload,
         :metadata,
-        :blockchain_metadata,
         :encrypted_metadata,
         :from_account_uuid,
         :to_account_uuid,
@@ -272,15 +267,13 @@ defmodule EWalletDB.Transaction do
         :from,
         :from_blockchain_address,
         :to_blockchain_address,
-        :blockchain_identifier,
-        :blk_number,
         :rate,
         :local_ledger_uuid,
         :error_code,
         :error_description,
         :exchange_pair_uuid,
         :calculated_at,
-        :confirmations_count
+        :blockchain_transaction_uuid
       ],
       required: [
         :idempotency_token,
@@ -292,7 +285,8 @@ defmodule EWalletDB.Transaction do
         :to_amount,
         :to_token_uuid,
         :from_blockchain_address,
-        :to_blockchain_address
+        :to_blockchain_address,
+        :blockchain_transaction_uuid
       ],
       encrypted: [:encrypted_metadata, :payload]
     )
@@ -302,7 +296,8 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
-    |> validate_blockchain()
+    |> validate_blockchain_address(:from_blockchain_address)
+    |> validate_blockchain_address(:to_blockchain_address)
     # Note: We validate before force downcasing
     |> update_change(:from_blockchain_address, &String.downcase/1)
     |> update_change(:to_blockchain_address, &String.downcase/1)
@@ -312,6 +307,7 @@ defmodule EWalletDB.Transaction do
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
     |> assoc_constraint(:exchange_account)
+    |> assoc_constraint(:blockchain_transaction)
   end
 
   def state_changeset(%Transaction{} = transaction, attrs, cast_fields, required_fields) do
@@ -322,13 +318,6 @@ defmodule EWalletDB.Transaction do
       required: required_fields
     )
     |> validate_inclusion(:status, TransactionState.statuses())
-  end
-
-  defp validate_blockchain(changeset) do
-    changeset
-    |> validate_blockchain_address(:from_blockchain_address)
-    |> validate_blockchain_address(:to_blockchain_address)
-    |> validate_blockchain_identifier(:blockchain_identifier)
   end
 
   @doc """

@@ -235,11 +235,15 @@ defmodule EWalletDB.TransactionTest do
       address_2 = Crypto.fake_eth_address()
       {:ok, eip55_address_2} = EIP55.encode(address_2)
 
+      blockchain_transaction = insert(:blockchain_transaction)
+
       {:ok, inserted_transaction} =
-        :blockchain_transaction
+        :transaction
         |> params_for(%{
           from_blockchain_address: eip55_address_1,
-          to_blockchain_address: eip55_address_2
+          to_blockchain_address: eip55_address_2,
+          blockchain_transaction: blockchain_transaction,
+          type: Transaction.external()
         })
         |> Transaction.get_or_insert()
 
@@ -270,15 +274,27 @@ defmodule EWalletDB.TransactionTest do
     test "ignore the case for `from_blockchain_address` and `to_blockchain_address`" do
       address_1 = Crypto.fake_eth_address()
       address_2 = Crypto.fake_eth_address()
+      blockchain_transaction_1 = insert(:blockchain_transaction)
+      blockchain_transaction_2 = insert(:blockchain_transaction)
 
       {:ok, inserted_transaction_1} =
-        :blockchain_transaction
-        |> params_for(%{from_blockchain_address: String.downcase(address_1)})
+        :transaction
+        |> params_for(%{
+          from_blockchain_address: String.downcase(address_1),
+          to_blockchain_address: Crypto.fake_eth_address(),
+          blockchain_transaction: blockchain_transaction_1,
+          type: Transaction.external()
+        })
         |> Transaction.get_or_insert()
 
       {:ok, inserted_transaction_2} =
-        :blockchain_transaction
-        |> params_for(%{to_blockchain_address: String.downcase(address_2)})
+        :transaction
+        |> params_for(%{
+          from_blockchain_address: Crypto.fake_eth_address(),
+          to_blockchain_address: String.downcase(address_2),
+          blockchain_transaction: blockchain_transaction_2,
+          type: Transaction.external()
+        })
         |> Transaction.get_or_insert()
 
       transaction_1 = Transaction.get_by(%{from_blockchain_address: String.upcase(address_1)})
