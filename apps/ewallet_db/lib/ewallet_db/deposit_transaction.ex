@@ -20,21 +20,22 @@ defmodule EWalletDB.DepositTransaction do
   use Utils.Types.ExternalID
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
-  import EWalletDB.{Validator, BlockchainValidator}
+  import EWalletDB.{BlockchainValidator, Validator}
   alias Ecto.UUID
 
   alias EWalletDB.{
     BlockchainWallet,
     BlockchainDepositWallet,
-    DepositTransaction,
     Repo,
     Token,
+    Transaction,
     TransactionState
   }
 
   @outgoing "outgoing"
   @incoming "incoming"
   @types [@outgoing, @incoming]
+
   def outgoing, do: @outgoing
   def incoming, do: @incoming
 
@@ -43,8 +44,8 @@ defmodule EWalletDB.DepositTransaction do
   # Note that non-blockchain statuses like pending() are not included
   # since pending transactions do not yet affect the blockchain balance.
   @unfinalized_statuses [
-    TransactionState.pending_confirmations(),
-    TransactionState.blockchain_confirmed()
+    TransactionState.blockchain_submitted(),
+    TransactionState.pending_confirmations()
   ]
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -54,22 +55,22 @@ defmodule EWalletDB.DepositTransaction do
     external_id(prefix: "dtx_")
 
     field(:type, :string, default: @incoming)
-    field(:amount, Utils.Types.Integer)
-    field(:gas_price, Utils.Types.Integer)
-    field(:gas_limit, Utils.Types.Integer)
-    field(:status, :string, default: TransactionState.pending())
-    field(:blockchain_tx_hash, :string)
     field(:blockchain_identifier, :string)
-    field(:confirmations_count, :integer)
-    field(:blk_number, :integer)
-    field(:error_code, :string)
-    field(:error_description, :string)
-    field(:error_data, :map)
+    field(:blockchain_tx_hash, :string)
+    field(:amount, Utils.Types.Integer)
 
     belongs_to(
       :token,
       Token,
       foreign_key: :token_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :transaction,
+      Transaction,
+      foreign_key: :transaction_uuid,
       references: :uuid,
       type: UUID
     )
@@ -110,78 +111,57 @@ defmodule EWalletDB.DepositTransaction do
     activity_logging()
   end
 
-  defp insert_changeset(%DepositTransaction{} = transaction, attrs) do
+  defp insert_changeset(%__MODULE__{} = transaction, attrs) do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
-        :status,
         :type,
-        :token_uuid,
+        :blockchain_tx_hash,
+        :blockchain_identifier,
         :amount,
-        :gas_price,
-        :gas_limit,
+        :token_uuid,
+        :transaction_uuid,
         :to_blockchain_wallet_address,
         :from_blockchain_wallet_address,
         :to_deposit_wallet_address,
-        :from_deposit_wallet_address,
-        :blockchain_identifier,
-        :blk_number,
-        :error_code,
-        :error_description,
-        :confirmations_count
+        :from_deposit_wallet_address
       ],
       required: [
-        :status,
         :type,
-        :token_uuid,
         :amount,
-        :gas_price,
-        :gas_limit,
-        :blockchain_identifier
+        :token_uuid
       ]
     )
     |> validate_required_exclusive([:from_blockchain_wallet_address, :from_deposit_wallet_address])
     |> validate_required_exclusive([:to_blockchain_wallet_address, :to_deposit_wallet_address])
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
-    |> validate_number(:gas_price, greater_than: 0)
-    |> validate_number(:gas_limit, greater_than: 0)
-    |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
-    |> validate_immutable(:blockchain_tx_hash)
     |> validate_blockchain_address(:from_blockchain_address)
     |> validate_blockchain_address(:to_blockchain_address)
-    |> validate_blockchain_identifier(:blockchain_identifier)
-    |> unique_constraint(:unique_hash_constraint, name: :unique_hash_constraint)
     |> assoc_constraint(:token)
     |> assoc_constraint(:from_blockchain_wallet)
     |> assoc_constraint(:to_blockchain_wallet)
   end
 
-  def state_changeset(%DepositTransaction{} = transaction, attrs, cast_fields, required_fields) do
+  defp update_changeset(%__MODULE__{} = transaction, attrs) do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: cast_fields,
-      required: required_fields
+      cast: [:blockchain_tx_hash, :blockchain_identifier, :transaction_uuid],
+      required: []
     )
-    |> validate_inclusion(:status, TransactionState.statuses())
-  end
-
-  def get_highest_blk_number(blockchain) do
-    Transaction
-    |> where([t], t.blockchain_identifier == ^blockchain and not is_nil(t.blk_number))
-    |> order_by([t], desc: t.blk_number)
-    |> select([t], t.blk_number)
-    |> limit(1)
-    |> Repo.one()
+    |> validate_immutable(:blockchain_tx_hash)
+    |> validate_immutable(:blockchain_identifier)
+    |> validate_immutable(:transaction_uuid)
+    |> validate_required_all_or_none([:blockchain_tx_hash, :blockchain_identifier])
   end
 
   @doc """
-  Gets a transaction.
+  Gets a deposit transaction.
   """
-  @spec get(String.t()) :: %DepositTransaction{} | nil
-  @spec get(String.t(), keyword()) :: %DepositTransaction{} | nil
+  @spec get(String.t()) :: %__MODULE__{} | nil
+  @spec get(String.t(), keyword()) :: %__MODULE__{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -191,11 +171,11 @@ defmodule EWalletDB.DepositTransaction do
   def get(_id, _opts), do: nil
 
   @doc """
-  Get a transaction using one or more fields.
+  Get a deposit transaction using one or more fields.
   """
-  @spec get_by(keyword() | map(), keyword()) :: %DepositTransaction{} | nil
+  @spec get_by(keyword() | map(), keyword()) :: %__MODULE__{} | nil
   def get_by(clauses, opts \\ []) do
-    query = Repo.get_by(DepositTransaction, clauses)
+    query = Repo.get_by(__MODULE__, clauses)
 
     case opts[:preload] do
       nil -> query
@@ -204,36 +184,43 @@ defmodule EWalletDB.DepositTransaction do
   end
 
   @doc """
-  Inserts a transaction and ignores the conflicts on idempotency token, then retrieves the transaction
-  using the passed idempotency token.
+  Inserts a deposit transaction with the provided attributes.
   """
+  @spec insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
-    %DepositTransaction{}
+    %__MODULE__{}
     |> insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
 
   @doc """
-  Retrieves all deposit transactions from the given deposit address that are not yet finalized.
+  Updates a deposit transaction with the provided attributes.
+  """
+  @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def update(deposit_transaction, attrs) do
+    changeset = update_changeset(deposit_transaction, attrs)
 
-  This is useful for retrieving transactions that are happening and so to be excluded
-  from the wallet's spendable balance.
+    case Repo.update_record_with_activity_log(changeset) do
+      {:ok, updated} ->
+        {:ok, get(updated.id)}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Retrieves all deposit transactions that match the provided attributes,
+  and are not considered final on the blockchain yet.
+
+  This is useful, for example, for calculating the spendable amount where
+  `spendable_amount = blockchain_balance - unfinalized_transaction_amounts`.
   """
   @spec all_unfinalized_by(keyword() | map()) :: [%__MODULE__{}]
   def all_unfinalized_by(clauses) do
-    DepositTransaction
+    __MODULE__
     |> where(^Enum.to_list(clauses))
     |> where([dt], dt.status in @unfinalized_statuses)
     |> Repo.all()
-  end
-
-  def get_error(nil), do: nil
-
-  def get_error(transaction) do
-    {transaction.error_code, transaction.error_description || transaction.error_data}
-  end
-
-  def failed?(transaction) do
-    transaction.status == TransactionState.failed()
   end
 end

@@ -25,7 +25,8 @@ defmodule EWallet.AddressTracker do
     BlockchainHelper,
     BlockchainAddressFetcher,
     BlockchainStateGate,
-    BlockchainTransactionGate
+    BlockchainTransactionGate,
+    DepositPoolingGate
   }
 
   alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
@@ -146,14 +147,21 @@ defmodule EWallet.AddressTracker do
   end
 
   defp do_run(transactions, state) do
-    transaction_results = Enum.map(transactions, fn tx -> insert(tx, state) end)
+    transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
 
-    case Enum.all?(transaction_results, fn {res, _} -> res == :ok end) do
-      true ->
-        next(state)
+    _ = Enum.each(transaction_results, fn
+      {:ok, t} ->
+        _ = Task.start(fn -> DepositPoolingGate.on_blockchain_transaction_received(t) end)
 
-      false ->
-        retry_or_skip(state, transaction_results)
+      _ ->
+        :noop
+    end)
+
+    transaction_results
+    |> Enum.all?(fn {res, _} -> res == :ok end)
+    |> case do
+      true -> next(state)
+      false -> retry_or_skip(state, transaction_results)
     end
   end
 
@@ -206,10 +214,10 @@ defmodule EWallet.AddressTracker do
     Map.put(state, :blk_retries, retries + 1)
   end
 
-  defp insert(blockchain_transaction, %{blockchain_identifier: blockchain_identifier} = state) do
+  defp insert_if_new(blockchain_transaction, state) do
     case Transaction.get_by(%{
            blockchain_tx_hash: blockchain_transaction.hash,
-           blockchain_identifier: blockchain_identifier
+           blockchain_identifier: state.blockchain_identifier
          }) do
       nil ->
         do_insert(blockchain_transaction, state)

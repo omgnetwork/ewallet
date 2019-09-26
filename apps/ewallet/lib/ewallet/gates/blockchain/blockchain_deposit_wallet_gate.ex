@@ -90,18 +90,17 @@ defmodule EWallet.BlockchainDepositWalletGate do
   Creates or updates the local copy of the blockchain balances
   for the given wallet address and tokens.
   """
-  def refresh_balances(address, blockchain_identifier, tokens) do
-    deposit_wallet = BlockchainDepositWallet.get(address)
+  def refresh_balances(deposit_wallet, tokens) do
     tokens = List.wrap(tokens)
 
     {:ok, [deposit_wallet_with_balances]} =
-      BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens, blockchain_identifier)
+      BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens, deposit_wallet.blockchain_identifier)
 
     {:ok,
      BlockchainDepositWalletCachedBalance.create_or_update_all(
        deposit_wallet_with_balances.address,
        deposit_wallet_with_balances.balances,
-       blockchain_identifier
+       deposit_wallet.blockchain_identifier
      )}
   end
 end

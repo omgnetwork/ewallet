@@ -86,7 +86,7 @@ defmodule EWalletDB.DepositTransactionTest do
         )
 
       dtx_8 =
-        insert(:deposit_transaction, status: TransactionState.failed(), to_deposit_wallet: wallet)
+        insert(:deposit_transaction, to_deposit_wallet: wallet)
 
       txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
 
@@ -98,52 +98,6 @@ defmodule EWalletDB.DepositTransactionTest do
       refute Enum.any?(txns, fn t -> t.uuid == dtx_6.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_7.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_8.uuid end)
-    end
-  end
-
-  describe "get_error/1" do
-    test "returns a tuple with code and description when transaction has error code and description" do
-      transaction =
-        insert(:deposit_transaction, error_code: "code", error_description: "description")
-
-      assert DepositTransaction.get_error(transaction) == {"code", "description"}
-    end
-
-    test "returns a tuple with code and data when transaction has error code and data" do
-      transaction = insert(:deposit_transaction, error_code: "code", error_data: %{})
-      assert DepositTransaction.get_error(transaction) == {"code", %{}}
-    end
-
-    test "returns the error description when the transaction has both error description and data" do
-      transaction =
-        insert(:deposit_transaction,
-          error_code: "code",
-          error_description: "description",
-          error_data: %{}
-        )
-
-      assert DepositTransaction.get_error(transaction) == {"code", "description"}
-    end
-
-    test "returns a tuple of nils if no error is associated with the given transaction" do
-      transaction = insert(:deposit_transaction)
-      assert DepositTransaction.get_error(transaction) == {nil, nil}
-    end
-
-    test "returns nil if the given nil" do
-      assert DepositTransaction.get_error(nil) == nil
-    end
-  end
-
-  describe "failed?/1" do
-    test "returns true if the given transaction is failed" do
-      transaction = insert(:deposit_transaction, status: "failed")
-      assert DepositTransaction.failed?(transaction) == true
-    end
-
-    test "returns true if the given transaction is not failed" do
-      transaction = insert(:deposit_transaction, status: "confirmed")
-      assert DepositTransaction.failed?(transaction) == false
     end
   end
 end

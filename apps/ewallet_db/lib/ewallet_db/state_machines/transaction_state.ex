@@ -53,7 +53,7 @@ defmodule EWalletDB.TransactionState do
     # pending -> pending_confirmations -> blockchain_confirmed -> confirmed
     from_blockchain_to_ewallet: %{
       @pending => [@pending_confirmations, @blockchain_confirmed],
-      @pending_confirmations => [@blockchain_confirmed],
+      @pending_confirmations => [@pending_confirmations, @blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],
       @confirmed => []
     },
@@ -92,14 +92,6 @@ defmodule EWalletDB.TransactionState do
         @blockchain_failed
       ],
       @ledger_pending_blockchain_confirmed => [@confirmed],
-      @confirmed => []
-    },
-    # TODO: add a check so this flow only works for deposit transaction
-    from_deposit_to_pooled: %{
-      @pending => [@blockchain_submitted],
-      @blockchain_submitted => [@pending_confirmations, @blockchain_confirmed],
-      @pending_confirmations => [@pending_confirmations, @blockchain_confirmed],
-      @blockchain_confirmed => [@confirmed],
       @confirmed => []
     }
   }

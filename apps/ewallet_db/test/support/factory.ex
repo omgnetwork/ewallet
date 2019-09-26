@@ -419,15 +419,12 @@ defmodule EWalletDB.Factory do
       type: DepositTransaction.incoming(),
       token: insert(:token),
       amount: 100,
-      gas_price: 20_000_000_000,
-      gas_limit: 21_000,
       blockchain_tx_hash: sequence("0xabcdefabcdef"),
       blockchain_identifier: "ethereum",
       from_blockchain_wallet: insert(:blockchain_wallet),
       from_deposit_wallet: nil,
       to_blockchain_wallet: nil,
       to_deposit_wallet: insert(:blockchain_deposit_wallet),
-      blk_number: nil,
       originator: %System{}
     }
   end

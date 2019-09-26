@@ -18,15 +18,15 @@ defmodule EWallet.DepositPoolingGate do
   """
   require Logger
   alias ActivityLogger.System
-  alias EWallet.{BlockchainHelper, TransactionTracker}
+  alias EWallet.{AmountFormatter, BlockchainHelper, BlockchainDepositWalletGate}
 
   alias EWalletDB.{
     Token,
     BlockchainWallet,
+    BlockchainDepositWallet,
     BlockchainDepositWalletCachedBalance,
     DepositTransaction,
-    Helpers.Preloader,
-    TransactionState
+    Helpers.Preloader
   }
 
   alias Keychain.Wallet
@@ -47,8 +47,6 @@ defmodule EWallet.DepositPoolingGate do
       blockchain_identifier
       |> Token.all_blockchain()
       |> Enum.flat_map(fn token ->
-        Logger.debug("Checking deposit wallet balances for token #{token.symbol}.")
-
         case token.blockchain_address do
           ^primary_token_address ->
             pool_token_deposits(token, pool, blockchain_identifier, @gas_price, @gas_limit_eth)
@@ -65,6 +63,7 @@ defmodule EWallet.DepositPoolingGate do
     token
     |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier)
     |> Enum.filter(fn balance ->
+      # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
       poolable_amount(balance, gas_price, gas_limit) > 0
     end)
     |> Enum.map(fn balance ->
@@ -72,35 +71,28 @@ defmodule EWallet.DepositPoolingGate do
         type: DepositTransaction.outgoing(),
         amount: poolable_amount(balance, gas_price, gas_limit),
         token_uuid: token.uuid,
-        gas_price: gas_price,
-        gas_limit: gas_limit,
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
         to_blockchain_wallet_address: hot_wallet.address,
         blockchain_identifier: blockchain_identifier,
         originator: %System{}
       }
 
-      case DepositTransaction.insert(attrs) do
-        {:ok, transaction} ->
-          # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
-          with {:ok, tx_hash} <- submit(transaction, balance),
-               {:ok, transaction} <-
-                 TransactionState.transition_to(
-                   :from_deposit_to_pooled,
-                   TransactionState.blockchain_submitted(),
-                   transaction,
-                   %{blockchain_tx_hash: tx_hash, originator: %System{}}
-                 ),
-               {:ok, _pid} <- TransactionTracker.start(transaction, :from_deposit_to_pooled) do
-            {:ok, transaction}
-          else
-            error -> error
-          end
+      _ = Logger.info("Pooling #{AmountFormatter.format(attrs.amount, token.subunit_to_unit)}" <>
+        " #{token.symbol} from #{attrs.from_deposit_wallet_address}" <>
+        " into #{attrs.to_blockchain_wallet_address}.")
 
-        error ->
-          error
+      with {:ok, transaction} <- DepositTransaction.insert(attrs),
+           {:ok, tx_hash} <- submit_blockchain(transaction, balance, gas_price, gas_limit),
+           {:ok, transaction} <- set_transaction_hash(transaction, tx_hash) do
+        {:ok, transaction}
+      else
+        error -> error
       end
     end)
+  end
+
+  defp set_transaction_hash(transaction, tx_hash) do
+    DepositTransaction.update(transaction, %{blockchain_tx_hash: tx_hash, originator: %System{}})
   end
 
   # Checks the poolable amount by subtracting the balance amount from all ongoing
@@ -118,7 +110,7 @@ defmodule EWallet.DepositPoolingGate do
     balance.amount - pending_amount - max_gas_cost
   end
 
-  defp submit(transaction, balance) do
+  defp submit_blockchain(transaction, balance, gas_price, gas_limit) do
     transaction = Preloader.preload(transaction, [:token])
     balance = Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet])
 
@@ -127,8 +119,8 @@ defmodule EWallet.DepositPoolingGate do
       to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
       amount: transaction.amount,
       contract_address: transaction.token.blockchain_address,
-      gas_limit: transaction.gas_limit,
-      gas_price: transaction.gas_price,
+      gas_limit: gas_limit,
+      gas_price: gas_price,
       wallet: %{
         keychain_uuid: balance.blockchain_deposit_wallet.blockchain_hd_wallet.keychain_uuid,
         derivation_path: Wallet.root_hd_path_private(),
@@ -138,5 +130,45 @@ defmodule EWallet.DepositPoolingGate do
     }
 
     BlockchainHelper.call(:send, attrs)
+  end
+
+  @doc """
+  Performs necessary operations to reflect the received blockchain transaction onto
+  the DepositTransaction. Currently does 2 things:
+
+    1. Link the deposit transaction with the received blockchain transaction if the hashes match
+    2. Refresh the deposit wallet balance
+
+  Does nothing if the given transaction is not intended for the deposit wallet.
+  """
+  def on_blockchain_transaction_received(transaction) do
+    case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
+      nil ->
+        :ok
+
+      deposit_wallet ->
+        _ = match_transaction_hash(transaction)
+        _ = refresh_balances(transaction, deposit_wallet)
+        :ok
+    end
+  end
+
+  defp refresh_balances(transaction, deposit_wallet) do
+    transaction = Preloader.preload(transaction, :to_token)
+
+    BlockchainDepositWalletGate.refresh_balances(
+      deposit_wallet,
+      transaction.to_token
+    )
+  end
+
+  defp match_transaction_hash(transaction) do
+    case DepositTransaction.get_by(blockchain_identifier: transaction.blockchain_identifier, blockchain_tx_hash: transaction.blockchain_tx_hash) do
+      nil ->
+        :ok
+
+      deposit_transaction ->
+        DepositTransaction.update(deposit_transaction, %{transaction_uuid: transaction.uuid, originator: %System{}})
+    end
   end
 end

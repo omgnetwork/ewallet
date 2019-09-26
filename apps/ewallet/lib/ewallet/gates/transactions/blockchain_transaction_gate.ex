@@ -29,14 +29,12 @@ defmodule EWallet.BlockchainTransactionGate do
     BlockchainTransactionPolicy,
     TokenFetcher,
     Helper,
-    BlockchainDepositWalletGate,
     BlockchainLocalTransactionGate,
     TransactionTracker,
     BlockchainHelper
   }
 
-  alias EWalletDB.{BlockchainDepositWallet, BlockchainWallet, Transaction, TransactionState}
-  alias EWalletDB.Helpers.Preloader
+  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
 
   @external_transaction Transaction.external()
@@ -128,45 +126,16 @@ defmodule EWallet.BlockchainTransactionGate do
         # TODO: handle error?
         {:ok, transaction} = confirm_or_start_listener(transaction)
 
-        result =
-          case transaction do
-            %{status: "blockchain_confirmed"} ->
-              handle_local_insert(transaction)
+        case transaction do
+          %{status: "blockchain_confirmed"} ->
+            handle_local_insert(transaction)
 
-            transaction ->
-              {:ok, transaction}
-          end
-
-        _ = refresh_balances_if_to_deposit_wallet(transaction)
-        result
+          transaction ->
+            {:ok, transaction}
+        end
 
       error ->
         error
-    end
-  end
-
-  def refresh_balances_if_to_deposit_wallet(transaction) do
-    transaction = Preloader.preload(transaction, :to_token)
-
-    # If the transaction is to a deposit wallet, make sure the deposit wallet's
-    # local copy of its blockchain balances is refreshed.
-    case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
-      %BlockchainDepositWallet{} ->
-        _ =
-          BlockchainDepositWalletGate.refresh_balances(
-            transaction.to_blockchain_address,
-            transaction.blockchain_identifier,
-            transaction.to_token
-          )
-
-        BlockchainHelper.adapter().unsubscribe(
-          :transaction,
-          transaction.blockchain_tx_hash,
-          self()
-        )
-
-      _ ->
-        :ok
     end
   end
 
@@ -225,17 +194,17 @@ defmodule EWallet.BlockchainTransactionGate do
   # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
   # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
   # move the transaction to confirmed state.
-  def handle_local_insert(%{to: nil} = transaction) do
+  def handle_local_insert(%{to: nil} = txn) do
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
       TransactionState.confirmed(),
-      transaction,
+      txn,
       %{originator: %System{}}
     )
   end
 
-  def handle_local_insert(transaction) do
-    BlockchainLocalTransactionGate.process_with_transaction(transaction)
+  def handle_local_insert(txn) do
+    BlockchainLocalTransactionGate.process_with_transaction(txn)
   end
 
   defp set_blockchain_addresses(attrs) do
