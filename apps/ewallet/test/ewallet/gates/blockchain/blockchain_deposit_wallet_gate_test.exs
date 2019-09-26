@@ -112,9 +112,9 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
 
       wallet = BlockchainDepositWallet.reload_balances(wallet)
 
-      assert Enum.any?(wallet.balances, fn b -> b.token_uuid == token_1.uuid && b.amount == 10 end)
+      assert Enum.any?(wallet.cached_balances, fn b -> b.token_uuid == token_1.uuid && b.amount == 10 end)
 
-      assert Enum.any?(wallet.balances, fn b -> b.token_uuid == token_2.uuid && b.amount == 20 end)
+      assert Enum.any?(wallet.cached_balances, fn b -> b.token_uuid == token_2.uuid && b.amount == 20 end)
 
       # Assert two successful refreshes
       {res, data} =
@@ -129,11 +129,11 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       # The dumb adapter hard codes the amount to 123
       wallet = BlockchainDepositWallet.reload_balances(wallet)
 
-      assert Enum.any?(wallet.balances, fn b ->
+      assert Enum.any?(wallet.cached_balances, fn b ->
                b.token_uuid == token_1.uuid && b.amount == 123
              end)
 
-      assert Enum.any?(wallet.balances, fn b ->
+      assert Enum.any?(wallet.cached_balances, fn b ->
                b.token_uuid == token_2.uuid && b.amount == 123
              end)
     end

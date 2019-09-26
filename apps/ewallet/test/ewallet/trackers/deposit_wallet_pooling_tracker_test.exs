@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.DepositWalletTrackerTest do
+defmodule EWallet.DepositWalletPoolingTrackerTest do
   use EWallet.DBCase, async: false
-  alias EWallet.DepositWalletTracker
+  alias EWallet.DepositWalletPoolingTracker
 
   describe "start_link/1" do
     test "starts a deposit wallet tracker" do
@@ -23,7 +23,7 @@ defmodule EWallet.DepositWalletTrackerTest do
         blockchain_identifier: "dumb"
       ]
 
-      assert {:ok, pid} = DepositWalletTracker.start_link(opts)
+      assert {:ok, pid} = DepositWalletPoolingTracker.start_link(opts)
       assert Process.alive?(pid)
       assert GenServer.stop(pid) == :ok
     end

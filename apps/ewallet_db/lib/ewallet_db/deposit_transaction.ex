@@ -14,7 +14,7 @@
 
 defmodule EWalletDB.DepositTransaction do
   @moduledoc """
-  Ecto Schema representing transactions.
+  Ecto Schema representing deposit transactions.
   """
   use Ecto.Schema
   use Utils.Types.ExternalID

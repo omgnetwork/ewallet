@@ -24,13 +24,11 @@ defmodule EWallet.TransactionTracker do
   alias ActivityLogger.System
 
   alias EWallet.{
-    BlockchainDepositWalletGate,
     BlockchainHelper,
     BlockchainTransactionGate
   }
 
-  alias EWalletDB.{BlockchainDepositWallet, TransactionState}
-  alias EWalletDB.Helpers.Preloader
+  alias EWalletDB.TransactionState
 
   @default_confirmations_threshold 10
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
@@ -174,8 +172,12 @@ defmodule EWallet.TransactionTracker do
   defp finalize_transaction(state, confirmations_count, block_num) do
     with {:ok, updated} <-
            confirm(state.transaction, state.transaction_type, confirmations_count, block_num),
-         {:ok, updated} <- BlockchainTransactionGate.handle_local_insert(updated),
-         :ok <- refresh_balances_if_to_deposit_wallet(updated) do
+         {:ok, updated} <- BlockchainTransactionGate.handle_local_insert(updated) do
+      # TODO: Transactions picked up by AddressTracker that are already confirmed will go to
+      # BlockchainTransactionGate.create_from_tracker/1 directly. They do not come through this
+      # TransactionTracker, so the balance refresh is also needed there. This trigger should be
+      # consolidated into one place.
+      _ = BlockchainTransactionGate.refresh_balances_if_to_deposit_wallet(updated)
       updated
     else
       {:error, _} = error ->
@@ -186,31 +188,6 @@ defmodule EWallet.TransactionTracker do
           end)
 
         state.transaction
-    end
-  end
-
-  defp refresh_balances_if_to_deposit_wallet(transaction) do
-    transaction = Preloader.preload(transaction, :to_token)
-
-    # If the transaction is to a deposit wallet, make sure the deposit wallet's
-    # local copy of its blockchain balances is refreshed.
-    case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
-      %BlockchainDepositWallet{} ->
-        _ =
-          BlockchainDepositWalletGate.refresh_balances(
-            transaction.to_blockchain_address,
-            transaction.blockchain_identifier,
-            transaction.to_token
-          )
-
-        BlockchainHelper.adapter().unsubscribe(
-          :transaction,
-          transaction.blockchain_tx_hash,
-          self()
-        )
-
-      _ ->
-        :ok
     end
   end
 

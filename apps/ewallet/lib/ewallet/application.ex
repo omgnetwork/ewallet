@@ -43,7 +43,7 @@ defmodule EWallet.Application do
       {Registry, keys: :unique, name: EWallet.TransactionTrackerRegistry},
       {DynamicSupervisor, name: EWallet.TransactionTrackerSupervisor, strategy: :one_for_one},
       {EWallet.AddressTracker, [blockchain_identifier: @rootchain_identifier]},
-      {EWallet.DepositWalletTracker, [blockchain_identifier: @rootchain_identifier]}
+      {EWallet.DepositWalletPoolingTracker, [blockchain_identifier: @rootchain_identifier]}
     ]
 
     Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)

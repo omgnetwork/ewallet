@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.DepositWalletTracker do
+defmodule EWallet.DepositWalletPoolingTracker do
   @moduledoc """
   Periodically triggers the check to move funds from deposit wallets to a hot wallet.
   """

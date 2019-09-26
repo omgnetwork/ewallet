@@ -58,7 +58,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
     )
 
     has_many(
-      :balances,
+      :cached_balances,
       BlockchainDepositWalletCachedBalance,
       foreign_key: :blockchain_deposit_wallet_address,
       references: :address
@@ -157,6 +157,6 @@ defmodule EWalletDB.BlockchainDepositWallet do
   Re-retrieve the balances from the database.
   """
   def reload_balances(deposit_wallet) do
-    Repo.preload(deposit_wallet, :balances, force: true)
+    Repo.preload(deposit_wallet, :cached_balances, force: true)
   end
 end
