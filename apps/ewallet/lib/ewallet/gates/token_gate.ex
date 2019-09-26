@@ -68,7 +68,7 @@ defmodule EWallet.TokenGate do
       |> Map.put("tx_hash", tx_hash)
       |> Map.put("blockchain_address", contract_address)
       |> Map.put("contract_uuid", contract_uuid)
-      |> Map.put("blockchain_status", Token.blockchain_status_pending())
+      |> Map.put("blockchain_status", Token.Blockchain.status_pending())
       |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
 
     {:ok, attrs}
@@ -132,11 +132,11 @@ defmodule EWallet.TokenGate do
   for this token
   """
   def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
-    Token.blockchain_status_confirmed()
+    Token.Blockchain.status_confirmed()
   end
 
   def get_blockchain_status(%{hot_wallet_balance: _balance}) do
-    Token.blockchain_status_pending()
+    Token.Blockchain.status_pending()
   end
 
   @doc """

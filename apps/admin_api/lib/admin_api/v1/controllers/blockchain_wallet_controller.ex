@@ -159,7 +159,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
     identifier = BlockchainHelper.rootchain_identifier()
 
     addresses
-    |> Token.query_all_by_blockchain_addresses(identifier)
+    |> Token.Blockchain.query_all_by_blockchain_addresses(identifier)
     |> paginated_blockchain_tokens(attrs)
   end
 
@@ -173,7 +173,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
 
   defp paginated_blockchain_tokens(query, attrs) do
     BlockchainHelper.rootchain_identifier()
-    |> Token.query_all_blockchain(query)
+    |> Token.Blockchain.query_all_blockchain(query)
     |> Orchestrator.query(TokenOverlay, attrs)
   end
 

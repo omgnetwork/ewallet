@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.TokenController do
          {:ok, _} <- authorize(:deploy_erc20, conn.assigns, attrs),
          {:ok, attrs} <- TokenGate.deploy_erc20(attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, token} <- Token.insert(attrs) do
+         {:ok, token} <- Token.Blockchain.insert_with_contract_deployed(attrs) do
       respond_single(token, conn)
     else
       error ->
@@ -242,7 +242,7 @@ defmodule AdminAPI.V1.TokenController do
          attrs <-
            Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier()),
          attrs <- Map.put(attrs, "blockchain_status", blockchain_status),
-         {:ok, updated} <- Token.set_blockchain_address(token, attrs) do
+         {:ok, updated} <- Token.Blockchain.set_blockchain_address(token, attrs) do
       respond_single(updated, conn)
     else
       error ->

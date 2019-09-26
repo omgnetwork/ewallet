@@ -28,7 +28,7 @@ defmodule EWallet.BlockchainAddressFetcher do
 
   def get_all_trackable_contract_address(blockchain_identifier) do
     blockchain_identifier
-    |> Token.all_blockchain()
+    |> Token.Blockchain.all_blockchain()
     |> Enum.map(fn token -> token.blockchain_address end)
   end
 

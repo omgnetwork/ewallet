@@ -183,6 +183,19 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def external_blockchain_token_factory do
+    token_factory()
+    |> Map.put(:blockchain_address, Crypto.fake_eth_address())
+    |> Map.put(:blockchain_identifier, "ethereum")
+    |> Map.put(:blockchain_status, Token.Blockchain.status_confirmed())
+  end
+
+  def internal_blockchain_token_factory do
+    external_blockchain_token_factory()
+    |> Map.put(:blockchain_transaction_uuid, insert(:blockchain_transaction).uuid)
+    |> Map.put(:contract_uuid, UUID.generate())
+  end
+
   def user_factory do
     %User{
       is_admin: false,

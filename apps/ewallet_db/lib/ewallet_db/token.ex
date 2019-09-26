@@ -29,19 +29,13 @@ defmodule EWalletDB.Token do
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.{Validator, BlockchainValidator}
+  import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Account, Repo, Token}
+  alias EWalletDB.{Account, BlockchainTransaction, Repo, Token}
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
-  @blockchain_status_pending "pending"
-  @blockchain_status_confirmed "confirmed"
-  @blockchain_status [@blockchain_status_pending, @blockchain_status_confirmed]
-
-  def blockchain_status_pending, do: @blockchain_status_pending
-  def blockchain_status_confirmed, do: @blockchain_status_confirmed
 
   schema "token" do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
@@ -79,8 +73,6 @@ defmodule EWalletDB.Token do
     field(:blockchain_address, :string)
     field(:blockchain_status, :string)
     field(:blockchain_identifier, :string)
-    field(:tx_hash, :string)
-    field(:blk_number, :integer)
     field(:contract_uuid, :string)
 
     belongs_to(
@@ -91,11 +83,19 @@ defmodule EWalletDB.Token do
       type: UUID
     )
 
+    belongs_to(
+      :blockchain_transaction,
+      BlockchainTransaction,
+      foreign_key: :blockchain_transaction_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
     activity_logging()
   end
 
-  defp changeset(%Token{} = token, attrs) do
+  def shared_insert_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(
       attrs,
@@ -113,12 +113,6 @@ defmodule EWalletDB.Token do
         :smallest_denomination,
         :locked,
         :account_uuid,
-        :blockchain_address,
-        :blockchain_status,
-        :blockchain_identifier,
-        :tx_hash,
-        :blk_number,
-        :contract_uuid,
         :metadata,
         :encrypted_metadata
       ],
@@ -141,10 +135,6 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
-    |> unique_constraint(:blockchain_address,
-      name: :token_blockchain_identifier_blockchain_address_index
-    )
-    |> unique_constraint(:tx_hash)
     |> validate_length(:symbol, count: :bytes, max: 255)
     |> validate_length(:iso_code, count: :bytes, max: 255)
     |> validate_length(:name, count: :bytes, max: 255)
@@ -153,14 +143,13 @@ defmodule EWalletDB.Token do
     |> validate_length(:subunit, count: :bytes, max: 255)
     |> validate_length(:html_entity, count: :bytes, max: 255)
     |> validate_length(:iso_numeric, count: :bytes, max: 255)
-    |> validate_length(:blockchain_address, count: :bytes, max: 255)
-    |> validate_inclusion(:blockchain_status, @blockchain_status)
-    |> validate_blockchain()
-    # Note: We validate before force downcasing
-    |> update_change(:blockchain_address, &String.downcase/1)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> set_id(prefix: "tok_")
+  end
+
+  defp insert_changeset(%Token{} = token, attrs) do
+    shared_insert_changeset(token, attrs)
   end
 
   defp update_changeset(%Token{} = token, attrs) do
@@ -202,37 +191,12 @@ defmodule EWalletDB.Token do
     |> cast_and_validate_required_for_activity_log(attrs, cast: [:enabled], required: [:enabled])
   end
 
-  defp blockchain_changeset(%Token{} = token, attrs) do
-    token
-    |> cast_and_validate_required_for_activity_log(attrs,
-      cast: [:blockchain_address, :blockchain_identifier],
-      required: [:blockchain_address, :blockchain_identifier]
-    )
-    |> unique_constraint(:blockchain_address,
-      name: :token_blockchain_identifier_blockchain_address_index
-    )
-    |> validate_blockchain()
-    # Note: We validate before force downcasing
-    |> update_change(:blockchain_address, &String.downcase/1)
-    |> merge(blockchain_status_changeset(token, attrs))
-  end
-
-  defp blockchain_status_changeset(%Token{} = token, attrs) do
-    token
-    |> cast_and_validate_required_for_activity_log(attrs,
-      cast: [:blockchain_status],
-      required: [:blockchain_status]
-    )
-    |> validate_inclusion(:blockchain_status, @blockchain_status)
-  end
-
-  defp validate_blockchain(changeset) do
+  @spec avatar_changeset(Ecto.Changeset.t() | %Token{}, map()) ::
+          Ecto.Changeset.t() | %Token{} | no_return()
+  defp avatar_changeset(changeset, attrs) do
     changeset
-    |> validate_blockchain_address(:blockchain_address)
-    |> validate_blockchain_identifier(:blockchain_identifer)
-    |> validate_immutable(:blockchain_address)
-    |> validate_immutable(:blockchain_identifer)
-    |> validate_immutable(:tx_hash)
+    |> cast_and_validate_required_for_activity_log(attrs)
+    |> cast_attachments(attrs, [:avatar])
   end
 
   defp set_id(changeset, opts) do
@@ -265,51 +229,11 @@ defmodule EWalletDB.Token do
   end
 
   @doc """
-  Returns a list of Tokens that have a blockchain address for the specified identifier
-  """
-  @spec all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
-  def all_blockchain(identifier, query \\ Token) do
-    identifier
-    |> query_all_blockchain(query)
-    |> Repo.all()
-  end
-
-  @doc """
-  Returns a query of Tokens that have a blockchain address for the specified identifier
-  """
-  @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
-  def query_all_blockchain(identifier, query \\ Token) do
-    where(query, [t], not is_nil(t.blockchain_address) and t.blockchain_identifier == ^identifier)
-  end
-
-  @doc """
-  Returns a query of Tokens that have an address matching in the provided list for the specified identifier
-  """
-  @spec query_all_by_blockchain_addresses([String.t()], String.t(), Ecto.Queryable.t()) :: [
-          Ecto.Queryable.t()
-        ]
-  def query_all_by_blockchain_addresses(addresses, identifier, query \\ Token) do
-    where(
-      query,
-      [t],
-      t.blockchain_address in ^addresses and t.blockchain_identifier == ^identifier
-    )
-  end
-
-  @doc """
   Returns a query of Tokens that have an id matching in the provided list
   """
   @spec query_all_by_ids([String.t()], Ecto.Queryable.t()) :: [Ecto.Queryable.t()]
   def query_all_by_ids(ids, query \\ Token) do
     where(query, [t], t.id in ^ids)
-  end
-
-  @spec avatar_changeset(Ecto.Changeset.t() | %Token{}, map()) ::
-          Ecto.Changeset.t() | %Token{} | no_return()
-  defp avatar_changeset(changeset, attrs) do
-    changeset
-    |> cast_and_validate_required_for_activity_log(attrs)
-    |> cast_attachments(attrs, [:avatar])
   end
 
   @doc """
@@ -326,9 +250,10 @@ defmodule EWalletDB.Token do
       end
       |> Map.put(:originator, originator)
 
-    changeset = avatar_changeset(token, attrs)
-
-    case Repo.update_record_with_activity_log(changeset) do
+    token
+    |> avatar_changeset(attrs)
+    |> update_with_changeset()
+    |> case do
       {:ok, token} -> get(token.id)
       result -> result
     end
@@ -336,11 +261,21 @@ defmodule EWalletDB.Token do
 
   @doc """
   Create a new token with the passed attributes.
+  This is used to create a normal, non-blockchain related, token.
   """
   def insert(attrs) do
-    changeset = changeset(%Token{}, attrs)
+    %Token{}
+    |> insert_changeset(attrs)
+    |> insert_with_changeset()
+  end
 
-    case Repo.insert_record_with_activity_log(changeset) do
+  @doc """
+  Insert a new token given an insert changeset
+  """
+  def insert_with_changeset(changeset) do
+    changeset
+    |> Repo.insert_record_with_activity_log()
+    |> case do
       {:ok, token} ->
         {:ok, get(token.id)}
 
@@ -355,7 +290,23 @@ defmodule EWalletDB.Token do
   def update(token, attrs) do
     token
     |> update_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
+    |> update_with_changeset()
+  end
+
+  @doc """
+  Enables or disables a token.
+  """
+  def enable_or_disable(token, attrs) do
+    token
+    |> enable_changeset(attrs)
+    |> update_with_changeset()
+  end
+
+  @doc """
+  Update an existing token given an update changeset
+  """
+  def update_with_changeset(changeset) do
+    Repo.update_record_with_activity_log(changeset)
   end
 
   @doc """
@@ -384,20 +335,5 @@ defmodule EWalletDB.Token do
   """
   def get_all(ids) do
     Repo.all(from(m in Token, where: m.id in ^ids))
-  end
-
-  @doc """
-  Enables or disables a token.
-  """
-  def enable_or_disable(token, attrs) do
-    token
-    |> enable_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
-  end
-
-  def set_blockchain_address(token, attrs) do
-    token
-    |> blockchain_changeset(attrs)
-    |> Repo.update_record_with_activity_log()
   end
 end

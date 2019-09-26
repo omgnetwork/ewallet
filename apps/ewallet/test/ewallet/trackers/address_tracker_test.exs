@@ -130,7 +130,7 @@ defmodule EWallet.AddressTrackerTest do
       default_token =
         insert(:token, %{
           blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
-          blockchain_status: Token.blockchain_status_confirmed()
+          blockchain_status: Token.status_confirmed()
         })
 
       {:ok, {_address, _public_key}} = Wallet.generate()

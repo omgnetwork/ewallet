@@ -29,7 +29,8 @@ defmodule EWalletDB.BlockchainTransactionState do
     @pending_confirmations => {[:block_number], [:block_number]},
     # Note: We need to have `block_number` in confirmed as well in case it goes from
     # submitted directly to confirmed
-    @confirmed => {[:block_number, :confirmed_at_block_number], [:block_number, :confirmed_at_block_number]},
+    @confirmed =>
+      {[:block_number, :confirmed_at_block_number], [:block_number, :confirmed_at_block_number]},
     @failed => {[:error], [:error]}
   }
 

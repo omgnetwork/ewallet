@@ -1150,7 +1150,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["data"]["blockchain_address"] == address
 
-      assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
+      assert response["data"]["blockchain_status"] == Token.status_confirmed()
     end
 
     test_with_auths "fails to update an existing token if blockchain_address is missing" do

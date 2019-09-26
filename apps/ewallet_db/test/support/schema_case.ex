@@ -239,6 +239,51 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
+  Test insert func with a specific field value is successful.
+  """
+  defmacro test_insert_ok(factory, field, value, func) when is_atom(field) do
+    quote do
+      test "inserts #{unquote(field)} successfully" do
+        factory = unquote(factory)
+        field = unquote(field)
+        value = unquote(value)
+        func = unquote(func)
+
+        {res, val} =
+          factory
+          |> params_for(%{field => value})
+          |> func.()
+
+        assert res == :ok
+        assert Map.fetch!(val, field) == value
+      end
+    end
+  end
+
+  @doc """
+  Test insert func with a specific field value fails with the given errors.
+  """
+  defmacro test_insert_error(factory, field, value, errors, func) when is_atom(field) do
+    quote do
+      test "inserts #{unquote(field)} returns an error" do
+        factory = unquote(factory)
+        field = unquote(field)
+        value = unquote(value)
+        func = unquote(func)
+        errors = unquote(errors)
+
+        {res, changeset_error} =
+          factory
+          |> params_for(%{field => value})
+          |> func.()
+
+        assert res == :error
+        assert changeset_error.errors == errors
+      end
+    end
+  end
+
+  @doc """
   Test schema's insert/1 generates a uuid when given field is blank.
   """
   defmacro test_insert_generate_uuid(schema, field) do
