@@ -1,4 +1,5 @@
 import { createActionCreator } from '../utils/createActionCreator'
+import { externalPlasmaDeposit } from '../omg-plasma'
 
 const serializeDataFormat = ({ data, success }) => {
   return { data: { data: data, success } }
@@ -28,7 +29,7 @@ export const setMetamaskSettings = metamaskSettings => dispatch => {
 
 const createWeb3Call = fn => dispatch => {
   if (!window.web3) {
-    console.warn('web3 metamask is not existed')
+    console.warn('web3 metamask does not exist')
   }
   return fn(dispatch)
 }
@@ -140,5 +141,46 @@ export const sendTransaction = ({
         .on('error', onError)
     } catch (e) {
       onError(e.message)
+    }
+  })
+
+export const sendExternalPlasmaDeposit = ({
+  transaction,
+  onTransactionHash,
+  onConfirmation,
+  onReceipt,
+  onError
+}) =>
+  createWeb3Call(async dispatch => {
+    try {
+      const { web3 } = window
+      const { from, value, gasPrice, gas } = transaction
+
+      await externalPlasmaDeposit({
+        web3,
+        from,
+        value,
+        gasPrice,
+        gasLimit: gas
+      })
+      // omg-js doesn't support .on event callbacks
+      // .on('transactionHash', hash => {
+      //   dispatch({
+      //     type: 'WEB3/PLASMA_DEPOSIT/SUCCESS',
+      //     data: { txHash: hash }
+      //   })
+      //   onTransactionHash(hash)
+      // })
+      // .on('receipt', onReceipt)
+      // .on('confirmation', onConfirmation)
+      // .on('error', onError)
+
+      dispatch({
+        type: 'WEB3/PLASMA_DEPOSIT/SUCCESS',
+        data: 'toto'
+      })
+      onConfirmation()
+    } catch (e) {
+      onError(e)
     }
   })

@@ -10,7 +10,7 @@ import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
-import { sendTransaction, estimateGasFromTransaction } from '../omg-web3/action'
+import { sendTransaction, estimateGasFromTransaction, sendExternalPlasmaDeposit } from '../omg-web3/action'
 import { formatAmount } from '../utils/formatter'
 import { AllBlockchainWalletsFetcher } from '../omg-blockchain-wallet/blockchainwalletsFetcher'
 import BlockchainWalletSelect from '../omg-blockchain-wallet-select'
@@ -48,7 +48,7 @@ const enhance = compose(
       selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
       network: selectNetwork(state)
     }),
-    { transfer, getWalletById, sendTransaction, estimateGasFromTransaction }
+    { transfer, getWalletById, sendTransaction, estimateGasFromTransaction, sendExternalPlasmaDeposit }
   )
 )
 class CreateBlockchainTransaction extends Component {
@@ -58,6 +58,7 @@ class CreateBlockchainTransaction extends Component {
     selectBlockchainWalletBalance: PropTypes.func,
     selectBlockchainWalletById: PropTypes.func,
     sendTransaction: PropTypes.func,
+    sendExternalPlasmaDeposit: PropTypes.func,
     estimateGasFromTransaction: PropTypes.func,
     network: PropTypes.number
   }
@@ -75,7 +76,8 @@ class CreateBlockchainTransaction extends Component {
     gasPrice: '',
     metaData: '',
     password: '',
-    fromTokenSelected: {}
+    fromTokenSelected: {},
+    toPlasma: false
   }
   async componentDidMount () {
     this.setGasPrice()
@@ -97,6 +99,10 @@ class CreateBlockchainTransaction extends Component {
 
   setGasPrice = async () => {
     const { estimateGasFromTransaction } = this.props
+    if (this.state.toPlasma) {
+      return this.setState({ gasPrice: 500 })
+    }
+
     if (web3Utils.isAddress(this.state.toAddress)) {
       const payload = this.getTransactionPayload()
       const res = await estimateGasFromTransaction(payload)
@@ -121,12 +127,14 @@ class CreateBlockchainTransaction extends Component {
     if (item) {
       this.setState({
         toAddress: item.key,
-        toAddressSelect: true
+        toAddressSelect: true,
+        ...item.type === 'childchain' && { toPlasma: true }
       })
     } else {
       this.setState({
         toAddress: '',
-        toAddressSelect: false
+        toAddressSelect: false,
+        toPlasma: false
       })
     }
   }
@@ -180,21 +188,18 @@ class CreateBlockchainTransaction extends Component {
   onSubmit = async e => {
     this.setState({ submitting: true })
     e.preventDefault()
-    this.props.sendTransaction({
+
+    const web3Payload = {
       transaction: this.getTransactionPayload(),
-      onTransactionHash: hash => {
-        this.setState({ step: 3, txHash: String(hash) })
-      },
-      onReceipt: () => {
-        console.log('onReceipt')
-      },
-      onConfirmation: () => {
-        this.setState({ step: 4 })
-      },
-      onError: error => {
-        this.setState({ submitting: false, error: _.get(error, 'message') })
-      }
-    })
+      onTransactionHash: hash => this.setState({ step: 3, txHash: String(hash) }),
+      onReceipt: () => console.log('onReceipt'),
+      onConfirmation: () => this.setState({ step: 4, submitting: false }),
+      onError: error => this.setState({ error: _.get(error, 'message'), submitting: false })
+    }
+
+    return this.state.toPlasma
+      ? this.props.sendExternalPlasmaDeposit(web3Payload)
+      : this.props.sendTransaction(web3Payload)
   }
   onRequestClose = () => {
     this.props.onRequestClose()
@@ -331,6 +336,14 @@ class CreateBlockchainTransaction extends Component {
         <AllBlockchainWalletsFetcher
           render={({ blockchainWallets }) => {
             const hotWallets = blockchainWallets.filter(i => i.type === 'hot')
+            const wallets = [
+              ...hotWallets,
+              {
+                address: 'OmiseGO Network',
+                name: 'Plasma',
+                type: 'childchain'
+              }
+            ]
             return (
               <StyledSelectInput
                 selectProps={{
@@ -339,8 +352,8 @@ class CreateBlockchainTransaction extends Component {
                   onSelectItem: this.onSelectToAddressSelect,
                   disabled: this.state.step !== 1,
                   value: this.state.toAddress,
-                  valueRenderer: this.renderToSelectWalletValue(hotWallets),
-                  options: this.renderToSelectWalletOption(hotWallets)
+                  valueRenderer: this.renderToSelectWalletValue(wallets),
+                  options: this.renderToSelectWalletOption(wallets)
                 }}
               />
             )

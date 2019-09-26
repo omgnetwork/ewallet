@@ -15,7 +15,7 @@ function CreateBlockchainTransactionButton (props) {
       }
       disabled={!window.web3 || !window.ethereum}
     >
-      <span>Topup</span>
+      <span>Transfer</span>
     </Button>
   )
 }

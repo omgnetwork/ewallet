@@ -79,7 +79,7 @@ const BlockchainWalletDetailPage = ({
     }
   }, [pollingState])
 
-  const renderTopupButton = () => (
+  const renderTransferButton = () => (
     <CreateBlockchainTransactionButton
       key='blockchain-transfer'
       fromAddress={address}
@@ -110,7 +110,7 @@ const BlockchainWalletDetailPage = ({
       )
     }
     if (metamaskUsable) {
-      return balance ? renderTopupButton() : null
+      return balance ? renderTransferButton() : null
     }
     return renderMetamaskConnectButton()
   }
