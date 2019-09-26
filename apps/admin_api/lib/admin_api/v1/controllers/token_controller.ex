@@ -133,7 +133,7 @@ defmodule AdminAPI.V1.TokenController do
          attrs <-
            Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier()),
          attrs <- Map.put(attrs, "blockchain_status", status),
-         {:ok, token} <- Token.insert(attrs) do
+         {:ok, token} <- Token.Blockchain.insert_with_blockchain_address(attrs) do
       respond_single(token, conn)
     else
       error ->

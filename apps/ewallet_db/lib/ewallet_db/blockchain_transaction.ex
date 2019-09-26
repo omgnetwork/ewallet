@@ -33,8 +33,8 @@ defmodule EWalletDB.BlockchainTransaction do
     field(:status, :string, default: BlockchainTransactionState.submitted())
     field(:block_number, :integer)
     field(:confirmed_at_block_number, :integer)
-    field(:gas_price, :integer)
-    field(:gas_limit, :integer)
+    field(:gas_price, Utils.Types.Integer)
+    field(:gas_limit, Utils.Types.Integer)
     field(:error, :string)
     field(:metadata, :map, default: %{})
 

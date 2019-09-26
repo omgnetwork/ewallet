@@ -16,7 +16,8 @@ defmodule EWallet.TokenGate do
   @moduledoc false
 
   alias EWallet.BlockchainHelper
-  alias EWalletDB.{BlockchainWallet, Token}
+  alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, BlockchainTransaction, Token}
+  alias ActivityLogger.System
 
   @doc """
   Attempts to deploy an ERC20 token with the specified attributes
@@ -62,19 +63,45 @@ defmodule EWallet.TokenGate do
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
 
-  defp parse_deploy_response({:ok, tx_hash, contract_address, contract_uuid}, attrs) do
-    attrs =
-      attrs
-      |> Map.put("tx_hash", tx_hash)
-      |> Map.put("blockchain_address", contract_address)
-      |> Map.put("contract_uuid", contract_uuid)
-      |> Map.put("blockchain_status", Token.Blockchain.status_pending())
-      |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
+  defp parse_deploy_response(
+         {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid} = response},
+         attrs
+       ) do
+    case create_blockchain_transaction(response) do
+      {:ok, blockchain_transaction} ->
+        attrs =
+          attrs
+          |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
+          |> Map.put("blockchain_address", contract_address)
+          |> Map.put("contract_uuid", contract_uuid)
+          |> Map.put("blockchain_status", Token.Blockchain.status_pending())
+          |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
 
-    {:ok, attrs}
+        {:ok, attrs}
+
+      error ->
+        error
+    end
   end
 
   defp parse_deploy_response(error, _attrs), do: error
+
+  defp create_blockchain_transaction(%{
+         tx_hash: tx_hash,
+         gas_price: gas_price,
+         gas_limit: gas_limit
+       }) do
+    attrs = %{
+      hash: tx_hash,
+      rootchain_identifier: BlockchainHelper.rootchain_identifier(),
+      status: BlockchainTransactionState.submitted(),
+      gas_price: gas_price,
+      gas_limit: gas_limit,
+      originator: %System{}
+    }
+
+    BlockchainTransaction.insert(attrs)
+  end
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as

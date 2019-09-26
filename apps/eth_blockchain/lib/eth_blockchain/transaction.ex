@@ -105,7 +105,7 @@ defmodule EthBlockchain.Transaction do
         value: amount
       }
       |> prepare_and_send(meta, from, opts)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -125,7 +125,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, from, opts)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -141,7 +141,7 @@ defmodule EthBlockchain.Transaction do
       %__MODULE__{init: from_hex(init)}
       |> prepare_and_send(meta, from, opts)
       |> append_contract_address(contract_address)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -165,7 +165,7 @@ defmodule EthBlockchain.Transaction do
         value: amount
       }
       |> prepare_and_send(meta, from, opts)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -187,7 +187,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, from, opts)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -210,7 +210,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, from, opts)
-      |> respond(from, opts)
+      |> respond(meta, from, opts)
     end
   end
 
@@ -229,7 +229,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, address, opts)
-      |> respond(address, opts)
+      |> respond(meta, address, opts)
     end
   end
 
@@ -247,7 +247,7 @@ defmodule EthBlockchain.Transaction do
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, address, opts)
-      |> respond(address, opts)
+      |> respond(meta, address, opts)
     end
   end
 
@@ -322,7 +322,7 @@ defmodule EthBlockchain.Transaction do
   # We force the refresh of the nonce generator which will reset the nonce to the current
   # transaction count. This way we avoid having failed transaction until we reach the
   # correct nonce
-  defp respond({:error, _, [error_message: "nonce too low"]} = error, from, opts) do
+  defp respond({:error, _, [error_message: "nonce too low"]} = error, _meta, from, opts) do
     with {:ok, nonce_handler_pid} <-
            NonceRegistry.lookup(from, opts[:eth_node_adapter], opts[:eth_node_adapter_pid]),
          {:ok, _nonce} <- Nonce.force_refresh(nonce_handler_pid) do
@@ -330,7 +330,21 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
-  defp respond(response, _from, _opts), do: response
+  defp respond({:ok, tx_hash, contract_address}, meta, from, opts) do
+    {:ok, response} = respond({:ok, tx_hash}, meta, from, opts)
+    {:ok, Map.put(response, :contract_address, contract_address)}
+  end
+
+  defp respond({:ok, tx_hash}, %{gas_price: gas_price, gas_limit: gas_limit}, _from, _opts) do
+    {:ok,
+     %{
+       tx_hash: tx_hash,
+       gas_price: gas_price,
+       gas_limit: gas_limit
+     }}
+  end
+
+  defp respond(response, _, _, _), do: response
 
   @doc """
   Serialize, encode and returns a hash of a given transaction
