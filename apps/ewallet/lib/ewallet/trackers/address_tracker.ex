@@ -25,7 +25,7 @@ defmodule EWallet.AddressTracker do
     BlockchainHelper,
     BlockchainAddressFetcher,
     BlockchainStateGate,
-    BlockchainTransactionGate
+    TransactionGate
   }
 
   alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
@@ -224,7 +224,7 @@ defmodule EWallet.AddressTracker do
        }) do
     token = Token.get_by(%{blockchain_address: blockchain_tx.contract_address})
     # TODO: Notify websockets
-    BlockchainTransactionGate.create_from_tracker(%{
+    TransactionGate.Blockchain.create_from_tracker(%{
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
       to_amount: blockchain_tx.amount,

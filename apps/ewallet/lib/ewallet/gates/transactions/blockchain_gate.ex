@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainTransactionGate do
+defmodule EWallet.TransactionGate.Blockchain do
   @moduledoc """
   Handles the logic for blockchain transactions. Validates the inputs, inserts the
   initial transaction before calling a Transaction Tracker that will take care

@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ChildchainTransactionGateTest do
+defmodule EWallet.TransactionGate.ChildchainTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
 
   alias EWallet.{
     BlockchainHelper,
-    ChildchainTransactionGate,
+    TransactionGate.Childchain,
     TransactionRegistry
   }
 
@@ -45,7 +45,7 @@ defmodule EWallet.ChildchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = ChildchainTransactionGate.deposit(admin, attrs)
+      {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
 
       {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
 
@@ -84,7 +84,7 @@ defmodule EWallet.ChildchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {res, code, error} = ChildchainTransactionGate.deposit(admin, attrs)
+      {res, code, error} = TransactionGate.Childchain.deposit(admin, attrs)
       assert res == :error
       assert code == :invalid_parameter
       assert error == "Invalid parameter provided. `amount` is required."

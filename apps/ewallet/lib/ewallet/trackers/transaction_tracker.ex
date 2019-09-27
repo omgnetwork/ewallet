@@ -21,7 +21,7 @@ defmodule EWallet.TransactionTracker do
   use GenServer, restart: :temporary
   require Logger
 
-  alias EWallet.{BlockchainHelper, BlockchainTransactionGate}
+  alias EWallet.{BlockchainHelper, TransactionGate}
   alias EWalletDB.{Transaction, TransactionState}
   alias ActivityLogger.System
 
@@ -120,7 +120,7 @@ defmodule EWallet.TransactionTracker do
       )
 
     # TODO: handle error
-    {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+    {:ok, transaction} = TransactionGate.Blockchain.handle_local_insert(transaction)
 
     # Unsubscribing from the blockchain subapp
     # TODO: :ok / {:error, :not_found} handling?

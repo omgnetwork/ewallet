@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ChildchainTransactionGate do
+defmodule EWallet.TransactionGate.Childchain do
   @moduledoc """
   This is an intermediary module that formats the params so they can be processed by
-  the BlockchainTransactionGate
+  the TransactionGate.Blockchain
   """
-  alias EWallet.{BlockchainTransactionGate, BlockchainHelper}
+  alias EWallet.{TransactionGate, BlockchainHelper}
   alias EWalletDB.Transaction
 
   def deposit(actor, %{"amount" => amount} = attrs) when is_integer(amount) do
     attrs = build_transaction_attrs(attrs)
     validation_tuple = address_validation_tuple(attrs)
-    BlockchainTransactionGate.create(actor, attrs, validation_tuple)
+    TransactionGate.Blockchain.create(actor, attrs, validation_tuple)
   end
 
   def deposit(_, _) do

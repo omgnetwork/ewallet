@@ -20,11 +20,11 @@ defmodule EWallet.TransactionDispatcherGate do
   alias EWallet.{
     BlockchainHelper,
     LocalTransactionGate,
-    BlockchainTransactionGate
+    TransactionGate.Blockchain
   }
 
   def create(actor, %{"from_address" => from, "to_address" => to} = attrs) do
-    case BlockchainTransactionGate.blockchain_addresses?([from, to]) do
+    case TransactionGate.Blockchain.blockchain_addresses?([from, to]) do
       [false, false] ->
         LocalTransactionGate.create(actor, attrs)
 
@@ -43,7 +43,7 @@ defmodule EWallet.TransactionDispatcherGate do
            BlockchainHelper.childchain_identifier()
          ] do
       true ->
-        BlockchainTransactionGate.create(actor, attrs, address_validation)
+        TransactionGate.Blockchain.create(actor, attrs, address_validation)
 
       false ->
         {:error, :invalid_parameter,

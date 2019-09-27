@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainLocalTransactionGate do
+defmodule EWallet.TransactionGate.BlockchainLocal do
   @moduledoc """
   Handles the logic for a transaction of value from an account to a user. Delegates the
   actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.

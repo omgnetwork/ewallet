@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainTransactionGateTest do
+defmodule EWallet.TransactionGate.BlockchainTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
 
@@ -20,7 +20,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
     BlockchainHelper,
     BalanceFetcher,
     BlockchainDepositWalletGate,
-    BlockchainTransactionGate,
+    TransactionGate,
     TransactionRegistry
   }
 
@@ -56,7 +56,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {false, true})
+      {:ok, transaction} = TransactionGate.Blockchain.create(admin, attrs, {false, true})
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
@@ -103,7 +103,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
+      {:ok, transaction} = TransactionGate.Blockchain.create(admin, attrs, {true, true})
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
@@ -148,7 +148,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create(admin, attrs, {true, true})
+      {:ok, transaction} = TransactionGate.Blockchain.create(admin, attrs, {true, true})
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
@@ -193,7 +193,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :insufficient_funds_in_hot_wallet} ==
-               BlockchainTransactionGate.create(admin, attrs, {true, true})
+               TransactionGate.Blockchain.create(admin, attrs, {true, true})
     end
 
     test "returns an error for a childchain transaction if there is not enough funds for the transaction" do
@@ -218,7 +218,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :insufficient_funds_in_hot_wallet} ==
-               BlockchainTransactionGate.create(admin, attrs, {true, true})
+               TransactionGate.Blockchain.create(admin, attrs, {true, true})
     end
 
     test "returns an error when trying to exchange" do
@@ -243,7 +243,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :blockchain_exchange_not_allowed} ==
-               BlockchainTransactionGate.create(admin, attrs, {true, true})
+               TransactionGate.Blockchain.create(admin, attrs, {true, true})
     end
 
     test "returns an error when amounts are not valid" do
@@ -266,7 +266,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      assert BlockchainTransactionGate.create(admin, attrs, {true, true}) ==
+      assert TransactionGate.Blockchain.create(admin, attrs, {true, true}) ==
                {
                  :error,
                  :invalid_parameter,
@@ -295,7 +295,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :insufficient_funds_in_hot_wallet} ==
-               BlockchainTransactionGate.create(admin, attrs, {true, true})
+               TransactionGate.Blockchain.create(admin, attrs, {true, true})
     end
 
     test "returns an error if the token is not a blockchain token" do
@@ -316,7 +316,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       }
 
       assert {:error, :token_not_blockchain_enabled} ==
-               BlockchainTransactionGate.create(admin, attrs, {true, true})
+               TransactionGate.Blockchain.create(admin, attrs, {true, true})
     end
   end
 
@@ -352,7 +352,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         originator: %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
       {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
       assert is_pid(pid)
@@ -401,7 +401,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         originator: %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
       {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
       assert is_pid(pid)
@@ -454,7 +454,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         originator: %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
+      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
       # We can't find the listener because there shouldn't be one
       assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
@@ -504,7 +504,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = BlockchainTransactionGate.get_or_insert(attrs)
+      {:ok, transaction} = TransactionGate.Blockchain.get_or_insert(attrs)
       assert transaction.idempotency_token == tx_hash
     end
 
@@ -543,15 +543,15 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction_1} = BlockchainTransactionGate.get_or_insert(attrs)
-      {:ok, transaction_2} = BlockchainTransactionGate.get_or_insert(attrs)
+      {:ok, transaction_1} = TransactionGate.Blockchain.get_or_insert(attrs)
+      {:ok, transaction_2} = TransactionGate.Blockchain.get_or_insert(attrs)
 
       assert transaction_1.idempotency_token == tx_hash
       assert transaction_1.idempotency_token == transaction_2.idempotency_token
     end
 
     test "returns :idempotency_token if the idempotency_token is not given" do
-      assert BlockchainTransactionGate.get_or_insert(%{}) ==
+      assert TransactionGate.Blockchain.get_or_insert(%{}) ==
                {:error, :invalid_parameter,
                 "Invalid parameter provided. `idempotency_token` is required."}
     end
@@ -559,7 +559,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
   describe "blockchain_addresses?/1" do
     test "returns a list of booleans indicating whether each given address is a blockchain address" do
-      assert BlockchainTransactionGate.blockchain_addresses?([
+      assert TransactionGate.Blockchain.blockchain_addresses?([
                "abc",
                "0x",
                Crypto.fake_eth_address()
@@ -606,11 +606,11 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, transaction} = Transaction.insert(attrs)
       assert transaction.status == TransactionState.blockchain_confirmed()
 
-      {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+      {:ok, transaction} = TransactionGate.Blockchain.handle_local_insert(transaction)
       assert transaction.status == TransactionState.confirmed()
     end
 
-    test "processes the transaction with BlockchainLocalTransactionGate if transaction.to is not nil" do
+    test "processes the transaction with TransactionGate.BlockchainLocal if transaction.to is not nil" do
       token = insert(:token)
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
@@ -648,7 +648,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, transaction} = Transaction.insert(attrs)
       assert transaction.status == TransactionState.blockchain_confirmed()
 
-      {:ok, transaction} = BlockchainTransactionGate.handle_local_insert(transaction)
+      {:ok, transaction} = TransactionGate.Blockchain.handle_local_insert(transaction)
       assert transaction.status == TransactionState.confirmed()
     end
   end

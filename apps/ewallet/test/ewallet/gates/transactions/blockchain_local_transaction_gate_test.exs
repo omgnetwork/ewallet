@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainLocalTransactionGateTest do
+defmodule EWallet.TransactionGate.BlockchainLocalTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWallet.BlockchainLocalTransactionGate
+  alias EWallet.TransactionGate
   alias EWalletDB.TransactionState
   alias LocalLedgerDB.Factory, as: LedgerFactory
 
@@ -35,7 +35,7 @@ defmodule EWallet.BlockchainLocalTransactionGateTest do
       assert txn_blockchain_confirmed.status == TransactionState.blockchain_confirmed()
 
       {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+        TransactionGate.BlockchainLocal.process_with_transaction(txn_blockchain_confirmed)
 
       assert res == :ok
       assert txn_processed.status == TransactionState.confirmed()
@@ -54,7 +54,7 @@ defmodule EWallet.BlockchainLocalTransactionGateTest do
         )
 
       {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+        TransactionGate.BlockchainLocal.process_with_transaction(txn_blockchain_confirmed)
 
       assert res == :ok
       assert txn_processed == txn_blockchain_confirmed
@@ -72,7 +72,7 @@ defmodule EWallet.BlockchainLocalTransactionGateTest do
         )
 
       {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+        TransactionGate.BlockchainLocal.process_with_transaction(txn_blockchain_confirmed)
 
       assert res == :ok
       assert txn_processed == txn_blockchain_confirmed

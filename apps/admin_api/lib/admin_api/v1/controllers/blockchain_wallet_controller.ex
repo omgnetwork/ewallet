@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy, ChildchainTransactionGate}
+  alias EWallet.{BlockchainHelper, BlockchainWalletPolicy, TransactionGate}
   alias EWalletDB.{BlockchainWallet, Token, Transaction}
   alias AdminAPI.V1.{BalanceView, TransactionView}
 
@@ -127,7 +127,7 @@ defmodule AdminAPI.V1.BlockchainWalletController do
            BlockchainWallet.get_by(address: address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:deposit_to_childchain, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, transaction} <- ChildchainTransactionGate.deposit(conn.assigns, attrs) do
+         {:ok, transaction} <- TransactionGate.Childchain.deposit(conn.assigns, attrs) do
       respond_single(transaction, conn)
     else
       {:error, error} -> handle_error(conn, error)
