@@ -192,7 +192,7 @@ defmodule EWalletDB.Factory do
 
   def internal_blockchain_token_factory do
     external_blockchain_token_factory()
-    |> Map.put(:blockchain_transaction_uuid, insert(:blockchain_transaction).uuid)
+    |> Map.put(:blockchain_transaction_uuid, insert(:blockchain_transaction_rootchain).uuid)
     |> Map.put(:contract_uuid, UUID.generate())
   end
 

@@ -23,63 +23,70 @@ defmodule EWalletDB.Token.BlockchainTest do
 
   describe "insert_with_blockchain_address/1" do
     test_insert_ok(
-      :external_blockchain_token,
+      Token.Blockchain,
       :blockchain_identifier,
       Application.get_env(:ewallet_db, :rootchain_identifier),
-      &Token.Blockchain.insert_with_blockchain_address/1
+      &Token.Blockchain.insert_with_blockchain_address/1,
+      :external_blockchain_token
     )
 
     test_insert_ok(
-      :external_blockchain_token,
+      Token.Blockchain,
       :blockchain_status,
       Token.Blockchain.status_pending(),
-      &Token.Blockchain.insert_with_blockchain_address/1
+      &Token.Blockchain.insert_with_blockchain_address/1,
+      :external_blockchain_token
     )
 
     test_insert_error(
-      :external_blockchain_token,
+      Token.Blockchain,
       :blockchain_address,
       "0x123",
       [
         blockchain_address:
           {"is not a valid blockchain address", [validation: :invalid_blockchain_address]}
       ],
-      &Token.Blockchain.insert_with_blockchain_address/1
+      &Token.Blockchain.insert_with_blockchain_address/1,
+      :external_blockchain_token
     )
 
     test_insert_error(
-      :external_blockchain_token,
+      Token.Blockchain,
       :blockchain_identifier,
       "invalid_identifier",
       [
         blockchain_identifier:
           {"is not a valid blockchain identifier", [validation: :invalid_blockchain_identifier]}
       ],
-      &Token.Blockchain.insert_with_blockchain_address/1
+      &Token.Blockchain.insert_with_blockchain_address/1,
+      :external_blockchain_token
     )
 
     test_insert_error(
-      :external_blockchain_token,
+      Token.Blockchain,
       :blockchain_status,
       "123",
       [blockchain_status: {"is invalid", [validation: :inclusion]}],
-      &Token.Blockchain.insert_with_blockchain_address/1
+      &Token.Blockchain.insert_with_blockchain_address/1,
+      :external_blockchain_token
     )
   end
 
   describe "insert_with_contract_deployed/1" do
     test_insert_ok(
-      :internal_blockchain_token,
+      Token.Blockchain,
       :blockchain_transaction_uuid,
-      insert(:blockchain_transaction).uuid,
-      &Token.Blockchain.insert_with_contract_deployed/1
+      insert(:blockchain_transaction_rootchain).uuid,
+      &Token.Blockchain.insert_with_contract_deployed/1,
+      :internal_blockchain_token
     )
 
     test_insert_ok(
-      :internal_blockchain_token,
+      Token.Blockchain,
       :contract_uuid,
       "some_uuid",
-      &Token.Blockchain.insert_with_contract_deployed/1
+      &Token.Blockchain.insert_with_contract_deployed/1,
+      :internal_blockchain_token
     )
   end
 
