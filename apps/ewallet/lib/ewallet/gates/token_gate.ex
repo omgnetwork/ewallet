@@ -15,7 +15,7 @@
 defmodule EWallet.TokenGate do
   @moduledoc false
 
-  alias EWallet.BlockchainHelper
+  alias EWallet.{BlockchainTransactionGate, BlockchainHelper}
   alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, BlockchainTransaction, Token}
   alias ActivityLogger.System
 
@@ -43,19 +43,19 @@ defmodule EWallet.TokenGate do
       |> :math.log10()
       |> trunc()
 
-    from =
-      BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.rootchain_identifier()).address
+    rootchain_identifier = BlockchainHelper.rootchain_identifier()
+    from = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier).address
 
-    :deploy_erc20
-    |> BlockchainHelper.call(%{
+    %{
       from: from,
       name: name,
       symbol: symbol,
       decimals: decimals,
       initial_amount: amount,
       locked: locked
-    })
-    |> parse_deploy_response(attrs)
+    }
+    |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier)
+    |> parse_deploy_response(attrs, rootchain_identifier)
   end
 
   def deploy_erc20(_) do
@@ -64,44 +64,24 @@ defmodule EWallet.TokenGate do
   end
 
   defp parse_deploy_response(
-         {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid} = response},
-         attrs
+         {:ok,
+          %{
+            contract_address: contract_address,
+            blockchain_transaction: blockchain_transaction,
+            contract_uuid: contract_uuid
+          } = response},
+         attrs,
+         rootchain_identifier
        ) do
-    case create_blockchain_transaction(response) do
-      {:ok, blockchain_transaction} ->
-        attrs =
-          attrs
-          |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
-          |> Map.put("blockchain_address", contract_address)
-          |> Map.put("contract_uuid", contract_uuid)
-          |> Map.put("blockchain_status", Token.Blockchain.status_pending())
-          |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
-
-        {:ok, attrs}
-
-      error ->
-        error
-    end
+    attrs
+    |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
+    |> Map.put("blockchain_address", contract_address)
+    |> Map.put("contract_uuid", contract_uuid)
+    |> Map.put("blockchain_status", Token.Blockchain.status_pending())
+    |> Map.put("blockchain_identifier", rootchain_identifier)
   end
 
   defp parse_deploy_response(error, _attrs), do: error
-
-  defp create_blockchain_transaction(%{
-         tx_hash: tx_hash,
-         gas_price: gas_price,
-         gas_limit: gas_limit
-       }) do
-    attrs = %{
-      hash: tx_hash,
-      rootchain_identifier: BlockchainHelper.rootchain_identifier(),
-      status: BlockchainTransactionState.submitted(),
-      gas_price: gas_price,
-      gas_limit: gas_limit,
-      originator: %System{}
-    }
-
-    BlockchainTransaction.insert_rootchain(attrs)
-  end
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as
