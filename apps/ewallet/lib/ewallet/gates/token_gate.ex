@@ -100,7 +100,7 @@ defmodule EWallet.TokenGate do
       originator: %System{}
     }
 
-    BlockchainTransaction.insert(attrs)
+    BlockchainTransaction.insert_rootchain(attrs)
   end
 
   @doc """
