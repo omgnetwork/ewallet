@@ -174,8 +174,8 @@ defmodule EWalletDB.DepositTransaction do
   Get a deposit transaction using one or more fields.
   """
   @spec get_by(keyword() | map(), keyword()) :: %__MODULE__{} | nil
-  def get_by(clauses, opts \\ []) do
-    query = Repo.get_by(__MODULE__, clauses)
+  def get_by(fields, opts \\ []) do
+    query = Repo.get_by(__MODULE__, fields)
 
     case opts[:preload] do
       nil -> query
@@ -220,7 +220,8 @@ defmodule EWalletDB.DepositTransaction do
   def all_unfinalized_by(clauses) do
     __MODULE__
     |> where(^Enum.to_list(clauses))
-    |> where([dt], dt.status in @unfinalized_statuses)
+    |> join(:inner, [dt], t in assoc(dt, :transaction))
+    |> where([_, t], t.status in @unfinalized_statuses)
     |> Repo.all()
   end
 end

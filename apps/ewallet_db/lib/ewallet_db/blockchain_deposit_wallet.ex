@@ -37,7 +37,6 @@ defmodule EWalletDB.BlockchainDepositWallet do
   schema "blockchain_deposit_wallet" do
     # Blockchain deposit wallets don't have an external ID. Use `address` instead.
     field(:address, :string)
-    field(:public_key, :string)
     field(:relative_hd_path, :integer)
     field(:blockchain_identifier, :string)
 
@@ -74,7 +73,6 @@ defmodule EWalletDB.BlockchainDepositWallet do
       attrs,
       cast: [
         :address,
-        :public_key,
         :relative_hd_path,
         :blockchain_identifier,
         :wallet_uuid,
@@ -89,17 +87,13 @@ defmodule EWalletDB.BlockchainDepositWallet do
       ]
     )
     |> update_change(:address, &String.downcase/1)
-    |> update_change(:public_key, &String.downcase/1)
     |> unique_constraint(:address)
-    |> unique_constraint(:public_key)
     |> unique_constraint(:relative_hd_path,
       name: :blockchain_deposit_wallet_wallet_uuid_relative_hd_path_index
     )
     |> validate_immutable(:address)
-    |> validate_immutable(:public_key)
     |> validate_immutable(:relative_hd_path)
     |> validate_length(:address, count: :bytes, max: 255)
-    |> validate_length(:public_key, count: :bytes, max: 255)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:blockchain_hd_wallet)
   end

@@ -35,8 +35,6 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   defp run_with(writer, data) do
     case Token.get_by(symbol: data.symbol) do
       nil ->
-        writer.info("Creating token #{data.name} (#{data.symbol})...")
-
         account = Account.get_master_account()
 
         data =

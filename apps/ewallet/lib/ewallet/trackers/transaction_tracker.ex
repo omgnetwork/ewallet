@@ -171,7 +171,7 @@ defmodule EWallet.TransactionTracker do
 
   defp finalize_transaction(state, confirmations_count, block_num) do
     with {:ok, updated} <-
-           confirm(state.transaction, state.transaction_type, confirmations_count, block_num) |> IO.inspect(label: "before local insert"),
+           confirm(state.transaction, state.transaction_type, confirmations_count, block_num),
          {:ok, updated} <- BlockchainTransactionGate.handle_local_insert(updated) do
       updated
     else

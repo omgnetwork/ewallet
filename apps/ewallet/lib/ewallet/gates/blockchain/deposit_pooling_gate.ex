@@ -142,12 +142,15 @@ defmodule EWallet.DepositPoolingGate do
   Does nothing if the given transaction is not intended for the deposit wallet.
   """
   def on_blockchain_transaction_received(transaction) do
-    case BlockchainDepositWallet.get(transaction.to_blockchain_address) do
+    from_deposit_wallet = BlockchainDepositWallet.get(transaction.from_blockchain_address)
+    to_deposit_wallet = BlockchainDepositWallet.get(transaction.to_blockchain_address)
+
+    case from_deposit_wallet || to_deposit_wallet do
       nil ->
         :ok
 
       deposit_wallet ->
-        _ = match_transaction_hash(transaction)
+        _ = match_deposit_transaction_hash(transaction)
         _ = refresh_balances(transaction, deposit_wallet)
         :ok
     end
@@ -162,13 +165,26 @@ defmodule EWallet.DepositPoolingGate do
     )
   end
 
-  defp match_transaction_hash(transaction) do
-    case DepositTransaction.get_by(blockchain_identifier: transaction.blockchain_identifier, blockchain_tx_hash: transaction.blockchain_tx_hash) do
-      nil ->
-        :ok
+  defp match_deposit_transaction_hash(transaction) do
+    deposit_transaction =
+      DepositTransaction.get_by(
+        blockchain_identifier: transaction.blockchain_identifier,
+        blockchain_tx_hash: transaction.blockchain_tx_hash
+      )
 
+    case deposit_transaction do
+      # The blockchain tx hash is not related to any deposit transaction, skipping.
+      nil ->
+        :noop
+
+      # If the deposit transaction already has an associated transaction, do not try to update.
+      %{transaction_uuid: tx_uuid} when not is_nil(tx_uuid) ->
+        :noop
+
+      # Found a matching deposit transaction that hasn't been associated, associate it.
       deposit_transaction ->
         DepositTransaction.update(deposit_transaction, %{transaction_uuid: transaction.uuid, originator: %System{}})
+        :ok
     end
   end
 end

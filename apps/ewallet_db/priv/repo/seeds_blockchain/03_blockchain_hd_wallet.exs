@@ -51,9 +51,11 @@ defmodule EWalletDB.Repo.Seeds.BlockchainHDWallet do
           UUID              : #{wallet.uuid}
           Keychain UUID     : #{wallet.keychain_uuid}
         """)
+
       {:error, changeset} ->
         writer.error("  HD Wallet #{keychain_hd_wallet.uuid} could not be inserted.")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  HD Wallet #{keychain_hd_wallet.uuid} could not be inserted.")
         writer.error("  Unknown error.")

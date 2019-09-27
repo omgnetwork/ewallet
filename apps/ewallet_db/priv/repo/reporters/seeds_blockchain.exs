@@ -15,10 +15,6 @@
 defmodule EWalletDB.Repo.Reporters.SeedsBlockchainReporter do
 
   def run(writer, _args) do
-    writer.heading("Populating blockchain data")
-
-    writer.print("""
-    We have seeded blockchain data
-    """)
+    :noop
   end
 end
