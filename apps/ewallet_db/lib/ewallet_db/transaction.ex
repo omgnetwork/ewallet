@@ -59,6 +59,7 @@ defmodule EWalletDB.Transaction do
     field(:blockchain_tx_hash, :string)
     field(:blockchain_identifier, :string)
     field(:confirmations_count, :integer)
+    field(:from_blockchain_address, :string)
     field(:to_blockchain_address, :string)
     field(:blk_number, :integer)
 
@@ -114,14 +115,6 @@ defmodule EWalletDB.Transaction do
       :from_wallet,
       Wallet,
       foreign_key: :from,
-      references: :address,
-      type: :string
-    )
-
-    belongs_to(
-      :from_blockchain_wallet,
-      BlockchainWallet,
-      foreign_key: :from_blockchain_address,
       references: :address,
       type: :string
     )

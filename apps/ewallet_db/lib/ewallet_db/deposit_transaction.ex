@@ -24,7 +24,6 @@ defmodule EWalletDB.DepositTransaction do
   alias Ecto.UUID
 
   alias EWalletDB.{
-    BlockchainWallet,
     BlockchainDepositWallet,
     Repo,
     Token,
@@ -54,9 +53,9 @@ defmodule EWalletDB.DepositTransaction do
   schema "deposit_transaction" do
     external_id(prefix: "dtx_")
 
+    # Transaction inforrmation
+
     field(:type, :string, default: @incoming)
-    field(:blockchain_identifier, :string)
-    field(:blockchain_tx_hash, :string)
     field(:amount, Utils.Types.Integer)
 
     belongs_to(
@@ -75,6 +74,15 @@ defmodule EWalletDB.DepositTransaction do
       type: UUID
     )
 
+    # Blockchain references
+
+    field(:blockchain_identifier, :string)
+    field(:blockchain_tx_hash, :string)
+
+    # Source addresses
+
+    field(:from_blockchain_address, :string)
+
     belongs_to(
       :from_deposit_wallet,
       BlockchainDepositWallet,
@@ -83,26 +91,14 @@ defmodule EWalletDB.DepositTransaction do
       type: :string
     )
 
-    belongs_to(
-      :from_blockchain_wallet,
-      BlockchainWallet,
-      foreign_key: :from_blockchain_wallet_address,
-      references: :address,
-      type: :string
-    )
+    # Destination addresses
+
+    field(:to_blockchain_address, :string)
 
     belongs_to(
       :to_deposit_wallet,
       BlockchainDepositWallet,
       foreign_key: :to_deposit_wallet_address,
-      references: :address,
-      type: :string
-    )
-
-    belongs_to(
-      :to_blockchain_wallet,
-      BlockchainWallet,
-      foreign_key: :to_blockchain_wallet_address,
       references: :address,
       type: :string
     )
@@ -122,8 +118,8 @@ defmodule EWalletDB.DepositTransaction do
         :amount,
         :token_uuid,
         :transaction_uuid,
-        :to_blockchain_wallet_address,
-        :from_blockchain_wallet_address,
+        :to_blockchain_address,
+        :from_blockchain_address,
         :to_deposit_wallet_address,
         :from_deposit_wallet_address
       ],
@@ -133,15 +129,13 @@ defmodule EWalletDB.DepositTransaction do
         :token_uuid
       ]
     )
-    |> validate_required_exclusive([:from_blockchain_wallet_address, :from_deposit_wallet_address])
-    |> validate_required_exclusive([:to_blockchain_wallet_address, :to_deposit_wallet_address])
+    |> validate_required_exclusive([:from_blockchain_address, :from_deposit_wallet_address])
+    |> validate_required_exclusive([:to_blockchain_address, :to_deposit_wallet_address])
     |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_inclusion(:type, @types)
     |> validate_blockchain_address(:from_blockchain_address)
     |> validate_blockchain_address(:to_blockchain_address)
     |> assoc_constraint(:token)
-    |> assoc_constraint(:from_blockchain_wallet)
-    |> assoc_constraint(:to_blockchain_wallet)
   end
 
   defp update_changeset(%__MODULE__{} = transaction, attrs) do

@@ -194,17 +194,17 @@ defmodule EWallet.BlockchainTransactionGate do
   # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
   # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
   # move the transaction to confirmed state.
-  def handle_local_insert(%{to: nil} = txn) do
+  def handle_local_insert(%{to: nil} = transaction) do
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
       TransactionState.confirmed(),
-      txn,
+      transaction,
       %{originator: %System{}}
     )
   end
 
-  def handle_local_insert(txn) do
-    BlockchainLocalTransactionGate.process_with_transaction(txn)
+  def handle_local_insert(transaction) do
+    BlockchainLocalTransactionGate.process_with_transaction(transaction)
   end
 
   defp set_blockchain_addresses(attrs) do
@@ -340,16 +340,16 @@ defmodule EWallet.BlockchainTransactionGate do
      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
-  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction, type) do
+  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction, flow) do
     with {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
            TransactionState.transition_to(
-             type,
+             flow,
              TransactionState.blockchain_submitted(),
              transaction,
              %{blockchain_tx_hash: tx_hash, originator: %System{}}
            ),
-         {:ok, _pid} = TransactionTracker.start(transaction, type) do
+         {:ok, _pid} = TransactionTracker.start(transaction, flow) do
       {:ok, transaction}
     end
 

@@ -72,14 +72,14 @@ defmodule EWallet.DepositPoolingGate do
         amount: poolable_amount(balance, gas_price, gas_limit),
         token_uuid: token.uuid,
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
-        to_blockchain_wallet_address: hot_wallet.address,
+        to_blockchain_address: hot_wallet.address,
         blockchain_identifier: blockchain_identifier,
         originator: %System{}
       }
 
       _ = Logger.info("Pooling #{AmountFormatter.format(attrs.amount, token.subunit_to_unit)}" <>
         " #{token.symbol} from #{attrs.from_deposit_wallet_address}" <>
-        " into #{attrs.to_blockchain_wallet_address}.")
+        " into #{attrs.to_blockchain_address}.")
 
       with {:ok, transaction} <- DepositTransaction.insert(attrs),
            {:ok, tx_hash} <- submit_blockchain(transaction, balance, gas_price, gas_limit),
@@ -115,8 +115,8 @@ defmodule EWallet.DepositPoolingGate do
     balance = Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet])
 
     attrs = %{
-      from: transaction.from_deposit_wallet_address || transaction.from_blockchain_wallet_address,
-      to: transaction.to_blockchain_wallet_address || transaction.to_deposit_wallet_address,
+      from: transaction.from_deposit_wallet_address || transaction.from_blockchain_address,
+      to: transaction.to_blockchain_address || transaction.to_deposit_wallet_address,
       amount: transaction.amount,
       contract_address: transaction.token.blockchain_address,
       gas_limit: gas_limit,
@@ -145,13 +145,56 @@ defmodule EWallet.DepositPoolingGate do
     from_deposit_wallet = BlockchainDepositWallet.get(transaction.from_blockchain_address)
     to_deposit_wallet = BlockchainDepositWallet.get(transaction.to_blockchain_address)
 
-    case from_deposit_wallet || to_deposit_wallet do
-      nil ->
+    case {from_deposit_wallet, to_deposit_wallet} |> IO.inspect() do
+      {nil, nil} ->
         :ok
 
-      deposit_wallet ->
-        _ = match_deposit_transaction_hash(transaction)
-        _ = refresh_balances(transaction, deposit_wallet)
+      {nil, to_deposit_wallet} ->
+        _ = create_incoming_deposit_transaction(transaction)
+        _ = refresh_balances(transaction, to_deposit_wallet)
+
+      {from_deposit_wallet, nil} ->
+        _ = match_outgoing_deposit_transaction(transaction)
+        _ = refresh_balances(transaction, from_deposit_wallet)
+        :ok
+    end
+  end
+
+  defp create_incoming_deposit_transaction(transaction) do
+    DepositTransaction.insert(%{
+        type: DepositTransaction.incoming(),
+        amount: transaction.to_amount,
+        token_uuid: transaction.to_token_uuid,
+        transaction_uuid: transaction.uuid,
+        from_blockchain_address: transaction.from_blockchain_address,
+        to_deposit_wallet_address: transaction.to_blockchain_address,
+        blockchain_identifier: transaction.blockchain_identifier,
+        blockchain_tx_hash: transaction.blockchain_tx_hash,
+        originator: %System{}
+      })
+    |> IO.inspect()
+  end
+
+  defp match_outgoing_deposit_transaction(transaction) do
+    deposit_transaction =
+      DepositTransaction.get_by(
+        type: DepositTransaction.outgoing(),
+        blockchain_identifier: transaction.blockchain_identifier,
+        blockchain_tx_hash: transaction.blockchain_tx_hash
+      )
+
+    case deposit_transaction do
+      # The blockchain tx hash is not related to any deposit transaction, skipping.
+      nil ->
+        :noop
+
+      # The deposit transaction already has an associated transaction, do not try to update.
+      %{transaction_uuid: tx_uuid} when not is_nil(tx_uuid) ->
+        :noop
+
+      # Found a matching deposit transaction that hasn't been associated, associate it.
+      deposit_transaction ->
+        DepositTransaction.update(deposit_transaction, %{transaction_uuid: transaction.uuid, originator: %System{}})
         :ok
     end
   end
@@ -163,28 +206,5 @@ defmodule EWallet.DepositPoolingGate do
       deposit_wallet,
       transaction.to_token
     )
-  end
-
-  defp match_deposit_transaction_hash(transaction) do
-    deposit_transaction =
-      DepositTransaction.get_by(
-        blockchain_identifier: transaction.blockchain_identifier,
-        blockchain_tx_hash: transaction.blockchain_tx_hash
-      )
-
-    case deposit_transaction do
-      # The blockchain tx hash is not related to any deposit transaction, skipping.
-      nil ->
-        :noop
-
-      # If the deposit transaction already has an associated transaction, do not try to update.
-      %{transaction_uuid: tx_uuid} when not is_nil(tx_uuid) ->
-        :noop
-
-      # Found a matching deposit transaction that hasn't been associated, associate it.
-      deposit_transaction ->
-        DepositTransaction.update(deposit_transaction, %{transaction_uuid: transaction.uuid, originator: %System{}})
-        :ok
-    end
   end
 end
