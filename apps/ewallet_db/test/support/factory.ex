@@ -396,16 +396,29 @@ defmodule EWalletDB.Factory do
   # TODO Need to add a factory for `transaction` that have a `blockchain_transaction
   # (previously `blockchain_transaction_factory`)
 
-  def blockchain_transaction_factory do
+  def blockchain_transaction_rootchain_factory do
     %BlockchainTransaction{
       hash: Crypto.fake_eth_address(),
       rootchain_identifier: "ethereum",
-      childchain_identifier: nil,
       status: "submitted",
       block_number: nil,
       confirmed_at_block_number: nil,
       gas_price: 20_000_000_000,
       gas_limit: 21_000,
+      error: nil,
+      metadata: %{},
+      originator: %System{}
+    }
+  end
+
+  def blockchain_transaction_childchain_factory do
+    %BlockchainTransaction{
+      hash: Crypto.fake_eth_address(),
+      rootchain_identifier: "ethereum",
+      childchain_identifier: "omisego_network",
+      status: "submitted",
+      block_number: nil,
+      confirmed_at_block_number: nil,
       error: nil,
       metadata: %{},
       originator: %System{}

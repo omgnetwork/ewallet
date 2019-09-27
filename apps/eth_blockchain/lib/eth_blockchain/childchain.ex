@@ -52,7 +52,7 @@ defmodule EthBlockchain.Childchain do
   end
 
   defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, opts) do
-    with {:ok, _tx_hash} <-
+    with {:ok, _attrs} <-
            Transaction.approve_erc20(
              %{
                from: to,
@@ -62,7 +62,7 @@ defmodule EthBlockchain.Childchain do
              },
              opts
            ),
-         {:ok, _tx_hash} = response <-
+         {:ok, _attrs} = response <-
            Transaction.deposit_erc20(
              %{
                tx_bytes: tx_bytes,

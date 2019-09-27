@@ -10,12 +10,8 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainTransactionTable do
       add :status, :string, null: false
       add :block_number, :integer
       add :confirmed_at_block_number, :integer
-      add :gas_price, :decimal, precision: 36,
-                                  scale: 0,
-                                  null: false
-      add :gas_limit, :decimal, precision: 36,
-                                  scale: 0,
-                                  null: false
+      add :gas_price, :decimal, precision: 36, scale: 0
+      add :gas_limit, :decimal, precision: 36, scale: 0
       add :error, :text
       add :metadata, :map, null: false
 

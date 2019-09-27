@@ -42,36 +42,51 @@ defmodule EWalletDB.BlockchainTransaction do
     activity_logging()
   end
 
-  defp insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
+  defp shared_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
     blockchain_transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
         :hash,
         :rootchain_identifier,
-        :childchain_identifier,
         :status,
-        :gas_price,
-        :gas_limit,
         :metadata
       ],
       required: [
         :hash,
         :rootchain_identifier,
-        :status,
-        :gas_price,
-        :gas_limit
+        :status
       ]
     )
     |> validate_inclusion(:status, BlockchainTransactionState.statuses())
     |> validate_immutable(:hash)
     |> validate_immutable(:rootchain_identifier)
-    |> validate_immutable(:childchain_identifier)
+    |> validate_blockchain_identifier(:rootchain_identifier)
+    |> unique_constraint(:hash)
+  end
+
+  defp rootchain_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
+    blockchain_transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:gas_price, :gas_limit],
+      required: [:gas_price, :gas_limit]
+    )
     |> validate_immutable(:gas_price)
     |> validate_immutable(:gas_limit)
-    |> validate_blockchain_identifier(:rootchain_identifier)
+    |> merge(shared_insert_changeset(blockchain_transaction, attrs))
+  end
+
+  defp childchain_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
+    blockchain_transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [:childchain_identifier],
+      required: [:childchain_identifier]
+    )
+    |> validate_immutable(:childchain_identifier)
     |> validate_blockchain_identifier(:childchain_identifier)
-    |> unique_constraint(:hash)
+    |> merge(shared_insert_changeset(blockchain_transaction, attrs))
   end
 
   def state_changeset(
@@ -88,7 +103,12 @@ defmodule EWalletDB.BlockchainTransaction do
     )
     |> validate_inclusion(:status, BlockchainTransactionState.statuses())
     |> validate_immutable(:block_number)
+    |> validate_immutable(:rootchain_identifier)
+    |> validate_immutable(:childchain_identifier)
     |> validate_immutable(:confirmed_at_block_number)
+    |> validate_immutable(:gas_price)
+    |> validate_immutable(:gas_limit)
+    |> validate_immutable(:hash)
   end
 
   def get_last_block_number(rootchain_identifier) do
@@ -101,11 +121,20 @@ defmodule EWalletDB.BlockchainTransaction do
   end
 
   @doc """
-  Inserts a blockchain transaction.
+  Inserts a rootchain transaction.
   """
-  def insert(attrs) do
+  def insert_rootchain(attrs) do
     %__MODULE__{}
-    |> insert_changeset(attrs)
+    |> rootchain_insert_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Inserts a childchain transaction.
+  """
+  def insert_childchain(attrs) do
+    %__MODULE__{}
+    |> childchain_insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
 end

@@ -17,11 +17,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias Ecto.Changeset
-  alias EWalletDB.BlockchainTransaction
-
-  describe "BlockchainTransaction factory" do
-    test_has_valid_factory(BlockchainTransaction)
-  end
+  alias EWalletDB.{BlockchainTransaction, BlockchainTransactionState}
 
   describe "state_changeset/4" do
     test "returns a changeset with casted fields" do
@@ -73,7 +69,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
 
     test "returns an error if block_number is updated" do
       res =
-        :blockchain_transaction
+        :blockchain_transaction_rootchain
         |> insert(%{block_number: 1})
         |> BlockchainTransaction.state_changeset(
           %{
@@ -90,7 +86,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
 
     test "returns an error if confirmed_at_block_number is updated" do
       res =
-        :blockchain_transaction
+        :blockchain_transaction_rootchain
         |> insert(%{confirmed_at_block_number: 1})
         |> BlockchainTransaction.state_changeset(
           %{
@@ -109,33 +105,202 @@ defmodule EWalletDB.BlockchainTransactionTest do
   describe "get_last_block_number/1" do
     test "returns the last known block number for the given rootchain identifier" do
       identifier = "ethereum"
-      insert(:blockchain_transaction, rootchain_identifier: identifier, block_number: 230)
-      insert(:blockchain_transaction, rootchain_identifier: identifier, block_number: 123)
+
+      insert(:blockchain_transaction_rootchain,
+        rootchain_identifier: identifier,
+        block_number: 230
+      )
+
+      insert(:blockchain_transaction_rootchain,
+        rootchain_identifier: identifier,
+        block_number: 123
+      )
 
       block_number = BlockchainTransaction.get_last_block_number(identifier)
       assert block_number == 230
     end
   end
 
-  describe "insert/1" do
-    test_insert_generate_uuid(BlockchainTransaction, :uuid)
-    test_insert_generate_timestamps(BlockchainTransaction)
-    test_insert_prevent_blank(BlockchainTransaction, :rootchain_identifier)
-    test_insert_prevent_blank(BlockchainTransaction, :gas_price)
-    test_insert_prevent_blank(BlockchainTransaction, :gas_limit)
-    test_insert_prevent_duplicate(BlockchainTransaction, :hash)
+  describe "insert_rootchain/1" do
+    test_insert_ok(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
 
-    test "returns an error when passing invalid arguments" do
-      {res, changeset} = %{originator: %System{}} |> BlockchainTransaction.insert()
+    test_insert_ok(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      "ethereum",
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
 
-      assert res == :error
+    test_insert_ok(
+      BlockchainTransaction,
+      :status,
+      BlockchainTransactionState.submitted(),
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
 
-      assert changeset.errors == [
-               {:hash, {"can't be blank", [validation: :required]}},
-               {:rootchain_identifier, {"can't be blank", [validation: :required]}},
-               {:gas_price, {"can't be blank", [validation: :required]}},
-               {:gas_limit, {"can't be blank", [validation: :required]}}
-             ]
-    end
+    test_insert_ok(
+      BlockchainTransaction,
+      :gas_price,
+      10,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :gas_limit,
+      10,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :metadata,
+      %{"some" => "thing"},
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_generate_uuid(
+      BlockchainTransaction,
+      :uuid,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_generate_timestamps(
+      BlockchainTransaction,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :gas_price,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :gas_limit,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :hash,
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_duplicate(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+  end
+
+  describe "insert_childchain/1" do
+    test_insert_ok(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      "ethereum",
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :childchain_identifier,
+      "omisego_network",
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :status,
+      BlockchainTransactionState.submitted(),
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :metadata,
+      %{"some" => "thing"},
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_generate_uuid(
+      BlockchainTransaction,
+      :uuid,
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_generate_timestamps(
+      BlockchainTransaction,
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :childchain_identifier,
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :hash,
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
+
+    test_insert_prevent_duplicate(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_childchain/1,
+      :blockchain_transaction_childchain
+    )
   end
 end
