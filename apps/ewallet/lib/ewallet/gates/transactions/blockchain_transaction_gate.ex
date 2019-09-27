@@ -164,7 +164,7 @@ defmodule EWallet.BlockchainTransactionGate do
          %{confirmations_count: confirmations_count, to: to} = transaction
        ) do
     threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
-    type = if(is_nil(to), do: :from_blockchain_to_ewallet, else: :from_blockchain_to_ledger)
+    flow = if(is_nil(to), do: :from_blockchain_to_ewallet, else: :from_blockchain_to_ledger)
 
     if is_nil(threshold) do
       Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
@@ -175,7 +175,7 @@ defmodule EWallet.BlockchainTransactionGate do
       true ->
         # TODO: Change originator?
         TransactionState.transition_to(
-          type,
+          flow,
           TransactionState.blockchain_confirmed(),
           transaction,
           %{
@@ -185,7 +185,7 @@ defmodule EWallet.BlockchainTransactionGate do
         )
 
       false ->
-        {:ok, _pid} = TransactionTracker.start(transaction, type)
+        {:ok, _pid} = TransactionTracker.start(transaction, flow)
         {:ok, transaction}
     end
   end
