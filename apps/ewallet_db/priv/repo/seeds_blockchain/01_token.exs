@@ -43,7 +43,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
         |> Map.put(:account_uuid, account.uuid)
         |> Map.put(:originator, %Seeder{})
         |> Map.put(:blockchain_address, data.address)
-        |> Map.put(:blockchain_status, Token.status_confirmed())
+        |> Map.put(:blockchain_status, Token.Blockchain.status_confirmed())
 
         case Token.insert(data) do
           {:ok, token} ->
