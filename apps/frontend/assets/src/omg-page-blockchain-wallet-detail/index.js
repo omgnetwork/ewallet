@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import { connect, useSelector, useDispatch } from 'react-redux'
 
-import { Button } from '../omg-uikit'
+import { Button, Id } from '../omg-uikit'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
 import { selectMetamaskUsable } from '../omg-web3/selector'
 import {
@@ -38,7 +38,8 @@ const BlockchainWalletDetailPage = ({
   const metamaskUsable = useSelector(selectMetamaskUsable)
   const balance = selectBlockchainWalletBalance(address)
     .reduce((acc, curr) => acc + curr.amount, 0)
-  const walletType = selectBlockchainWalletById(address).type
+  const wallet = selectBlockchainWalletById(address)
+  const walletType = wallet.type
   const isColdWallet = !!selectBlockchainWallets.filter(i => i.type === 'cold').length
 
   const [pollingState, setPollingState] = useState(false)
@@ -119,10 +120,15 @@ const BlockchainWalletDetailPage = ({
     <>
       <TopNavigation
         divider
-        title='Blockchain Wallet'
+        title={wallet.name || ''}
         types={false}
         searchBar={false}
-        description={address}
+        description={(
+          <>
+            <span>{`${walletType || ''} wallet | `}</span>
+            <Id maxChar={200} withCopy>{address}</Id>
+          </>
+        )}
         buttons={[renderActionButton()]}
       />
       <Switch>

@@ -189,17 +189,21 @@ class CreateBlockchainTransaction extends Component {
     this.setState({ submitting: true })
     e.preventDefault()
 
-    const web3Payload = {
-      transaction: this.getTransactionPayload(),
-      onTransactionHash: hash => this.setState({ step: 3, txHash: String(hash) }),
-      onReceipt: () => console.log('onReceipt'),
-      onConfirmation: () => this.setState({ step: 4, submitting: false }),
-      onError: error => this.setState({ error: _.get(error, 'message'), submitting: false })
+    if (this.state.toPlasma) {
+      return this.props.sendExternalPlasmaDeposit({
+        transaction: this.getTransactionPayload(),
+        onDeposit: this.onRequestClose(),
+        onError: error => this.setState({ error: _.get(error, 'message'), submitting: false })
+      })
+    } else {
+      return this.props.sendTransaction({
+        transaction: this.getTransactionPayload(),
+        onTransactionHash: hash => this.setState({ step: 3, txHash: String(hash) }),
+        onReceipt: () => console.log('onReceipt'),
+        onConfirmation: () => this.setState({ step: 4, submitting: false }),
+        onError: error => this.setState({ error: _.get(error, 'message'), submitting: false })
+      })
     }
-
-    return this.state.toPlasma
-      ? this.props.sendExternalPlasmaDeposit(web3Payload)
-      : this.props.sendTransaction(web3Payload)
   }
   onRequestClose = () => {
     this.props.onRequestClose()

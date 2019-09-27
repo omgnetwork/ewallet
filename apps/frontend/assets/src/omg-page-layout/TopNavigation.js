@@ -72,7 +72,7 @@ export default class TopNavigation extends PureComponent {
     title: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
     searchBar: PropTypes.bool,
     normalPlaceholder: PropTypes.string,
-    description: PropTypes.string,
+    description: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
     divider: PropTypes.bool
   }
   static defaultProps = {
@@ -84,7 +84,7 @@ export default class TopNavigation extends PureComponent {
       <TopNavigationContainer divider={this.props.divider}>
         <LeftNavigationContainer>
           <h2>{this.props.title}</h2>
-          {this.props.description && <p>{this.props.description}</p>}
+          {this.props.description && <div>{this.props.description}</div>}
         </LeftNavigationContainer>
         <RightNavigationContainer>
           {this.props.searchBar && <SearchBar placeholder={this.props.normalPlaceholder} />}

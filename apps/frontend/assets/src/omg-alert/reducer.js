@@ -270,6 +270,12 @@ export const alertsReducer = createReducer([], {
       createAlertState('Submitted transaction to Ethereum successfully.', 'success')
     ]
   },
+  'WEB3/DEPOSIT/SUCCESS': state => {
+    return [
+      ...state,
+      createAlertState('Submitted deposit to Metamask. Please confirm the transaction.', 'success')
+    ]
+  },
   'ADMIN/INVITE/SUCCESS': state => {
     return [...state, createAlertState('Invited admin successfully.', 'success')]
   },

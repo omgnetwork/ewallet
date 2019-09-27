@@ -146,9 +146,7 @@ export const sendTransaction = ({
 
 export const sendExternalPlasmaDeposit = ({
   transaction,
-  onTransactionHash,
-  onConfirmation,
-  onReceipt,
+  onDeposit,
   onError
 }) =>
   createWeb3Call(async dispatch => {
@@ -156,30 +154,20 @@ export const sendExternalPlasmaDeposit = ({
       const { web3 } = window
       const { from, value, gasPrice, gas } = transaction
 
-      await externalPlasmaDeposit({
+      // omg-js doesnt support .on callbacks
+      externalPlasmaDeposit({
         web3,
         from,
         value,
         gasPrice,
         gasLimit: gas
       })
-      // omg-js doesn't support .on event callbacks
-      // .on('transactionHash', hash => {
-      //   dispatch({
-      //     type: 'WEB3/PLASMA_DEPOSIT/SUCCESS',
-      //     data: { txHash: hash }
-      //   })
-      //   onTransactionHash(hash)
-      // })
-      // .on('receipt', onReceipt)
-      // .on('confirmation', onConfirmation)
-      // .on('error', onError)
 
       dispatch({
-        type: 'WEB3/PLASMA_DEPOSIT/SUCCESS',
+        type: 'WEB3/DEPOSIT/SUCCESS',
         data: 'toto'
       })
-      onConfirmation()
+      onDeposit()
     } catch (e) {
       onError(e)
     }
