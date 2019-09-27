@@ -26,7 +26,8 @@ defmodule EWallet.DepositPoolingGate do
     BlockchainDepositWallet,
     BlockchainDepositWalletCachedBalance,
     DepositTransaction,
-    Helpers.Preloader
+    Helpers.Preloader,
+    Transaction
   }
 
   alias Keychain.Wallet
@@ -36,6 +37,10 @@ defmodule EWallet.DepositPoolingGate do
   @gas_limit_eth 21_000
   @gas_limit_erc20 90_000
 
+  @doc """
+  Checks all deposit wallets for excess funds and transfer them to the hot wallet.
+  """
+  @spec move_deposits_to_pooled_funds(String.t()) :: {:ok, [%DepositTransaction{}]}
   def move_deposits_to_pooled_funds(blockchain_identifier) do
     primary_token_address = BlockchainHelper.adapter().helper().default_token()[:address]
     pool = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
@@ -77,9 +82,12 @@ defmodule EWallet.DepositPoolingGate do
         originator: %System{}
       }
 
-      _ = Logger.info("Pooling #{AmountFormatter.format(attrs.amount, token.subunit_to_unit)}" <>
-        " #{token.symbol} from #{attrs.from_deposit_wallet_address}" <>
-        " into #{attrs.to_blockchain_address}.")
+      _ =
+        Logger.info(
+          "Pooling #{AmountFormatter.format(attrs.amount, token.subunit_to_unit)}" <>
+            " #{token.symbol} from #{attrs.from_deposit_wallet_address}" <>
+            " into #{attrs.to_blockchain_address}."
+        )
 
       with {:ok, transaction} <- DepositTransaction.insert(attrs),
            {:ok, tx_hash} <- submit_blockchain(transaction, balance, gas_price, gas_limit),
@@ -112,7 +120,9 @@ defmodule EWallet.DepositPoolingGate do
 
   defp submit_blockchain(transaction, balance, gas_price, gas_limit) do
     transaction = Preloader.preload(transaction, [:token])
-    balance = Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet])
+
+    balance =
+      Preloader.preload(balance, blockchain_deposit_wallet: [:blockchain_hd_wallet, :wallet])
 
     attrs = %{
       from: transaction.from_deposit_wallet_address || transaction.from_blockchain_address,
@@ -134,25 +144,32 @@ defmodule EWallet.DepositPoolingGate do
 
   @doc """
   Performs necessary operations to reflect the received blockchain transaction onto
-  the DepositTransaction. Currently does 2 things:
+  the DepositTransaction. Does 3 things:
 
-    1. Link the deposit transaction with the received blockchain transaction if the hashes match
-    2. Refresh the deposit wallet balance
+    1. Creates a new incoming deposit transaction if fund is coming into the deposit wallet.
+    2. Associate the blockchain transaction with the deposit transaction if fund is going out.
+    3. Refresh the deposit wallet balance.
 
-  Does nothing if the given transaction is not intended for the deposit wallet.
+  Does nothing if the given transaction is not related to the deposit wallet.
   """
+  @spec on_blockchain_transaction_received(%Transaction{}) :: :ok
   def on_blockchain_transaction_received(transaction) do
     from_deposit_wallet = BlockchainDepositWallet.get(transaction.from_blockchain_address)
     to_deposit_wallet = BlockchainDepositWallet.get(transaction.to_blockchain_address)
 
     case {from_deposit_wallet, to_deposit_wallet} |> IO.inspect() do
+      # Not a deposit transaction. Do nothing.
       {nil, nil} ->
         :ok
 
+      # Handles incoming deposit transaction
       {nil, to_deposit_wallet} ->
+        Logger.info("An incoming deposit transaction detected: #{to_deposit_wallet.address}.")
         _ = create_incoming_deposit_transaction(transaction)
         _ = refresh_balances(transaction, to_deposit_wallet)
+        :ok
 
+      # Handles outgoing deposit transaction (a pooling transaction to the hot wallet)
       {from_deposit_wallet, nil} ->
         _ = match_outgoing_deposit_transaction(transaction)
         _ = refresh_balances(transaction, from_deposit_wallet)
@@ -162,16 +179,16 @@ defmodule EWallet.DepositPoolingGate do
 
   defp create_incoming_deposit_transaction(transaction) do
     DepositTransaction.insert(%{
-        type: DepositTransaction.incoming(),
-        amount: transaction.to_amount,
-        token_uuid: transaction.to_token_uuid,
-        transaction_uuid: transaction.uuid,
-        from_blockchain_address: transaction.from_blockchain_address,
-        to_deposit_wallet_address: transaction.to_blockchain_address,
-        blockchain_identifier: transaction.blockchain_identifier,
-        blockchain_tx_hash: transaction.blockchain_tx_hash,
-        originator: %System{}
-      })
+      type: DepositTransaction.incoming(),
+      amount: transaction.to_amount,
+      token_uuid: transaction.to_token_uuid,
+      transaction_uuid: transaction.uuid,
+      from_blockchain_address: transaction.from_blockchain_address,
+      to_deposit_wallet_address: transaction.to_blockchain_address,
+      blockchain_identifier: transaction.blockchain_identifier,
+      blockchain_tx_hash: transaction.blockchain_tx_hash,
+      originator: %System{}
+    })
     |> IO.inspect()
   end
 
@@ -184,7 +201,7 @@ defmodule EWallet.DepositPoolingGate do
       )
 
     case deposit_transaction do
-      # The blockchain tx hash is not related to any deposit transaction, skipping.
+      # The blockchain tx hash is not related to any outgoing deposit transaction, skipping.
       nil ->
         :noop
 
@@ -194,7 +211,11 @@ defmodule EWallet.DepositPoolingGate do
 
       # Found a matching deposit transaction that hasn't been associated, associate it.
       deposit_transaction ->
-        DepositTransaction.update(deposit_transaction, %{transaction_uuid: transaction.uuid, originator: %System{}})
+        DepositTransaction.update(deposit_transaction, %{
+          transaction_uuid: transaction.uuid,
+          originator: %System{}
+        })
+
         :ok
     end
   end

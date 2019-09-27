@@ -427,7 +427,12 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
-      original_balance = insert(:blockchain_deposit_wallet_cached_balance, blockchain_deposit_wallet: wallet, token: token, amount: 99)
+      original_balance =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          token: token,
+          amount: 99
+        )
 
       tx_hash = Crypto.fake_eth_address()
 
@@ -462,7 +467,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert TransactionTracker.lookup(transaction.uuid) == {:error, :not_found}
 
       transaction = Transaction.get(transaction.id, preload: :cached_balances)
-      cached_balance = Enum.find(transaction.cached_balances, fn cb -> cb.token_uuid == token.uuid end)
+
+      cached_balance =
+        Enum.find(transaction.cached_balances, fn cb -> cb.token_uuid == token.uuid end)
+
       assert transaction.status == TransactionState.confirmed()
       assert cached_balance.amount == original_balance.amount + attrs.to_amount
 

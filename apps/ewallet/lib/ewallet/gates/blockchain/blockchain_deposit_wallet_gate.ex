@@ -94,7 +94,11 @@ defmodule EWallet.BlockchainDepositWalletGate do
     tokens = List.wrap(tokens)
 
     {:ok, [deposit_wallet_with_balances]} =
-      BlockchainBalanceLoader.wallet_balances([deposit_wallet], tokens, deposit_wallet.blockchain_identifier)
+      BlockchainBalanceLoader.wallet_balances(
+        [deposit_wallet],
+        tokens,
+        deposit_wallet.blockchain_identifier
+      )
 
     {:ok,
      BlockchainDepositWalletCachedBalance.create_or_update_all(

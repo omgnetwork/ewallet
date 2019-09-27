@@ -149,13 +149,14 @@ defmodule EWallet.AddressTracker do
   defp do_run(transactions, state) do
     transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
 
-    _ = Enum.each(transaction_results, fn
-      {:ok, t} ->
-        _ = Task.start(fn -> DepositPoolingGate.on_blockchain_transaction_received(t) end)
+    _ =
+      Enum.each(transaction_results, fn
+        {:ok, t} ->
+          _ = Task.start(fn -> DepositPoolingGate.on_blockchain_transaction_received(t) end)
 
-      _ ->
-        :noop
-    end)
+        _ ->
+          :noop
+      end)
 
     transaction_results
     |> Enum.all?(fn {res, _} -> res == :ok end)

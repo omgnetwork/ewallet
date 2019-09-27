@@ -85,8 +85,7 @@ defmodule EWalletDB.DepositTransactionTest do
           to_deposit_wallet: wallet
         )
 
-      dtx_8 =
-        insert(:deposit_transaction, to_deposit_wallet: wallet)
+      dtx_8 = insert(:deposit_transaction, to_deposit_wallet: wallet)
 
       txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
 
