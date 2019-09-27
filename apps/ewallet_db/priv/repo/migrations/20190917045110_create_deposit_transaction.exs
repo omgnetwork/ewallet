@@ -22,14 +22,14 @@ defmodule EWalletDB.Repo.Migrations.AddDepositTransaction do
 
       # Source addresses
 
-      add :from_blockchain_address, type: :citext
+      add :from_blockchain_address, :citext
 
       add :from_deposit_wallet_address, references(:blockchain_deposit_wallet,
                                                    type: :citext, column: :address)
 
       # Destination addresses
 
-      add :to_blockchain_address, type: :citext
+      add :to_blockchain_address, :citext
 
       add :to_deposit_wallet_address, references(:blockchain_deposit_wallet,
                                                  type: :citext, column: :address)
