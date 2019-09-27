@@ -88,32 +88,3 @@ export const externalPlasmaDeposit = async ({
   }
   return rootChain.depositToken(depositTx, { from })
 }
-
-// attempt to return raw web3 call myself...
-// if (currency === transaction.ETH_CURRENCY) {
-//   const plasmaContract = new web3.eth.Contract(contractAbi, config.plasmaContractAddress)
-//   const txDetails = {
-//     from,
-//     to: config.plasmaContractAddress,
-//     value,
-//     data: getTxData(
-//       web3,
-//       plasmaContract,
-//       'deposit',
-//       depositTx
-//     ),
-//     gas: gasLimit,
-//     gasPrice
-//   }
-//   return web3.eth.sendTransaction(txDetails)
-// }
-
-// const rootChain = new RootChain(web3, config.plasmaContractAddress)
-// if (approveDeposit) {
-//   const erc20 = new web3.eth.Contract(erc20abi, currency)
-//   const receipt = await erc20.methods
-//     .approve(rootChain.plasmaContractAddress, value)
-//     .send({ from, gasPrice, gas: gasLimit })
-//   await confirmTransaction(web3, receipt.transactionHash)
-// }
-// return rootChain.depositToken(depositTx, { from })
