@@ -76,6 +76,7 @@ defmodule Keychain.Signature do
 
       xprv ->
         # We use the root key to derive child keys, so all path sections are hardened for privacy.
+        # TODO: double check that this is the derivation pattern we want.
         child_xprv = CKD.derive(xprv, derivation_path <> "/#{wallet_ref}/#{deposit_ref}")
 
         decoded = Encoding.decode_extended_key(child_xprv)
