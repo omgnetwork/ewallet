@@ -16,8 +16,7 @@ defmodule EWallet.TokenGate do
   @moduledoc false
 
   alias EWallet.{BlockchainTransactionGate, BlockchainHelper}
-  alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, BlockchainTransaction, Token}
-  alias ActivityLogger.System
+  alias EWalletDB.{BlockchainWallet, Token}
 
   @doc """
   Attempts to deploy an ERC20 token with the specified attributes
@@ -69,7 +68,7 @@ defmodule EWallet.TokenGate do
             contract_address: contract_address,
             blockchain_transaction: blockchain_transaction,
             contract_uuid: contract_uuid
-          } = response},
+          }},
          attrs,
          rootchain_identifier
        ) do
@@ -81,7 +80,7 @@ defmodule EWallet.TokenGate do
     |> Map.put("blockchain_identifier", rootchain_identifier)
   end
 
-  defp parse_deploy_response(error, _attrs), do: error
+  defp parse_deploy_response(error, _attrs, _rootchain_identifier), do: error
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as

@@ -30,7 +30,7 @@ defmodule EWallet.TransactionGate.Blockchain do
     BlockchainTransactionGate,
     TokenFetcher,
     Helper,
-    BlockchainLocalTransactionGate,
+    TransactionGate,
     TransactionRegistry,
     TransactionTracker,
     BlockchainHelper
@@ -108,7 +108,7 @@ defmodule EWallet.TransactionGate.Blockchain do
          %{} = attrs <- set_blockchain(attrs),
          {:ok, transaction} <- get_or_insert(attrs),
          {:ok, transaction} <-
-           BlockchainLocalTransactionGate.process_with_transaction(transaction),
+           TransactionGate.BlockchainLocal.process_with_transaction(transaction),
          {:ok, transaction} <- submit_if_needed(transaction, :from_ledger_to_blockchain, attrs) do
       {:ok, transaction}
     else
@@ -199,7 +199,7 @@ defmodule EWallet.TransactionGate.Blockchain do
 
   # The destination is nil when the transaction is intended to arrive and stay
   # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
-  # Therefore, we do not proceed to BlockchainLocalTransactionGate in this case and simply
+  # Therefore, we do not proceed to TransactionGate.BlockchainLocal in this case and simply
   # move the transaction to confirmed state.
   def handle_local_insert(%{to: nil} = transaction) do
     TransactionState.transition_to(
@@ -211,7 +211,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   end
 
   def handle_local_insert(transaction) do
-    BlockchainLocalTransactionGate.process_with_transaction(transaction)
+    TransactionGate.BlockchainLocal.process_with_transaction(transaction)
   end
 
   defp set_blockchain_addresses(attrs) do
@@ -248,13 +248,13 @@ defmodule EWallet.TransactionGate.Blockchain do
     end
   end
 
-  defp enough_funds?(%{"blockchain_identifier" => @childchain_identifier} = attrs) do
+  defp enough_funds?(%{"childchain_identifier" => _} = attrs) do
     attrs
     |> get_childchain_balance()
     |> process_balance_response(attrs)
   end
 
-  defp enough_funds?(%{"blockchain_identifier" => @rootchain_identifier} = attrs) do
+  defp enough_funds?(%{"rootchain_identifier" => _} = attrs) do
     attrs
     |> get_rootchain_balance()
     |> process_balance_response(attrs)
@@ -280,11 +280,7 @@ defmodule EWallet.TransactionGate.Blockchain do
 
   defp process_balance_response(_error, _attrs), do: false
 
-  defp set_blockchain(attrs) do
-    attrs
-    |> Map.put_new("rootchain_identifier", @rootchain_identifier)
-    |> Map.put_new("type", @external_transaction)
-  end
+  defp set_blockchain(attrs), do: Map.put_new(attrs, "type", @external_transaction)
 
   defp set_payload(attrs) do
     Map.put(attrs, "payload", Map.delete(attrs, "originator"))
@@ -385,6 +381,7 @@ defmodule EWallet.TransactionGate.Blockchain do
 
     BlockchainTransactionGate.transfer_on_childchain(
       attrs,
+      transaction,
       childchain_identifier,
       rootchain_identifier
     )
@@ -400,7 +397,7 @@ defmodule EWallet.TransactionGate.Blockchain do
       currency: transaction.from_token.blockchain_address
     }
 
-    BlockchainTransactionGate.transfer_on_rootchain(attrs, rootchain_identifier)
+    BlockchainTransactionGate.transfer_on_rootchain(attrs, transaction, rootchain_identifier)
   end
 
   # TODO: Deposit transactions will be moved to a new `chidldchain_deposit_transaction` table.
@@ -416,6 +413,7 @@ defmodule EWallet.TransactionGate.Blockchain do
 
     BlockchainTransactionGate.deposit_to_childchain(
       attrs,
+      transaction,
       childchain_identifier,
       rootchain_identifier
     )
