@@ -4,7 +4,7 @@ defmodule EWalletDB.Repo.Migrations.CreateHDWallet do
   def change do
     create table(:blockchain_hd_wallet, primary_key: false) do
       add :uuid, :uuid, primary_key: true
-      add :keychain_uuid, :string, null: false
+      add :keychain_uuid, :uuid, null: false
 
       add(:blockchain_identifier, :string, null: false)
 

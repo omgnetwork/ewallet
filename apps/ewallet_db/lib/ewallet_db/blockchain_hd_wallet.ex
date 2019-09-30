@@ -28,7 +28,7 @@ defmodule EWalletDB.BlockchainHDWallet do
   @timestamps_opts [type: :naive_datetime_usec]
 
   schema "blockchain_hd_wallet" do
-    field(:keychain_uuid, :string)
+    field(:keychain_uuid, UUID)
     field(:blockchain_identifier, :string)
 
     activity_logging()
