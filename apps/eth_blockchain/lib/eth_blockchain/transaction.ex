@@ -152,10 +152,6 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Submit a deposit eth transaction to the specified root chain contract
   """
-  def deposit_eth(%{wallet: _}) do
-    raise ArgumentError, message: "Depositing ETH with a child key is not supported."
-  end
-
   def deposit_eth(
         %{
           tx_bytes: tx_bytes,
@@ -178,12 +174,8 @@ defmodule EthBlockchain.Transaction do
   end
 
   @doc """
-  Submit a deposit transaction of an ERC20 token to the specified childchain contract
+  Submit a deposit transaction of an ERC20 token to the specified root chain contract
   """
-  def deposit_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Depositing an ERC-20 with a child key is not supported."
-  end
-
   def deposit_erc20(
         %{
           tx_bytes: tx_bytes,
@@ -206,10 +198,6 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Submit an approve ERC20 transaction
   """
-  def approve_erc20(%{wallet: _}) do
-    raise ArgumentError, message: "Approving an ERC-20 with a child key is not supported."
-  end
-
   def approve_erc20(
         %{
           from: from,
