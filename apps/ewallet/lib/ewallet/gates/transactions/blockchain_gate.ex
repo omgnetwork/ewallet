@@ -370,7 +370,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   defp submit_if_needed(transaction, _type, _attrs), do: {:ok, transaction}
 
   defp submit(
-         %{type: @external_transaction},
+         %{type: @external_transaction} = transaction,
          %{
            "rootchain_identifier" => rootchain_identifier,
            "childchain_identifier" => childchain_identifier
