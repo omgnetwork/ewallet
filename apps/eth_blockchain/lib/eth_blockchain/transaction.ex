@@ -135,7 +135,7 @@ defmodule EthBlockchain.Transaction do
   {:error, code} || {:error, code, message} otherwise
   """
   def create_contract(%{wallet: _}) do
-    raise ArgumentError, message: "Create a contract with a child key is not supported."
+    raise ArgumentError, message: "Creating a contract with a child key is not supported."
   end
 
   def create_contract(%{from: from, contract_data: init} = attrs, opts \\ []) do
