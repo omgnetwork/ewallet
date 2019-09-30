@@ -195,11 +195,9 @@ defmodule EWalletDB.TransactionState do
          true <- Enum.member?(next_states, new_state) || :invalid_state_transition do
       {cast_fields, required_fields} = @attrs[new_state]
       attrs = Map.merge(attrs, %{status: new_state})
-      %mod{} = transaction
 
-      # TODO: Implement @behavior to mod.state_changeset
       transaction
-      |> mod.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
+      |> Transaction.state_changeset(attrs, [:status | cast_fields], [:status | required_fields])
       |> Repo.update_record_with_activity_log()
     else
       code when is_atom(code) ->
