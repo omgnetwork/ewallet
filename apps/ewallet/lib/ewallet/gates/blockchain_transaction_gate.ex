@@ -21,6 +21,9 @@ defmodule EWallet.BlockchainTransactionGate do
   alias EWallet.BlockchainHelper
   alias EWalletDB.{BlockchainTransaction, BlockchainTransactionState}
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+  @childchain_identifier BlockchainHelper.childchain_identifier()
+
   def transfer_on_childchain(
         %{
           from: from,
@@ -183,25 +186,17 @@ defmodule EWallet.BlockchainTransactionGate do
 
   defp create_rootchain_transaction(error, _, _), do: error
 
-  defp validate_rootchain_identifier(identifier) do
-    case identifier do
-      BlockchainHelper.rootchain_identifier() ->
-        :ok
+  defp validate_rootchain_identifier(@rootchain_identifier), do: :ok
 
-      _ ->
-        {:error, :invalid_parameter,
-         "Invalid parameter provided. `roootchain_identifier` is invalid."}
-    end
+  defp validate_rootchain_identifier(_) do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `roootchain_identifier` is invalid."}
   end
 
-  defp validate_childchain_identifier(identifier) do
-    case identifier do
-      BlockchainHelper.childchain_identifier() ->
-        :ok
+  defp validate_childchain_identifier(@childchain_identifier), do: :ok
 
-      _ ->
-        {:error, :invalid_parameter,
-         "Invalid parameter provided. `childchain_identifier` is invalid."}
-    end
+  defp validate_childchain_identifier(_) do
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `childchain_identifier` is invalid."}
   end
 end
