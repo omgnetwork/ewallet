@@ -557,20 +557,6 @@ defmodule EWallet.TransactionGate.BlockchainTest do
     end
   end
 
-  describe "blockchain_addresses?/1" do
-    test "returns a list of booleans indicating whether each given address is a blockchain address" do
-      assert TransactionGate.Blockchain.blockchain_addresses?([
-               "abc",
-               "0x",
-               Crypto.fake_eth_address()
-             ]) == [
-               false,
-               false,
-               true
-             ]
-    end
-  end
-
   describe "handle_local_insert/1" do
     test "transitions the transaction to confirmed if transaction.to is nil" do
       token = insert(:token)

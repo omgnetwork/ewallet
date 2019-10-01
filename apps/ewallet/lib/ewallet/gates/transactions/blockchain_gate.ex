@@ -43,7 +43,6 @@ defmodule EWallet.TransactionGate.Blockchain do
   @deposit_transaction Transaction.deposit()
 
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
-  @childchain_identifier BlockchainHelper.childchain_identifier()
 
   # TODO: Check if blockchain is enabled
   # TODO: Check if blockchain is available
@@ -60,19 +59,11 @@ defmodule EWallet.TransactionGate.Blockchain do
   blockchain addresses.
   """
   def create(actor, %{"from_address" => from} = attrs, {true, true}) do
-    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
+    hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
-         true <-
-           primary_hot_wallet.address == from ||
-             :from_blockchain_address_is_not_primary_hot_wallet,
-         %{} = attrs <- set_payload(attrs),
-         %{} = attrs <- set_blockchain_addresses(attrs),
-         %{} = attrs <- set_token(attrs),
-         %{} = attrs <- check_amount(attrs),
-         true <- enough_funds?(attrs) || {:error, :insufficient_funds_in_hot_wallet},
-         %{} = attrs <- set_blockchain(attrs),
-         {:ok, transaction} <- get_or_insert(attrs),
+         true <- hot_wallet.address == from || :from_blockchain_address_is_not_primary_hot_wallet,
+         {:ok, transaction} <- insert_transaction(attrs, hot_wallet, false),
          {:ok, transaction} <- submit_if_needed(transaction, :from_ewallet_to_blockchain, attrs) do
       {:ok, transaction}
     else
@@ -97,16 +88,10 @@ defmodule EWallet.TransactionGate.Blockchain do
   # 2. Submit a transaction to the blockchain
   # 3. Start a transaction tracker to confirm the local transaction after enough confirmations
   def create(actor, attrs, {false, true}) do
-    primary_hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
+    hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
 
     with {:ok, _} <- BlockchainTransactionPolicy.authorize(:create, actor, attrs),
-         %{} = attrs <- set_payload(attrs),
-         %{} = attrs <- set_internal_and_blockchain_addresses(attrs, primary_hot_wallet),
-         %{} = attrs <- set_token(attrs),
-         %{} = attrs <- check_amount(attrs),
-         true <- enough_funds?(attrs) || {:error, :insufficient_funds_in_hot_wallet},
-         %{} = attrs <- set_blockchain(attrs),
-         {:ok, transaction} <- get_or_insert(attrs),
+         {:ok, transaction} <- insert_transaction(attrs, hot_wallet, true),
          {:ok, transaction} <-
            TransactionGate.BlockchainLocal.process_with_transaction(transaction),
          {:ok, transaction} <- submit_if_needed(transaction, :from_ledger_to_blockchain, attrs) do
@@ -117,6 +102,17 @@ defmodule EWallet.TransactionGate.Blockchain do
 
       error ->
         error
+    end
+  end
+
+  defp insert_transaction(attrs, hot_wallet, is_from_internal) do
+    with %{} = attrs <- set_payload(attrs),
+         %{} = attrs <- set_blockchain_addresses(attrs, hot_wallet, is_from_internal),
+         %{} = attrs <- set_token(attrs),
+         %{} = attrs <- check_amount(attrs),
+         true <- enough_funds?(attrs) || {:error, :insufficient_funds_in_hot_wallet},
+         %{} = attrs <- set_blockchain(attrs) do
+      get_or_insert(attrs)
     end
   end
 
@@ -151,15 +147,6 @@ defmodule EWallet.TransactionGate.Blockchain do
 
   def get_or_insert(_) do
     {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
-  end
-
-  def blockchain_addresses?(addresses) do
-    Enum.map(addresses, fn address ->
-      case BlockchainHelper.validate_blockchain_address(address) do
-        :ok -> true
-        _ -> false
-      end
-    end)
   end
 
   defp confirm_or_start_listener(
@@ -214,17 +201,14 @@ defmodule EWallet.TransactionGate.Blockchain do
     TransactionGate.BlockchainLocal.process_with_transaction(transaction)
   end
 
-  defp set_blockchain_addresses(attrs) do
-    attrs
-    |> Map.put("to_blockchain_address", attrs["to_address"])
-    |> Map.put("from_blockchain_address", attrs["from_address"])
-    |> Map.delete("to_address")
-    |> Map.delete("from_address")
-  end
+  defp set_blockchain_addresses(attrs, hot_wallet, is_from_internal) do
+    attrs =
+      case is_from_internal do
+        true -> Map.put(attrs, "from", attrs["from_address"])
+        false -> attrs
+      end
 
-  defp set_internal_and_blockchain_addresses(attrs, hot_wallet) do
     attrs
-    |> Map.put("from", attrs["from_address"])
     |> Map.put("to_blockchain_address", attrs["to_address"])
     |> Map.put("from_blockchain_address", hot_wallet.address)
     |> Map.delete("to_address")
