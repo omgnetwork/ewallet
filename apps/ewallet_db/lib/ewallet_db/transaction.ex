@@ -25,7 +25,6 @@ defmodule EWalletDB.Transaction do
 
   alias EWalletDB.{
     Account,
-    BlockchainWallet,
     ExchangePair,
     Repo,
     Token,

@@ -14,7 +14,7 @@
 
 defmodule EWalletDB.Repo.Reporters.SeedsBlockchainReporter do
 
-  def run(writer, _args) do
+  def run(_writer, _args) do
     :noop
   end
 end

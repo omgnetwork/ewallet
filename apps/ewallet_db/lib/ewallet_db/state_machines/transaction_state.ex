@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionState do
   @moduledoc """
   State machine module for transactions.
   """
-  alias EWalletDB.Repo
+  alias EWalletDB.{Repo, Transaction}
 
   @pending "pending"
   @confirmed "confirmed"
