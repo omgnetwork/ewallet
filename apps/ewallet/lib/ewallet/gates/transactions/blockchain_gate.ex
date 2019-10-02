@@ -118,7 +118,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   # Handle external -> hot wallet (not registered in local ledger)
   # Handle external -> internal wallet (registered in local ledger)
   def create_from_tracker(blockchain_transaction_attrs, transaction_attrs) do
-    case BlockchainTransaction.insert_rootchain(blockchain_transaction_attrs) do
+    case BlockchainTransaction.insert_incoming_rootchain(blockchain_transaction_attrs) do
       {:ok, blockchain_transaction} ->
         transaction_attrs
         |> Map.put(:blockchain_transaction_uuid, blockchain_transaction.uuid)

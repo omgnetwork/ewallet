@@ -182,7 +182,7 @@ defmodule EWallet.BlockchainTransactionGate do
       originator: originator
     }
 
-    BlockchainTransaction.insert_rootchain(attrs)
+    BlockchainTransaction.insert_outgoing_rootchain(attrs)
   end
 
   defp create_rootchain_transaction(error, _, _), do: error

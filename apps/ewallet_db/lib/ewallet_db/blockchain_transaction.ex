@@ -19,6 +19,7 @@ defmodule EWalletDB.BlockchainTransaction do
   use Ecto.Schema
   use ActivityLogger.ActivityLogging
   import Ecto.{Changeset, Query}
+  import EWalletDB.Helpers.Preloader
   import EWalletDB.{Validator, BlockchainValidator}
   alias Ecto.UUID
   alias EWalletDB.{BlockchainTransactionState, Repo}
@@ -65,7 +66,7 @@ defmodule EWalletDB.BlockchainTransaction do
     |> unique_constraint(:hash)
   end
 
-  defp rootchain_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
+  defp rootchain_outgoing_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
     blockchain_transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
@@ -75,6 +76,10 @@ defmodule EWalletDB.BlockchainTransaction do
     |> validate_immutable(:gas_price)
     |> validate_immutable(:gas_limit)
     |> merge(shared_insert_changeset(blockchain_transaction, attrs))
+  end
+
+  defp rootchain_incoming_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
+    shared_insert_changeset(blockchain_transaction, attrs)
   end
 
   defp childchain_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
@@ -121,11 +126,20 @@ defmodule EWalletDB.BlockchainTransaction do
   end
 
   @doc """
-  Inserts a rootchain transaction.
+  Inserts an outgoing rootchain transaction.
   """
-  def insert_rootchain(attrs) do
+  def insert_outgoing_rootchain(attrs) do
     %__MODULE__{}
-    |> rootchain_insert_changeset(attrs)
+    |> rootchain_outgoing_insert_changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Inserts an incoming rootchain transaction.
+  """
+  def insert_incoming_rootchain(attrs) do
+    %__MODULE__{}
+    |> rootchain_incoming_insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
   end
 
@@ -136,5 +150,15 @@ defmodule EWalletDB.BlockchainTransaction do
     %__MODULE__{}
     |> childchain_insert_changeset(attrs)
     |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Retrieves a blockchain transaction using one or more fields.
+  """
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %__MODULE__{} | nil
+  def get_by(fields, opts \\ []) do
+    __MODULE__
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 end

@@ -30,6 +30,7 @@ defmodule EWallet.AddressTracker do
 
   alias EWalletDB.{
     BlockchainState,
+    BlockchainTransaction,
     BlockchainTransactionState,
     Token,
     Transaction,
@@ -213,15 +214,15 @@ defmodule EWallet.AddressTracker do
   end
 
   defp insert(blockchain_transaction, %{blockchain_identifier: blockchain_identifier} = state) do
-    case Transaction.get_by(%{
-           blockchain_tx_hash: blockchain_transaction.hash,
-           blockchain_identifier: blockchain_identifier
+    case BlockchainTransaction.get_by(%{
+           hash: blockchain_transaction.hash,
+           rootchain_identifier: blockchain_identifier
          }) do
       nil ->
         do_insert(blockchain_transaction, state)
 
       transaction ->
-        {:ok, transaction}
+        Transaction.get_by(blockchain_transaction_uuid: transaction.uuid)
     end
   end
 
@@ -236,7 +237,8 @@ defmodule EWallet.AddressTracker do
       rootchain_identifier: blockchain_identifier,
       childchain_identifier: nil,
       status: BlockchainTransactionState.submitted(),
-      block_number: blockchain_tx.block_number
+      block_number: blockchain_tx.block_number,
+      originator: %System{}
     }
 
     transaction_attrs = %{
@@ -261,9 +263,11 @@ defmodule EWallet.AddressTracker do
       originator: %System{}
     }
 
-    TransactionGate.Blockchain.create_from_tracker(
+    a = TransactionGate.Blockchain.create_from_tracker(
       blockchain_transaction_attrs,
       transaction_attrs
     )
+    IO.inspect(a)
+    a
   end
 end
