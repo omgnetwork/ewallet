@@ -18,12 +18,35 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
   actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
   """
   alias EWallet.TransactionFormatter
-  alias EWalletDB.{Transaction, TransactionState}
+  alias EWalletDB.{BlockchainTransactionState, Transaction, TransactionState, TransactionType}
   alias EWalletDB.Helpers.Preloader
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
-  def process_with_transaction(%Transaction{status: "blockchain_confirmed"} = transaction) do
+  @pending TransactionState.pending()
+  @blockchain_submitted TransactionState.blockchain_submitted()
+  @ledger_pending_blockchain_confirmed TransactionState.ledger_pending_blockchain_confirmed()
+  @blockchain_transaction_confirmed BlockchainTransactionState.confirmed()
+  @blockchain_transaction_failed BlockchainTransactionState.failed()
+
+  def process_with_transaction(transaction) do
+    transaction
+    |> TransactionType.get()
+    |> process_with_transaction(transaction)
+  end
+
+  # The destination is nil when the transaction is intended to arrive and stay
+  # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
+  defp process_with_transaction(:from_blockchain_to_ewallet, transaction) do
+    TransactionState.transition_to(
+      :from_blockchain_to_ewallet,
+      TransactionState.confirmed(),
+      transaction,
+      %{originator: %System{}}
+    )
+  end
+
+  defp process_with_transaction(:from_blockchain_to_ledger, transaction) do
     from_blockchain? = from_blockchain?(transaction)
 
     transaction
@@ -34,34 +57,52 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
     |> update_transaction(transaction, :from_blockchain_to_ledger)
   end
 
-  def process_with_transaction(%Transaction{status: "pending"} = transaction) do
+  defp process_with_transaction(
+         :from_ledger_to_blockchain,
+         %Transaction{status: @pending} = transaction
+       ) do
     to_blockchain? = to_blockchain?(transaction)
 
     transaction
     |> Preloader.preload([:from_token, :to_token, :from_wallet, :to_wallet])
     |> set_blockchain_wallets(:to_wallet, :to, to_blockchain?)
     |> TransactionFormatter.format()
-    |> LedgerTransaction.insert(%{genesis: false, status: "pending"})
+    |> LedgerTransaction.insert(%{genesis: false, status: @pending})
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
-  def process_with_transaction(
-        %Transaction{
-          local_ledger_uuid: local_ledger_uuid,
-          status: "ledger_pending_blockchain_confirmed"
-        } = transaction
+  defp process_with_transaction(
+         :from_ledger_to_blockchain,
+         %Transaction{
+           local_ledger_uuid: local_ledger_uuid,
+           status: @blockchain_submitted,
+           blockchain_transaction: %{status: @blockchain_transaction_confirmed}
+         } = transaction
+       )
+       when not is_nil(local_ledger_uuid) do
+    {:ok, transaction} =
+      TransactionState.transition_to(
+        :from_ledger_to_blockchain,
+        @ledger_pending_blockchain_confirmed,
+        transaction,
+        %{
+          originator: %System{}
+        }
       )
-      when not is_nil(local_ledger_uuid) do
+
     local_ledger_uuid
     |> LedgerTransaction.confirm()
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
-  def process_with_transaction(
-        %Transaction{local_ledger_uuid: local_ledger_uuid, status: "failed_blockchain"} =
-          transaction
-      )
-      when not is_nil(local_ledger_uuid) do
+  defp process_with_transaction(
+         :from_ledger_to_blockchain,
+         %Transaction{
+           local_ledger_uuid: local_ledger_uuid,
+           blockchain_transaction: %{status: @blockchain_transaction_failed}
+         } = transaction
+       )
+       when not is_nil(local_ledger_uuid) do
     local_ledger_uuid
     |> LedgerTransaction.fail()
     |> update_transaction(transaction, :from_ledger_to_blockchain)
@@ -134,7 +175,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
 
   defp update_transaction(
          {:ok, ledger_transaction},
-         %{status: "pending"} = transaction,
+         %{status: @pending} = transaction,
          :from_ledger_to_blockchain
        ) do
     {:ok, transaction} =
@@ -153,7 +194,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
 
   defp update_transaction(
          {:ok, _ledger_transaction},
-         %{status: "ledger_pending_blockchain_confirmed"} = transaction,
+         %{status: @ledger_pending_blockchain_confirmed} = transaction,
          :from_ledger_to_blockchain
        ) do
     {:ok, transaction} =

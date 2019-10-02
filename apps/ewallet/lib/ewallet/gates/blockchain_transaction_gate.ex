@@ -127,6 +127,7 @@ defmodule EWallet.BlockchainTransactionGate do
          {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid} = response},
          rootchain_id
        ) do
+    # TODO: Put correct originator
     case create_rootchain_transaction(response, %System{}, rootchain_id) do
       {:ok, blockchain_transaction} ->
         {:ok,

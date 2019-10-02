@@ -17,7 +17,7 @@ defmodule EthBlockchain.ChildchainTransactionListener do
   Handles the transaction receipt logic for childchain transactions.
   """
 
-  alias EthBlockchain.{Block, Childchain}
+  alias EthBlockchain.Childchain
 
   def broadcast_payload(tx_hash, node_adapter, node_adapter_pid) do
     case Childchain.get_transaction_receipt(%{tx_hash: tx_hash},
@@ -25,9 +25,7 @@ defmodule EthBlockchain.ChildchainTransactionListener do
            cc_node_adapter_pid: node_adapter_pid
          ) do
       {:ok, :success, %{eth_block: %{number: block_number}, transaction_hash: transaction_hash}} ->
-        {:ok, eth_height} = Block.get_number()
-        confirmations_count = eth_height - block_number + 1
-        {:confirmations_count, transaction_hash, confirmations_count, block_number}
+        {:confirmations_count, transaction_hash, block_number}
 
       {:ok, :not_found} ->
         # Do nothing for now. TODO: increase checking interval until maximum is reached

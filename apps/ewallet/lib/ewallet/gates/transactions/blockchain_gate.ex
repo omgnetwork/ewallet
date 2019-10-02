@@ -31,12 +31,11 @@ defmodule EWallet.TransactionGate.Blockchain do
     TokenFetcher,
     Helper,
     TransactionGate,
-    TransactionRegistry,
     TransactionTracker,
     BlockchainHelper
   }
 
-  alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{BlockchainWallet, BlockchainTransaction, Transaction, TransactionState}
   alias ActivityLogger.System
 
   @external_transaction Transaction.external()
@@ -118,18 +117,19 @@ defmodule EWallet.TransactionGate.Blockchain do
 
   # Handle external -> hot wallet (not registered in local ledger)
   # Handle external -> internal wallet (registered in local ledger)
-  def create_from_tracker(attrs) do
-    case Transaction.insert(attrs) do
-      {:ok, transaction} ->
-        # TODO: handle error?
-        {:ok, transaction} = confirm_or_start_listener(transaction)
+  def create_from_tracker(blockchain_transaction_attrs, transaction_attrs) do
+    case BlockchainTransaction.insert_rootchain(blockchain_transaction_attrs) do
+      {:ok, blockchain_transaction} ->
+        transaction_attrs
+        |> Map.put(:blockchain_transaction_uuid, blockchain_transaction.uuid)
+        |> Transaction.insert()
+        |> case do
+          {:ok, _transaction} ->
+            # TODO: handle error?
+            TransactionTracker.start(blockchain_transaction)
 
-        case transaction do
-          %{status: "blockchain_confirmed"} ->
-            handle_local_insert(transaction)
-
-          transaction ->
-            {:ok, transaction}
+          error ->
+            error
         end
 
       error ->
@@ -149,65 +149,16 @@ defmodule EWallet.TransactionGate.Blockchain do
     {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
   end
 
-  defp confirm_or_start_listener(
-         %{confirmations_count: confirmations_count, to: to} = transaction
-       ) do
-    threshold = Application.get_env(:ewallet, :blockchain_confirmations_threshold)
-    flow = if(is_nil(to), do: :from_blockchain_to_ewallet, else: :from_blockchain_to_ledger)
-
-    if is_nil(threshold) do
-      Logger.warn("Blockchain Confirmations Threshold not set in configuration: using 10.")
-    end
-
-    # TODO: merge with the logic in TransactionTraker
-    case is_integer(confirmations_count) && confirmations_count > (threshold || 10) do
-      true ->
-        # TODO: Change originator?
-        TransactionState.transition_to(
-          flow,
-          TransactionState.blockchain_confirmed(),
-          transaction,
-          %{
-            confirmations_count: confirmations_count,
-            originator: %System{}
-          }
-        )
-
-      false ->
-        :ok =
-          TransactionRegistry.start_tracker(TransactionTracker, %{
-            transaction: transaction,
-            transaction_type: flow
-          })
-
-        {:ok, transaction}
-    end
+  defp set_blockchain_addresses(attrs, hot_wallet, true) do
+    attrs
+    |> Map.put("from", attrs["from_address"])
+    |> set_blockchain_addresses(hot_wallet)
   end
 
-  # The destination is nil when the transaction is intended to arrive and stay
-  # in the hot wallet, not part of any local ledger wallet, not even the master wallet.
-  # Therefore, we do not proceed to TransactionGate.BlockchainLocal in this case and simply
-  # move the transaction to confirmed state.
-  def handle_local_insert(%{to: nil} = transaction) do
-    TransactionState.transition_to(
-      :from_blockchain_to_ewallet,
-      TransactionState.confirmed(),
-      transaction,
-      %{originator: %System{}}
-    )
-  end
+  defp set_blockchain_addresses(attrs, hot_wallet, false),
+    do: set_blockchain_addresses(attrs, hot_wallet)
 
-  def handle_local_insert(transaction) do
-    TransactionGate.BlockchainLocal.process_with_transaction(transaction)
-  end
-
-  defp set_blockchain_addresses(attrs, hot_wallet, is_from_internal) do
-    attrs =
-      case is_from_internal do
-        true -> Map.put(attrs, "from", attrs["from_address"])
-        false -> attrs
-      end
-
+  defp set_blockchain_addresses(attrs, hot_wallet) do
     attrs
     |> Map.put("to_blockchain_address", attrs["to_address"])
     |> Map.put("from_blockchain_address", hot_wallet.address)
@@ -232,30 +183,25 @@ defmodule EWallet.TransactionGate.Blockchain do
     end
   end
 
-  defp enough_funds?(%{"childchain_identifier" => _} = attrs) do
-    attrs
-    |> get_childchain_balance()
+  defp enough_funds?(%{"childchain_identifier" => _, "address" => address} = attrs) do
+    :get_childchain_balance
+    |> BlockchainHelper.call(%{address: address})
     |> process_balance_response(attrs)
   end
 
-  defp enough_funds?(%{"rootchain_identifier" => _} = attrs) do
-    attrs
-    |> get_rootchain_balance()
-    |> process_balance_response(attrs)
-  end
-
-  defp get_rootchain_balance(%{
-         "from_blockchain_address" => address,
-         "from_token" => token
-       }) do
-    BlockchainHelper.call(:get_balances, %{
+  defp enough_funds?(
+         %{
+           "rootchain_identifier" => _,
+           "from_blockchain_address" => address,
+           "from_token" => token
+         } = attrs
+       ) do
+    :get_balances
+    |> BlockchainHelper.call(%{
       address: address,
       contract_addresses: [token.blockchain_address]
     })
-  end
-
-  defp get_childchain_balance(%{"from_blockchain_address" => address}) do
-    BlockchainHelper.call(:get_childchain_balance, %{address: address})
+    |> process_balance_response(attrs)
   end
 
   defp process_balance_response({:ok, balances}, %{"from_token" => token, "from_amount" => amount}) do
@@ -336,11 +282,7 @@ defmodule EWallet.TransactionGate.Blockchain do
              transaction,
              %{blockchain_transaction_uuid: blockchain_transaction.uuid, originator: %System{}}
            ),
-         :ok =
-           TransactionRegistry.start_tracker(TransactionTracker, %{
-             transaction: transaction,
-             transaction_type: type
-           }) do
+         :ok <- TransactionTracker.start(blockchain_transaction) do
       {:ok, transaction}
     end
 

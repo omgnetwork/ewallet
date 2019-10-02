@@ -424,7 +424,7 @@ defmodule EWalletDB.Transaction do
       %{
         idempotency_token: idempotency_token
       },
-      preload: [:from_wallet, :to_wallet, :from_token, :to_token]
+      preload: [:from_wallet, :to_wallet, :from_token, :to_token, :blockchain_transaction]
     )
   end
 
@@ -452,7 +452,15 @@ defmodule EWalletDB.Transaction do
       changeset,
       opts,
       Multi.run(Multi.new(), :transaction_1, fn _repo, %{record: transaction} ->
-        case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
+        case get(transaction.id,
+               preload: [
+                 :from_wallet,
+                 :to_wallet,
+                 :from_token,
+                 :to_token,
+                 :blockchain_transaction
+               ]
+             ) do
           nil ->
             {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 
