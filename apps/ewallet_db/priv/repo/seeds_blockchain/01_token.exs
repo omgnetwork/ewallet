@@ -45,7 +45,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
         |> Map.put(:blockchain_address, data.address)
         |> Map.put(:blockchain_status, Token.Blockchain.status_confirmed())
 
-        case Token.insert(data) do
+        case Token.Blockchain.insert_with_blockchain_address(data) do
           {:ok, token} ->
             {:ok, token} = Preloader.preload_one(token, :account)
             writer.success("""
