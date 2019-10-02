@@ -13,18 +13,35 @@
 # limitations under the License.
 
 defmodule EthBlockchain.GasHelper do
-  @moduledoc false
+  @moduledoc """
+  Helper functions to operate with gas limit and gas price.
+  """
+
+  #
+  # Gas limit
+  #
 
   def get_gas_limit_or_default(_type, %{gas_limit: gas_limit}), do: gas_limit
 
   def get_gas_limit_or_default(type, _attrs) do
+    get_default_gas_limit(type)
+  end
+
+  def get_default_gas_limit(type) do
     :eth_blockchain
     |> Application.get_env(:gas_limit)
     |> Keyword.get(type)
   end
 
+  #
+  # Gas prices
+  #
+
   def get_gas_price_or_default(%{gas_price: gas_price}), do: gas_price
 
-  def get_gas_price_or_default(_attrs),
-    do: Application.get_env(:eth_blockchain, :default_gas_price)
+  def get_gas_price_or_default(_attrs), do: get_default_gas_price()
+
+  def get_default_gas_price do
+    Application.get_env(:eth_blockchain, :default_gas_price)
+  end
 end
