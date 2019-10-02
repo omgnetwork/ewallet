@@ -59,7 +59,13 @@ defmodule EWallet.DepositPoolingGate do
     {primary_token_transaction, _, _} =
       [blockchain_address: primary_token_address]
       |> Token.get_by()
-      |> pool_token_deposits(hot_wallet, blockchain_identifier, gas_price, gas_limit_eth, token_gas_used)
+      |> pool_token_deposits(
+        hot_wallet,
+        blockchain_identifier,
+        gas_price,
+        gas_limit_eth,
+        token_gas_used
+      )
 
     case primary_token_transaction do
       [transaction] -> {:ok, [transaction | token_transactions]}
@@ -67,23 +73,39 @@ defmodule EWallet.DepositPoolingGate do
     end
   end
 
-  defp pool_token_deposits(tokens, hot_wallet, blockchain_identifier, gas_price, gas_limit, reserve_amount \\ 0) do
+  defp pool_token_deposits(
+         tokens,
+         hot_wallet,
+         blockchain_identifier,
+         gas_price,
+         gas_limit,
+         reserve_amount \\ 0
+       ) do
     balances =
       tokens
       |> List.wrap()
       |> Enum.flat_map(fn token ->
         token
-        |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier)
+        |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier, preload: [:token])
         |> Enum.filter(fn balance ->
           # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
           poolable_amount(balance, gas_price, gas_limit, reserve_amount) > 0
         end)
       end)
 
+
     Enum.reduce(balances, {[], [], 0}, fn balance, {transactions, errors, gas_used} ->
+      # Deduct the gas from the pool amount only when the token is the primary token,
+      # other tokens can be pooled for the full amount.
+      pool_amount =
+        case balance.token.blockchain_address == BlockchainHelper.adapter().helper().default_token().address do
+          true -> poolable_amount(balance, gas_price, gas_limit, reserve_amount)
+          false -> poolable_amount(balance, 0, 0, reserve_amount)
+        end
+
       attrs = %{
         type: DepositTransaction.outgoing(),
-        amount: poolable_amount(balance, gas_price, gas_limit, reserve_amount),
+        amount: pool_amount,
         token_uuid: balance.token_uuid,
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
         to_blockchain_address: hot_wallet.address,
