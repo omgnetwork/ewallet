@@ -55,33 +55,43 @@ defmodule EWalletDB.DepositTransactionTest do
       # Transactions that are not finalized and match the address
       dtx_1 =
         insert(:deposit_transaction,
-          status: TransactionState.pending_confirmations(),
+          transaction: insert(:transaction, status: TransactionState.pending_confirmations()),
           to_deposit_wallet: wallet
         )
 
       dtx_2 =
         insert(:deposit_transaction,
-          status: TransactionState.blockchain_confirmed(),
+          transaction: insert(:transaction, status: TransactionState.blockchain_submitted()),
           to_deposit_wallet: wallet
         )
 
       # Transactions that are not finalized but have a differing address
-      dtx_3 = insert(:deposit_transaction, status: TransactionState.pending_confirmations())
-      dtx_4 = insert(:deposit_transaction, status: TransactionState.blockchain_confirmed())
+      dtx_3 =
+        insert(:deposit_transaction,
+          transaction: insert(:transaction, status: TransactionState.pending_confirmations())
+        )
+
+      dtx_4 =
+        insert(:deposit_transaction,
+          transaction: insert(:transaction, status: TransactionState.blockchain_confirmed())
+        )
 
       # Transactions that are excluded but does match the address
       dtx_5 =
-        insert(:deposit_transaction, status: TransactionState.pending(), to_deposit_wallet: wallet)
+        insert(:deposit_transaction,
+          transaction: insert(:transaction, status: TransactionState.pending()),
+          to_deposit_wallet: wallet
+        )
 
       dtx_6 =
         insert(:deposit_transaction,
-          status: TransactionState.blockchain_submitted(),
+          transaction: insert(:transaction, status: TransactionState.blockchain_confirmed()),
           to_deposit_wallet: wallet
         )
 
       dtx_7 =
         insert(:deposit_transaction,
-          status: TransactionState.confirmed(),
+          transaction: insert(:transaction, status: TransactionState.confirmed()),
           to_deposit_wallet: wallet
         )
 

@@ -90,10 +90,11 @@ defmodule EWallet.TransactionTrackerTest do
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
+          Process.sleep(1000)
           new_balance =
             deposit_wallet
             |> BlockchainDepositWallet.reload_balances()
-            |> Map.fetch!(:balances)
+            |> Map.fetch!(:cached_balances)
             |> Enum.find(fn b -> b.uuid == balance.uuid end)
 
           # The balance is retrieved from the blockchain adapter, in which case

@@ -371,7 +371,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -393,7 +393,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,
@@ -424,15 +424,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
-
-      original_balance =
-        insert(:blockchain_deposit_wallet_cached_balance,
-          blockchain_deposit_wallet: wallet,
-          token: token,
-          amount: 99
-        )
 
       tx_hash = Crypto.fake_eth_address()
 
@@ -453,7 +446,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,
@@ -466,13 +459,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       # We can't find the listener because there shouldn't be one
       assert TransactionTracker.lookup(transaction.uuid) == {:error, :not_found}
 
-      transaction = Transaction.get(transaction.id, preload: :cached_balances)
-
-      cached_balance =
-        Enum.find(transaction.cached_balances, fn cb -> cb.token_uuid == token.uuid end)
-
       assert transaction.status == TransactionState.confirmed()
-      assert cached_balance.amount == original_balance.amount + attrs.to_amount
 
       # Check balance
       {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
@@ -487,7 +474,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -509,7 +496,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "to" => wallet.address,
         "from" => nil,
         "from_blockchain_address" => Crypto.fake_eth_address(),
-        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "to_blockchain_address" => deposit_wallet.address,
         "from_account" => nil,
         "to_account" => nil,
         "from_user" => nil,
@@ -526,7 +513,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -548,7 +535,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "to" => wallet.address,
         "from" => nil,
         "from_blockchain_address" => Crypto.fake_eth_address(),
-        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "to_blockchain_address" => deposit_wallet.address,
         "from_account" => nil,
         "to_account" => nil,
         "from_user" => nil,
@@ -628,7 +615,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -650,7 +637,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,

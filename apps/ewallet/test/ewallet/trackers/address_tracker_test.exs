@@ -19,7 +19,6 @@ defmodule EWallet.AddressTrackerTest do
   alias EWallet.{AddressTracker, BalanceFetcher, BlockchainHelper, BlockchainDepositWalletGate}
 
   alias EWalletDB.{
-    BlockchainDepositWallet,
     BlockchainWallet,
     Transaction,
     TransactionState,
@@ -108,11 +107,11 @@ defmodule EWallet.AddressTrackerTest do
     end
   end
 
-  describe "handle_call/3 with :register_address" do
+  describe "register_address/3" do
     test "registers an address to track" do
       {:ok, pid} =
         AddressTracker.start_link(
-          name: :test_address_tracker,
+          name: :test_address_tracker_register_address,
           blockchain_identifier: "any_blockchain_identifier"
         )
 
@@ -124,6 +123,22 @@ defmodule EWallet.AddressTrackerTest do
                "blockchain_address" => "internal_address"
              }
 
+      assert GenServer.stop(pid) == :ok
+    end
+  end
+
+  describe "register_contract_address/3" do
+    test "registers a contract address to track" do
+      {:ok, pid} =
+        AddressTracker.start_link(
+          name: :test_address_tracker_register_contract_address,
+          blockchain_identifier: "any_blockchain_identifier"
+        )
+
+      assert AddressTracker.register_contract_address("contract_address", pid) == :ok
+
+      state = :sys.get_state(pid)
+      assert Enum.member?(state[:contract_addresses], "contract_address")
       assert GenServer.stop(pid) == :ok
     end
   end
@@ -144,10 +159,8 @@ defmodule EWallet.AddressTrackerTest do
 
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
-
-      deposit_wallet = BlockchainDepositWallet.get_last_for(wallet)
 
       erc20_token =
         insert(:token,

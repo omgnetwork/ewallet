@@ -76,14 +76,10 @@ defmodule EWallet.AddressTracker do
     poll(state)
   end
 
-  def handle_call(
-        {:register_address, blockchain_address, internal_address},
-        _from,
-        %{addresses: addresses} = state
-      ) do
-    case addresses[blockchain_address] do
+  def handle_call({:register_address, blockchain_address, internal_address}, _from, state) do
+    case state.addresses[blockchain_address] do
       nil ->
-        addresses = Map.put(addresses, blockchain_address, internal_address)
+        addresses = Map.put(state.addresses, blockchain_address, internal_address)
         {:reply, :ok, %{state | addresses: addresses}}
 
       _ ->
@@ -91,8 +87,16 @@ defmodule EWallet.AddressTracker do
     end
   end
 
+  def handle_call({:register_contract_address, contract_address}, _from, state) do
+    {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
+  end
+
   def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
     GenServer.call(pid, {:register_address, blockchain_address, internal_address})
+  end
+
+  def register_contract_address(contract_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
   defp poll(state) do

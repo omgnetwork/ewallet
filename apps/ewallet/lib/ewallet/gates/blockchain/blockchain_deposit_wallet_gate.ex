@@ -48,7 +48,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
         do_generate(wallet, originator)
 
       deposit_wallet ->
-        {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
+        {:ok, deposit_wallet}
     end
   end
 
@@ -65,7 +65,7 @@ defmodule EWallet.BlockchainDepositWalletGate do
           deposit_wallet.wallet.address
         )
 
-      {:ok, Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet])}
+      {:ok, deposit_wallet}
     else
       error ->
         error

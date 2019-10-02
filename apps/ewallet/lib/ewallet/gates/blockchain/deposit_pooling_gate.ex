@@ -61,7 +61,10 @@ defmodule EWallet.DepositPoolingGate do
       |> Token.get_by()
       |> pool_token_deposits(hot_wallet, blockchain_identifier, gas_price, gas_limit_eth, token_gas_used)
 
-    {:ok, [primary_token_transaction | token_transactions]}
+    case primary_token_transaction do
+      [transaction] -> {:ok, [transaction | token_transactions]}
+      [] -> {:ok, token_transactions}
+    end
   end
 
   defp pool_token_deposits(tokens, hot_wallet, blockchain_identifier, gas_price, gas_limit, reserve_amount \\ 0) do

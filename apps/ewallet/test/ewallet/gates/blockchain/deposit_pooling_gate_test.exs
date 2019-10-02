@@ -15,8 +15,9 @@
 defmodule EWallet.DepositPoolingGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
+  alias EthBlockchain.GasHelper
   alias EWallet.{DepositPoolingGate, TransactionTracker}
-  alias EWalletDB.{BlockchainHDWallet, BlockchainWallet, TransactionState}
+  alias EWalletDB.{BlockchainHDWallet, BlockchainWallet, Repo, TransactionState}
 
   describe "move_deposits_to_pooled_funds/2" do
     test "pools the funds if a deposit wallet reaches the threshold" do
@@ -44,22 +45,26 @@ defmodule EWallet.DepositPoolingGateTest do
           blockchain_deposit_wallet: deposit_wallet
         )
 
-      assert {:ok, [{:ok, txn}]} =
+      gas_price = GasHelper.get_default_gas_price()
+      gas_limit = GasHelper.get_default_gas_limit(:contract_transaction)
+
+      assert {:ok, [dtxn]} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
 
-      assert txn.from_blockchain_wallet_address == nil
-      assert txn.from_deposit_wallet_address == deposit_wallet.address
+      dtxn = Repo.preload(dtxn, :transaction)
+      assert dtxn.from_blockchain_address == nil
+      assert dtxn.from_deposit_wallet_address == deposit_wallet.address
 
-      assert txn.amount == balance.amount - txn.gas_price * txn.gas_limit
-      assert txn.token_uuid == token.uuid
+      assert dtxn.amount == balance.amount - gas_price * gas_limit
+      assert dtxn.token_uuid == token.uuid
 
-      assert txn.to_blockchain_wallet_address == hot_wallet.address
-      assert txn.to_deposit_wallet_address == nil
+      assert dtxn.to_blockchain_address == hot_wallet.address
+      assert dtxn.to_deposit_wallet_address == nil
 
       # For this test, we only care that the transaction is submitted,
       # what happens after that is out of the scope of this module,
       # so we can stop the tracker immediately.
-      {:ok, tracker_pid} = TransactionTracker.lookup(txn.uuid)
+      {:ok, tracker_pid} = TransactionTracker.lookup(dtxn.transaction.uuid)
       :ok = GenServer.stop(tracker_pid)
     end
 
@@ -91,21 +96,25 @@ defmodule EWallet.DepositPoolingGateTest do
         insert(
           :deposit_transaction,
           blockchain_identifier: blockchain_identifier,
-          status: TransactionState.pending_confirmations(),
+          transaction: insert(:transaction, status: TransactionState.pending_confirmations()),
           from_deposit_wallet_address: deposit_wallet.address,
           token: token,
           amount: 100 * token.subunit_to_unit
         )
 
-      assert {:ok, [{:ok, txn}]} =
+      gas_price = GasHelper.get_default_gas_price()
+      gas_limit = GasHelper.get_default_gas_limit(:contract_transaction)
+
+      assert {:ok, [dtxn]} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
 
-      assert txn.amount == balance.amount - pooling_txn.amount - txn.gas_price * txn.gas_limit
+      dtxn = Repo.preload(dtxn, :transaction)
+      assert dtxn.amount == balance.amount - pooling_txn.amount - gas_price * gas_limit
 
       # For this test, we only care that the transaction is submitted,
       # what happens after that is out of the scope of this module,
       # so we can stop the tracker immediately.
-      {:ok, tracker_pid} = TransactionTracker.lookup(txn.uuid)
+      {:ok, tracker_pid} = TransactionTracker.lookup(dtxn.transaction.uuid)
       :ok = GenServer.stop(tracker_pid)
     end
 
@@ -133,7 +142,7 @@ defmodule EWallet.DepositPoolingGateTest do
           blockchain_deposit_wallet: deposit_wallet
         )
 
-      assert {:ok, [{:skipped, :amount_too_low}]} =
+      assert {:ok, []} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
     end
   end

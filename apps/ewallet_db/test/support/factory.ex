@@ -139,7 +139,7 @@ defmodule EWalletDB.Factory do
   def blockchain_hd_wallet_factory do
     %BlockchainHDWallet{
       blockchain_identifier: "ethereum",
-      keychain_uuid: sequence("keychain_uuid_")
+      keychain_uuid: UUID.generate()
     }
   end
 
@@ -154,7 +154,6 @@ defmodule EWalletDB.Factory do
     %BlockchainDepositWallet{
       address: Crypto.fake_eth_address(),
       blockchain_identifier: "ethereum",
-      public_key: Crypto.fake_eth_address(),
       originator: %System{},
       relative_hd_path: :rand.uniform(999_999_999),
       wallet: insert(:wallet),
@@ -419,11 +418,12 @@ defmodule EWalletDB.Factory do
       type: DepositTransaction.incoming(),
       token: insert(:token),
       amount: 100,
+      transaction: insert(:transaction),
       blockchain_tx_hash: sequence("0xabcdefabcdef"),
       blockchain_identifier: "ethereum",
-      from_blockchain_wallet: insert(:blockchain_wallet),
+      from_blockchain_address: Crypto.fake_eth_address(),
       from_deposit_wallet: nil,
-      to_blockchain_wallet: nil,
+      to_blockchain_address: nil,
       to_deposit_wallet: insert(:blockchain_deposit_wallet),
       originator: %System{}
     }
