@@ -86,19 +86,21 @@ defmodule EWallet.DepositPoolingGate do
       |> List.wrap()
       |> Enum.flat_map(fn token ->
         token
-        |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier, preload: [:token])
+        |> BlockchainDepositWalletCachedBalance.all_for_token(blockchain_identifier,
+          preload: [:token]
+        )
         |> Enum.filter(fn balance ->
           # TODO: Pool only if the deposit wallet has 3% of primary hot wallet's funds
           poolable_amount(balance, gas_price, gas_limit, reserve_amount) > 0
         end)
       end)
 
-
     Enum.reduce(balances, {[], [], 0}, fn balance, {transactions, errors, gas_used} ->
       # Deduct the gas from the pool amount only when the token is the primary token,
       # other tokens can be pooled for the full amount.
       pool_amount =
-        case balance.token.blockchain_address == BlockchainHelper.adapter().helper().default_token().address do
+        case balance.token.blockchain_address ==
+               BlockchainHelper.adapter().helper().default_token().address do
           true -> poolable_amount(balance, gas_price, gas_limit, reserve_amount)
           false -> poolable_amount(balance, 0, 0, reserve_amount)
         end

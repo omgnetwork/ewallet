@@ -17,7 +17,7 @@ defmodule EWallet.TransactionTrackerTest do
   import EWalletDB.Factory
   import ExUnit.CaptureLog
   alias EWallet.TransactionTracker
-  alias EWalletDB.{BlockchainDepositWallet, Transaction, TransactionState}
+  alias EWalletDB.{Transaction, TransactionState}
 
   describe "start/1" do
     test "starts a new server" do
