@@ -28,7 +28,7 @@ defmodule EWallet.TransactionTracker do
     BlockchainTransactionGate
   }
 
-  alias EWalletDB.TransactionState
+  alias EWalletDB.{Transaction, TransactionState}
 
   @default_confirmations_threshold 10
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
@@ -130,8 +130,8 @@ defmodule EWallet.TransactionTracker do
     {:noreply, state}
   end
 
-  defp refresh_transaction(%schema{} = transaction) do
-    schema.get(transaction.id)
+  defp refresh_transaction(transaction) do
+    Transaction.get(transaction.id)
   end
 
   defp get_confirmations_threshold do
