@@ -124,7 +124,7 @@ defmodule EWallet.BlockchainTransactionGate do
   end
 
   defp parse_deploy_erc20_response(
-         {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid} = response},
+         {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid}} = response,
          rootchain_id
        ) do
     # TODO: Put correct originator
