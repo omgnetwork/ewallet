@@ -15,7 +15,7 @@
 defmodule EWallet.TokenGate do
   @moduledoc false
 
-  alias EWallet.{BlockchainTransactionGate, BlockchainHelper}
+  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper}
   alias EWalletDB.{BlockchainWallet, Token}
 
   @doc """
@@ -37,16 +37,12 @@ defmodule EWallet.TokenGate do
       )
       when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
              is_binary(name) and is_binary(symbol) do
-    decimals =
-      subunit_to_unit
-      |> :math.log10()
-      |> trunc()
-
+    decimals = subunit_to_unit |> :math.log10() |> trunc()
     rootchain_identifier = BlockchainHelper.rootchain_identifier()
-    from = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier).address
+    hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
     %{
-      from: from,
+      from: hot_wallet.address,
       name: name,
       symbol: symbol,
       decimals: decimals,
@@ -54,7 +50,19 @@ defmodule EWallet.TokenGate do
       locked: locked
     }
     |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier)
-    |> parse_deploy_response(attrs, rootchain_identifier)
+    |> case do
+      {:ok,
+       %{
+         contract_address: contract_address,
+         blockchain_transaction: blockchain_transaction,
+         contract_uuid: contract_uuid
+       }} ->
+        _ = AddressTracker.register_contract_address(contract_address)
+        {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
+
+      error ->
+        error
+    end
   end
 
   def deploy_erc20(_) do
@@ -62,25 +70,14 @@ defmodule EWallet.TokenGate do
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
 
-  defp parse_deploy_response(
-         {:ok,
-          %{
-            contract_address: contract_address,
-            blockchain_transaction: blockchain_transaction,
-            contract_uuid: contract_uuid
-          }},
-         attrs,
-         rootchain_identifier
-       ) do
+  defp put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid) do
     attrs
     |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
     |> Map.put("blockchain_address", contract_address)
     |> Map.put("contract_uuid", contract_uuid)
     |> Map.put("blockchain_status", Token.Blockchain.status_pending())
-    |> Map.put("blockchain_identifier", rootchain_identifier)
+    |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
   end
-
-  defp parse_deploy_response(error, _attrs, _rootchain_identifier), do: error
 
   @doc """
   Validate that the `decimals` and `symbol` of the token are the same as

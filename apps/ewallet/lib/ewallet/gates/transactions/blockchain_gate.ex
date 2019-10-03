@@ -128,6 +128,7 @@ defmodule EWallet.TransactionGate.Blockchain do
             # TODO: handle error?
             {:ok, _pid} = TransactionTracker.start(blockchain_transaction)
             {:ok, transaction}
+
           error ->
             error
         end

@@ -84,14 +84,10 @@ defmodule EWallet.AddressTracker do
     poll(state)
   end
 
-  def handle_call(
-        {:register_address, blockchain_address, internal_address},
-        _from,
-        %{addresses: addresses} = state
-      ) do
-    case addresses[blockchain_address] do
+  def handle_call({:register_address, blockchain_address, internal_address}, _from, state) do
+    case state.addresses[blockchain_address] do
       nil ->
-        addresses = Map.put(addresses, blockchain_address, internal_address)
+        addresses = Map.put(state.addresses, blockchain_address, internal_address)
         {:reply, :ok, %{state | addresses: addresses}}
 
       _ ->
@@ -99,8 +95,16 @@ defmodule EWallet.AddressTracker do
     end
   end
 
+  def handle_call({:register_contract_address, contract_address}, _from, state) do
+    {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
+  end
+
   def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
     GenServer.call(pid, {:register_address, blockchain_address, internal_address})
+  end
+
+  def register_contract_address(contract_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
   defp poll(state) do
@@ -156,6 +160,7 @@ defmodule EWallet.AddressTracker do
 
   defp do_run(transactions, state) do
     transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
+
     _ =
       Enum.each(transaction_results, fn
         {:ok, t} ->
@@ -164,6 +169,7 @@ defmodule EWallet.AddressTracker do
         _ ->
           :noop
       end)
+
     transaction_results
     |> Enum.all?(fn {res, _} -> res == :ok end)
     |> case do
@@ -275,8 +281,8 @@ defmodule EWallet.AddressTracker do
     }
 
     TransactionGate.Blockchain.create_from_tracker(
-        blockchain_transaction_attrs,
-        transaction_attrs
-      )
+      blockchain_transaction_attrs,
+      transaction_attrs
+    )
   end
 end

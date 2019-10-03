@@ -85,16 +85,19 @@ defmodule EWalletDB.BlockchainDepositWalletCachedBalance do
     |> assoc_constraint(:token)
   end
 
-  @spec all_for_token(%Token{} | [%Token{}], String.t()) :: [%__MODULE__{}]
-  def all_for_token(tokens, blockchain_identifier) do
+  @spec all_for_token(%Token{} | [%Token{}], String.t(), keyword()) :: [%__MODULE__{}]
+  def all_for_token(tokens, blockchain_identifier, opts \\ []) do
     token_uuids =
       tokens
       |> List.wrap()
       |> Enum.map(fn t -> t.uuid end)
 
+    {preload_fields, _opts} = Keyword.pop(opts, :preload, [])
+
     BlockchainDepositWalletCachedBalance
     |> where([b], b.token_uuid in ^token_uuids)
     |> where([b], b.blockchain_identifier == ^blockchain_identifier)
+    |> preload([b], ^preload_fields)
     |> Repo.all()
   end
 

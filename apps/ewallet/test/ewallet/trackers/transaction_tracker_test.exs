@@ -17,7 +17,7 @@ defmodule EWallet.TransactionTrackerTest do
   import EWalletDB.Factory
   import ExUnit.CaptureLog
   alias EWallet.TransactionTracker
-  alias EWalletDB.{BlockchainDepositWallet, Transaction, TransactionState}
+  alias EWalletDB.{Transaction, TransactionState}
 
   describe "start/1" do
     test "starts a new server" do
@@ -60,48 +60,6 @@ defmodule EWallet.TransactionTrackerTest do
       end
 
       refute Process.alive?(pid)
-    end
-
-    test "recalculates the deposit wallet's balances when higher than minimum" do
-      deposit_wallet = insert(:blockchain_deposit_wallet)
-
-      # The initial balance can be anything except 123
-      # which the blockchain dumb adapter always return.
-      balance =
-        insert(:blockchain_deposit_wallet_cached_balance,
-          blockchain_deposit_wallet: deposit_wallet,
-          amount: 100
-        )
-
-      transaction =
-        insert(
-          :blockchain_transaction,
-          to_blockchain_address: deposit_wallet.address,
-          from_token: balance.token,
-          to_token: balance.token
-        )
-
-      {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ledger)
-
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12, 1})
-
-      # Wait until the tracker winds down, reload the balances and assert for the new amount
-      ref = Process.monitor(pid)
-
-      receive do
-        {:DOWN, ^ref, _, _, _} ->
-          new_balance =
-            deposit_wallet
-            |> BlockchainDepositWallet.reload_balances()
-            |> Map.fetch!(:balances)
-            |> Enum.find(fn b -> b.uuid == balance.uuid end)
-
-          # The balance is retrieved from the blockchain adapter, in which case
-          # the dumb adapter is always returning 123.
-          assert new_balance.amount == 123
-      after
-        5000 -> refute true
-      end
     end
 
     test "logs a message about mismatched hash" do

@@ -81,7 +81,11 @@ defmodule EWallet.BlockchainTransactionTracker do
     {:ok, state, {:continue, :subscribe_adapter}}
   end
 
-  def handle_continue(:subscribe_adapter, %{blockchain_transaction: %{hash: hash, childchain_identifier: childchain_identifier}} = state) do
+  def handle_continue(
+        :subscribe_adapter,
+        %{blockchain_transaction: %{hash: hash, childchain_identifier: childchain_identifier}} =
+          state
+      ) do
     :ok =
       BlockchainHelper.adapter().subscribe(
         :transaction,
@@ -93,7 +97,10 @@ defmodule EWallet.BlockchainTransactionTracker do
     {:noreply, state}
   end
 
-  def handle_cast({:confirmations_count, hash, block_number}, %{blockchain_transaction: blockchain_transaction} = state) do
+  def handle_cast(
+        {:confirmations_count, hash, block_number},
+        %{blockchain_transaction: blockchain_transaction} = state
+      ) do
     case blockchain_transaction.hash == hash do
       true ->
         # The transaction may have staled as it may took time before this function is invoked.
