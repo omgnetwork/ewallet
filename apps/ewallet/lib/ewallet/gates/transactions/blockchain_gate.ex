@@ -124,10 +124,10 @@ defmodule EWallet.TransactionGate.Blockchain do
         |> Map.put(:blockchain_transaction_uuid, blockchain_transaction.uuid)
         |> Transaction.insert()
         |> case do
-          {:ok, _transaction} ->
+          {:ok, transaction} ->
             # TODO: handle error?
-            TransactionTracker.start(blockchain_transaction)
-
+            {:ok, _pid} = TransactionTracker.start(blockchain_transaction)
+            {:ok, transaction}
           error ->
             error
         end

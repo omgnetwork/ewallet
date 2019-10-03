@@ -28,7 +28,7 @@ defmodule EWallet.BlockchainTransactionTracker do
     BlockchainStateGate
   }
 
-  alias EWalletDB.BlockchainTransactionState
+  alias EWalletDB.{BlockchainTransaction, BlockchainTransactionState}
 
   @default_confirmations_threshold 10
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
@@ -81,42 +81,42 @@ defmodule EWallet.BlockchainTransactionTracker do
     {:ok, state, {:continue, :subscribe_adapter}}
   end
 
-  def handle_continue(:subscribe_adapter, state) do
+  def handle_continue(:subscribe_adapter, %{blockchain_transaction: %{hash: hash, childchain_identifier: childchain_identifier}} = state) do
     :ok =
       BlockchainHelper.adapter().subscribe(
         :transaction,
-        state.blockchain_transaction.tx_hash,
-        state.blockchain_transaction.childchain_identifier == nil,
+        hash,
+        childchain_identifier != nil,
         self()
       )
 
     {:noreply, state}
   end
 
-  def handle_cast({:confirmations_count, tx_hash, block_number}, state) do
-    case state.transaction.blockchain_tx_hash == tx_hash do
+  def handle_cast({:confirmations_count, hash, block_number}, %{blockchain_transaction: blockchain_transaction} = state) do
+    case blockchain_transaction.hash == hash do
       true ->
         # The transaction may have staled as it may took time before this function is invoked.
         # So we'll re-retrieve the transaction from the database before transitioning.
-        state = %{state | transaction: refresh_transaction(state.transaction)}
+        state = %{state | blockchain_transaction: refresh_transaction(blockchain_transaction)}
         eth_height = BlockchainStateGate.get_last_synced_blk_number(@rootchain_identifier)
         confirmations_count = eth_height - block_number + 1
 
         case confirmations_count >= get_confirmations_threshold() do
           false ->
-            transaction = update_confirmations_count(state, block_number)
-            {:noreply, %{state | transaction: transaction}}
+            blockchain_transaction = update_confirmations_count(state, block_number)
+            {:noreply, %{state | blockchain_transaction: blockchain_transaction}}
 
           true ->
-            transaction = finalize_transaction(state, eth_height, block_number)
-            {:stop, :normal, %{state | transaction: transaction}}
+            blockchain_transaction = finalize_transaction(state, eth_height, block_number)
+            {:stop, :normal, %{state | blockchain_transaction: blockchain_transaction}}
         end
 
       false ->
         _ =
           Logger.error(
-            "Unable to handle the confirmations count for #{state.transaction.blockchain_tx_hash}." <>
-              " The receipt has a mismatched hash: #{tx_hash}."
+            "Unable to handle the confirmations count for #{blockchain_transaction.hash}." <>
+              " The receipt has a mismatched hash: #{hash}."
           )
 
         {:noreply, state}
@@ -132,8 +132,8 @@ defmodule EWallet.BlockchainTransactionTracker do
     {:noreply, state}
   end
 
-  defp refresh_transaction(%schema{} = transaction) do
-    schema.get(transaction.id)
+  defp refresh_transaction(blockchain_transaction) do
+    BlockchainTransaction.get_by(uuid: blockchain_transaction.uuid)
   end
 
   defp get_confirmations_threshold do

@@ -156,7 +156,6 @@ defmodule EWallet.AddressTracker do
 
   defp do_run(transactions, state) do
     transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
-
     _ =
       Enum.each(transaction_results, fn
         {:ok, t} ->
@@ -165,7 +164,6 @@ defmodule EWallet.AddressTracker do
         _ ->
           :noop
       end)
-
     transaction_results
     |> Enum.all?(fn {res, _} -> res == :ok end)
     |> case do
@@ -235,7 +233,7 @@ defmodule EWallet.AddressTracker do
         do_insert(blockchain_transaction, state)
 
       transaction ->
-        Transaction.get_by(blockchain_transaction_uuid: transaction.uuid)
+        {:ok, Transaction.get_by(blockchain_transaction_uuid: transaction.uuid)}
     end
   end
 
@@ -276,13 +274,9 @@ defmodule EWallet.AddressTracker do
       originator: %System{}
     }
 
-    a =
-      TransactionGate.Blockchain.create_from_tracker(
+    TransactionGate.Blockchain.create_from_tracker(
         blockchain_transaction_attrs,
         transaction_attrs
       )
-
-    IO.inspect(a)
-    a
   end
 end
