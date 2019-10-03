@@ -20,6 +20,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
+    BlockchainTransactionSerializer,
     ErrorHandler,
     ExchangePairSerializer,
     PaginatorSerializer,
@@ -43,10 +44,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       object: "transaction",
       id: transaction.id,
       idempotency_token: transaction.idempotency_token,
-      blockchain_tx_hash: transaction.blockchain_tx_hash,
       from_blockchain_address: transaction.from_blockchain_address,
       to_blockchain_address: transaction.to_blockchain_address,
-      confirmations_count: transaction.confirmations_count,
+      blockchain_transaction:
+        BlockchainTransactionSerializer.serialize(transaction.blockchain_transaction),
       type: transaction.type,
       from: %{
         object: "transaction_source",

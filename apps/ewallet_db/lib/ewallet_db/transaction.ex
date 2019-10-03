@@ -286,8 +286,7 @@ defmodule EWalletDB.Transaction do
         :to_amount,
         :to_token_uuid,
         :from_blockchain_address,
-        :to_blockchain_address,
-        :blockchain_transaction_uuid
+        :to_blockchain_address
       ],
       encrypted: [:encrypted_metadata, :payload]
     )
