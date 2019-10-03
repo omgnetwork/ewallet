@@ -20,8 +20,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
     BlockchainHelper,
     BalanceFetcher,
     BlockchainDepositWalletGate,
-    TransactionGate,
-    TransactionRegistry
+    BlockchainTransactionGate,
+    TransactionTracker
   }
 
   alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState}
@@ -63,13 +63,13 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -110,13 +110,13 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -155,13 +155,13 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       assert transaction.blockchain_identifier == cc_identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -354,8 +354,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
-      assert is_pid(pid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
 
@@ -403,8 +403,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
-      assert is_pid(pid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
 
@@ -426,6 +426,13 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       {:ok, wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
+
+      original_balance =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          token: token,
+          amount: 99
+        )
 
       tx_hash = Crypto.fake_eth_address()
 
@@ -457,10 +464,16 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
 
       # We can't find the listener because there shouldn't be one
-      assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
+      assert TransactionTracker.lookup(transaction.uuid) == {:error, :not_found}
 
-      transaction = Transaction.get(transaction.id)
+      transaction = Transaction.get(transaction.id, preload: :cached_balances)
+
+      cached_balance =
+        Enum.find(transaction.cached_balances, fn cb -> cb.token_uuid == token.uuid end)
+
       assert transaction.status == TransactionState.confirmed()
+      assert cached_balance.amount == original_balance.amount + attrs.to_amount
+
       # Check balance
       {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
       assert balance[:amount] == 1

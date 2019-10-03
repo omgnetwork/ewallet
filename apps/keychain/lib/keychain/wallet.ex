@@ -23,7 +23,14 @@ defmodule Keychain.Wallet do
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
 
-  @root_derivation_path "M/44'/60'/0'/0'"
+  @root_hd_path "44'/60'/0'/0'"
+
+  @doc """
+  Returns the root derivation path used as the base for
+  generating the actual wallet's derivation path.
+  """
+  def root_hd_path_public, do: "M/" <> @root_hd_path
+  def root_hd_path_private, do: "m/" <> @root_hd_path
 
   @doc """
   Generates a new wallet address and returns a wallet ID for futher access.
@@ -44,7 +51,7 @@ defmodule Keychain.Wallet do
 
     {:ok, _} =
       Key.insert(%{
-        wallet_id: wallet_address,
+        wallet_address: wallet_address,
         public_key: public_key_encoded,
         private_key: private_key_encoded
       })
@@ -57,32 +64,30 @@ defmodule Keychain.Wallet do
     :crypto.generate_key(:ecdh, :secp256k1, :crypto.strong_rand_bytes(32))
   end
 
-  @spec generate_hd :: {:ok, <<_::288>>}
+  @spec generate_hd :: {:ok, String.t()}
   def generate_hd do
     %{mnemonic: _mnemonic, root_key: root_key} = BlockKeys.generate()
-    public_key = CKD.derive(root_key, @root_derivation_path)
+    public_key = CKD.derive(root_key, root_hd_path_public())
     wallet_address = Address.from_xpub(public_key)
     uuid = UUID.generate()
 
-    {:ok, _} =
-      Key.insert(%{
-        wallet_id: wallet_address,
-        public_key: public_key,
-        private_key: root_key,
-        uuid: uuid
-      })
-
-    {:ok, uuid}
+    Key.insert(%{
+      wallet_address: wallet_address,
+      public_key: public_key,
+      private_key: root_key,
+      uuid: uuid
+    })
   end
 
-  @spec derive_child_address(any, any, any) :: <<_::16, _::_*8>> | {:error, :key_not_found}
-  def derive_child_address(uuid, account_ref, deposit_ref) do
-    case Key.public_key_for_uuid(uuid) do
+  @spec derive_child_address(String.t(), integer(), integer()) ::
+          String.t() | {:error, :key_not_found}
+  def derive_child_address(keychain_uuid, wallet_ref, deposit_ref) do
+    case Key.public_key_for_uuid(keychain_uuid) do
       nil ->
-        {:error, :invalid_uuid}
+        {:error, :key_not_found}
 
       public_key ->
-        path = "M/#{account_ref}/#{deposit_ref}"
+        path = "M/#{wallet_ref}/#{deposit_ref}"
         Ethereum.address(public_key, path)
     end
   end

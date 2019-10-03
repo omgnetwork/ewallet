@@ -47,6 +47,7 @@ defmodule EWallet.Mixfile do
       {:local_ledger_db, in_umbrella: true},
       {:eth_blockchain, in_umbrella: true},
       {:eth_geth_adapter, in_umbrella: true},
+      {:keychain, in_umbrella: true},
       {:bypass, "~> 1.0.0", only: [:test]},
       {:csv, "~> 2.0.0"},
       {:decimal, "~> 1.0"},

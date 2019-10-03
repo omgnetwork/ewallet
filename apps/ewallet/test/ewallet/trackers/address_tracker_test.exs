@@ -40,7 +40,7 @@ defmodule EWallet.AddressTrackerTest do
       assert {:ok, pid} =
                AddressTracker.start_link(
                  name: :test_address_tracker,
-                 attrs: %{blockchain_identifier: "dumb"}
+                 blockchain_identifier: "any_blockchain_identifier"
                )
 
       assert is_pid(pid)
@@ -56,7 +56,7 @@ defmodule EWallet.AddressTrackerTest do
         blk_retries: 0,
         blk_syncing_save_count: 0,
         blk_syncing_save_interval: 5,
-        blockchain_identifier: "dumb",
+        blockchain_identifier: "any_blockchain_identifier",
         contract_addresses: [],
         node_adapter: nil,
         interval: 50,
@@ -64,30 +64,33 @@ defmodule EWallet.AddressTrackerTest do
         stop_once_synced: false
       }
 
-      assert AddressTracker.init(%{blockchain_identifier: "dumb"}) ==
+      assert AddressTracker.init(blockchain_identifier: "any_blockchain_identifier") ==
                {:ok, expected, {:continue, :start_polling}}
     end
 
     test "inits with addresses" do
-      hot_wallet = insert(:blockchain_wallet, type: "hot", blockchain_identifier: "dumb")
-      deposit_wallet = insert(:blockchain_deposit_wallet, blockchain_identifier: "dumb")
+      hot_wallet =
+        insert(:blockchain_wallet, type: "hot", blockchain_identifier: "any_blockchain_identifier")
+
+      deposit_wallet =
+        insert(:blockchain_deposit_wallet, blockchain_identifier: "any_blockchain_identifier")
 
       token =
         insert(:token,
-          blockchain_identifier: "dumb",
+          blockchain_identifier: "any_blockchain_identifier",
           blockchain_address: Crypto.fake_eth_address()
         )
 
       expected = %{
         addresses: %{
           hot_wallet.address => nil,
-          deposit_wallet.address => deposit_wallet.wallet_address
+          deposit_wallet.address => deposit_wallet.wallet.address
         },
         blk_number: 0,
         blk_retries: 0,
         blk_syncing_save_count: 0,
         blk_syncing_save_interval: 5,
-        blockchain_identifier: "dumb",
+        blockchain_identifier: "any_blockchain_identifier",
         node_adapter: :fake_adapter,
         contract_addresses: [
           token.blockchain_address
@@ -97,7 +100,10 @@ defmodule EWallet.AddressTrackerTest do
         stop_once_synced: false
       }
 
-      assert AddressTracker.init(%{blockchain_identifier: "dumb", node_adapter: :fake_adapter}) ==
+      assert AddressTracker.init(
+               blockchain_identifier: "any_blockchain_identifier",
+               node_adapter: :fake_adapter
+             ) ==
                {:ok, expected, {:continue, :start_polling}}
     end
   end
@@ -107,7 +113,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker,
-          attrs: %{blockchain_identifier: "dumb"}
+          blockchain_identifier: "any_blockchain_identifier"
         )
 
       assert AddressTracker.register_address("blockchain_address", "internal_address", pid) == :ok
@@ -154,21 +160,18 @@ defmodule EWallet.AddressTrackerTest do
       assert {:ok, pid} =
                AddressTracker.start_link(
                  name: :test_address_tracker_1,
-                 attrs: %{
-                   node_adapter:
-                     {:dumb_receiver, EthBlockchain.DumbReceivingAdapter,
-                      [
-                        %{
-                          hot_wallet_address: hot_wallet.address,
-                          deposit_wallet_address: deposit_wallet.address,
-                          erc20_address: erc20_token.blockchain_address,
-                          other_address: other_address
-                        }
-                      ]},
-                   node_adapter_name: :dumb,
-                   blockchain_identifier: blockchain_identifier,
-                   stop_once_synced: true
-                 }
+                 node_adapter:
+                   {:dumb_receiver, EthBlockchain.DumbReceivingAdapter,
+                    [
+                      %{
+                        hot_wallet_address: hot_wallet.address,
+                        deposit_wallet_address: deposit_wallet.address,
+                        erc20_address: erc20_token.blockchain_address,
+                        other_address: other_address
+                      }
+                    ]},
+                 blockchain_identifier: blockchain_identifier,
+                 stop_once_synced: true
                )
 
       state = :sys.get_state(pid)

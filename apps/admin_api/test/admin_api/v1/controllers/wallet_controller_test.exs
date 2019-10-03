@@ -59,7 +59,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test_with_auths "returns the blockchain_deposit_address if available" do
       wallet = insert(:wallet, address: "aaaa111111111111")
-      deposit_wallet = insert(:blockchain_deposit_wallet, wallet_address: wallet.address)
+      deposit_wallet = insert(:blockchain_deposit_wallet, wallet: wallet)
 
       response = request("/wallet.all")
       wallets = response["data"]["data"]

@@ -27,12 +27,14 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     BlockchainDepositWallet,
+    BlockchainDepositWalletCachedBalance,
     BlockchainHDWallet,
     BlockchainWallet,
     BlockchainTransaction,
     BlockchainState,
     PreAuthToken,
     Category,
+    DepositTransaction,
     Export,
     ExchangePair,
     ForgetPasswordRequest,
@@ -119,14 +121,15 @@ defmodule EWalletDB.Factory do
       enabled: true,
       metadata: %{},
       originator: %System{},
-      blockchain_deposit_wallets: []
+      blockchain_deposit_wallets: [],
+      relative_hd_path: :rand.uniform(999_999_999)
     }
   end
 
   def blockchain_wallet_factory do
     %BlockchainWallet{
       address: Crypto.fake_eth_address(),
-      blockchain_identifier: "dumb",
+      blockchain_identifier: "ethereum",
       name: sequence("Wallet name"),
       public_key: Crypto.fake_eth_address(),
       type: "hot",
@@ -136,8 +139,8 @@ defmodule EWalletDB.Factory do
 
   def blockchain_hd_wallet_factory do
     %BlockchainHDWallet{
-      blockchain_identifier: "dumb",
-      keychain_uuid: UUID.generate()
+      blockchain_identifier: "ethereum",
+      keychain_uuid: sequence("keychain_uuid_")
     }
   end
 
@@ -151,11 +154,21 @@ defmodule EWalletDB.Factory do
   def blockchain_deposit_wallet_factory do
     %BlockchainDepositWallet{
       address: Crypto.fake_eth_address(),
-      blockchain_identifier: "dumb",
+      blockchain_identifier: "ethereum",
       public_key: Crypto.fake_eth_address(),
       originator: %System{},
-      wallet_address: insert(:wallet).address,
-      blockchain_hd_wallet_uuid: insert(:blockchain_hd_wallet).uuid
+      relative_hd_path: :rand.uniform(999_999_999),
+      wallet: insert(:wallet),
+      blockchain_hd_wallet: insert(:blockchain_hd_wallet)
+    }
+  end
+
+  def blockchain_deposit_wallet_cached_balance_factory do
+    %BlockchainDepositWalletCachedBalance{
+      amount: 1,
+      blockchain_deposit_wallet: insert(:blockchain_deposit_wallet),
+      blockchain_identifier: "ethereum",
+      token: insert(:token)
     }
   end
 
@@ -421,6 +434,21 @@ defmodule EWalletDB.Factory do
       confirmed_at_block_number: nil,
       error: nil,
       metadata: %{},
+      originator: %System{}
+    }
+  end
+
+  def deposit_transaction_factory do
+    %DepositTransaction{
+      type: DepositTransaction.incoming(),
+      token: insert(:token),
+      amount: 100,
+      blockchain_tx_hash: sequence("0xabcdefabcdef"),
+      blockchain_identifier: "ethereum",
+      from_blockchain_wallet: insert(:blockchain_wallet),
+      from_deposit_wallet: nil,
+      to_blockchain_wallet: nil,
+      to_deposit_wallet: insert(:blockchain_deposit_wallet),
       originator: %System{}
     }
   end

@@ -18,8 +18,8 @@ defmodule EWallet.TransactionGate.ChildchainTest do
 
   alias EWallet.{
     BlockchainHelper,
-    TransactionGate.Childchain,
-    TransactionRegistry
+    ChildchainTransactionGate,
+    TransactionTracker
   }
 
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
@@ -55,7 +55,7 @@ defmodule EWallet.TransactionGate.ChildchainTest do
       assert transaction.from_blockchain_address == hot_wallet.address
       assert transaction.to_blockchain_address == contract_address
 
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
 
       {:ok, %{pid: blockchain_listener_pid}} =
         meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)

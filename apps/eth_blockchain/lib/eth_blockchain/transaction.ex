@@ -14,9 +14,7 @@
 
 defmodule EthBlockchain.Transaction do
   @moduledoc false
-
   import Utils.Helpers.Encoding
-
   alias Keychain.Signature
   alias ExthCrypto.Hash.Keccak
   alias EthBlockchain.{AdapterServer, ABIEncoder, GasHelper, Helper, Nonce, NonceRegistry}
@@ -99,12 +97,13 @@ defmodule EthBlockchain.Transaction do
          } = attrs,
          opts
        ) do
-    with {:ok, meta} <- get_transaction_meta(attrs, :eth_transaction, opts) do
+    with {:ok, meta} <- get_transaction_meta(attrs, :eth_transaction, opts),
+         {:ok, wallet} <- get_wallet(attrs) do
       %__MODULE__{
         to: from_hex(to),
         value: amount
       }
-      |> prepare_and_send(meta, from, opts)
+      |> prepare_and_send(meta, wallet || from, opts)
       |> respond(meta, from, opts)
     end
   end
@@ -119,12 +118,13 @@ defmodule EthBlockchain.Transaction do
          opts
        ) do
     with {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
+         {:ok, wallet} <- get_wallet(attrs),
          {:ok, encoded_abi_data} <- ABIEncoder.transfer(to, amount) do
       %__MODULE__{
         to: from_hex(contract_address),
         data: encoded_abi_data
       }
-      |> prepare_and_send(meta, from, opts)
+      |> prepare_and_send(meta, wallet || from, opts)
       |> respond(meta, from, opts)
     end
   end
@@ -134,6 +134,10 @@ defmodule EthBlockchain.Transaction do
   Returns {:ok, tx_hash, contract_address} if success,
   {:error, code} || {:error, code, message} otherwise
   """
+  def create_contract(%{wallet: _}) do
+    raise ArgumentError, message: "Create a contract with a child key is not supported."
+  end
+
   def create_contract(%{from: from, contract_data: init} = attrs, opts \\ []) do
     with {:ok, %{nonce: nonce} = meta} <-
            get_transaction_meta(attrs, :contract_creation, opts),
@@ -148,6 +152,10 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Submit a deposit eth transaction to the specified root chain contract
   """
+  def deposit_eth(%{wallet: _}) do
+    raise ArgumentError, message: "Depositing ETH with a child key is not supported."
+  end
+
   def deposit_eth(
         %{
           tx_bytes: tx_bytes,
@@ -172,6 +180,10 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Submit a deposit transaction of an ERC20 token to the specified childchain contract
   """
+  def deposit_erc20(%{wallet: _}) do
+    raise ArgumentError, message: "Depositing an ERC-20 with a child key is not supported."
+  end
+
   def deposit_erc20(
         %{
           tx_bytes: tx_bytes,
@@ -194,6 +206,10 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Submit an approve ERC20 transaction
   """
+  def approve_erc20(%{wallet: _}) do
+    raise ArgumentError, message: "Approving an ERC-20 with a child key is not supported."
+  end
+
   def approve_erc20(
         %{
           from: from,
@@ -214,6 +230,13 @@ defmodule EthBlockchain.Transaction do
     end
   end
 
+  @doc """
+  Submit a mint ERC20 transaction
+  """
+  def mint_erc20(%{wallet: _}) do
+    raise ArgumentError, message: "Minting an ERC-20 with a child key is not supported."
+  end
+
   def mint_erc20(
         %{
           from: address,
@@ -231,6 +254,13 @@ defmodule EthBlockchain.Transaction do
       |> prepare_and_send(meta, address, opts)
       |> respond(meta, address, opts)
     end
+  end
+
+  @doc """
+  Submit a lock ERC20 transaction
+  """
+  def lock_erc20(%{wallet: _}) do
+    raise ArgumentError, message: "Locking an ERC-20 with a child key is not supported."
   end
 
   def lock_erc20(
@@ -261,6 +291,25 @@ defmodule EthBlockchain.Transaction do
       {:ok, %{gas_price: gas_price, gas_limit: gas_limit, nonce: nonce}}
     end
   end
+
+  defp get_wallet(%{
+         wallet:
+           %{
+             derivation_path: _,
+             keychain_uuid: _,
+             wallet_ref: _,
+             deposit_ref: _
+           } = wallet
+       }) do
+    {:ok, wallet}
+  end
+
+  defp get_wallet(%{wallet: wallet}) do
+    raise ArgumentError,
+      message: "Invalid wallet data for transaction signing. Got: #{inspect(wallet)}."
+  end
+
+  defp get_wallet(_), do: {:ok, nil}
 
   defp get_contract_address(nonce, sender) do
     "0x" <> <<_::bytes-size(24)>> <> contract_address =
@@ -297,13 +346,38 @@ defmodule EthBlockchain.Transaction do
 
   defp send_raw(error, _opts), do: error
 
-  defp sign_transaction(transaction, wallet_address) do
+  defp sign_transaction(transaction, from) when is_binary(from) do
     chain_id = Application.get_env(:eth_blockchain, :chain_id)
 
     result =
       transaction
       |> transaction_hash(chain_id)
-      |> Signature.sign_transaction_hash(wallet_address, chain_id)
+      |> Signature.sign_transaction_hash(from, chain_id)
+
+    case result do
+      {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}
+      error -> error
+    end
+  end
+
+  defp sign_transaction(transaction, %{
+         keychain_uuid: keychain_uuid,
+         derivation_path: derivation_path,
+         wallet_ref: wallet_ref,
+         deposit_ref: deposit_ref
+       }) do
+    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+
+    result =
+      transaction
+      |> transaction_hash(chain_id)
+      |> Signature.sign_transaction_hash(
+        keychain_uuid,
+        derivation_path,
+        wallet_ref,
+        deposit_ref,
+        chain_id
+      )
 
     case result do
       {:ok, {v, r, s}} -> {:ok, %{transaction | v: v, r: r, s: s}}

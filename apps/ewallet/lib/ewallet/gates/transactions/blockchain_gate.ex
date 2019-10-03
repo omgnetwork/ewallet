@@ -273,23 +273,23 @@ defmodule EWallet.TransactionGate.Blockchain do
      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
-  defp submit_if_needed(%{blockchain_transaction_uuid: nil} = transaction, type, attrs) do
+  defp submit_if_needed(%{blockchain_transaction_uuid: nil} = transaction, flow, attrs) do
     with {:ok, blockchain_transaction} <- submit(transaction, attrs),
          {:ok, transaction} <-
            TransactionState.transition_to(
-             type,
+             flow,
              TransactionState.blockchain_submitted(),
              transaction,
              %{blockchain_transaction_uuid: blockchain_transaction.uuid, originator: %System{}}
            ),
-         :ok <- TransactionTracker.start(blockchain_transaction) do
+         {:ok, _pid} <- TransactionTracker.start(blockchain_transaction) do
       {:ok, transaction}
     end
 
     # TODO: Handle submit failure -> Change tx status to failed -> Record error
   end
 
-  defp submit_if_needed(transaction, _type, _attrs), do: {:ok, transaction}
+  defp submit_if_needed(transaction, _flow, _attrs), do: {:ok, transaction}
 
   defp submit(
          %{type: @external_transaction} = transaction,

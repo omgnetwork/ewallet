@@ -497,6 +497,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds_in_hot_wallet: %{
       code: "blockchain:insufficient_funds",
       description: "Not enough funds in the hot wallet to perfom this operation."
+    },
+    hd_path_generation_max_retried: %{
+      code: "wallet:hd_path_generation_max_retried",
+      description: "A hierarchical-deterministic key path could not be generated."
     }
   }
 

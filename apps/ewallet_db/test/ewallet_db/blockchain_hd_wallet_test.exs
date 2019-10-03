@@ -16,7 +16,6 @@ defmodule EWalletDB.BlockchainHDWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias Ecto.UUID
   alias EWalletDB.BlockchainHDWallet
 
   describe "get_primary/1" do
@@ -30,7 +29,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
     test "returns the HD wallet inserted with the given attributes" do
       attrs = %{
         blockchain_identifier: "dumb",
-        keychain_uuid: UUID.generate(),
+        keychain_uuid: "test_keychain_uuid",
         originator: %System{}
       }
 
@@ -46,7 +45,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
 
       attrs = %{
         blockchain_identifier: "dumb",
-        keychain_uuid: UUID.generate()
+        keychain_uuid: "test_keychain_uuid_exists"
       }
 
       {res, error} = BlockchainHDWallet.insert(attrs)

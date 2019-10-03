@@ -16,24 +16,23 @@ defmodule Keychain.KeyTest do
   use ExUnit.Case
   import Keychain.Factory
   alias Ecto.Adapters.SQL.Sandbox
-  alias Ecto.ConstraintError
   alias Keychain.{Repo, Key}
 
   setup do
     :ok = Sandbox.checkout(Repo)
   end
 
-  describe "private_key_for_wallet/1" do
+  describe "private_key_for_wallet_address/1" do
     test "retrieves a private key for wallet" do
       key_1 = insert(:key)
       key_2 = insert(:key)
 
-      assert Key.private_key_for_wallet(key_1.wallet_id) == key_1.private_key
-      assert Key.private_key_for_wallet(key_2.wallet_id) == key_2.private_key
+      assert Key.private_key_for_wallet_address(key_1.wallet_address) == key_1.private_key
+      assert Key.private_key_for_wallet_address(key_2.wallet_address) == key_2.private_key
     end
 
     test "returns nil for non-existing wallet" do
-      assert Key.private_key_for_wallet("nonexists") == nil
+      assert Key.private_key_for_wallet_address("nonexists") == nil
     end
   end
 
@@ -63,7 +62,7 @@ defmodule Keychain.KeyTest do
 
       {:ok, key} =
         Key.insert(%{
-          wallet_id: "key-1",
+          wallet_address: "address-1",
           private_key: "private-key-1",
           public_key: "public-key-1"
         })
@@ -71,16 +70,25 @@ defmodule Keychain.KeyTest do
       assert Repo.all(Key) == [key]
     end
 
-    test "raises if wallet id already exists" do
+    test "raises if wallet address already exists" do
       key_1 = insert(:key)
 
-      assert_raise ConstraintError, fn ->
+      {res, changeset} =
         Key.insert(%{
-          wallet_id: key_1.wallet_id,
+          wallet_address: key_1.wallet_address,
           private_key: "private-key-1",
           public_key: "public-key-1"
         })
-      end
+
+      assert res == :error
+      refute changeset.valid?
+
+      assert changeset.errors == [
+               wallet_address: {
+                 "has already been taken",
+                 [constraint: :unique, constraint_name: "keychain_wallet_address_index"]
+               }
+             ]
     end
   end
 end

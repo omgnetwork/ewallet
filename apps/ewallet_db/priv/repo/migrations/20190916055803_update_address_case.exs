@@ -18,7 +18,6 @@ defmodule EWalletDB.Repo.Migrations.UpdateAddressCase do
 
     alter table(:blockchain_deposit_wallet) do
       modify :address, :citext
-      modify :wallet_address, :citext
     end
   end
 
@@ -38,7 +37,6 @@ defmodule EWalletDB.Repo.Migrations.UpdateAddressCase do
 
     alter table(:blockchain_deposit_wallet) do
       modify :address, :string
-      modify :wallet_address, :string
     end
     execute "DROP EXTENSION IF EXISTS citext"
   end

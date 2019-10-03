@@ -17,7 +17,7 @@ defmodule EWallet.BlockchainTransactionTracker do
   Tracks changes to a blockchain transaction and reflects those changes
   on the respective eWallet transaction.
 
-  This is a GenServer that can be started dynamically for a specific eWallet transaction.
+  This is a GenServer that can be started dynamically for a specific blockchain transaction.
   """
   use GenServer, restart: :temporary
   require Logger
@@ -169,7 +169,11 @@ defmodule EWallet.BlockchainTransactionTracker do
   # Functions for finalizing a transaction
   #
 
-  defp finalize_transaction(%{blockchain_transaction: blockchain_transaction, callback_module: callback_module}, eth_height, block_number) do
+  defp finalize_transaction(
+         %{blockchain_transaction: blockchain_transaction, callback_module: callback_module},
+         eth_height,
+         block_number
+       ) do
     with {:ok, updated} <-
            confirm(blockchain_transaction, eth_height, block_number) do
       callback_module.on_confirmed(updated)

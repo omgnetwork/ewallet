@@ -25,6 +25,7 @@ defmodule EWallet.AddressTracker do
     BlockchainHelper,
     BlockchainAddressFetcher,
     BlockchainStateGate,
+    DepositPoolingGate,
     TransactionGate
   }
 
@@ -45,33 +46,34 @@ defmodule EWallet.AddressTracker do
   @blk_syncing_save_interval 5
   @blk_syncing_polling_interval 5
   @syncing_interval 50
-  # 15000
   @polling_interval 500
 
   @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(opts) do
-    name = Keyword.get(opts, :name, __MODULE__)
-    attrs = Keyword.get(opts, :attrs, %{})
-    GenServer.start_link(__MODULE__, attrs, name: name)
+    {name, opts} = Keyword.pop(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  def init(%{blockchain_identifier: blockchain_identifier} = attrs) do
-    {:ok,
-     %{
-       interval: @syncing_interval,
-       blockchain_identifier: blockchain_identifier,
-       timer: nil,
-       addresses:
-         BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
-       contract_addresses:
-         BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
-       blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
-       blk_retries: 0,
-       blk_syncing_save_count: 0,
-       blk_syncing_save_interval: @blk_syncing_save_interval,
-       node_adapter: attrs[:node_adapter],
-       stop_once_synced: attrs[:stop_once_synced] || false
-     }, {:continue, :start_polling}}
+  def init(opts) do
+    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
+
+    state = %{
+      interval: @syncing_interval,
+      blockchain_identifier: blockchain_identifier,
+      timer: nil,
+      addresses:
+        BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
+      contract_addresses:
+        BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
+      blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
+      blk_retries: 0,
+      blk_syncing_save_count: 0,
+      blk_syncing_save_interval: @blk_syncing_save_interval,
+      node_adapter: opts[:node_adapter],
+      stop_once_synced: opts[:stop_once_synced] || false
+    }
+
+    {:ok, state, {:continue, :start_polling}}
   end
 
   def handle_continue(:start_polling, state) do
@@ -153,14 +155,22 @@ defmodule EWallet.AddressTracker do
   end
 
   defp do_run(transactions, state) do
-    transaction_results = Enum.map(transactions, fn tx -> insert(tx, state) end)
+    transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
 
-    case Enum.all?(transaction_results, fn {res, _} -> res == :ok end) do
-      true ->
-        next(state)
+    _ =
+      Enum.each(transaction_results, fn
+        {:ok, t} ->
+          _ = Task.start(fn -> DepositPoolingGate.on_blockchain_transaction_received(t) end)
 
-      false ->
-        retry_or_skip(state, transaction_results)
+        _ ->
+          :noop
+      end)
+
+    transaction_results
+    |> Enum.all?(fn {res, _} -> res == :ok end)
+    |> case do
+      true -> next(state)
+      false -> retry_or_skip(state, transaction_results)
     end
   end
 
@@ -213,7 +223,10 @@ defmodule EWallet.AddressTracker do
     Map.put(state, :blk_retries, retries + 1)
   end
 
-  defp insert(blockchain_transaction, %{blockchain_identifier: blockchain_identifier} = state) do
+  defp insert_if_new(
+         blockchain_transaction,
+         %{blockchain_identifier: blockchain_identifier} = state
+       ) do
     case BlockchainTransaction.get_by(%{
            hash: blockchain_transaction.hash,
            rootchain_identifier: blockchain_identifier
@@ -263,10 +276,12 @@ defmodule EWallet.AddressTracker do
       originator: %System{}
     }
 
-    a = TransactionGate.Blockchain.create_from_tracker(
-      blockchain_transaction_attrs,
-      transaction_attrs
-    )
+    a =
+      TransactionGate.Blockchain.create_from_tracker(
+        blockchain_transaction_attrs,
+        transaction_attrs
+      )
+
     IO.inspect(a)
     a
   end

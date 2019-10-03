@@ -19,8 +19,7 @@ defmodule EWallet.TransactionTracker do
   @behaviour EWallet.BlockchainTransactionTrackerBehaviour
 
   alias EWallet.{
-    TransactionRegistry,
-    TransactionTracker,
+    BlockchainTransactionTracker,
     TransactionGate
   }
 
@@ -31,10 +30,7 @@ defmodule EWallet.TransactionTracker do
   end
 
   def start(blockchain_transaction) do
-    TransactionRegistry.start_tracker(TransactionTracker, %{
-      blockchain_transaction: blockchain_transaction,
-      callback_module: __MODULE__
-    })
+    BlockchainTransactionTracker.start(blockchain_transaction, __MODULE__)
   end
 
   @impl EWallet.BlockchainTransactionTrackerBehaviour

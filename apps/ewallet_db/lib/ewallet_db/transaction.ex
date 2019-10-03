@@ -59,6 +59,7 @@ defmodule EWalletDB.Transaction do
 
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
+
     # Response returned by ledger
     field(:local_ledger_uuid, :string)
     field(:error_code, :string)

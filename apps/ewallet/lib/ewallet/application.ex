@@ -21,36 +21,32 @@ defmodule EWallet.Application do
   @decimal_precision 38
   @decimal_rounding :half_even
 
+  @rootchain_identifier BlockchainHelper.rootchain_identifier()
+
   def start(_type, _args) do
-    import Supervisor.Spec
-    DeferredConfig.populate(:ewallet)
+    _ = DeferredConfig.populate(:ewallet)
+    _ = set_decimal_context()
 
-    set_decimal_context()
     settings = Application.get_env(:ewallet, :settings)
-    Config.register_and_load(:ewallet, settings)
+    _ = Config.register_and_load(:ewallet, settings)
 
-    ActivityLogger.configure(%{
-      EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
-    })
+    _ =
+      ActivityLogger.configure(%{
+        EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
+      })
 
-    address_tracker_attrs = %{
-      blockchain_identifier: BlockchainHelper.rootchain_identifier()
-    }
-
-    # List all child processes to be supervised
     children = [
-      worker(EWallet.Scheduler, []),
-      {DynamicSupervisor, name: EWallet.DynamicListenerSupervisor, strategy: :one_for_one},
-      {EWallet.TransactionRegistry, name: EWallet.TransactionRegistry, strategy: :one_for_one},
-      supervisor(EWallet.AddressTracker, [[attrs: address_tracker_attrs]],
-        name: EWallet.AddressTracker
-      )
+      # Quantum scheduler
+      {EWallet.Scheduler, []},
+
+      # Transaction tracker supervisor and registry
+      {Registry, keys: :unique, name: EWallet.TransactionTrackerRegistry},
+      {DynamicSupervisor, name: EWallet.TransactionTrackerSupervisor, strategy: :one_for_one},
+      {EWallet.AddressTracker, [blockchain_identifier: @rootchain_identifier]},
+      {EWallet.DepositWalletPoolingTracker, [blockchain_identifier: @rootchain_identifier]}
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: EWallet.Supervisor]
-    Supervisor.start_link(children, opts)
+    Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
   end
 
   defp set_decimal_context do

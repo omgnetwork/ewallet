@@ -89,4 +89,57 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       assert error == :hd_wallet_not_found
     end
   end
+
+  describe "refresh_balances/3" do
+    test "updates the deposit wallet balances with the latest blockchain state" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      wallet = insert(:blockchain_deposit_wallet)
+
+      _ =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          amount: 10,
+          token: token_1
+        )
+
+      _ =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          amount: 20,
+          token: token_2
+        )
+
+      wallet = BlockchainDepositWallet.reload_balances(wallet)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_1.uuid && b.amount == 10
+             end)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_2.uuid && b.amount == 20
+             end)
+
+      # Assert two successful refreshes
+      {res, data} =
+        BlockchainDepositWalletGate.refresh_balances(wallet.address, "ethereum", [
+          token_1,
+          token_2
+        ])
+
+      assert res == :ok
+      assert [{:ok, _}, {:ok, _}] = data
+
+      # The dumb adapter hard codes the amount to 123
+      wallet = BlockchainDepositWallet.reload_balances(wallet)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_1.uuid && b.amount == 123
+             end)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_2.uuid && b.amount == 123
+             end)
+    end
+  end
 end
