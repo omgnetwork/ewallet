@@ -18,7 +18,6 @@ defmodule EWallet.DepositPoolingGate do
   """
   require Logger
   alias ActivityLogger.System
-  alias EthBlockchain.GasHelper
   alias EWallet.{BlockchainHelper, BlockchainDepositWalletGate}
 
   alias EWalletDB.{
@@ -40,9 +39,9 @@ defmodule EWallet.DepositPoolingGate do
   def move_deposits_to_pooled_funds(blockchain_identifier) do
     primary_token_address = BlockchainHelper.adapter().helper().default_token().address
     hot_wallet = BlockchainWallet.get_primary_hot_wallet(blockchain_identifier)
-    gas_price = GasHelper.get_default_gas_price()
-    gas_limit_erc20 = GasHelper.get_default_gas_limit(:contract_transaction)
-    gas_limit_eth = GasHelper.get_default_gas_limit(:eth_transaction)
+    gas_price = BlockchainHelper.adapter().gas_helper().get_default_gas_price()
+    gas_limit_erc20 = BlockchainHelper.adapter().gas_helper().get_default_gas_limit(:contract_transaction)
+    gas_limit_eth = BlockchainHelper.adapter().gas_helper().get_default_gas_limit(:eth_transaction)
 
     # We loop by token because it's likely we pool per specific token than a specific wallet.
     # E.g. some tokens have more deposits than others, or the hot wallet may run out of one token

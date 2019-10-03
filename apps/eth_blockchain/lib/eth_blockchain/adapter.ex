@@ -29,6 +29,7 @@ defmodule EthBlockchain.Adapter do
     DumbAdapter,
     ErrorHandler,
     Helper,
+    GasHelper,
     Token,
     Transaction,
     TransactionListener,
@@ -37,6 +38,7 @@ defmodule EthBlockchain.Adapter do
   }
 
   def helper, do: Helper
+  def gas_helper, do: GasHelper
   def error_handler, do: ErrorHandler
   def dumb_adapter, do: DumbAdapter
   def server, do: AdapterServer
