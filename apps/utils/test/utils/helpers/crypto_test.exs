@@ -28,4 +28,18 @@ defmodule Utils.Helpers.CryptoTest do
       assert String.length(key) == 86
     end
   end
+
+  describe "pad_bytes/2" do
+    test "pads up to the given total bytes" do
+      assert Crypto.pad_bytes(<<1>>, 3) == <<0, 0, 1>>
+    end
+
+    test "returns original if the size is equal" do
+      assert Crypto.pad_bytes(<<1, 1, 1>>, 3) == <<1, 1, 1>>
+    end
+
+    test "returns original if the size is larger" do
+      assert Crypto.pad_bytes(<<1, 1, 1, 1, 1>>, 3) == <<1, 1, 1, 1, 1>>
+    end
+  end
 end
