@@ -174,7 +174,7 @@ defmodule EWallet.AddressTrackerTest do
                AddressTracker.start_link(
                  name: :test_address_tracker_1,
                  node_adapter:
-                   {:dumb_receiver, EthBlockchain.DumbReceivingAdapter,
+                   {:dumb_receiver, BlockchainHelper.adapter().dumb_receiving_adapter(),
                     [
                       %{
                         hot_wallet_address: hot_wallet.address,
