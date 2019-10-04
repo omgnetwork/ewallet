@@ -46,6 +46,15 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
     )
   end
 
+  defp process_with_transaction(:from_ewallet_to_blockchain, transaction) do
+    TransactionState.transition_to(
+      :from_ewallet_to_blockchain,
+      TransactionState.confirmed(),
+      transaction,
+      %{originator: %System{}}
+    )
+  end
+
   defp process_with_transaction(:from_blockchain_to_ledger, transaction) do
     from_blockchain? = from_blockchain?(transaction)
 
