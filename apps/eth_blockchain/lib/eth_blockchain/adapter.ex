@@ -27,6 +27,7 @@ defmodule EthBlockchain.Adapter do
     Contract,
     Childchain,
     DumbAdapter,
+    DumbReceivingAdapter,
     ErrorHandler,
     Helper,
     GasHelper,
@@ -41,6 +42,7 @@ defmodule EthBlockchain.Adapter do
   def gas_helper, do: GasHelper
   def error_handler, do: ErrorHandler
   def dumb_adapter, do: DumbAdapter
+  def dumb_receiving_adapter, do: DumbReceivingAdapter
   def server, do: AdapterServer
 
   @doc """

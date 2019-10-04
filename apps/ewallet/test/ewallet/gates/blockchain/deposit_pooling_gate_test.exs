@@ -15,8 +15,7 @@
 defmodule EWallet.DepositPoolingGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
-  alias EthBlockchain.GasHelper
-  alias EWallet.DepositPoolingGate
+  alias EWallet.{BlockchainHelper, DepositPoolingGate}
   alias EWalletDB.{BlockchainHDWallet, BlockchainWallet, TransactionState}
   alias Utils.Helpers.Crypto
 
@@ -46,8 +45,8 @@ defmodule EWallet.DepositPoolingGateTest do
           blockchain_deposit_wallet: deposit_wallet
         )
 
-      gas_price = GasHelper.get_default_gas_price()
-      gas_limit = GasHelper.get_default_gas_limit(:eth_transaction)
+      gas_price = BlockchainHelper.adapter().gas_helper().get_default_gas_price()
+      gas_limit = BlockchainHelper.adapter().gas_helper().get_default_gas_limit(:eth_transaction)
 
       assert {:ok, [dtxn]} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
@@ -134,8 +133,8 @@ defmodule EWallet.DepositPoolingGateTest do
           amount: 100 * token.subunit_to_unit
         )
 
-      gas_price = GasHelper.get_default_gas_price()
-      gas_limit = GasHelper.get_default_gas_limit(:eth_transaction)
+      gas_price = BlockchainHelper.adapter().gas_helper().get_default_gas_price()
+      gas_limit = BlockchainHelper.adapter().gas_helper().get_default_gas_limit(:eth_transaction)
 
       assert {:ok, [dtxn]} =
                DepositPoolingGate.move_deposits_to_pooled_funds(blockchain_identifier)
