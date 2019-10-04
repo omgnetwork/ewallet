@@ -47,7 +47,12 @@ defmodule Keychain.Wallet do
     wallet_address = "0x#{wallet_address}"
 
     public_key_encoded = Base.encode16(public_key, case: :lower)
-    private_key_encoded = Base.encode16(private_key, case: :lower)
+
+    # Sometimes the generated private key is 31 bytes long, so we need to pad it to 32
+    private_key_encoded =
+      private_key
+      |> Utils.Helpers.Crypto.pad_bytes(32)
+      |> Base.encode16(case: :lower)
 
     {:ok, _} =
       Key.insert(%{
