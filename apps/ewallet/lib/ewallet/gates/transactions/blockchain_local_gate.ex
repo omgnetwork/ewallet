@@ -80,6 +80,9 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
+  defp process_with_transaction(:from_ledger_to_blockchain, transaction),
+    do: {:error, transaction}
+
   defp process_with_transaction(
          :from_ledger_to_blockchain,
          %Transaction{
@@ -130,15 +133,11 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
   end
 
   defp from_blockchain?(transaction) do
-    is_nil(transaction.from) &&
-      !is_nil(transaction.from_blockchain_address) &&
-      !is_nil(transaction.blockchain_identifier)
+    is_nil(transaction.from) && !is_nil(transaction.from_blockchain_address)
   end
 
   defp to_blockchain?(transaction) do
-    is_nil(transaction.to) &&
-      !is_nil(transaction.to_blockchain_address) &&
-      !is_nil(transaction.blockchain_identifier)
+    is_nil(transaction.to) && !is_nil(transaction.to_blockchain_address)
   end
 
   #

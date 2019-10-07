@@ -35,6 +35,7 @@ defmodule EWallet.TransactionGate.Blockchain do
     BlockchainHelper
   }
 
+  alias EWallet.Web.Preloader
   alias EWalletDB.{BlockchainWallet, BlockchainTransaction, Transaction, TransactionState}
   alias ActivityLogger.System
 
@@ -283,6 +284,8 @@ defmodule EWallet.TransactionGate.Blockchain do
              transaction,
              %{blockchain_transaction_uuid: blockchain_transaction.uuid, originator: %System{}}
            ),
+         {:ok, transaction} <-
+           Preloader.preload_one(transaction, :blockchain_transaction, force: true),
          {:ok, _pid} <- TransactionTracker.start(blockchain_transaction) do
       {:ok, transaction}
     end

@@ -79,7 +79,7 @@ defmodule EthBlockchain.Childchain do
   Submits a transfer transaction to the plasma chain.
 
   Returns
-  {:ok, transaction_hash, transaction_index, block_number} if success
+  {:ok, %{tx_hash: transaction_hash, cc_block_number: block_number, cc_tx_index: transaction_index}} if success
   {:error, code} || {:error, code, params} if failure
   """
   @spec send(map(), list() | nil) :: {:ok, String.t(), integer(), integer()}
@@ -101,7 +101,8 @@ defmodule EthBlockchain.Childchain do
             transaction_hash: transaction_hash
           }} <-
            AdapterServer.childchain_call({:send, from, to, amount, currency}, opts) do
-      {:ok, transaction_hash, transaction_index, block_number}
+      {:ok,
+       %{tx_hash: transaction_hash, cc_block_number: block_number, cc_tx_index: transaction_index}}
     end
   end
 
