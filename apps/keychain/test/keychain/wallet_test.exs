@@ -35,6 +35,14 @@ defmodule Keychain.WalletTest do
       assert is_binary(public_key)
       assert byte_size(public_key) == 130
     end
+
+    test "consistently generates a 64-character encoded private key" do
+      for _ <- 1..1000 do
+        {:ok, {_, public_key}} = Wallet.generate()
+        key = Repo.get_by(Key, public_key: public_key)
+        assert String.length(key.private_key) == 64
+      end
+    end
   end
 
   describe "generate_keypair/0" do

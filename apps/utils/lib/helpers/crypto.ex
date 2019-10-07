@@ -87,4 +87,18 @@ defmodule Utils.Helpers.Crypto do
     data = 20 |> :crypto.strong_rand_bytes() |> Base.encode16(case: :lower)
     "0x" <> data
   end
+
+  @doc """
+  Zero-pads the given `content` to the given `total_bytes`.
+
+  Returns the original `content` if the its byte_size is equal to
+  or greater than the given `total_bytes`.
+  """
+  @spec pad_bytes(binary(), non_neg_integer()) :: binary()
+  def pad_bytes(content, total_bytes) when byte_size(content) >= total_bytes, do: content
+
+  def pad_bytes(content, total_bytes) do
+    bits = (total_bytes - byte_size(content)) * 8
+    <<0::size(bits)>> <> content
+  end
 end
