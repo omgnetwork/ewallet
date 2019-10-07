@@ -27,41 +27,6 @@ config :ewallet_config,
       position: 001,
       description: "The primary hot wallet for this eWallet."
     },
-    "blockchain_confirmations_threshold" => %{
-      key: "blockchain_confirmations_threshold",
-      value: 10,
-      type: "unsigned_integer",
-      position: 002,
-      description:
-        "The number of confirmations to wait for before confirming a blockchain transaction."
-    },
-    "blockchain_state_save_interval" => %{
-      key: "blockchain_state_save_interval",
-      value: 5,
-      type: "unsigned_integer",
-      position: 003,
-      description: "The number of blocks to wait before saving the block number to database."
-    },
-    "blockchain_sync_interval" => %{
-      key: "blockchain_sync_interval",
-      value: 1_000,
-      type: "unsigned_integer",
-      position: 004,
-      description:
-        "The number of milliseconds to wait before polling the blockchain for new information." <>
-        " This value is used at application startup to quickly catch up with the blockchain's" <>
-        " latest state. After the application has caught up, the synchronisation switches" <>
-        " to use the polling interval instead."
-    },
-    "blockchain_poll_interval" => %{
-      key: "blockchain_poll_interval",
-      value: 5_000,
-      type: "unsigned_integer",
-      position: 005,
-      description:
-        "The number of milliseconds to wait before polling the blockchain for new information." <>
-        " This value is used after the application has caught the blockchain's latest state."
-    },
 
     # Web settings
     "base_url" => %{
@@ -140,6 +105,41 @@ config :ewallet_config,
         "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
 
+    "blockchain_confirmations_threshold" => %{
+      key: "blockchain_confirmations_threshold",
+      value: 10,
+      type: "unsigned_integer",
+      position: 201,
+      description:
+        "The number of confirmations to wait for before confirming a blockchain transaction."
+    },
+    "blockchain_state_save_interval" => %{
+      key: "blockchain_state_save_interval",
+      value: 5,
+      type: "unsigned_integer",
+      position: 202,
+      description: "The number of blocks to wait before saving the block number to database."
+    },
+    "blockchain_sync_interval" => %{
+      key: "blockchain_sync_interval",
+      value: 1_000,
+      type: "unsigned_integer",
+      position: 203,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information." <>
+        " This value is used at application startup to quickly catch up with the blockchain's" <>
+        " latest state. After the application has caught up, the synchronisation switches" <>
+        " to use the polling interval instead."
+    },
+    "blockchain_poll_interval" => %{
+      key: "blockchain_poll_interval",
+      value: 5_000,
+      type: "unsigned_integer",
+      position: 204,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information." <>
+        " This value is used after the application has caught the blockchain's latest state."
+    },
     "blockchain_deposit_pooling_interval" => %{
       key: "blockchain_deposit_pooling_interval"
       value: 24 * 60 * 60 * 1_000,
@@ -154,14 +154,14 @@ config :ewallet_config,
       key: "sender_email",
       value: "admin@localhost",
       type: "string",
-      position: 200,
+      position: 300,
       description: "The address from which system emails will be sent."
     },
     "email_adapter" => %{
       key: "email_adapter",
       value: "local",
       type: "string",
-      position: 201,
+      position: 301,
       options: ["smtp", "local", "test"],
       description:
         "When set to local, a local email adapter will be used. Perfect for testing and development."
@@ -170,7 +170,7 @@ config :ewallet_config,
       key: "smtp_host",
       value: nil,
       type: "string",
-      position: 202,
+      position: 302,
       description: "The SMTP host to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -179,7 +179,7 @@ config :ewallet_config,
       key: "smtp_port",
       value: nil,
       type: "string",
-      position: 203,
+      position: 303,
       description: "The SMTP port to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -188,7 +188,7 @@ config :ewallet_config,
       key: "smtp_username",
       value: nil,
       type: "string",
-      position: 204,
+      position: 304,
       description: "The SMTP username to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -197,7 +197,7 @@ config :ewallet_config,
       key: "smtp_password",
       value: nil,
       type: "string",
-      position: 205,
+      position: 305,
       description: "The SMTP password to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -208,7 +208,7 @@ config :ewallet_config,
       key: "balance_caching_strategy",
       value: "since_beginning",
       type: "string",
-      position: 300,
+      position: 400,
       options: ["since_beginning", "since_last_cached"],
       description:
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
@@ -219,7 +219,7 @@ config :ewallet_config,
       # Every Friday at 5am: 0 5 * * 5
       value: "0 2 * * *",
       type: "string",
-      position: 301,
+      position: 401,
       description:
         "The frequency to compute the balance cache. Expecting a 5-field crontab format. For example, 0 2 * * * for a daily run at 2AM."
     },
@@ -229,7 +229,7 @@ config :ewallet_config,
       key: "balance_caching_reset_frequency",
       value: 10,
       type: "unsigned_integer",
-      position: 301,
+      position: 402,
       parent: "balance_caching_strategy",
       parent_value: "since_last_cached",
       description:
@@ -243,7 +243,7 @@ config :ewallet_config,
       key: "file_storage_adapter",
       value: "local",
       type: "string",
-      position: 400,
+      position: 500,
       options: ["local", "gcs", "aws"],
       description: "The type of storage to use for images and files."
     },
@@ -253,7 +253,7 @@ config :ewallet_config,
       key: "gcs_bucket",
       value: nil,
       type: "string",
-      position: 500,
+      position: 510,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The name of the GCS bucket."
@@ -263,7 +263,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 501,
+      position: 511,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The credentials of the Google Cloud account."
@@ -274,7 +274,7 @@ config :ewallet_config,
       key: "aws_bucket",
       value: nil,
       type: "string",
-      position: 600,
+      position: 520,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The name of the AWS bucket."
@@ -283,7 +283,7 @@ config :ewallet_config,
       key: "aws_region",
       value: nil,
       type: "string",
-      position: 601,
+      position: 521,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The AWS region where your bucket lives."
@@ -292,7 +292,7 @@ config :ewallet_config,
       key: "aws_access_key_id",
       value: nil,
       type: "string",
-      position: 602,
+      position: 522,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS access key having access to the specified bucket."
@@ -302,7 +302,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 603,
+      position: 523,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS secret having access to the specified bucket."
