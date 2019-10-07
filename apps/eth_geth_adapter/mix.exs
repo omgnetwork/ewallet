@@ -16,14 +16,13 @@ defmodule EthGethAdapter.MixProject do
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {EthGethAdapter.Application, []},
       extra_applications: [:logger],
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:utils, in_umbrella: true},

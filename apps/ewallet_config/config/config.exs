@@ -11,7 +11,10 @@ config :ewallet_config,
     }
   },
   default_settings: %{
+    #
     # Global Settings
+    #
+
     "master_account" => %{
       key: "master_account",
       value: "",
@@ -28,7 +31,10 @@ config :ewallet_config,
       description: "The primary hot wallet for this eWallet."
     },
 
+    #
     # Web settings
+    #
+
     "base_url" => %{
       key: "base_url",
       value: "",
@@ -105,11 +111,23 @@ config :ewallet_config,
         "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
 
+    #
+    # Blockchain settings
+    #
+
+    "blockchain_json_rpc_base_url" => %{
+      key: "blockchain_json_rpc_base_url",
+      value: "http://localhost:8545",
+      type: "string",
+      position: 201,
+      description:
+        "The base url for interacting with the blockchain via the JSON-RPC protocol."
+    },
     "blockchain_confirmations_threshold" => %{
       key: "blockchain_confirmations_threshold",
       value: 10,
       type: "unsigned_integer",
-      position: 201,
+      position: 202,
       description:
         "The number of confirmations to wait for before confirming a blockchain transaction."
     },
@@ -117,14 +135,14 @@ config :ewallet_config,
       key: "blockchain_state_save_interval",
       value: 5,
       type: "unsigned_integer",
-      position: 202,
+      position: 203,
       description: "The number of blocks to wait before saving the block number to database."
     },
     "blockchain_sync_interval" => %{
       key: "blockchain_sync_interval",
       value: 1_000,
       type: "unsigned_integer",
-      position: 203,
+      position: 204,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
         " This value is used at application startup to quickly catch up with the blockchain's" <>
@@ -135,21 +153,24 @@ config :ewallet_config,
       key: "blockchain_poll_interval",
       value: 5_000,
       type: "unsigned_integer",
-      position: 204,
+      position: 205,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
         " This value is used after the application has caught the blockchain's latest state."
     },
     "blockchain_deposit_pooling_interval" => %{
-      key: "blockchain_deposit_pooling_interval"
+      key: "blockchain_deposit_pooling_interval",
       value: 24 * 60 * 60 * 1_000,
       type: "unsigned_integer",
-      position: 205,
+      position: 206,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
     },
 
+    #
     # Email Settings
+    #
+
     "sender_email" => %{
       key: "sender_email",
       value: "admin@localhost",
@@ -203,7 +224,10 @@ config :ewallet_config,
       parent_value: "smtp"
     },
 
+    #
     # Balance Caching Settings
+    #
+
     "balance_caching_strategy" => %{
       key: "balance_caching_strategy",
       value: "since_beginning",
@@ -223,8 +247,6 @@ config :ewallet_config,
       description:
         "The frequency to compute the balance cache. Expecting a 5-field crontab format. For example, 0 2 * * * for a daily run at 2AM."
     },
-
-    # Balance Caching Reset Frequency
     "balance_caching_reset_frequency" => %{
       key: "balance_caching_reset_frequency",
       value: 10,
@@ -233,12 +255,15 @@ config :ewallet_config,
       parent: "balance_caching_strategy",
       parent_value: "since_last_cached",
       description:
-        "A counter is incremented everytime balances are cached, once reaching the given reset frequency,
-      the balances are re-calculated from the beginning and the counter is reset.
-      Set to 0 to always cache balances based on the previous cached value"
+        "A counter is incremented everytime balances are cached, once reaching the given reset frequency," <>
+          " the balances are re-calculated from the beginning and the counter is reset." <>
+          " Set to 0 to always cache balances based on the previous cached value"
     },
 
-    # File Storage settings
+    #
+    # File storage settings
+    #
+
     "file_storage_adapter" => %{
       key: "file_storage_adapter",
       value: "local",
