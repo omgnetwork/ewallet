@@ -120,8 +120,7 @@ config :ewallet_config,
       value: "http://localhost:8545",
       type: "string",
       position: 201,
-      description:
-        "The base url for interacting with the blockchain via the JSON-RPC protocol."
+      description: "The base url for interacting with the blockchain via the JSON-RPC protocol."
     },
     "blockchain_confirmations_threshold" => %{
       key: "blockchain_confirmations_threshold",
@@ -145,9 +144,8 @@ config :ewallet_config,
       position: 204,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
-        " This value is used at application startup to quickly catch up with the blockchain's" <>
-        " latest state. After the application has caught up, the synchronisation switches" <>
-        " to use the polling interval instead."
+          " This value is used at application startup to catch up with the blockchain's latest" <>
+          " state. After it has caught up, it switches to the polling interval instead."
     },
     "blockchain_poll_interval" => %{
       key: "blockchain_poll_interval",
@@ -156,7 +154,8 @@ config :ewallet_config,
       position: 205,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
-        " This value is used after the application has caught the blockchain's latest state."
+          " This value is used after the application has caught up with the blockchain's" <>
+          " latest state."
     },
     "blockchain_deposit_pooling_interval" => %{
       key: "blockchain_deposit_pooling_interval",

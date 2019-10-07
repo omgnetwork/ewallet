@@ -20,6 +20,9 @@ defmodule EWallet.DepositWalletPoolingTracker do
   require Logger
   alias EWallet.DepositPoolingGate
 
+  # Default pooling to 1 hour
+  @default_pooling_interval 60 * 60 * 1000
+
   # TODO: only starts when blockchain is enabled
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -30,7 +33,13 @@ defmodule EWallet.DepositWalletPoolingTracker do
 
   def init(opts) do
     blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
-    pooling_interval = Application.get_env(:ewallet, :blockchain_deposit_pooling_interval)
+
+    # Notice we're not using Application.get_env/3 here for the default? It's because we populate
+    # this config from the database, which may return nil. This function then treats the nil
+    # as an existing value, and so get_env/3 would never pick up the local default here.
+    pooling_interval =
+      Application.get_env(:ewallet, :blockchain_deposit_pooling_interval) ||
+        @default_pooling_interval
 
     state = %{
       blockchain_identifier: blockchain_identifier,

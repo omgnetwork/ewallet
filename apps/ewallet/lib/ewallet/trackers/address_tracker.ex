@@ -32,6 +32,10 @@ defmodule EWallet.AddressTracker do
   alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
   alias ActivityLogger.System
 
+  @default_sync_interval 1000
+  @default_poll_interval 5000
+  @default_state_save_interval 5
+
   # TODO: only starts when blockchain is enabled
 
   @spec start_link(keyword()) :: GenServer.on_start()
@@ -43,8 +47,12 @@ defmodule EWallet.AddressTracker do
   def init(opts) do
     blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
+    # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
+    # this config from the database, which may return nil. This function then treats the nil
+    # as an existing value, and so get_env/3 would never pick up the local defaults here.
     state = %{
-      interval: Application.get_env(:ewallet, :blockchain_sync_interval),
+      interval:
+        Application.get_env(:ewallet, :blockchain_sync_interval) || @default_sync_interval,
       blockchain_identifier: blockchain_identifier,
       timer: nil,
       addresses:
@@ -54,7 +62,9 @@ defmodule EWallet.AddressTracker do
       blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
       blk_retries: 0,
       blk_syncing_save_count: 0,
-      blockchain_state_save_interval: Application.get_env(:ewallet, :blockchain_state_save_interval),
+      blockchain_state_save_interval:
+        Application.get_env(:ewallet, :blockchain_state_save_interval) ||
+          @default_state_save_interval,
       node_adapter: opts[:node_adapter],
       stop_once_synced: opts[:stop_once_synced] || false
     }
@@ -131,8 +141,16 @@ defmodule EWallet.AddressTracker do
       {:error, :block_not_found} ->
         case stop_once_synced do
           false ->
-            # We've reached the end of the chain, switching to a slower polling interval
-            {:noreply, %{state | interval: Application.get_env(:ewallet, :blockchain_poll_interval)}
+            # We've reached the end of the chain, switching to a slower polling interval.
+            #
+            # Notice we're not using Application.get_env/3 here for defaults? It's because we
+            # populate this config from the database, which may return nil. This function then
+            # treats the nil as an existing value, and so get_env/3 would never pick up the
+            # local defaults here.
+            poll_interval =
+              Application.get_env(:ewallet, :blockchain_poll_interval) || @default_poll_interval
+
+            {:noreply, %{state | interval: poll_interval}}
 
           true ->
             {:stop, :normal, state}

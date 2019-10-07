@@ -85,6 +85,8 @@ defmodule EWallet.DBCase do
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
         "blockchain_confirmations_threshold" => 4,
+        # Intervals cause side effects, so let's disable them for testing.
+        "blockchain_state_save_interval" => 0,
         "blockchain_sync_interval" => 0,
         "blockchain_poll_interval" => 0,
         "blockchain_deposit_pooling_interval" => 0
