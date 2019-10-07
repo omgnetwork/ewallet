@@ -54,7 +54,7 @@ defmodule EWallet.AddressTrackerTest do
         blk_number: 0,
         blk_retries: 0,
         blk_syncing_save_count: 0,
-        blk_syncing_save_interval: 5,
+        blockchain_state_save_interval: 5,
         blockchain_identifier: "any_blockchain_identifier",
         contract_addresses: [],
         node_adapter: nil,
@@ -88,7 +88,7 @@ defmodule EWallet.AddressTrackerTest do
         blk_number: 0,
         blk_retries: 0,
         blk_syncing_save_count: 0,
-        blk_syncing_save_interval: 5,
+        blockchain_state_save_interval: 5,
         blockchain_identifier: "any_blockchain_identifier",
         node_adapter: :fake_adapter,
         contract_addresses: [
