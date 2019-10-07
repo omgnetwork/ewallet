@@ -34,13 +34,7 @@ defmodule EWallet.AddressTracker do
 
   # TODO: only starts when blockchain is enabled
 
-  # TODO: make these numbers admin-configurable
-  @blk_syncing_save_interval 5
-  @blk_syncing_polling_interval 5
-  @syncing_interval 50
-  @polling_interval 500
-
-  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, opts, name: name)
@@ -50,7 +44,7 @@ defmodule EWallet.AddressTracker do
     blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
     state = %{
-      interval: @syncing_interval,
+      interval: Application.get_env(:ewallet, :blockchain_sync_interval),
       blockchain_identifier: blockchain_identifier,
       timer: nil,
       addresses:
@@ -60,7 +54,7 @@ defmodule EWallet.AddressTracker do
       blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
       blk_retries: 0,
       blk_syncing_save_count: 0,
-      blk_syncing_save_interval: @blk_syncing_save_interval,
+      blockchain_state_save_interval: Application.get_env(:ewallet, :blockchain_state_save_interval),
       node_adapter: opts[:node_adapter],
       stop_once_synced: opts[:stop_once_synced] || false
     }
@@ -91,10 +85,12 @@ defmodule EWallet.AddressTracker do
     {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
   end
 
+  @spec register_address(String.t(), String.t(), GenServer.server()) :: :ok
   def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
     GenServer.call(pid, {:register_address, blockchain_address, internal_address})
   end
 
+  @spec register_contract_address(String.t(), GenServer.server()) :: :ok
   def register_contract_address(contract_address, pid \\ __MODULE__) do
     GenServer.call(pid, {:register_contract_address, contract_address})
   end
@@ -130,12 +126,7 @@ defmodule EWallet.AddressTracker do
         case stop_once_synced do
           false ->
             # We've reached the end of the chain, switching to a slower polling interval
-            # TODO: Make this less spammy
-            # Logger.info("Block #{blk_number} not found, retrying in #{@polling_interval}ms...")
-
-            state
-            |> Map.put(:interval, @polling_interval)
-            |> Map.put(:blk_syncing_save_interval, @blk_syncing_polling_interval)
+            {:noreply, %{state | interval: Application.get_env(:ewallet, :blockchain_poll_interval)}
 
           true ->
             {:stop, :normal, state}
@@ -173,7 +164,7 @@ defmodule EWallet.AddressTracker do
   defp next(%{blk_number: blk_number, blockchain_identifier: blockchain_identifier} = state) do
     new_blk_number = blk_number + 1
 
-    case state[:blk_syncing_save_count] < state[:blk_syncing_save_interval] do
+    case state[:blk_syncing_save_count] < state[:blockchain_state_save_interval] do
       true ->
         state
         |> Map.put(:blk_syncing_save_count, state[:blk_syncing_save_count] + 1)

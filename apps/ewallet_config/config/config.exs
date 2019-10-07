@@ -35,6 +35,35 @@ config :ewallet_config,
       description:
         "The number of confirmations to wait for before confirming a blockchain transaction."
     },
+    "blockchain_state_save_interval" => %{
+      key: "blockchain_state_save_interval",
+      value: 5,
+      type: "unsigned_integer",
+      position: 003,
+      description: "The number of blocks to wait before saving the block number to database."
+    },
+    "blockchain_sync_interval" => %{
+      key: "blockchain_sync_interval",
+      value: 1_000,
+      type: "unsigned_integer",
+      position: 004,
+      description:
+        "The number of milliseconds to wait before polling the blockchain for new information." <>
+        " This value is used at application startup to quickly catch up with the blockchain's" <>
+        " latest state. After the application has caught up, the synchronisation switches" <>
+        " to use the polling interval instead."
+    },
+    "blockchain_poll_interval" => %{
+      key: "blockchain_poll_interval",
+      value: 5_000,
+      type: "unsigned_integer",
+      position: 005,
+      description:
+        "The number of milliseconds to wait before polling the blockchain for new information." <>
+        " This value is used after the application has caught the blockchain's latest state."
+    },
+
+    # Web settings
     "base_url" => %{
       key: "base_url",
       value: "",
