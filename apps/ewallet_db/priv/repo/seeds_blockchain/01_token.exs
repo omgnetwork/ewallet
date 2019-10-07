@@ -35,15 +35,14 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
   defp run_with(writer, data) do
     case Token.get_by(symbol: data.symbol) do
       nil ->
-        writer.warn("""
-          Creating token #{data.name} (#{data.symbol}) ...
-        """)
         account = Account.get_master_account()
-        data = data
-        |> Map.put(:account_uuid, account.uuid)
-        |> Map.put(:originator, %Seeder{})
-        |> Map.put(:blockchain_address, data.address)
-        |> Map.put(:blockchain_status, Token.blockchain_status_confirmed())
+
+        data =
+          data
+          |> Map.put(:account_uuid, account.uuid)
+          |> Map.put(:originator, %Seeder{})
+          |> Map.put(:blockchain_address, data.address)
+          |> Map.put(:blockchain_status, Token.blockchain_status_confirmed())
 
         case Token.insert(data) do
           {:ok, token} ->
@@ -58,17 +57,21 @@ defmodule EWalletDB.Repo.Seeds.BlockchainToken do
               Account Name        : #{token.account.name}
               Account ID          : #{token.account.id}
             """)
+
           {:error, changeset} ->
             writer.error("  Token #{data.symbol} could not be inserted.")
             writer.print_errors(changeset)
+
           _ ->
             writer.error("  Token #{data.symbol} could not be inserted.")
             writer.error("  Unknown error.")
         end
+
       %Token{} = token ->
         {:ok, token} = Preloader.preload_one(token, :account)
+
         writer.warn("""
-          Skipping #{token.name} (#{token.symbol}) generation, already exists in database
+          Skipping #{token.name} (#{token.symbol}) generation, token already exists in database.
 
           Info:
           ID                 : #{token.id}

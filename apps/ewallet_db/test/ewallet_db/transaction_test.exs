@@ -75,12 +75,12 @@ defmodule EWalletDB.TransactionTest do
     end
   end
 
-  describe "get_last_blk_number/1" do
+  describe "get_highest_blk_number/1" do
     test "returns the last known block number for the given blockchain identifier" do
       insert(:transaction, blockchain_identifier: "ethereum", blk_number: 230)
       insert(:transaction, blockchain_identifier: "ethereum", blk_number: 123)
 
-      blk_number = Transaction.get_last_blk_number("ethereum")
+      blk_number = Transaction.get_highest_blk_number("ethereum")
       assert blk_number == 230
     end
   end

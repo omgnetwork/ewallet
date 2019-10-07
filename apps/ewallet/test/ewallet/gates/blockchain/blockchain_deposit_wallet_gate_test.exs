@@ -25,11 +25,11 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
       wallet = insert(:wallet) |> Repo.preload(:blockchain_deposit_wallets)
       assert wallet.blockchain_deposit_wallets == []
 
-      {res, updated} =
+      {res, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       assert res == :ok
-      assert [%BlockchainDepositWallet{}] = updated.blockchain_deposit_wallets
+      assert %BlockchainDepositWallet{} = deposit_wallet
     end
 
     test "generates a deposit wallet for a secondary wallet" do
@@ -39,34 +39,30 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
 
       assert wallet.blockchain_deposit_wallets == []
 
-      {res, updated} =
+      {res, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       assert res == :ok
-      assert [%BlockchainDepositWallet{}] = updated.blockchain_deposit_wallets
+      assert %BlockchainDepositWallet{} = deposit_wallet
     end
 
     test "returns the existing deposit wallet if it is already generated for the given wallet" do
       wallet = insert(:wallet)
 
-      {:ok, original} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
-      {res, updated} =
-        BlockchainDepositWalletGate.get_or_generate(original, %{"originator" => %System{}})
+      {:ok, second_deposit_wallet} =
+        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
-      updated = Repo.preload(updated, :blockchain_deposit_wallets)
-
-      assert res == :ok
-      assert length(updated.blockchain_deposit_wallets) == 1
-
-      assert hd(updated.blockchain_deposit_wallets).uuid ==
-               hd(original.blockchain_deposit_wallets).uuid
+      assert deposit_wallet.uuid == second_deposit_wallet.uuid
     end
 
     test "returns an error when generating a deposit wallet for a burn wallet" do
       wallet =
-        insert(:wallet, identifier: DBWallet.burn()) |> Repo.preload(:blockchain_deposit_wallets)
+        :wallet
+        |> insert(identifier: DBWallet.burn())
+        |> Repo.preload(:blockchain_deposit_wallets)
 
       assert wallet.blockchain_deposit_wallets == []
 
@@ -87,6 +83,55 @@ defmodule EWallet.BlockchainDepositWalletGateTest do
 
       assert res == :error
       assert error == :hd_wallet_not_found
+    end
+  end
+
+  describe "refresh_balances/3" do
+    test "updates the deposit wallet balances with the latest blockchain state" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      wallet = insert(:blockchain_deposit_wallet)
+
+      _ =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          amount: 10,
+          token: token_1
+        )
+
+      _ =
+        insert(:blockchain_deposit_wallet_cached_balance,
+          blockchain_deposit_wallet: wallet,
+          amount: 20,
+          token: token_2
+        )
+
+      wallet = BlockchainDepositWallet.reload_balances(wallet)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_1.uuid && b.amount == 10
+             end)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_2.uuid && b.amount == 20
+             end)
+
+      # Assert two successful refreshes
+      {res, data} = BlockchainDepositWalletGate.refresh_balances(wallet, [token_1, token_2])
+
+      assert res == :ok
+      assert [{:ok, _}, {:ok, _}] = data
+
+      # The dumb adapter hard codes the amount to 123
+      wallet = BlockchainDepositWallet.reload_balances(wallet)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_1.uuid && b.amount == 123
+             end)
+
+      assert Enum.any?(wallet.cached_balances, fn b ->
+               b.token_uuid == token_2.uuid && b.amount == 123
+             end)
     end
   end
 end

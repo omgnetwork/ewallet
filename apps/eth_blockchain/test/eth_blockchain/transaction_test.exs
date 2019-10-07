@@ -224,6 +224,26 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.data == data
     end
 
+    test "supports sending with a child key", state do
+      {:ok, keychain_key} = Wallet.generate_hd()
+      from_address = Wallet.derive_child_address(keychain_key.uuid, 0, 0)
+      {:ok, {to_address, _}} = Wallet.generate()
+
+      attrs = %{
+        from: from_address,
+        to: to_address,
+        amount: 100,
+        wallet: %{
+          derivation_path: "M/44'/60'/0'/0'",
+          keychain_uuid: keychain_key.uuid,
+          wallet_ref: 0,
+          deposit_ref: 0
+        }
+      }
+
+      assert {:ok, _} = Transaction.send(attrs, state[:adapter_opts])
+    end
+
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                Transaction.send(

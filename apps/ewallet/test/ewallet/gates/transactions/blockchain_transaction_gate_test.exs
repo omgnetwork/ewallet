@@ -21,7 +21,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
     BalanceFetcher,
     BlockchainDepositWalletGate,
     BlockchainTransactionGate,
-    TransactionRegistry
+    TransactionTracker
   }
 
   alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState}
@@ -63,13 +63,13 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -110,13 +110,13 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert transaction.blockchain_identifier == identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -155,13 +155,13 @@ defmodule EWallet.BlockchainTransactionGateTest do
       assert transaction.blockchain_identifier == cc_identifier
       assert transaction.confirmations_count == nil
 
-      {:ok, res} = TransactionRegistry.lookup(transaction.uuid)
-      assert %{tracker: EWallet.TransactionTracker, pid: pid} = res
+      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(tracker_pid)
 
-      {:ok, res} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
-      assert %{listener: _, pid: blockchain_listener_pid} = res
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      assert %{listener: _, pid: blockchain_listener_pid} = listener
 
-      ref = Process.monitor(blockchain_listener_pid)
+      ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
@@ -354,8 +354,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
       {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
 
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
-      assert is_pid(pid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
 
@@ -371,7 +371,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -393,7 +393,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,
@@ -403,8 +403,8 @@ defmodule EWallet.BlockchainTransactionGateTest do
 
       {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
 
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
-      assert is_pid(pid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
 
@@ -424,7 +424,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -446,7 +446,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,
@@ -457,10 +457,10 @@ defmodule EWallet.BlockchainTransactionGateTest do
       {:ok, transaction} = BlockchainTransactionGate.create_from_tracker(attrs)
 
       # We can't find the listener because there shouldn't be one
-      assert TransactionRegistry.lookup(transaction.uuid) == {:error, :not_found}
+      assert TransactionTracker.lookup(transaction.uuid) == {:error, :not_found}
 
-      transaction = Transaction.get(transaction.id)
       assert transaction.status == TransactionState.confirmed()
+
       # Check balance
       {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
       assert balance[:amount] == 1
@@ -474,7 +474,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -496,7 +496,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "to" => wallet.address,
         "from" => nil,
         "from_blockchain_address" => Crypto.fake_eth_address(),
-        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "to_blockchain_address" => deposit_wallet.address,
         "from_account" => nil,
         "to_account" => nil,
         "from_user" => nil,
@@ -513,7 +513,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -535,7 +535,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         "to" => wallet.address,
         "from" => nil,
         "from_blockchain_address" => Crypto.fake_eth_address(),
-        "to_blockchain_address" => hd(wallet.blockchain_deposit_wallets).address,
+        "to_blockchain_address" => deposit_wallet.address,
         "from_account" => nil,
         "to_account" => nil,
         "from_user" => nil,
@@ -615,7 +615,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
-      {:ok, wallet} =
+      {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       tx_hash = Crypto.fake_eth_address()
@@ -637,7 +637,7 @@ defmodule EWallet.BlockchainTransactionGateTest do
         to: wallet.address,
         from: nil,
         from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hd(wallet.blockchain_deposit_wallets).address,
+        to_blockchain_address: deposit_wallet.address,
         from_account: nil,
         to_account: nil,
         from_user: nil,

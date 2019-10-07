@@ -147,11 +147,11 @@ defmodule AdminAPI.ConnCase do
 
     config_pid = start_config_server(account, blockchain_wallet)
 
-    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+    {:ok, keychain_hd_wallet} = Wallet.generate_hd()
 
     {:ok, _} =
       BlockchainHDWallet.insert(%{
-        keychain_uuid: keychain_hd_wallet_uuid,
+        keychain_uuid: keychain_hd_wallet.uuid,
         blockchain_identifier: BlockchainHelper.rootchain_identifier(),
         originator: %System{}
       })

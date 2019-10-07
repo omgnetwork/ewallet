@@ -1,4 +1,4 @@
-# Copyright 2018-2019 OmiseGO Pte Ltd
+# Copyright 2019 OmiseGO Pte Ltd
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWalletDB.Repo.Reporters.SeedsBlockchainReporter do
+defmodule EWallet.DepositWalletPoolingTrackerTest do
+  use EWallet.DBCase, async: false
+  alias EWallet.DepositWalletPoolingTracker
 
-  def run(_writer, _args) do
-    :noop
+  describe "start_link/1" do
+    test "starts a deposit wallet tracker" do
+      opts = [
+        name: :test_deposit_wallet_tracker_start_link,
+        blockchain_identifier: "dumb"
+      ]
+
+      assert {:ok, pid} = DepositWalletPoolingTracker.start_link(opts)
+      assert Process.alive?(pid)
+      assert GenServer.stop(pid) == :ok
+    end
   end
 end

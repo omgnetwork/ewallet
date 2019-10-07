@@ -50,7 +50,7 @@ defmodule EthBlockchain.IntegrationHelpers do
 
   defp generate_entity do
     {:ok, {address, public_key}} = Wallet.generate()
-    private_key = Key.private_key_for_wallet(address)
+    private_key = Key.private_key_for_wallet_address(address)
     import_account(private_key)
     %{private_key: private_key, address: address, public_key: public_key}
   end

@@ -25,7 +25,6 @@ defmodule EWalletDB.Transaction do
 
   alias EWalletDB.{
     Account,
-    BlockchainWallet,
     ExchangePair,
     Repo,
     Token,
@@ -59,11 +58,13 @@ defmodule EWalletDB.Transaction do
     field(:blockchain_tx_hash, :string)
     field(:blockchain_identifier, :string)
     field(:confirmations_count, :integer)
+    field(:from_blockchain_address, :string)
     field(:to_blockchain_address, :string)
     field(:blk_number, :integer)
 
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
+
     # Response returned by ledger
     field(:local_ledger_uuid, :string)
     field(:error_code, :string)
@@ -113,14 +114,6 @@ defmodule EWalletDB.Transaction do
       :from_wallet,
       Wallet,
       foreign_key: :from,
-      references: :address,
-      type: :string
-    )
-
-    belongs_to(
-      :from_blockchain_wallet,
-      BlockchainWallet,
-      foreign_key: :from_blockchain_address,
       references: :address,
       type: :string
     )
@@ -331,7 +324,7 @@ defmodule EWalletDB.Transaction do
     |> validate_blockchain_identifier(:blockchain_identifier)
   end
 
-  def get_last_blk_number(blockchain_identifier) do
+  def get_highest_blk_number(blockchain_identifier) do
     Transaction
     |> where([t], t.blockchain_identifier == ^blockchain_identifier and not is_nil(t.blk_number))
     |> order_by([t], desc: t.blk_number)

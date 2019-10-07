@@ -18,6 +18,7 @@ defmodule EWallet.BlockchainAddressFetcher do
   """
 
   alias EWalletDB.{BlockchainDepositWallet, BlockchainWallet, Token}
+  alias EWalletDB.Helpers.Preloader
 
   def get_all_trackable_wallet_addresses(blockchain_identifier) do
     hot_addresses = get_all_hot_wallet_addresses(blockchain_identifier)
@@ -42,8 +43,9 @@ defmodule EWallet.BlockchainAddressFetcher do
   defp get_all_deposit_wallet_addresses(blockchain_identifier) do
     blockchain_identifier
     |> BlockchainDepositWallet.all()
+    |> Preloader.preload(:wallet)
     |> Enum.into(%{}, fn deposit_wallet ->
-      {deposit_wallet.address, deposit_wallet.wallet_address}
+      {deposit_wallet.address, deposit_wallet.wallet.address}
     end)
   end
 end

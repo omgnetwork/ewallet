@@ -15,6 +15,7 @@
 defmodule EWalletDB.BlockchainDepositWalletTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
+  alias EWallet.BlockchainHelper
   alias EWalletDB.BlockchainDepositWallet
   alias Utils.Helpers.{Crypto, EIP55}
 
@@ -22,7 +23,7 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
     test "returns the list of all blockchain deposit wallets" do
       deposit_wallet_1 = insert(:blockchain_deposit_wallet)
       deposit_wallet_2 = insert(:blockchain_deposit_wallet)
-      deposit_wallets = BlockchainDepositWallet.all("dumb")
+      deposit_wallets = BlockchainDepositWallet.all(BlockchainHelper.rootchain_identifier())
 
       assert is_list(deposit_wallets)
       assert Enum.any?(deposit_wallets, fn w -> w.address == deposit_wallet_1.address end)
@@ -46,9 +47,9 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
       wallet_2 = insert(:wallet)
 
       # The last wallet is the 3rd, but the last for wallet_1 should be the 2nd.
-      _ = insert(:blockchain_deposit_wallet, wallet_address: wallet_1.address)
-      w = insert(:blockchain_deposit_wallet, wallet_address: wallet_1.address)
-      _ = insert(:blockchain_deposit_wallet, wallet_address: wallet_2.address)
+      _ = insert(:blockchain_deposit_wallet, wallet: wallet_1)
+      w = insert(:blockchain_deposit_wallet, wallet: wallet_1)
+      _ = insert(:blockchain_deposit_wallet, wallet: wallet_2)
 
       assert BlockchainDepositWallet.get_last_for(wallet_1).uuid == w.uuid
     end
@@ -58,16 +59,12 @@ defmodule EWalletDB.BlockchainDepositWalletTest do
     test "returns the blockchain deposit wallet by the given fields" do
       deposit_wallet_1 = insert(:blockchain_deposit_wallet)
       deposit_wallet_2 = insert(:blockchain_deposit_wallet)
-      deposit_wallet_3 = insert(:blockchain_deposit_wallet)
 
       assert BlockchainDepositWallet.get_by(uuid: deposit_wallet_1.uuid).uuid ==
                deposit_wallet_1.uuid
 
       assert BlockchainDepositWallet.get_by(address: deposit_wallet_2.address).uuid ==
                deposit_wallet_2.uuid
-
-      assert BlockchainDepositWallet.get_by(public_key: deposit_wallet_3.public_key).uuid ==
-               deposit_wallet_3.uuid
     end
   end
 

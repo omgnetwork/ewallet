@@ -14,7 +14,7 @@
 
 defmodule EthBlockchain.TransactionListener do
   @moduledoc """
-  Listener started dynamically to poll a specific transaction from Ethereum.
+  A listener that polls a specific transaction from Ethereum. Can be started dynamically.
   """
   use GenServer, restart: :temporary
   require Logger

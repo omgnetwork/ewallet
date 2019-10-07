@@ -21,9 +21,15 @@ defmodule EWalletDB.BlockchainDepositWallet do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   import EWalletDB.Helpers.Preloader
-
   alias Ecto.UUID
-  alias EWalletDB.{Repo, BlockchainDepositWallet, BlockchainHDWallet, Wallet}
+
+  alias EWalletDB.{
+    BlockchainDepositWallet,
+    BlockchainDepositWalletCachedBalance,
+    BlockchainHDWallet,
+    Repo,
+    Wallet
+  }
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
@@ -31,16 +37,15 @@ defmodule EWalletDB.BlockchainDepositWallet do
   schema "blockchain_deposit_wallet" do
     # Blockchain deposit wallets don't have an external ID. Use `address` instead.
     field(:address, :string)
-    field(:public_key, :string)
-    field(:path_ref, :integer)
+    field(:relative_hd_path, :integer)
     field(:blockchain_identifier, :string)
 
     belongs_to(
       :wallet,
       Wallet,
-      foreign_key: :wallet_address,
-      references: :address,
-      type: :string
+      foreign_key: :wallet_uuid,
+      references: :uuid,
+      type: UUID
     )
 
     belongs_to(
@@ -49,6 +54,13 @@ defmodule EWalletDB.BlockchainDepositWallet do
       foreign_key: :blockchain_hd_wallet_uuid,
       references: :uuid,
       type: UUID
+    )
+
+    has_many(
+      :cached_balances,
+      BlockchainDepositWalletCachedBalance,
+      foreign_key: :blockchain_deposit_wallet_address,
+      references: :address
     )
 
     activity_logging()
@@ -61,22 +73,28 @@ defmodule EWalletDB.BlockchainDepositWallet do
       attrs,
       cast: [
         :address,
-        :public_key,
-        :wallet_address,
-        :blockchain_hd_wallet_uuid,
-        :blockchain_identifier
+        :relative_hd_path,
+        :blockchain_identifier,
+        :wallet_uuid,
+        :blockchain_hd_wallet_uuid
       ],
-      required: [:address, :wallet_address, :blockchain_hd_wallet_uuid, :blockchain_identifier]
+      required: [
+        :address,
+        :relative_hd_path,
+        :blockchain_identifier,
+        :wallet_uuid,
+        :blockchain_hd_wallet_uuid
+      ]
     )
     |> update_change(:address, &String.downcase/1)
-    |> update_change(:public_key, &String.downcase/1)
-    |> update_change(:wallet_address, &String.downcase/1)
     |> unique_constraint(:address)
-    |> unique_constraint(:public_key)
+    |> unique_constraint(:relative_hd_path,
+      name: :blockchain_deposit_wallet_wallet_uuid_relative_hd_path_index
+    )
     |> validate_immutable(:address)
-    |> validate_immutable(:public_key)
+    |> validate_immutable(:relative_hd_path)
     |> validate_length(:address, count: :bytes, max: 255)
-    |> validate_length(:public_key, count: :bytes, max: 255)
+    |> assoc_constraint(:wallet)
     |> assoc_constraint(:blockchain_hd_wallet)
   end
 
@@ -102,7 +120,7 @@ defmodule EWalletDB.BlockchainDepositWallet do
 
   def get_last_for(wallet) do
     BlockchainDepositWallet
-    |> where([dw], dw.wallet_address == ^wallet.address)
+    |> where([dw], dw.wallet_uuid == ^wallet.uuid)
     |> order_by([dw], desc: dw.inserted_at)
     |> limit(1)
     |> Repo.one()
@@ -127,5 +145,12 @@ defmodule EWalletDB.BlockchainDepositWallet do
     %BlockchainDepositWallet{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log()
+  end
+
+  @doc """
+  Re-retrieve the balances from the database.
+  """
+  def reload_balances(deposit_wallet) do
+    Repo.preload(deposit_wallet, :cached_balances, force: true)
   end
 end

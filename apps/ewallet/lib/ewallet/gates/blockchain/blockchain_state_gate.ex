@@ -20,7 +20,7 @@ defmodule EWallet.BlockchainStateGate do
   alias EWalletDB.{BlockchainState, Transaction}
 
   def get_last_synced_blk_number(blockchain_identifier) do
-    tx_blk_number = Transaction.get_last_blk_number(blockchain_identifier)
+    tx_blk_number = Transaction.get_highest_blk_number(blockchain_identifier)
     state_blk_number = get_state_blk_number(blockchain_identifier)
 
     get_highest_blk_number(blockchain_identifier, state_blk_number, tx_blk_number)

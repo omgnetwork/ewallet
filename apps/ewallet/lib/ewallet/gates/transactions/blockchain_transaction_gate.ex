@@ -30,7 +30,6 @@ defmodule EWallet.BlockchainTransactionGate do
     TokenFetcher,
     Helper,
     BlockchainLocalTransactionGate,
-    TransactionRegistry,
     TransactionTracker,
     BlockchainHelper
   }
@@ -186,12 +185,7 @@ defmodule EWallet.BlockchainTransactionGate do
         )
 
       false ->
-        :ok =
-          TransactionRegistry.start_tracker(TransactionTracker, %{
-            transaction: transaction,
-            transaction_type: flow
-          })
-
+        {:ok, _pid} = TransactionTracker.start(transaction, flow)
         {:ok, transaction}
     end
   end
@@ -346,20 +340,16 @@ defmodule EWallet.BlockchainTransactionGate do
      "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
-  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction, type) do
+  defp submit_if_needed(%{blockchain_tx_hash: nil} = transaction, flow) do
     with {:ok, tx_hash} <- submit(transaction),
          {:ok, transaction} <-
            TransactionState.transition_to(
-             type,
+             flow,
              TransactionState.blockchain_submitted(),
              transaction,
              %{blockchain_tx_hash: tx_hash, originator: %System{}}
            ),
-         :ok =
-           TransactionRegistry.start_tracker(TransactionTracker, %{
-             transaction: transaction,
-             transaction_type: type
-           }) do
+         {:ok, _pid} = TransactionTracker.start(transaction, flow) do
       {:ok, transaction}
     end
 

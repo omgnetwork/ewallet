@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
   alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{BlockchainWallet, Transaction, Repo}
-  alias EWallet.{BlockchainHelper, TransactionRegistry}
+  alias EWallet.{BlockchainHelper, TransactionTracker}
   alias Ecto.UUID
 
   describe "/blockchain_wallet.create" do
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       assert response["data"]["type"] == "deposit"
 
       transaction = Transaction.get(response["data"]["id"])
-      {:ok, %{pid: pid}} = TransactionRegistry.lookup(transaction.uuid)
+      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
 
       {:ok, %{pid: blockchain_listener_pid}} =
         adapter.lookup_listener(transaction.blockchain_tx_hash)

@@ -38,24 +38,26 @@ defmodule EWalletDB.Repo.Seeds.BlockchainHDWallet do
   defp insert(writer) do
     identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
 
-    {:ok, keychain_hd_wallet_uuid} = Wallet.generate_hd()
+    {:ok, keychain_hd_wallet} = Wallet.generate_hd()
 
     attrs = %{
-      keychain_uuid: keychain_hd_wallet_uuid,
+      keychain_uuid: keychain_hd_wallet.uuid,
       blockchain_identifier: identifier,
       originator: %Seeder{}
     }
     case BlockchainHDWallet.insert(attrs) do
       {:ok, wallet} ->
         writer.success("""
-          UUID                : #{wallet.uuid}
-          Keychain UUID       : #{wallet.keychain_uuid}
+          UUID              : #{wallet.uuid}
+          Keychain UUID     : #{wallet.keychain_uuid}
         """)
+
       {:error, changeset} ->
-        writer.error("  HD Wallet #{keychain_hd_wallet_uuid} could not be inserted.")
+        writer.error("  HD Wallet #{keychain_hd_wallet.uuid} could not be inserted.")
         writer.print_errors(changeset)
+
       _ ->
-        writer.error("  HD Wallet #{keychain_hd_wallet_uuid} could not be inserted.")
+        writer.error("  HD Wallet #{keychain_hd_wallet.uuid} could not be inserted.")
         writer.error("  Unknown error.")
     end
   end

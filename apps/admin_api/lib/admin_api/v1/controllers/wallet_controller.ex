@@ -126,7 +126,8 @@ defmodule AdminAPI.V1.WalletController do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          {:ok, _} <- authorize(:generate_deposit_address, conn.assigns, wallet),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, updated} <- BlockchainDepositWalletGate.get_or_generate(wallet, attrs) do
+         {:ok, deposit_wallet} <- BlockchainDepositWalletGate.get_or_generate(wallet, attrs),
+         updated <- Map.put(wallet, :blockchain_deposit_wallets, [deposit_wallet]) do
       respond_single(updated, conn, attrs)
     else
       {:error, error} ->

@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionState do
   @moduledoc """
   State machine module for transactions.
   """
-  alias EWalletDB.{Transaction, Repo}
+  alias EWalletDB.{Repo, Transaction}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -53,7 +53,7 @@ defmodule EWalletDB.TransactionState do
     # pending -> pending_confirmations -> blockchain_confirmed -> confirmed
     from_blockchain_to_ewallet: %{
       @pending => [@pending_confirmations, @blockchain_confirmed],
-      @pending_confirmations => [@blockchain_confirmed],
+      @pending_confirmations => [@pending_confirmations, @blockchain_confirmed],
       @blockchain_confirmed => [@confirmed],
       @confirmed => []
     },

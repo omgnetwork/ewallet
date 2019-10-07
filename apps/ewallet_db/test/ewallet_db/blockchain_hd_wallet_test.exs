@@ -46,7 +46,7 @@ defmodule EWalletDB.BlockchainHDWalletTest do
 
       attrs = %{
         blockchain_identifier: "dumb",
-        keychain_uuid: UUID.generate()
+        keychain_uuid: "test_keychain_uuid_exists"
       }
 
       {res, error} = BlockchainHDWallet.insert(attrs)

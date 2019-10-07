@@ -25,7 +25,7 @@ defmodule Keychain.Factory do
     {public_key, private_key} = Wallet.generate_keypair()
 
     %Key{
-      wallet_id: sequence(:email, &"wallet-id-#{&1}"),
+      wallet_address: sequence("wallet-address-"),
       private_key: Base.encode16(private_key, case: :lower),
       public_key: Base.encode16(public_key, case: :lower),
       uuid: UUID.generate()
@@ -38,7 +38,7 @@ defmodule Keychain.Factory do
     wallet_address = Address.from_xpub(public_key)
 
     %Key{
-      wallet_id: wallet_address,
+      wallet_address: wallet_address,
       private_key: root_key,
       public_key: public_key,
       uuid: UUID.generate()
