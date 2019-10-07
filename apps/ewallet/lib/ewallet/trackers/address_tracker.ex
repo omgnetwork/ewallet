@@ -95,6 +95,12 @@ defmodule EWallet.AddressTracker do
     GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
+  # Does not poll if the interval is too low
+  defp poll(%{interval: interval} = state) when interval <= 0 do
+    _ = Logger.info("Address tracking has stopped because the interval is #{interval}.")
+    {:noreply, state}
+  end
+
   defp poll(state) do
     case run(state) do
       new_state when is_map(new_state) ->
