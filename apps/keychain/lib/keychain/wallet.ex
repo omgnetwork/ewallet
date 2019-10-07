@@ -19,6 +19,7 @@ defmodule Keychain.Wallet do
   alias ExthCrypto.Hash.Keccak
   alias Ecto.UUID
   alias BlockKeys.{CKD, Ethereum, Ethereum.Address}
+  alias Utils.Helpers.Crypto
 
   @typep address :: Keychain.address()
   @typep resp(ret) :: ret | {:error, atom()}
@@ -51,7 +52,7 @@ defmodule Keychain.Wallet do
     # Sometimes the generated private key is 31 bytes long, so we need to pad it to 32
     private_key_encoded =
       private_key
-      |> Utils.Helpers.Crypto.pad_bytes(32)
+      |> Crypto.pad_bytes(32)
       |> Base.encode16(case: :lower)
 
     {:ok, _} =
