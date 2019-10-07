@@ -22,9 +22,6 @@ defmodule EWallet.DepositWalletPoolingTracker do
 
   # TODO: only starts when blockchain is enabled
 
-  # TODO: make these numbers admin-configurable
-  @default_interval 60 * 60 * 1_000
-
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name, __MODULE__)
@@ -33,7 +30,7 @@ defmodule EWallet.DepositWalletPoolingTracker do
 
   def init(opts) do
     blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
-    pooling_interval = Application.get_env(:ewallet, :deposit_pooling_interval, @default_interval)
+    pooling_interval = Application.get_env(:ewallet, :blockchain_deposit_pooling_interval)
 
     state = %{
       blockchain_identifier: blockchain_identifier,
@@ -54,6 +51,7 @@ defmodule EWallet.DepositWalletPoolingTracker do
 
   # Does not pool if the interval is too low
   defp poll(%{pooling_interval: interval} = state) when interval <= 0 do
+    _ = Logger.info("Deposit wallet pooling has stopped because the interval is #{interval}.")
     {:noreply, state}
   end
 

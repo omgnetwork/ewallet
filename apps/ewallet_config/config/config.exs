@@ -140,6 +140,15 @@ config :ewallet_config,
         "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
 
+    "blockchain_deposit_pooling_interval" => %{
+      key: "blockchain_deposit_pooling_interval"
+      value: 24 * 60 * 60 * 1_000,
+      type: "unsigned_integer",
+      position: 205,
+      description:
+        "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
+    },
+
     # Email Settings
     "sender_email" => %{
       key: "sender_email",
