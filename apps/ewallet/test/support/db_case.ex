@@ -84,7 +84,10 @@ defmodule EWallet.DBCase do
         "email_adapter" => "test",
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
-        "blockchain_confirmations_threshold" => 4
+        "blockchain_confirmations_threshold" => 4,
+        "blockchain_sync_interval" => 0,
+        "blockchain_poll_interval" => 0,
+        "blockchain_deposit_pooling_interval" => 0
       }
     )
 
