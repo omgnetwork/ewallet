@@ -33,9 +33,9 @@ defmodule EthGethAdapter.Application do
 
   # Takes relevant ewallet's configs and set them into :ethereumex application configs
   defp config_ethereumex do
-    json_rpc_base_url = Application.get_env(:eth_geth_adapter, :blockchain_json_rpc_base_url)
+    json_rpc_url = Application.get_env(:eth_geth_adapter, :blockchain_json_rpc_url)
 
-    :ok = Application.put_env(:ethereumex, :url, json_rpc_base_url)
+    :ok = Application.put_env(:ethereumex, :url, json_rpc_url)
     :ok = Application.put_env(:ethereumex, :client_type, :http)
 
     :ok

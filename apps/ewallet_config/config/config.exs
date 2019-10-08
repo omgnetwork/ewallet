@@ -115,12 +115,12 @@ config :ewallet_config,
     # Blockchain settings
     #
 
-    "blockchain_json_rpc_base_url" => %{
-      key: "blockchain_json_rpc_base_url",
+    "blockchain_json_rpc_url" => %{
+      key: "blockchain_json_rpc_url",
       value: "http://localhost:8545",
       type: "string",
       position: 201,
-      description: "The base url for interacting with the blockchain via the JSON-RPC protocol."
+      description: "The JSON-RPC url for interacting with the blockchain client."
     },
     "blockchain_confirmations_threshold" => %{
       key: "blockchain_confirmations_threshold",
