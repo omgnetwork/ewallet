@@ -121,12 +121,12 @@ defmodule EWalletDB.BlockchainTransactionTest do
     end
   end
 
-  describe "insert_rootchain/1" do
+  describe "insert_outgoing_rootchain/1" do
     test_insert_ok(
       BlockchainTransaction,
       :hash,
       "0x0",
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -134,7 +134,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :rootchain_identifier,
       "ethereum",
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -142,7 +142,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :status,
       BlockchainTransactionState.submitted(),
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -150,7 +150,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :gas_price,
       10,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -158,7 +158,7 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :gas_limit,
       10,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -166,48 +166,48 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :metadata,
       %{"some" => "thing"},
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_generate_uuid(
       BlockchainTransaction,
       :uuid,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_generate_timestamps(
       BlockchainTransaction,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_prevent_blank(
       BlockchainTransaction,
       :rootchain_identifier,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_prevent_blank(
       BlockchainTransaction,
       :gas_price,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_prevent_blank(
       BlockchainTransaction,
       :gas_limit,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
     test_insert_prevent_blank(
       BlockchainTransaction,
       :hash,
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
       :blockchain_transaction_rootchain
     )
 
@@ -215,7 +215,76 @@ defmodule EWalletDB.BlockchainTransactionTest do
       BlockchainTransaction,
       :hash,
       "0x0",
-      &BlockchainTransaction.insert_rootchain/1,
+      &BlockchainTransaction.insert_outgoing_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+  end
+
+  describe "insert_incoming_rootchain/1" do
+    test_insert_ok(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      "ethereum",
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :status,
+      BlockchainTransactionState.submitted(),
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_ok(
+      BlockchainTransaction,
+      :metadata,
+      %{"some" => "thing"},
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_generate_uuid(
+      BlockchainTransaction,
+      :uuid,
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_generate_timestamps(
+      BlockchainTransaction,
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :rootchain_identifier,
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
+      :hash,
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_duplicate(
+      BlockchainTransaction,
+      :hash,
+      "0x0",
+      &BlockchainTransaction.insert_incoming_rootchain/1,
       :blockchain_transaction_rootchain
     )
   end

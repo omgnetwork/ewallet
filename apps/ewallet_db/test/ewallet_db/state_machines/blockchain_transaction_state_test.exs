@@ -19,7 +19,7 @@ defmodule EWalletDB.BlockchainTransactionStateTest do
   alias ActivityLogger.System
 
   def test_successful_state_transition(from_state, to_state, attrs \\ %{}) do
-    blockchain_transaction = insert(:blockchain_transaction, status: from_state)
+    blockchain_transaction = insert(:blockchain_transaction_rootchain, status: from_state)
     assert blockchain_transaction.status == from_state
 
     {:ok, blockchain_transaction} =
@@ -38,7 +38,7 @@ defmodule EWalletDB.BlockchainTransactionStateTest do
   end
 
   def test_failed_state_transition(from_state, to_state, attrs \\ %{}) do
-    blockchain_transaction = insert(:blockchain_transaction, status: from_state)
+    blockchain_transaction = insert(:blockchain_transaction_rootchain, status: from_state)
     assert blockchain_transaction.status == from_state
 
     {:error, error} =

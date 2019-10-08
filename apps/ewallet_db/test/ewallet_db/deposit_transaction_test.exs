@@ -15,7 +15,7 @@
 defmodule EWalletDB.DepositTransactionTest do
   use EWalletDB.SchemaCase, async: true
   import EWalletDB.Factory
-  alias EWalletDB.{DepositTransaction, TransactionState}
+  alias EWalletDB.{DepositTransaction, BlockchainTransactionState}
 
   describe "get/1" do
     test "retrieves a deposit transaction by its id" do
@@ -55,47 +55,48 @@ defmodule EWalletDB.DepositTransactionTest do
       # Transactions that are not finalized and match the address
       dtx_1 =
         insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.pending_confirmations()),
+          blockchain_transaction:
+            insert(:blockchain_transaction_rootchain,
+              status: BlockchainTransactionState.pending_confirmations()
+            ),
           to_deposit_wallet: wallet
         )
 
       dtx_2 =
         insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.blockchain_submitted()),
+          blockchain_transaction:
+            insert(:blockchain_transaction_rootchain,
+              status: BlockchainTransactionState.submitted()
+            ),
           to_deposit_wallet: wallet
         )
 
       # Transactions that are not finalized but have a differing address
       dtx_3 =
         insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.pending_confirmations())
+          blockchain_transaction:
+            insert(:blockchain_transaction_rootchain,
+              status: BlockchainTransactionState.pending_confirmations()
+            )
         )
 
       dtx_4 =
         insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.blockchain_confirmed())
+          blockchain_transaction:
+            insert(:blockchain_transaction_rootchain,
+              status: BlockchainTransactionState.confirmed()
+            )
         )
 
       # Transactions that are excluded but does match the address
       dtx_5 =
         insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.pending()),
+          blockchain_transaction:
+            insert(:blockchain_transaction_rootchain,
+              status: BlockchainTransactionState.confirmed()
+            ),
           to_deposit_wallet: wallet
         )
-
-      dtx_6 =
-        insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.blockchain_confirmed()),
-          to_deposit_wallet: wallet
-        )
-
-      dtx_7 =
-        insert(:deposit_transaction,
-          transaction: insert(:transaction, status: TransactionState.confirmed()),
-          to_deposit_wallet: wallet
-        )
-
-      dtx_8 = insert(:deposit_transaction, to_deposit_wallet: wallet)
 
       txns = DepositTransaction.all_unfinalized_by(to_deposit_wallet_address: wallet.address)
 
@@ -104,9 +105,6 @@ defmodule EWalletDB.DepositTransactionTest do
       refute Enum.any?(txns, fn t -> t.uuid == dtx_3.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_4.uuid end)
       refute Enum.any?(txns, fn t -> t.uuid == dtx_5.uuid end)
-      refute Enum.any?(txns, fn t -> t.uuid == dtx_6.uuid end)
-      refute Enum.any?(txns, fn t -> t.uuid == dtx_7.uuid end)
-      refute Enum.any?(txns, fn t -> t.uuid == dtx_8.uuid end)
     end
   end
 end

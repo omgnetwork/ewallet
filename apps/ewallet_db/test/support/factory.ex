@@ -405,8 +405,31 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  # TODO Need to add a factory for `transaction` that have a `blockchain_transaction
-  # (previously `blockchain_transaction_factory`)
+  def transaction_with_blockchain_factory do
+    token = insert(:token)
+    from_wallet = insert(:wallet)
+    to_wallet = insert(:wallet)
+
+    %Transaction{
+      idempotency_token: UUID.generate(),
+      payload: %{example: "Payload"},
+      metadata: %{some: "metadata"},
+      from_amount: 100,
+      from_token: token,
+      from_wallet: from_wallet,
+      to_token: token,
+      to_amount: 100,
+      from_blockchain_address: Crypto.fake_eth_address(),
+      to_blockchain_address: Crypto.fake_eth_address(),
+      blockchain_transaction: insert(:blockchain_transaction_rootchain),
+      exchange_account: nil,
+      type: "internal",
+      error_code: nil,
+      error_description: nil,
+      error_data: nil,
+      originator: %System{}
+    }
+  end
 
   def blockchain_transaction_rootchain_factory do
     %BlockchainTransaction{

@@ -97,44 +97,22 @@ defmodule EWalletDB.TransactionStateTest do
   end
 
   describe "transition_to/4 for from_blockchain_to_ewallet transactions" do
-    test "transition from pending to pending_confirmations successfully" do
+    test "transition from pending to confirmed successfully" do
       test_successful_state_transition(
         :from_blockchain_to_ewallet,
         TransactionState.pending(),
-        TransactionState.pending_confirmations(),
-        %{
-          confirmations_count: 1
-        }
-      )
-    end
-
-    test "transition from pending to blockchain_confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ewallet,
-        TransactionState.pending(),
-        TransactionState.blockchain_confirmed(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from pending_confirmations to blockchain_confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ewallet,
-        TransactionState.pending_confirmations(),
-        TransactionState.blockchain_confirmed(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from blockchain_confirmed to confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ewallet,
-        TransactionState.blockchain_confirmed(),
         TransactionState.confirmed()
+      )
+    end
+
+    test "transition from pending to failed successfully" do
+      test_successful_state_transition(
+        :from_blockchain_to_ewallet,
+        TransactionState.pending(),
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
       )
     end
 
@@ -142,7 +120,10 @@ defmodule EWalletDB.TransactionStateTest do
       test_failed_state_transition(
         :from_blockchain_to_ewallet,
         TransactionState.confirmed(),
-        TransactionState.blockchain_confirmed()
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
       )
     end
   end
@@ -154,38 +135,27 @@ defmodule EWalletDB.TransactionStateTest do
         TransactionState.pending(),
         TransactionState.blockchain_submitted(),
         %{
-          blockchain_tx_hash: "hash"
+          blockchain_transaction_uuid: insert(:blockchain_transaction_rootchain).uuid
         }
       )
     end
 
-    test "transition from blockchain_submitted to pending_confirmations successfully" do
+    test "transition from blockchain_submitted to confirmed successfully" do
       test_successful_state_transition(
         :from_ewallet_to_blockchain,
         TransactionState.blockchain_submitted(),
-        TransactionState.pending_confirmations(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from pending_confirmations to blockchain_confirmed successfully" do
-      test_successful_state_transition(
-        :from_ewallet_to_blockchain,
-        TransactionState.pending_confirmations(),
-        TransactionState.blockchain_confirmed(),
-        %{
-          confirmations_count: 11
-        }
-      )
-    end
-
-    test "transition from blockchain_confirmed to confirmed successfully" do
-      test_successful_state_transition(
-        :from_ewallet_to_blockchain,
-        TransactionState.blockchain_confirmed(),
         TransactionState.confirmed()
+      )
+    end
+
+    test "transition from blockchain_submitted to failed successfully" do
+      test_successful_state_transition(
+        :from_ewallet_to_blockchain,
+        TransactionState.blockchain_submitted(),
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
       )
     end
 
@@ -193,57 +163,27 @@ defmodule EWalletDB.TransactionStateTest do
       test_failed_state_transition(
         :from_ewallet_to_blockchain,
         TransactionState.confirmed(),
-        TransactionState.failed()
+        TransactionState.failed(),
+        %{
+          error_code: "error"
+        }
       )
     end
   end
 
   describe "transition_to/4 for from_blockchain_to_ledger transactions" do
-    test "transition from pending to pending_confirmations successfully" do
+    test "transition from pending to confirmed successfully" do
       test_successful_state_transition(
         :from_blockchain_to_ledger,
         TransactionState.pending(),
-        TransactionState.pending_confirmations(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from pending to blockchain_confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ledger,
-        TransactionState.pending(),
-        TransactionState.blockchain_confirmed(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from pending_confirmations to blockchain_confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ledger,
-        TransactionState.pending(),
-        TransactionState.pending_confirmations(),
-        %{
-          confirmations_count: 10
-        }
-      )
-    end
-
-    test "transition from blockchain_confirmed to confirmed successfully" do
-      test_successful_state_transition(
-        :from_blockchain_to_ledger,
-        TransactionState.blockchain_confirmed(),
         TransactionState.confirmed()
       )
     end
 
-    test "transition from blockchain_confirmed to failed successfully" do
+    test "transition from pending to failed successfully" do
       test_successful_state_transition(
         :from_blockchain_to_ledger,
-        TransactionState.blockchain_confirmed(),
+        TransactionState.pending(),
         TransactionState.failed(),
         %{
           error_code: "error"
@@ -294,7 +234,7 @@ defmodule EWalletDB.TransactionStateTest do
         TransactionState.ledger_pending(),
         TransactionState.blockchain_submitted(),
         %{
-          blockchain_tx_hash: "hash"
+          blockchain_transaction_uuid: insert(:blockchain_transaction_rootchain).uuid
         }
       )
     end
@@ -303,21 +243,18 @@ defmodule EWalletDB.TransactionStateTest do
       test_successful_state_transition(
         :from_ledger_to_blockchain,
         TransactionState.blockchain_submitted(),
-        TransactionState.pending_confirmations(),
+        TransactionState.failed(),
         %{
-          confirmations_count: 1
+          error_code: "error"
         }
       )
     end
 
-    test "transition from pending_confirmations to blockchain_confirmed successfully" do
+    test "transition from blockchain_submitted to blockchain_confirmed successfully" do
       test_successful_state_transition(
         :from_ledger_to_blockchain,
-        TransactionState.pending_confirmations(),
-        TransactionState.ledger_pending_blockchain_confirmed(),
-        %{
-          confirmations_count: 1
-        }
+        TransactionState.blockchain_submitted(),
+        TransactionState.ledger_pending_blockchain_confirmed()
       )
     end
 
