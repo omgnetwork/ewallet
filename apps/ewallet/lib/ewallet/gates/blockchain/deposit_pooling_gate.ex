@@ -118,7 +118,8 @@ defmodule EWallet.DepositPoolingGate do
       }
 
       with {:ok, transaction} <- DepositTransaction.insert(attrs),
-           {:ok, blck_tx} <- submit_blockchain(transaction, balance, gas_price, gas_limit, blockchain_identifier),
+           {:ok, blck_tx} <-
+             submit_blockchain(transaction, balance, gas_price, gas_limit, blockchain_identifier),
            {:ok, transaction} <- set_transaction_hash(transaction, blck_tx) do
         {[transaction | transactions], errors, gas_used + gas_price * gas_limit}
       else
@@ -128,7 +129,10 @@ defmodule EWallet.DepositPoolingGate do
   end
 
   defp set_transaction_hash(transaction, blck_tx) do
-    DepositTransaction.update(transaction, %{blockchain_transaction_uuid: blck_tx.uuid, originator: %System{}})
+    DepositTransaction.update(transaction, %{
+      blockchain_transaction_uuid: blck_tx.uuid,
+      originator: %System{}
+    })
   end
 
   # Checks the poolable amount by subtracting the balance amount from all ongoing
