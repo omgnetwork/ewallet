@@ -149,7 +149,6 @@ defmodule EthBlockchain.TransactionListenerTest do
       # functions
       receive do
         state ->
-          assert state[:confirmations_count] == 13
           assert state[:tx_hash] == "valid"
       end
 
@@ -170,7 +169,6 @@ defmodule EthBlockchain.TransactionListenerTest do
       # functions
       receive do
         state ->
-          assert state[:confirmations_count] == 13
           assert state[:tx_hash] == "valid"
       end
 

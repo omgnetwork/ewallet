@@ -80,9 +80,6 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
 
-  defp process_with_transaction(:from_ledger_to_blockchain, transaction),
-    do: {:error, transaction}
-
   defp process_with_transaction(
          :from_ledger_to_blockchain,
          %Transaction{
@@ -119,6 +116,9 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
     |> LedgerTransaction.fail()
     |> update_transaction(transaction, :from_ledger_to_blockchain)
   end
+
+  defp process_with_transaction(:from_ledger_to_blockchain, transaction),
+    do: {:error, transaction}
 
   defp set_blockchain_wallets(transaction, _, _, false), do: transaction
 

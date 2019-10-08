@@ -442,25 +442,7 @@ defmodule EWalletDB.Factory do
       type: DepositTransaction.incoming(),
       token: insert(:token),
       amount: 100,
-      transaction: insert(:transaction),
-      blockchain_tx_hash: sequence("0xabcdefabcdef"),
-      blockchain_identifier: "ethereum",
-      from_blockchain_address: Crypto.fake_eth_address(),
-      from_deposit_wallet: nil,
-      to_blockchain_address: nil,
-      to_deposit_wallet: insert(:blockchain_deposit_wallet),
-      originator: %System{}
-    }
-  end
-
-  def deposit_transaction_factory do
-    %DepositTransaction{
-      type: DepositTransaction.incoming(),
-      token: insert(:token),
-      amount: 100,
-      transaction: insert(:transaction),
-      blockchain_tx_hash: sequence("0xabcdefabcdef"),
-      blockchain_identifier: "ethereum",
+      blockchain_transaction: insert(:blockchain_transaction_rootchain),
       from_blockchain_address: Crypto.fake_eth_address(),
       from_deposit_wallet: nil,
       to_blockchain_address: nil,

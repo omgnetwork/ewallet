@@ -72,8 +72,8 @@ defmodule EthBlockchain.EthBlockchainCase do
     }
   end
 
-  def decode_transaction_response(response) do
-    response
+  def decode_transaction_response(%{tx_hash: tx_hash}) do
+    tx_hash
     |> Encoding.from_hex()
     |> ExRLP.decode()
     |> Transaction.deserialize()
