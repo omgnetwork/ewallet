@@ -49,7 +49,8 @@ defmodule EthBlockchain.EthBlockchainCase do
       [:eth_blockchain],
       %{
         "chain_id" => 0,
-        "blockchain_transaction_poll_interval" => 100
+        "blockchain_transaction_poll_interval" => 100,
+        "blockchain_default_gas_price" => 20_000_000_000
       }
     )
 

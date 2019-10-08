@@ -131,6 +131,13 @@ config :ewallet_config,
       position: 202,
       description: "The JSON-RPC url for interacting with the blockchain client."
     },
+    "blockchain_default_gas_price" => %{
+      key: "blockchain_default_gas_price",
+      value: 1_000_000_000,
+      type: "unsigned_integer",
+      position: 203,
+      description: "The default gas price to use for transaction submission."
+    },
     "blockchain_confirmations_threshold" => %{
       key: "blockchain_confirmations_threshold",
       value: 10,

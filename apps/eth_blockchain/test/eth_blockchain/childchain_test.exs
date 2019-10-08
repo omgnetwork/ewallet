@@ -70,7 +70,7 @@ defmodule EthBlockchain.ChildchainTest do
       assert trx.data == encoded_abi_data
       assert to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == amount
       assert to_hex(trx.to) == contract_address
     end
@@ -110,7 +110,7 @@ defmodule EthBlockchain.ChildchainTest do
       assert trx.data == encoded_abi_data
       assert to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert to_hex(trx.to) == contract_address
     end

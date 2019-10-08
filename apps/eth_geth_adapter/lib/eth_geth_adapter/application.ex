@@ -18,8 +18,8 @@ defmodule EthGethAdapter.Application do
   alias EWalletConfig.Config
 
   @doc """
-  Starts `EthGethAdapter.Application`. Although, it doesn't start any child process.
-  `EthGethAdapter` code get started/called by other subapps, but we still need
+  Starts `EthGethAdapter.Application`. It doesn't start any child process since
+  the `EthGethAdapter` code get started/called by other subapps. However, we still need
   this `EthGethAdapter.Application.start/2` to do configurations at startup.
   """
   def start(_type, _args) do

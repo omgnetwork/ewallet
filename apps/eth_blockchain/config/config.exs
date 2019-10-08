@@ -15,11 +15,9 @@ config :eth_blockchain,
 config :eth_blockchain,
   settings: [
     :blockchain_chain_id,
-    :blockchain_transaction_poll_interval
+    :blockchain_transaction_poll_interval,
+    :blockchain_default_gas_price
   ]
-
-config :eth_blockchain,
-  default_gas_price: 20_000_000_000
 
 config :eth_blockchain,
        :gas_limit,

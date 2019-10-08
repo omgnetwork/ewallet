@@ -42,6 +42,6 @@ defmodule EthBlockchain.GasHelper do
   def get_gas_price_or_default(_attrs), do: get_default_gas_price()
 
   def get_default_gas_price do
-    Application.get_env(:eth_blockchain, :default_gas_price)
+    Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
   end
 end

@@ -27,6 +27,7 @@ defmodule EthGethAdapter.MixProject do
     [
       {:utils, in_umbrella: true},
       {:keychain, in_umbrella: true},
+      {:ewallet_config, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ethereumex, "~> 0.5"},
       {:ex_abi, "0.2.1"},

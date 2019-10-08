@@ -48,7 +48,9 @@ defmodule EthBlockchain.Transaction do
   @doc """
   Initiate a token transfer between from `from` to `to` of the given amount.
   Ether is represented with `0x0000000000000000000000000000000000000000` as contract address and will be used as the default currency if no contract address specified.
-  The gas price can be optionally specied, will default to the configued `:default_gas_price` if ommited.
+  The gas price can be optionally specied, will default to the configued `:blockchain_default_gas_price`
+  if ommited.
+
   Possible map attrs:
   /3 %{:from, :to, :amount}
     -> will transfer `amount` ether from `from` to `to` with the default gas price

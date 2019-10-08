@@ -36,6 +36,7 @@ defmodule EthBlockchain.MixProject do
       {:ex_rlp, "~> 0.5.2"},
       {:utils, in_umbrella: true},
       {:keychain, in_umbrella: true},
+      {:ewallet_config, in_umbrella: true},
       {:jason, "~> 1.1"},
       #Tests
       {:briefly, "~> 0.3", only: [:test]},

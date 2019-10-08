@@ -53,7 +53,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.gas_limit ==
                GasHelper.get_gas_limit_or_default(:contract_creation, %{})
 
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == "0x"
 
@@ -84,7 +84,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.gas_limit ==
                GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
@@ -112,7 +112,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.gas_limit ==
                GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
@@ -137,7 +137,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.gas_limit ==
                GasHelper.get_gas_limit_or_default(:eth_transaction, %{})
 
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 100
       assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
@@ -188,7 +188,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.gas_limit ==
                GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
 
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_2]
       assert trx.data == data
@@ -343,7 +343,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.data == encoded_abi_data
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == amount
       assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
@@ -373,7 +373,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.data == encoded_abi_data
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_1]
     end
@@ -404,7 +404,7 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.data == encoded_abi_data
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:contract_transaction, %{})
-      assert trx.gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_2]
     end
