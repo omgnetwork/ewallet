@@ -49,6 +49,7 @@ defmodule EthBlockchain.EthBlockchainCase do
       [:eth_blockchain],
       %{
         "chain_id" => 0,
+        "blockchain_transaction_poll_interval" => 100
       }
     )
 

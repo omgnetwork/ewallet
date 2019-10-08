@@ -11,6 +11,3 @@ config :eth_blockchain,
        ],
        default_eth_node_adapter: :dumb,
        default_cc_node_adapter: :dumb_cc
-
-config :eth_blockchain,
-  transaction_poll_interval: 100

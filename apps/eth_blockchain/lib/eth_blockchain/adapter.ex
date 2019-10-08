@@ -115,7 +115,7 @@ defmodule EthBlockchain.Adapter do
       BlockchainRegistry.start_listener(TransactionListener, %{
         id: tx_hash,
         is_childchain_transaction: is_childchain_transaction,
-        interval: Application.get_env(:eth_blockchain, :transaction_poll_interval),
+        interval: Application.get_env(:eth_blockchain, :blockchain_transaction_poll_interval),
         blockchain_adapter_pid: opts[:eth_node_adapter_pid],
         node_adapter: opts[:eth_node_adapter]
       })

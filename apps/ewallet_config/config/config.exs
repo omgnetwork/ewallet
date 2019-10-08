@@ -166,11 +166,20 @@ config :ewallet_config,
           " This value is used after the application has caught up with the blockchain's" <>
           " latest state."
     },
+    "blockchain_transaction_poll_interval" => %{
+      key: "blockchain_transaction_poll_interval",
+      value: 5_000,
+      type: "unsigned_integer",
+      position: 207,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information" <>
+          " about a specific transaction."
+    },
     "blockchain_deposit_pooling_interval" => %{
       key: "blockchain_deposit_pooling_interval",
       value: 24 * 60 * 60 * 1_000,
       type: "unsigned_integer",
-      position: 207,
+      position: 208,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
     },
