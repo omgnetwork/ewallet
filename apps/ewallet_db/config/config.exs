@@ -3,8 +3,10 @@ use Mix.Config
 config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
+  # The `:blockchain_adapter`, `:rootchain_identifier` and `:childchain_identifier`
+  # are in `:ewallet_db` app as the we use them for changeset validation and the
+  # `:ewallet_db` can be referenced by almost if not all other subapps.
   blockchain_adapter: EthBlockchain.Adapter,
-  # TODO: move this to config / refactor
   rootchain_identifier: "ethereum",
   childchain_identifier: "omisego_network",
   settings: [
