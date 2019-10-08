@@ -33,8 +33,8 @@ defmodule EWalletDB.TransactionType do
       {^address, to_blockchain, nil, nil} when not is_nil(to_blockchain) ->
         :from_ewallet_to_blockchain
 
-      {from_blockchain, ^address, nil, to_ledger}
-      when not is_nil(from_blockchain) and not is_nil(to_ledger) ->
+      {from_blockchain, to_blockchain, nil, to_ledger}
+      when not is_nil(from_blockchain) and not is_nil(to_blockchain) and not is_nil(to_ledger) ->
         :from_blockchain_to_ledger
 
       {^address, to_blockchain, from_ledger, nil}

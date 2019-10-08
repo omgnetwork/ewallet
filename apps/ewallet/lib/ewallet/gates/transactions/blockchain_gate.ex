@@ -324,7 +324,7 @@ defmodule EWallet.TransactionGate.Blockchain do
       from: transaction.from_blockchain_address,
       to: transaction.to_blockchain_address,
       amount: transaction.from_amount,
-      currency: transaction.from_token.blockchain_address
+      contract_address: transaction.from_token.blockchain_address
     }
 
     BlockchainTransactionGate.transfer_on_rootchain(attrs, transaction, rootchain_identifier)

@@ -27,8 +27,8 @@ defmodule EWalletDB.DepositTransaction do
     BlockchainDepositWallet,
     Repo,
     Token,
-    Transaction,
-    TransactionState
+    BlockchainTransaction,
+    BlockchainTransactionState
   }
 
   @outgoing "outgoing"
@@ -43,7 +43,8 @@ defmodule EWalletDB.DepositTransaction do
   # Note that non-blockchain statuses like pending() are not included
   # since pending transactions do not yet affect the blockchain balance.
   @unfinalized_statuses [
-    TransactionState.blockchain_submitted()
+    BlockchainTransactionState.submitted(),
+    BlockchainTransactionState.pending_confirmations()
   ]
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -66,17 +67,12 @@ defmodule EWalletDB.DepositTransaction do
     )
 
     belongs_to(
-      :transaction,
-      Transaction,
-      foreign_key: :transaction_uuid,
+      :blockchain_transaction,
+      BlockchainTransaction,
+      foreign_key: :blockchain_transaction_uuid,
       references: :uuid,
       type: UUID
     )
-
-    # Blockchain references
-
-    field(:blockchain_identifier, :string)
-    field(:blockchain_tx_hash, :string)
 
     # Source addresses
 
@@ -112,11 +108,9 @@ defmodule EWalletDB.DepositTransaction do
       attrs,
       cast: [
         :type,
-        :blockchain_tx_hash,
-        :blockchain_identifier,
         :amount,
         :token_uuid,
-        :transaction_uuid,
+        :blockchain_transaction_uuid,
         :to_blockchain_address,
         :from_blockchain_address,
         :to_deposit_wallet_address,
@@ -141,13 +135,10 @@ defmodule EWalletDB.DepositTransaction do
     transaction
     |> cast_and_validate_required_for_activity_log(
       attrs,
-      cast: [:blockchain_tx_hash, :blockchain_identifier, :transaction_uuid],
+      cast: [:blockchain_transaction_uuid],
       required: []
     )
-    |> validate_immutable(:blockchain_tx_hash)
-    |> validate_immutable(:blockchain_identifier)
-    |> validate_immutable(:transaction_uuid)
-    |> validate_required_all_or_none([:blockchain_tx_hash, :blockchain_identifier])
+    |> validate_immutable(:blockchain_transaction_uuid)
   end
 
   @doc """
@@ -213,7 +204,7 @@ defmodule EWalletDB.DepositTransaction do
   def all_unfinalized_by(clauses) do
     __MODULE__
     |> where(^Enum.to_list(clauses))
-    |> join(:inner, [dt], t in assoc(dt, :transaction))
+    |> join(:inner, [dt], t in assoc(dt, :blockchain_transaction))
     |> where([_, t], t.status in @unfinalized_statuses)
     |> Repo.all()
   end

@@ -52,21 +52,15 @@ defmodule EWallet.BlockchainTransactionGate do
 
   def transfer_on_rootchain(
         %{
-          from: from,
-          to: to,
-          amount: amount,
-          currency: currency
-        },
+          from: _from,
+          to: _to,
+          amount: _amount,
+          contract_address: _currency
+        } = attrs,
         originator,
         rootchain_id
       ) do
-    with :ok <- validate_rootchain_identifier(rootchain_id),
-         attrs <- %{
-           from: from,
-           to: to,
-           amount: amount,
-           contract_address: currency
-         } do
+    with :ok <- validate_rootchain_identifier(rootchain_id) do
       :send
       |> BlockchainHelper.call(attrs)
       |> create_rootchain_transaction(originator, rootchain_id)

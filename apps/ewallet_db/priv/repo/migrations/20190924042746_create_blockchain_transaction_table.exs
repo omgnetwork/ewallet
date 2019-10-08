@@ -30,6 +30,8 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainTransactionTable do
       remove :blockchain_tx_hash
     end
 
+    create unique_index(:transaction, :blockchain_transaction_uuid)
+
     alter table(:token) do
       add(:blockchain_transaction_uuid, references(:blockchain_transaction, type: :uuid, column: :uuid))
 
@@ -41,6 +43,7 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainTransactionTable do
   def down do
     drop constraint(:transaction, "transaction_blockchain_transaction_uuid_fkey")
     drop constraint(:token, "token_blockchain_transaction_uuid_fkey")
+    drop unique_index(:transaction, :blockchain_transaction_uuid)
 
     drop table(:blockchain_transaction)
 

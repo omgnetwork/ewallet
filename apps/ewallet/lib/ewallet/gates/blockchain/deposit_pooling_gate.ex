@@ -18,7 +18,7 @@ defmodule EWallet.DepositPoolingGate do
   """
   require Logger
   alias ActivityLogger.System
-  alias EWallet.{BlockchainHelper, BlockchainDepositWalletGate}
+  alias EWallet.{BlockchainHelper, BlockchainTransactionGate, BlockchainDepositWalletGate}
 
   alias EWalletDB.{
     Token,
@@ -114,13 +114,12 @@ defmodule EWallet.DepositPoolingGate do
         token_uuid: balance.token_uuid,
         from_deposit_wallet_address: balance.blockchain_deposit_wallet_address,
         to_blockchain_address: hot_wallet.address,
-        blockchain_identifier: blockchain_identifier,
         originator: %System{}
       }
 
       with {:ok, transaction} <- DepositTransaction.insert(attrs),
-           {:ok, tx_hash} <- submit_blockchain(transaction, balance, gas_price, gas_limit),
-           {:ok, transaction} <- set_transaction_hash(transaction, tx_hash) do
+           {:ok, blck_tx} <- submit_blockchain(transaction, balance, gas_price, gas_limit, blockchain_identifier),
+           {:ok, transaction} <- set_transaction_hash(transaction, blck_tx) do
         {[transaction | transactions], errors, gas_used + gas_price * gas_limit}
       else
         error -> {transactions, [error | errors], gas_used}
@@ -128,8 +127,8 @@ defmodule EWallet.DepositPoolingGate do
     end)
   end
 
-  defp set_transaction_hash(transaction, tx_hash) do
-    DepositTransaction.update(transaction, %{blockchain_tx_hash: tx_hash, originator: %System{}})
+  defp set_transaction_hash(transaction, blck_tx) do
+    DepositTransaction.update(transaction, %{blockchain_transaction_uuid: blck_tx.uuid, originator: %System{}})
   end
 
   # Checks the poolable amount by subtracting the balance amount from all ongoing
@@ -147,7 +146,7 @@ defmodule EWallet.DepositPoolingGate do
     balance.amount - pending_amount - max_gas_cost - reserve_amount
   end
 
-  defp submit_blockchain(transaction, balance, gas_price, gas_limit) do
+  defp submit_blockchain(transaction, balance, gas_price, gas_limit, blockchain_identifier) do
     transaction = Preloader.preload(transaction, [:token])
 
     balance =
@@ -168,7 +167,7 @@ defmodule EWallet.DepositPoolingGate do
       }
     }
 
-    BlockchainHelper.call(:send, attrs)
+    BlockchainTransactionGate.transfer_on_rootchain(attrs, %System{}, blockchain_identifier)
   end
 
   @doc """
@@ -214,8 +213,7 @@ defmodule EWallet.DepositPoolingGate do
       transaction_uuid: transaction.uuid,
       from_blockchain_address: transaction.from_blockchain_address,
       to_deposit_wallet_address: transaction.to_blockchain_address,
-      blockchain_identifier: transaction.blockchain_identifier,
-      blockchain_tx_hash: transaction.blockchain_tx_hash,
+      blockchain_transaction_uuid: transaction.blockchain_transaction_uuid,
       originator: %System{}
     })
   end
@@ -224,8 +222,7 @@ defmodule EWallet.DepositPoolingGate do
     deposit_transaction =
       DepositTransaction.get_by(
         type: DepositTransaction.outgoing(),
-        blockchain_identifier: transaction.blockchain_identifier,
-        blockchain_tx_hash: transaction.blockchain_tx_hash
+        blockchain_transaction_uuid: transaction.blockchain_transaction_uuid
       )
 
     case deposit_transaction do
@@ -234,13 +231,13 @@ defmodule EWallet.DepositPoolingGate do
         :noop
 
       # The deposit transaction already has an associated transaction, do not try to update.
-      %{transaction_uuid: tx_uuid} when not is_nil(tx_uuid) ->
+      %{blockchain_transaction_uuid: tx_uuid} when not is_nil(tx_uuid) ->
         :noop
 
       # Found a matching deposit transaction that hasn't been associated, associate it.
       deposit_transaction ->
         DepositTransaction.update(deposit_transaction, %{
-          transaction_uuid: transaction.uuid,
+          blockchain_transaction_uuid: transaction.blockchain_transaction_uuid,
           originator: %System{}
         })
 
