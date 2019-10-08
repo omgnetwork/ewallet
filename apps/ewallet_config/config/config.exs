@@ -115,6 +115,13 @@ config :ewallet_config,
     # Blockchain settings
     #
 
+    "blockchain_enabled" => %{
+      key: "blockchain_enabled",
+      value: false,
+      type: "boolean",
+      position: 200,
+      description: "Enable blockchain integration."
+    },
     "blockchain_chain_id" => %{
       key: "blockchain_chain_id",
       value: 0,

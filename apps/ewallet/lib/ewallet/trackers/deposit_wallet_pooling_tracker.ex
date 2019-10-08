@@ -16,7 +16,7 @@ defmodule EWallet.DepositWalletPoolingTracker do
   @moduledoc """
   Periodically triggers the check to move funds from deposit wallets to a hot wallet.
   """
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
   alias EWallet.DepositPoolingGate
 
@@ -32,25 +32,33 @@ defmodule EWallet.DepositWalletPoolingTracker do
   end
 
   def init(opts) do
-    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
-
-    # Notice we're not using Application.get_env/3 here for the default? It's because we populate
+    # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
     # this config from the database, which may return nil. This function then treats the nil
-    # as an existing value, and so get_env/3 would never pick up the local default here.
-    pooling_interval =
-      Application.get_env(:ewallet, :blockchain_deposit_pooling_interval) ||
-        @default_pooling_interval
+    # as an existing value, and so get_env/3 would never pick up the local defaults here.
+    case Application.get_env(:ewallet, :blockchain_enabled) || false do
+      true ->
+        blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
-    state = %{
-      blockchain_identifier: blockchain_identifier,
-      pooling_interval: pooling_interval,
-      timer: nil
-    }
+        pooling_interval =
+          Application.get_env(:ewallet, :blockchain_deposit_pooling_interval) ||
+            @default_pooling_interval
 
-    {:ok, state, {:continue, :start_polling}}
+        state = %{
+          blockchain_identifier: blockchain_identifier,
+          pooling_interval: pooling_interval,
+          timer: nil
+        }
+
+        {:ok, state, {:continue, :start_polling}}
+
+      false ->
+        _ = Logger.info("DepositWalletPoolingTracker did not start. Blockchain is not enabled.")
+        :ignore
+    end
   end
 
   def handle_continue(:start_polling, state) do
+    _ = Logger.info("DepositWalletPoolingTracker started and is now polling.")
     poll(state)
   end
 

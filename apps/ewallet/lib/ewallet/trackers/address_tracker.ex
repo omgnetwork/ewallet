@@ -18,7 +18,7 @@ defmodule EWallet.AddressTracker do
   It will registers itself with the blockchain adapter to receive events about
   a given transactions and act on it
   """
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
   alias EWallet.{
@@ -36,7 +36,9 @@ defmodule EWallet.AddressTracker do
   @default_poll_interval 5000
   @default_state_save_interval 5
 
-  # TODO: only starts when blockchain is enabled
+  #
+  # GenServer lifecycle
+  #
 
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
@@ -44,35 +46,66 @@ defmodule EWallet.AddressTracker do
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
-  def init(opts) do
-    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
+  @spec stop(GenServer.server()) :: :ok
+  def stop(pid \\ __MODULE__) do
+    GenServer.stop(pid, :normal)
+  end
 
+  #
+  # Client APIs
+  #
+
+  @spec register_address(String.t(), String.t(), GenServer.server()) :: :ok
+  def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_address, blockchain_address, internal_address})
+  end
+
+  @spec register_contract_address(String.t(), GenServer.server()) :: :ok
+  def register_contract_address(contract_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_contract_address, contract_address})
+  end
+
+  #
+  # GenServer callbacks
+  #
+
+  def init(opts) do
     # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
     # this config from the database, which may return nil. This function then treats the nil
     # as an existing value, and so get_env/3 would never pick up the local defaults here.
-    state = %{
-      interval:
-        Application.get_env(:ewallet, :blockchain_sync_interval) || @default_sync_interval,
-      blockchain_identifier: blockchain_identifier,
-      timer: nil,
-      addresses:
-        BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
-      contract_addresses:
-        BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
-      blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
-      blk_retries: 0,
-      blk_syncing_save_count: 0,
-      blockchain_state_save_interval:
-        Application.get_env(:ewallet, :blockchain_state_save_interval) ||
-          @default_state_save_interval,
-      node_adapter: opts[:node_adapter],
-      stop_once_synced: opts[:stop_once_synced] || false
-    }
+    case Application.get_env(:ewallet, :blockchain_enabled) || false do
+      true ->
+        blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
-    {:ok, state, {:continue, :start_polling}}
+        state = %{
+          interval:
+            Application.get_env(:ewallet, :blockchain_sync_interval) || @default_sync_interval,
+          blockchain_identifier: blockchain_identifier,
+          timer: nil,
+          addresses:
+            BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
+          contract_addresses:
+            BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
+          blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
+          blk_retries: 0,
+          blk_syncing_save_count: 0,
+          blockchain_state_save_interval:
+            Application.get_env(:ewallet, :blockchain_state_save_interval) ||
+              @default_state_save_interval,
+          node_adapter: opts[:node_adapter],
+          stop_once_synced: opts[:stop_once_synced] || false
+        }
+
+        {:ok, state, {:continue, :start_polling}}
+
+      false ->
+        _ = Logger.info("AddressTracker did not start. Blockchain is not enabled.")
+        :ignore
+    end
   end
 
   def handle_continue(:start_polling, state) do
+    _ = Logger.info("AddressTracker started and is now polling.")
     poll(state)
   end
 
@@ -93,16 +126,6 @@ defmodule EWallet.AddressTracker do
 
   def handle_call({:register_contract_address, contract_address}, _from, state) do
     {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
-  end
-
-  @spec register_address(String.t(), String.t(), GenServer.server()) :: :ok
-  def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
-    GenServer.call(pid, {:register_address, blockchain_address, internal_address})
-  end
-
-  @spec register_contract_address(String.t(), GenServer.server()) :: :ok
-  def register_contract_address(contract_address, pid \\ __MODULE__) do
-    GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
   # Does not poll if the interval is too low

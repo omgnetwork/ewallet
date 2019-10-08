@@ -17,11 +17,18 @@ defmodule EWalletConfig.SettingLoader do
   Load the settings from the database into the application envs.
   """
   require Logger
-  alias EWalletConfig.{Setting, BalanceCachingSettingsLoader, FileStorageSettingsLoader}
+
+  alias EWalletConfig.{
+    BalanceCachingSettingsLoader,
+    BlockchainSettingsLoader,
+    FileStorageSettingsLoader,
+    Setting
+  }
 
   @settings_to_loaders %{
     balance_caching_frequency: BalanceCachingSettingsLoader,
-    file_storage_adapter: FileStorageSettingsLoader
+    file_storage_adapter: FileStorageSettingsLoader,
+    blockchain_enabled: BlockchainSettingsLoader
   }
 
   def load_settings(app, settings) when is_atom(app) and is_list(settings) do
