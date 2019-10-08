@@ -38,7 +38,7 @@ defmodule EthBlockchain.IntegrationHelpers do
   """
   def prepare_env do
     {:ok, chain_id} = HttpClient.request("eth_chainId", [], [])
-    Application.put_env(:eth_blockchain, :chain_id, int_from_hex(chain_id))
+    Application.put_env(:eth_blockchain, :blockchain_chain_id, int_from_hex(chain_id))
   end
 
   def entities do

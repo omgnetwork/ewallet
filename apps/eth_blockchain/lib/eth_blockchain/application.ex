@@ -13,15 +13,16 @@
 # limitations under the License.
 
 defmodule EthBlockchain.Application do
-  # See https://hexdocs.pm/elixir/Application.html
-  # for more information on OTP Applications
   @moduledoc false
-
   use Application
+  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:eth_blockchain)
+
+    settings = Application.get_env(:eth_blockchain, :settings)
+    _ = Config.register_and_load(:eth_blockchain, settings)
 
     config = Application.get_env(:eth_blockchain, EthBlockchain.Adapter)
     eth_node_adapters = Keyword.get(config, :eth_node_adapters)

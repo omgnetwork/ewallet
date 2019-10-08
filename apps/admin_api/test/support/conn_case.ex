@@ -210,13 +210,14 @@ defmodule AdminAPI.ConnCase do
       self(),
       config_pid,
       EWalletConfig.Repo,
-      [:ewallet_db, :ewallet, :admin_api],
+      [:ewallet_db, :ewallet, :admin_api, :eth_blockchain],
       %{
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
         "sender_email" => "admin@example.com",
         "master_account" => account.id,
-        "primary_hot_wallet" => blockchain_wallet.address
+        "primary_hot_wallet" => blockchain_wallet.address,
+        "blockchain_chain_id" => 0
       }
     )
 

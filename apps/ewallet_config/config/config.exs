@@ -115,18 +115,27 @@ config :ewallet_config,
     # Blockchain settings
     #
 
+    "blockchain_chain_id" => %{
+      key: "blockchain_chain_id",
+      value: 0,
+      type: "unsigned_integer",
+      position: 201,
+      description:
+        "The chain ID of the blockchain network used. Such as 1 for Ethereum mainnet, " <>
+          "3 for Ropsten testnet, 4 for Rinkeby testnet, etc."
+    },
     "blockchain_json_rpc_url" => %{
       key: "blockchain_json_rpc_url",
       value: "http://localhost:8545",
       type: "string",
-      position: 201,
+      position: 202,
       description: "The JSON-RPC url for interacting with the blockchain client."
     },
     "blockchain_confirmations_threshold" => %{
       key: "blockchain_confirmations_threshold",
       value: 10,
       type: "unsigned_integer",
-      position: 202,
+      position: 203,
       description:
         "The number of confirmations to wait for before confirming a blockchain transaction."
     },
@@ -134,14 +143,14 @@ config :ewallet_config,
       key: "blockchain_state_save_interval",
       value: 5,
       type: "unsigned_integer",
-      position: 203,
+      position: 204,
       description: "The number of blocks to wait before saving the block number to database."
     },
     "blockchain_sync_interval" => %{
       key: "blockchain_sync_interval",
       value: 1_000,
       type: "unsigned_integer",
-      position: 204,
+      position: 205,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
           " This value is used at application startup to catch up with the blockchain's latest" <>
@@ -151,7 +160,7 @@ config :ewallet_config,
       key: "blockchain_poll_interval",
       value: 5_000,
       type: "unsigned_integer",
-      position: 205,
+      position: 206,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
           " This value is used after the application has caught up with the blockchain's" <>
@@ -161,7 +170,7 @@ config :ewallet_config,
       key: "blockchain_deposit_pooling_interval",
       value: 24 * 60 * 60 * 1_000,
       type: "unsigned_integer",
-      position: 206,
+      position: 207,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
     },
