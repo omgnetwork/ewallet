@@ -142,7 +142,7 @@ config :ewallet_config,
       key: "blockchain_confirmations_threshold",
       value: 10,
       type: "unsigned_integer",
-      position: 203,
+      position: 204,
       description:
         "The number of confirmations to wait for before confirming a blockchain transaction."
     },
@@ -150,14 +150,14 @@ config :ewallet_config,
       key: "blockchain_state_save_interval",
       value: 5,
       type: "unsigned_integer",
-      position: 204,
+      position: 205,
       description: "The number of blocks to wait before saving the block number to database."
     },
     "blockchain_sync_interval" => %{
       key: "blockchain_sync_interval",
       value: 1_000,
       type: "unsigned_integer",
-      position: 205,
+      position: 206,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
           " This value is used at application startup to catch up with the blockchain's latest" <>
@@ -167,7 +167,7 @@ config :ewallet_config,
       key: "blockchain_poll_interval",
       value: 5_000,
       type: "unsigned_integer",
-      position: 206,
+      position: 207,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information." <>
           " This value is used after the application has caught up with the blockchain's" <>
@@ -177,7 +177,7 @@ config :ewallet_config,
       key: "blockchain_transaction_poll_interval",
       value: 5_000,
       type: "unsigned_integer",
-      position: 207,
+      position: 208,
       description:
         "The interval (in milliseconds) between each blockchain polling for new information" <>
           " about a specific transaction."
@@ -186,9 +186,31 @@ config :ewallet_config,
       key: "blockchain_deposit_pooling_interval",
       value: 24 * 60 * 60 * 1_000,
       type: "unsigned_integer",
-      position: 208,
+      position: 209,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
+    },
+    "omisego_rootchain_contract_address" => %{
+      key: "omisego_network_contract_address",
+      value: "0x",
+      type: "string",
+      position: 210,
+      description:
+        "The blockchain contract address used by the eWallet to interact with the OmiseGO Network."
+    },
+    "omisego_childchain_url" => %{
+      key: "omisego_childchain_url",
+      value: "http://localhost:9656",
+      type: "string",
+      position: 211,
+      description: "The url used by the eWallet to interact with the OmiseGO Network's node."
+    },
+    "omisego_watcher_url" => %{
+      key: "omisego_watcher_url",
+      value: "http://localhost:7434",
+      type: "string",
+      position: 212,
+      description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
     },
 
     #

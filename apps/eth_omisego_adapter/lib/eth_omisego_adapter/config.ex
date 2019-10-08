@@ -16,10 +16,10 @@ defmodule EthOmiseGOAdapter.Config do
   @moduledoc false
 
   def get_contract_address do
-    Application.get_env(:eth_omisego_adapter, :contract_address)
+    Application.get_env(:eth_omisego_adapter, :omisego_rootchain_contract_address)
   end
 
   def get_watcher_url do
-    Application.get_env(:eth_omisego_adapter, :watcher_url)
+    Application.get_env(:eth_omisego_adapter, :omisego_watcher_url)
   end
 end
