@@ -13,7 +13,9 @@
 # limitations under the License.
 
 defmodule EWallet.BlockchainDepositWalletGateTest do
-  use EWallet.DBCase, async: true
+  # Not async because `BlockchainDepositWalletGate.get_or_generate/2` calls
+  # the global `EWallet.AddressTracker`
+  use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWallet.BlockchainDepositWalletGate

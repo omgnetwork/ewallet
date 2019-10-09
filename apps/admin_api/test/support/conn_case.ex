@@ -217,6 +217,7 @@ defmodule AdminAPI.ConnCase do
         "sender_email" => "admin@example.com",
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
+        "blockchain_enabled" => true,
         "blockchain_chain_id" => 0
       }
     )

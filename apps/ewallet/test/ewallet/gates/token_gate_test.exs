@@ -13,7 +13,8 @@
 # limitations under the License.
 
 defmodule EWallet.TokenGateTest do
-  use EWallet.DBCase, async: true
+  # Not async because `TokenGate.deploy_erc20/2` calls the global `EWallet.AddressTracker`
+  use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias EWallet.{TokenGate, BlockchainHelper}
   alias EWalletDB.Token
