@@ -24,8 +24,7 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
   ]
 
   def load(app) do
-    IO.inspect(app)
-    case Application.get_env(app, :blockchain_enabled) do
+    case Application.get_env(app, :blockchain_enabled, false) do
       true -> enable_trackers(@trackers)
       false -> disable_trackers(@trackers)
     end
@@ -37,6 +36,9 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
     Enum.each(trackers, fn tracker ->
       # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
       case Supervisor.restart_child(EWallet.Supervisor, tracker) do
+        {:error, :running} ->
+          Logger.warn("Error starting #{inspect(tracker)}. Already running.")
+
         {:error, error} ->
           Logger.error("Error starting #{inspect(tracker)}: #{inspect(error)}")
 
@@ -52,8 +54,11 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
         GenServer.stop(tracker, :normal)
       catch
         # Do nothing if the process is already stopped
+        :exit, {:noproc, _} ->
+          Logger.warn("Error stopping #{inspect(tracker)}. Already stopped.")
+
         :exit, error ->
-          Logger.error("Error stopping #{inspect(tracker)}: #{inspect(error)}")
+          Logger.warn("Error stopping #{inspect(tracker)}: #{inspect(error)}")
       end
     end)
   end

@@ -27,9 +27,6 @@ defmodule EWallet.Application do
     _ = DeferredConfig.populate(:ewallet)
     _ = set_decimal_context()
 
-    settings = Application.get_env(:ewallet, :settings)
-    _ = Config.register_and_load(:ewallet, settings)
-
     _ =
       ActivityLogger.configure(%{
         EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
@@ -42,11 +39,24 @@ defmodule EWallet.Application do
       # Transaction tracker supervisor and registry
       {Registry, keys: :unique, name: EWallet.TransactionTrackerRegistry},
       {DynamicSupervisor, name: EWallet.TransactionTrackerSupervisor, strategy: :one_for_one},
-      {EWallet.AddressTracker, [blockchain_identifier: @rootchain_identifier]},
-      {EWallet.DepositWalletPoolingTracker, [blockchain_identifier: @rootchain_identifier]}
+      %{
+        id: EWallet.AddressTracker,
+        start: {EWallet.AddressTracker, :start_link, [[blockchain_identifier: @rootchain_identifier]]}
+      },
+      %{
+        id: EWallet.DepositWalletPoolingTracker,
+        start: {EWallet.DepositWalletPoolingTracker, :start_link, [[blockchain_identifier: @rootchain_identifier]]}
+      }
     ]
 
-    Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
+    start_result = Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
+
+    # The config may start/stop some processes (e.g. AddressTracker), so we register
+    # and load the configs only after the supervisor and all its children are started.
+    settings = Application.get_env(:ewallet, :settings)
+    _ = Config.register_and_load(:ewallet, settings)
+
+    start_result
   end
 
   defp set_decimal_context do
