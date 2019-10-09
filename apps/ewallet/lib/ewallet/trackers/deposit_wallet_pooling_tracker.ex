@@ -23,8 +23,6 @@ defmodule EWallet.DepositWalletPoolingTracker do
   # Default pooling to 1 hour
   @default_pooling_interval 60 * 60 * 1000
 
-  # TODO: only starts when blockchain is enabled
-
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name, __MODULE__)
