@@ -85,8 +85,12 @@ defmodule EWallet.TransactionGate.Blockchain do
   #
   # Steps:
   # 1. Insert a local transaction with status: "pending"
-  # 2. Submit a transaction to the blockchain
-  # 3. Start a transaction tracker to confirm the local transaction after enough confirmations
+  # 2. Insert a ledger transaction with status: "pending"
+  # 3. Update local transaction to "ledger_pending"
+  # 4. Submit a transaction to the blockchain and update status to "blockchain_submitted"
+  # 5. When enough confirmation count: change state to "ledger_pending_blockchain_confirmed"
+  # 6. Process ledger transaction and move funds around
+  # 7. Update transaction status to confirmed
   def create(actor, attrs, {false, true}) do
     hot_wallet = BlockchainWallet.get_primary_hot_wallet(@rootchain_identifier)
 

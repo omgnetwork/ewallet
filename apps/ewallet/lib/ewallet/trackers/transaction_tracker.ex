@@ -23,6 +23,8 @@ defmodule EWallet.TransactionTracker do
     TransactionGate
   }
 
+  alias EWalletDB.Helpers.Preloader
+
   alias EWalletDB.{Transaction}
 
   def start_all_pending() do
@@ -37,6 +39,7 @@ defmodule EWallet.TransactionTracker do
   def on_confirmed(blockchain_transaction) do
     [blockchain_transaction_uuid: blockchain_transaction.uuid]
     |> Transaction.get_by()
+    |> Preloader.preload(:blockchain_transaction)
     |> TransactionGate.BlockchainLocal.process_with_transaction()
 
     # TODO handle failure

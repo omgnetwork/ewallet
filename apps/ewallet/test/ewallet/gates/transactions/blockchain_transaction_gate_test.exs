@@ -19,8 +19,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
   alias EWallet.{
     BlockchainHelper,
     BalanceFetcher,
+    TransactionGate,
     BlockchainDepositWalletGate,
-    BlockchainTransactionGate,
     TransactionTracker
   }
 
