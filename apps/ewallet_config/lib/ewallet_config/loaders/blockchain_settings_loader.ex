@@ -23,24 +23,27 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
     EWallet.DepositWalletPoolingTracker
   ]
 
-  def load(app) do
-    case Application.get_env(app, :blockchain_enabled, false) do
-      true -> enable_trackers(@trackers)
-      false -> disable_trackers(@trackers)
+  def load(app, supervisor \\ EWallet.Supervisor, trackers \\ @trackers) do
+    case Application.get_env(app, :blockchain_enabled) || false do
+      true -> start_trackers(trackers, supervisor)
+      false -> stop_trackers(trackers)
     end
 
     :ok
   end
 
-  def enable_trackers(trackers) do
+  defp start_trackers(trackers, supervisor) do
     Enum.each(trackers, fn tracker ->
       # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
-      case Supervisor.restart_child(EWallet.Supervisor, tracker) do
+      case Supervisor.restart_child(supervisor, tracker) do
+        {:ok, :undefined} ->
+          Logger.debug("Error starting #{inspect(tracker)}: The tracker is not supervised.")
+
         {:error, :running} ->
-          Logger.warn("Error starting #{inspect(tracker)}. Already running.")
+          Logger.debug("Error starting #{inspect(tracker)}. Already running.")
 
         {:error, error} ->
-          Logger.error("Error starting #{inspect(tracker)}: #{inspect(error)}")
+          Logger.debug("Error starting #{inspect(tracker)}: #{inspect(error)}")
 
         _ ->
           :ok
@@ -48,17 +51,17 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
     end)
   end
 
-  def disable_trackers(trackers) do
+  defp stop_trackers(trackers) do
     Enum.each(trackers, fn tracker ->
       try do
         GenServer.stop(tracker, :normal)
       catch
         # Do nothing if the process is already stopped
         :exit, {:noproc, _} ->
-          Logger.warn("Error stopping #{inspect(tracker)}. Already stopped.")
+          Logger.debug("Error stopping #{inspect(tracker)}. Already stopped.")
 
         :exit, error ->
-          Logger.warn("Error stopping #{inspect(tracker)}: #{inspect(error)}")
+          Logger.debug("Error stopping #{inspect(tracker)}: #{inspect(error)}")
       end
     end)
   end
