@@ -39,14 +39,14 @@ defmodule EWallet.Application do
       # Transaction tracker supervisor and registry
       {Registry, keys: :unique, name: EWallet.TransactionTrackerRegistry},
       {DynamicSupervisor, name: EWallet.TransactionTrackerSupervisor, strategy: :one_for_one},
-      %{
-        id: EWallet.AddressTracker,
-        start: {EWallet.AddressTracker, :start_link, [[blockchain_identifier: @rootchain_identifier]]}
-      },
-      %{
-        id: EWallet.DepositWalletPoolingTracker,
-        start: {EWallet.DepositWalletPoolingTracker, :start_link, [[blockchain_identifier: @rootchain_identifier]]}
-      }
+      Supervisor.child_spec(
+        {EWallet.AddressTracker, [blockchain_identifier: @rootchain_identifier]},
+        id: EWallet.AddressTracker
+      ),
+      Supervisor.child_spec(
+        {EWallet.DepositWalletPoolingTracker, [blockchain_identifier: @rootchain_identifier]},
+        id: EWallet.DepositWalletPoolingTracker
+      )
     ]
 
     start_result = Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
