@@ -49,7 +49,8 @@ defmodule EWallet.Application do
       )
     ]
 
-    start_result = Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
+    start_result =
+      Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
 
     # The config may start/stop some processes (e.g. AddressTracker), so we register
     # and load the configs only after the supervisor and all its children are started.
