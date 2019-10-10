@@ -15,69 +15,39 @@
 defmodule EWallet.TransactionTrackerTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
-  import ExUnit.CaptureLog
-  alias EWallet.TransactionTracker
-  alias EWalletDB.{Transaction, TransactionState}
+
+  alias EWallet.{BlockchainHelper, TransactionTracker}
+  alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, TransactionState}
+
+  describe "start_all_pending/0" do
+    test "restarts trackers for all pending transaction"
+  end
 
   describe "start/1" do
-    test "starts a new server" do
-      transaction = insert(:transaction_with_blockchain)
+    test "starts a new BlockchainTransactionTracker" do
+      transaction = insert(:blockchain_transaction_rootchain)
+      assert {:ok, pid} = TransactionTracker.start(transaction)
 
-      assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
       assert is_pid(pid)
       assert GenServer.stop(pid) == :ok
     end
   end
 
-  describe "handle_cast/2 with :confirmations_count" do
-    test "handles confirmations count when lower than minimum" do
-      transaction = insert(:transaction_with_blockchain)
-      assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
+  describe "on_confirmed/1" do
+    test "process the confirmed transaction" do
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hw_address = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier).address
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 2, 1})
+      blockchain_transaction =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
 
-      # A low confirmations count does not stop the tracker so we stop it manually.
-      assert GenServer.stop(pid) == :ok
+      insert(:transaction_with_blockchain, %{
+        blockchain_transaction: blockchain_transaction,
+        to_blockchain_address: hw_address
+      })
 
-      # Since the stop is synchronous, we can now safely assert the latest state
-      transaction = Transaction.get(transaction.id)
-      assert transaction.confirmations_count == 2
-      assert transaction.status == TransactionState.pending_confirmations()
-    end
-
-    test "handles confirmations count when higher than minimum" do
-      transaction = insert(:transaction_with_blockchain)
-      assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
-
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12, 1})
-      ref = Process.monitor(pid)
-
-      receive do
-        {:DOWN, ^ref, _, _, _} ->
-          transaction = Transaction.get(transaction.id)
-          assert transaction.confirmations_count == 12
-          assert transaction.status == TransactionState.confirmed()
-      end
-
-      refute Process.alive?(pid)
-    end
-
-    test "logs a message about mismatched hash" do
-      transaction = insert(:transaction_with_blockchain)
-      {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
-
-      assert capture_log(fn ->
-               :ok = GenServer.cast(pid, {:confirmations_count, "fake", 12, 1})
-               _ = Process.sleep(100)
-             end) =~ "The receipt has a mismatched hash"
-
-      # A mismatch hash does not stop the tracker so we stop it manually.
-      assert GenServer.stop(pid)
-
-      # Since the stop is synchronous, we can now safely assert the latest state
-      transaction = Transaction.get(transaction.id)
-      assert transaction.confirmations_count == nil
-      assert transaction.status == TransactionState.pending()
+      assert {:ok, updated_tx} = TransactionTracker.on_confirmed(blockchain_transaction)
+      assert updated_tx.status == TransactionState.confirmed()
     end
   end
 end

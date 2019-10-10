@@ -29,6 +29,8 @@ defmodule EWallet.TransactionTracker do
 
   def start_all_pending() do
     # TODO: Query all pending and start for each
+    # transaction inner join blockchain transaction
+    # blockchain transaction where not confirmed and not failed
   end
 
   def start(blockchain_transaction) do

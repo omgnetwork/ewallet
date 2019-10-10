@@ -21,10 +21,10 @@ defmodule EWallet.TransactionGate.BlockchainTest do
     BalanceFetcher,
     TransactionGate,
     BlockchainDepositWalletGate,
-    TransactionTracker
+    BlockchainTransactionTracker
   }
 
-  alias EWalletDB.{Account, BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{Account, BlockchainState, BlockchainTransactionState, BlockchainWallet, Transaction, TransactionState}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID
@@ -36,7 +36,9 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       account = Account.get_master_account()
@@ -51,7 +53,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => master_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -60,22 +62,27 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
-      assert transaction.blockchain_identifier == identifier
-      assert transaction.confirmations_count == nil
+      assert transaction.blockchain_transaction.rootchain_identifier == identifier
+      assert transaction.blockchain_transaction.block_number == nil
 
-      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      BlockchainState.update(identifier, 20)
+
+      {:ok, tracker_pid} =
+        BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+
       assert Process.alive?(tracker_pid)
 
-      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
       assert %{listener: _, pid: blockchain_listener_pid} = listener
 
       ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
-          transaction = Transaction.get(transaction.id)
+          transaction = Transaction.get(transaction.id, preload: :blockchain_transaction)
           assert transaction.status == TransactionState.confirmed()
-          assert transaction.confirmations_count > 10
+          assert transaction.blockchain_transaction.confirmed_at_block_number == 20
 
           {:ok, %{balances: [main_balance]}} = BalanceFetcher.all(%{"wallet" => master_wallet})
           assert main_balance[:amount] == 99_999_999
@@ -88,7 +95,9 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -98,7 +107,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -107,22 +116,27 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
-      assert transaction.blockchain_identifier == identifier
-      assert transaction.confirmations_count == nil
+      assert transaction.blockchain_transaction.rootchain_identifier == identifier
+      assert transaction.blockchain_transaction.block_number == nil
 
-      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      BlockchainState.update(identifier, 20)
+
+      {:ok, tracker_pid} =
+        BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+
       assert Process.alive?(tracker_pid)
 
-      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
       assert %{listener: _, pid: blockchain_listener_pid} = listener
 
       ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
-          transaction = Transaction.get(transaction.id)
-          assert transaction.confirmations_count == 13
+          transaction = Transaction.get(transaction.id, preload: :blockchain_transaction)
           assert transaction.status == TransactionState.confirmed()
+          assert transaction.blockchain_transaction.confirmed_at_block_number == 20
       end
     end
 
@@ -132,10 +146,12 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
-      cc_identifier = BlockchainHelper.childchain_identifier()
+      childchain_identifier = BlockchainHelper.childchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
@@ -143,7 +159,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => cc_identifier,
+        "rootchain_identifier" => rootchain_identifier,
+        "childchain_identifier" => childchain_identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -152,22 +169,28 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.external()
-      assert transaction.blockchain_identifier == cc_identifier
-      assert transaction.confirmations_count == nil
+      assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
+      assert transaction.blockchain_transaction.childchain_identifier == childchain_identifier
+      assert transaction.blockchain_transaction.block_number == nil
 
-      {:ok, tracker_pid} = TransactionTracker.lookup(transaction.uuid)
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      BlockchainState.update(rootchain_identifier, 20)
+
+      {:ok, tracker_pid} =
+        BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+
       assert Process.alive?(tracker_pid)
 
-      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+      {:ok, listener} = meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
       assert %{listener: _, pid: blockchain_listener_pid} = listener
 
       ref = Process.monitor(tracker_pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
-          transaction = Transaction.get(transaction.id)
-          assert transaction.confirmations_count == 13
+          transaction = Transaction.get(transaction.id, preload: :blockchain_transaction)
           assert transaction.status == TransactionState.confirmed()
+          assert transaction.blockchain_transaction.confirmed_at_block_number == 20
       end
     end
 
@@ -176,10 +199,12 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000999")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000999"
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
-      cc_identifier = BlockchainHelper.childchain_identifier()
+      childchain_identifier = BlockchainHelper.childchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
@@ -187,7 +212,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => cc_identifier,
+        "rootchain_identifier" => rootchain_identifier,
+        "childchain_identifier" => childchain_identifier,
         "amount" => 1,
         "originator" => %System{}
       }
@@ -201,10 +227,12 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
-      cc_identifier = BlockchainHelper.childchain_identifier()
+      childchain_identifier = BlockchainHelper.childchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
@@ -212,7 +240,8 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => cc_identifier,
+        "rootchain_identifier" => rootchain_identifier,
+        "childchain_identifier" => childchain_identifier,
         "amount" => 125,
         "originator" => %System{}
       }
@@ -225,9 +254,11 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
-      token = insert(:token)
+      token = insert(:external_blockchain_token)
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
@@ -236,7 +267,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "from_token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "to_token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
@@ -250,7 +281,9 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -260,7 +293,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "from_amount" => 1,
         "to_amount" => 2,
         "originator" => %System{}
@@ -279,7 +312,9 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
@@ -289,7 +324,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
         "token_id" => primary_blockchain_token.id,
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "amount" => 125,
         "originator" => %System{}
       }
@@ -309,7 +344,7 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "idempotency_token" => UUID.generate(),
         "from_address" => hot_wallet.address,
         "to_address" => Crypto.fake_eth_address(),
-        "blockchain_identifier" => identifier,
+        "rootchain_identifier" => identifier,
         "token_id" => token.id,
         "amount" => 1,
         "originator" => %System{}
@@ -322,23 +357,26 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
   describe "create_from_tracker/2" do
     test "creates the blockchain transaction and tracks it" do
-      token = insert(:token)
+      token = insert(:external_blockchain_token)
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
-      tx_hash = Crypto.fake_eth_address()
 
-      attrs = %{
-        idempotency_token: tx_hash,
+      blockchain_transaction_attrs = %{
+        hash: "01",
+        rootchain_identifier: identifier,
+        childchain_identifier: nil,
+        status: BlockchainTransactionState.pending_confirmations(),
+        block_number: 0,
+        originator: %System{}
+      }
+
+      transaction_attrs = %{
+        idempotency_token: Crypto.fake_eth_address(),
         from_amount: 1,
         to_amount: 1,
         status: TransactionState.pending(),
         type: Transaction.external(),
-        blockchain_tx_hash: tx_hash,
-        blockchain_identifier: identifier,
-        confirmations_count: 0,
-        blk_number: 1,
         payload: %{},
-        blockchain_metadata: %{},
         from_token_uuid: token.uuid,
         to_token_uuid: token.uuid,
         to: nil,
@@ -352,9 +390,16 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         originator: %System{}
       }
 
-      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      BlockchainState.update(identifier, 30)
 
-      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      {:ok, transaction} =
+        TransactionGate.Blockchain.create_from_tracker(
+          blockchain_transaction_attrs,
+          transaction_attrs
+        )
+
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
       assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
@@ -367,27 +412,32 @@ defmodule EWallet.TransactionGate.BlockchainTest do
     end
 
     test "creates the local transaction and starts tracking the blockchain transaction" do
-      token = insert(:token)
+      token = insert(:external_blockchain_token)
       identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, deposit_wallet} =
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
-      tx_hash = Crypto.fake_eth_address()
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      BlockchainState.update(identifier, 30)
 
-      attrs = %{
-        idempotency_token: tx_hash,
+      blockchain_transaction_attrs = %{
+        hash: "01",
+        rootchain_identifier: identifier,
+        childchain_identifier: nil,
+        status: BlockchainTransactionState.pending_confirmations(),
+        block_number: 0,
+        originator: %System{}
+      }
+
+      transaction_attrs = %{
+        idempotency_token: Crypto.fake_eth_address(),
         from_amount: 1,
         to_amount: 1,
         status: TransactionState.pending(),
         type: Transaction.external(),
-        blockchain_tx_hash: tx_hash,
-        blockchain_identifier: identifier,
-        confirmations_count: 0,
-        blk_number: 1,
         payload: %{},
-        blockchain_metadata: %{},
         from_token_uuid: token.uuid,
         to_token_uuid: token.uuid,
         to: wallet.address,
@@ -401,9 +451,13 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         originator: %System{}
       }
 
-      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
+      {:ok, transaction} =
+        TransactionGate.Blockchain.create_from_tracker(
+          blockchain_transaction_attrs,
+          transaction_attrs
+        )
 
-      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
       assert Process.alive?(pid)
 
       ref = Process.monitor(pid)
@@ -411,67 +465,18 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       receive do
         {:DOWN, ^ref, _, _, _} ->
           transaction = Transaction.get(transaction.id)
-          assert transaction.status == "confirmed"
+          assert transaction.status == TransactionState.confirmed()
           # Check balance
           {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
           assert balance[:amount] == 1
           assert balance[:token].uuid == token.uuid
       end
     end
-
-    test "creates the local transaction and confirms it right away when enough confirmations" do
-      token = insert(:token)
-      identifier = BlockchainHelper.rootchain_identifier()
-      wallet = insert(:wallet)
-
-      {:ok, deposit_wallet} =
-        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
-
-      tx_hash = Crypto.fake_eth_address()
-
-      attrs = %{
-        idempotency_token: tx_hash,
-        from_amount: 1,
-        to_amount: 1,
-        status: TransactionState.pending(),
-        type: Transaction.external(),
-        blockchain_tx_hash: tx_hash,
-        blockchain_identifier: identifier,
-        confirmations_count: 11,
-        blk_number: 1,
-        payload: %{},
-        blockchain_metadata: %{},
-        from_token_uuid: token.uuid,
-        to_token_uuid: token.uuid,
-        to: wallet.address,
-        from: nil,
-        from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: deposit_wallet.address,
-        from_account: nil,
-        to_account: nil,
-        from_user: nil,
-        to_user: nil,
-        originator: %System{}
-      }
-
-      {:ok, transaction} = TransactionGate.Blockchain.create_from_tracker(attrs)
-
-      # We can't find the listener because there shouldn't be one
-      assert TransactionTracker.lookup(transaction.uuid) == {:error, :not_found}
-
-      assert transaction.status == TransactionState.confirmed()
-
-      # Check balance
-      {:ok, %{balances: [balance]}} = BalanceFetcher.all(%{"wallet" => wallet})
-      assert balance[:amount] == 1
-      assert balance[:token].uuid == token.uuid
-    end
   end
 
   describe "get_or_insert/1" do
     test "returns a newly inserted local transaction if the idempotency_token is new" do
       token = insert(:token)
-      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, deposit_wallet} =
@@ -485,8 +490,6 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "to_amount" => 1,
         "status" => TransactionState.pending(),
         "type" => Transaction.external(),
-        "blockchain_tx_hash" => tx_hash,
-        "blockchain_identifier" => identifier,
         "confirmations_count" => 0,
         "blk_number" => 1,
         "payload" => %{},
@@ -510,7 +513,6 @@ defmodule EWallet.TransactionGate.BlockchainTest do
 
     test "returns the existing local transaction if the idempotency_token already exists" do
       token = insert(:token)
-      identifier = BlockchainHelper.rootchain_identifier()
       wallet = insert(:wallet)
 
       {:ok, deposit_wallet} =
@@ -524,8 +526,6 @@ defmodule EWallet.TransactionGate.BlockchainTest do
         "to_amount" => 1,
         "status" => TransactionState.pending(),
         "type" => Transaction.external(),
-        "blockchain_tx_hash" => tx_hash,
-        "blockchain_identifier" => identifier,
         "confirmations_count" => 0,
         "blk_number" => 1,
         "payload" => %{},
@@ -554,88 +554,6 @@ defmodule EWallet.TransactionGate.BlockchainTest do
       assert TransactionGate.Blockchain.get_or_insert(%{}) ==
                {:error, :invalid_parameter,
                 "Invalid parameter provided. `idempotency_token` is required."}
-    end
-  end
-
-  describe "handle_local_insert/1" do
-    test "transitions the transaction to confirmed if transaction.to is nil" do
-      token = insert(:token)
-      identifier = BlockchainHelper.rootchain_identifier()
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
-      tx_hash = Crypto.fake_eth_address()
-
-      attrs = %{
-        idempotency_token: tx_hash,
-        from_amount: 1,
-        to_amount: 1,
-        status: TransactionState.blockchain_confirmed(),
-        type: Transaction.external(),
-        blockchain_tx_hash: tx_hash,
-        blockchain_identifier: identifier,
-        confirmations_count: 0,
-        blk_number: 1,
-        payload: %{},
-        blockchain_metadata: %{},
-        from_token_uuid: token.uuid,
-        to_token_uuid: token.uuid,
-        to: nil,
-        from: nil,
-        from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: hot_wallet.address,
-        from_account: nil,
-        to_account: nil,
-        from_user: nil,
-        to_user: nil,
-        originator: %System{}
-      }
-
-      {:ok, transaction} = Transaction.insert(attrs)
-      assert transaction.status == TransactionState.blockchain_confirmed()
-
-      {:ok, transaction} = TransactionGate.Blockchain.handle_local_insert(transaction)
-      assert transaction.status == TransactionState.confirmed()
-    end
-
-    test "processes the transaction with TransactionGate.BlockchainLocal if transaction.to is not nil" do
-      token = insert(:token)
-      identifier = BlockchainHelper.rootchain_identifier()
-      wallet = insert(:wallet)
-
-      {:ok, deposit_wallet} =
-        BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
-
-      tx_hash = Crypto.fake_eth_address()
-
-      attrs = %{
-        idempotency_token: tx_hash,
-        from_amount: 1,
-        to_amount: 1,
-        status: TransactionState.blockchain_confirmed(),
-        type: Transaction.external(),
-        blockchain_tx_hash: tx_hash,
-        blockchain_identifier: identifier,
-        confirmations_count: 11,
-        blk_number: 1,
-        payload: %{},
-        blockchain_metadata: %{},
-        from_token_uuid: token.uuid,
-        to_token_uuid: token.uuid,
-        to: wallet.address,
-        from: nil,
-        from_blockchain_address: Crypto.fake_eth_address(),
-        to_blockchain_address: deposit_wallet.address,
-        from_account: nil,
-        to_account: nil,
-        from_user: nil,
-        to_user: nil,
-        originator: %System{}
-      }
-
-      {:ok, transaction} = Transaction.insert(attrs)
-      assert transaction.status == TransactionState.blockchain_confirmed()
-
-      {:ok, transaction} = TransactionGate.Blockchain.handle_local_insert(transaction)
-      assert transaction.status == TransactionState.confirmed()
     end
   end
 end

@@ -18,7 +18,7 @@ defmodule EWallet.TransactionGate.ChildchainTest do
 
   alias EWallet.{
     BlockchainHelper,
-    TransactionTracker,
+    BlockchainTransactionTracker,
     TransactionGate
   }
 
@@ -34,8 +34,8 @@ defmodule EWallet.TransactionGate.ChildchainTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.rootchain_identifier()
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -51,14 +51,15 @@ defmodule EWallet.TransactionGate.ChildchainTest do
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.deposit()
-      assert transaction.blockchain_identifier == identifier
+      assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
+      assert transaction.blockchain_transaction.childchain_identifier == nil
       assert transaction.from_blockchain_address == hot_wallet.address
       assert transaction.to_blockchain_address == contract_address
 
-      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
 
       {:ok, %{pid: blockchain_listener_pid}} =
-        meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+        meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
 
       # to update the transactions after the test is done.
       on_exit(fn ->
@@ -73,8 +74,9 @@ defmodule EWallet.TransactionGate.ChildchainTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.rootchain_identifier()
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),

@@ -213,7 +213,10 @@ defmodule EWalletDB.TransactionStateTest do
       test_successful_state_transition(
         :from_ledger_to_blockchain,
         TransactionState.pending(),
-        TransactionState.ledger_pending()
+        TransactionState.ledger_pending(),
+        %{
+          local_ledger_uuid: "123"
+        }
       )
     end
 
