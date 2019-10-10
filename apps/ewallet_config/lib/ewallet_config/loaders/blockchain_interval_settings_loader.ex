@@ -20,6 +20,13 @@ defmodule EWalletConfig.BlockchainIntervalSettingsLoader do
 
   @impl EWalletConfig.Loader
   @spec load(Application.app(), EWalletConfig.Setting.key()) :: :ok
+  def load(app, :blockchain_state_save_interval) do
+    tracker = Application.get_env(app, :address_tracker)
+    interval = Application.get_env(app, :blockchain_state_save_interval)
+
+    tracker.set_interval(:state_save, interval)
+  end
+
   def load(app, :blockchain_sync_interval) do
     tracker = Application.get_env(app, :address_tracker)
     interval = Application.get_env(app, :blockchain_sync_interval)

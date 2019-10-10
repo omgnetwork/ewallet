@@ -18,33 +18,82 @@ defmodule EWalletConfig.BlockchainIntervalSettingsLoaderTest do
 
   @app :my_blockchain_interval_settings_app
 
-  setup do
-    :ok = Application.put_env(@app, :address_tracker, __MODULE__)
-    :ok
+  defmodule MockTracker do
+    @moduledoc """
+    Simulates a blockchain tracker without running any business logic.
+
+    This tracker simply sends the params back to the caller's mailbox. By sending the message
+    back to the caller, we can easily assert that this tracker module got called using
+    `assert_received/3`.
+    """
+
+    def set_interval(interval) do
+      send(self(), {:called, :set_interval, interval})
+      :ok
+    end
+
+    def set_interval(mode, interval) do
+      send(self(), {:called, :set_interval, mode, interval})
+      :ok
+    end
+
+    def set_listener_interval(interval) do
+      send(self(), {:called, :set_listener_interval, interval})
+      :ok
+    end
   end
 
-  def set_interval(mode, interval) do
-    send(self(), {:set_interval_called, mode, interval})
-
-    # Kernel.send/2 returns the sent message but the actual address tracker would return :ok
+  setup do
+    :ok = Application.put_env(@app, :address_tracker, __MODULE__.MockTracker)
+    :ok = Application.put_env(@app, :deposit_wallet_pooling_tracker, __MODULE__.MockTracker)
+    :ok = Application.put_env(@app, :transaction_registry, __MODULE__.MockTracker)
     :ok
   end
 
   describe "load/2" do
+    test "calls the address tracker's set_interval/2 when blockchain_state_save_interval is updated" do
+      interval = :rand.uniform(1000)
+      :ok = Application.put_env(@app, :blockchain_state_save_interval, interval)
+      res = BlockchainIntervalSettingsLoader.load(@app, :blockchain_state_save_interval)
+
+      assert res == :ok
+      assert_received {:called, :set_interval, :state_save, interval}
+    end
+
     test "calls the address tracker's set_interval/2 when blockchain_sync_interval is updated" do
-      :ok = Application.put_env(@app, :blockchain_sync_interval, 1000)
+      interval = :rand.uniform(1000)
+      :ok = Application.put_env(@app, :blockchain_sync_interval, interval)
       res = BlockchainIntervalSettingsLoader.load(@app, :blockchain_sync_interval)
 
       assert res == :ok
-      assert_received {:set_interval_called, :sync, 1000}
+      assert_received {:called, :set_interval, :sync, interval}
     end
 
     test "calls the address tracker's set_interval/2 when blockchain_poll_interval is updated" do
-      :ok = Application.put_env(@app, :blockchain_poll_interval, 1000)
+      interval = :rand.uniform(1000)
+      :ok = Application.put_env(@app, :blockchain_poll_interval, interval)
       res = BlockchainIntervalSettingsLoader.load(@app, :blockchain_poll_interval)
 
       assert res == :ok
-      assert_received {:set_interval_called, :poll, 1000}
+      assert_received {:called, :set_interval, :poll, interval}
+    end
+
+    test "calls the transaction registry's set_listener_interval/1 when blockchain_transaction_poll_interval is updated" do
+      interval = :rand.uniform(1000)
+      :ok = Application.put_env(@app, :blockchain_transaction_poll_interval, interval)
+      res = BlockchainIntervalSettingsLoader.load(@app, :blockchain_transaction_poll_interval)
+
+      assert res == :ok
+      assert_received {:called, :set_listener_interval, interval}
+    end
+
+    test "calls the transaction registry's set_listener_interval/1 when blockchain_deposit_pooling_interval is updated" do
+      interval = :rand.uniform(1000)
+      :ok = Application.put_env(@app, :blockchain_deposit_pooling_interval, interval)
+      res = BlockchainIntervalSettingsLoader.load(@app, :blockchain_deposit_pooling_interval)
+
+      assert res == :ok
+      assert_received {:called, :set_interval, interval}
     end
   end
 end

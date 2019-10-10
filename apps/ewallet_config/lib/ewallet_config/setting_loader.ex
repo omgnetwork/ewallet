@@ -30,6 +30,7 @@ defmodule EWalletConfig.SettingLoader do
     balance_caching_frequency: BalanceCachingSettingsLoader,
     file_storage_adapter: FileStorageSettingsLoader,
     blockchain_enabled: BlockchainSettingsLoader,
+    blockchain_state_save_interval: BlockchainIntervalSettingsLoader,
     blockchain_sync_interval: BlockchainIntervalSettingsLoader,
     blockchain_poll_interval: BlockchainIntervalSettingsLoader,
     blockchain_transaction_poll_interval: BlockchainIntervalSettingsLoader,

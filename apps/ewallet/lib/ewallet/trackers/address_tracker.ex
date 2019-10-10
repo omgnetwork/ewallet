@@ -65,7 +65,7 @@ defmodule EWallet.AddressTracker do
     GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
-  @spec set_interval(:sync | :poll, non_neg_integer(), GenServer.server()) :: :ok
+  @spec set_interval(:sync | :poll | :state_save, non_neg_integer(), GenServer.server()) :: :ok
   def set_interval(sync_mode, interval, pid \\ __MODULE__) do
     GenServer.cast(pid, {:set_interval, sync_mode, interval})
   end
@@ -141,6 +141,7 @@ defmodule EWallet.AddressTracker do
       case mode do
         :sync -> %{state | sync_interval: interval}
         :poll -> %{state | poll_interval: interval}
+        :state_save -> %{state | blockchain_state_save_interval: interval}
       end
 
     case {state.sync_mode, state.timer} do

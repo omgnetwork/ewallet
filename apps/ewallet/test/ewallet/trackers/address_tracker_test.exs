@@ -127,7 +127,7 @@ defmodule EWallet.AddressTrackerTest do
                "blockchain_address" => "internal_address"
              }
 
-      assert GenServer.stop(pid) == :ok
+      :ok = GenServer.stop(pid)
     end
   end
 
@@ -143,7 +143,52 @@ defmodule EWallet.AddressTrackerTest do
 
       state = :sys.get_state(pid)
       assert Enum.member?(state[:contract_addresses], "contract_address")
-      assert GenServer.stop(pid) == :ok
+
+      :ok = GenServer.stop(pid)
+    end
+  end
+
+  describe "set_interval/3" do
+    test "sets the sync_interval when passed :sync" do
+      {:ok, pid} =
+        AddressTracker.start_link(
+          name: :test_address_tracker_set_sync_interval,
+          blockchain_identifier: "any_blockchain_identifier"
+        )
+
+      interval = :rand.uniform(100_000)
+      assert AddressTracker.set_interval(:sync, interval, pid) == :ok
+      assert :sys.get_state(pid)[:sync_interval] == interval
+
+      :ok = GenServer.stop(pid)
+    end
+
+    test "sets the poll_interval when passed :poll" do
+      {:ok, pid} =
+        AddressTracker.start_link(
+          name: :test_address_tracker_set_poll_interval,
+          blockchain_identifier: "any_blockchain_identifier"
+        )
+
+      interval = :rand.uniform(100_000)
+      assert AddressTracker.set_interval(:poll, interval, pid) == :ok
+      assert :sys.get_state(pid)[:poll_interval] == interval
+
+      :ok = GenServer.stop(pid)
+    end
+
+    test "sets the blockchain_state_save_interval when passed :state_save" do
+      {:ok, pid} =
+        AddressTracker.start_link(
+          name: :test_address_tracker_set_state_save_interval,
+          blockchain_identifier: "any_blockchain_identifier"
+        )
+
+      interval = :rand.uniform(100_000)
+      assert AddressTracker.set_interval(:state_save, interval, pid) == :ok
+      assert :sys.get_state(pid)[:blockchain_state_save_interval] == interval
+
+      :ok = GenServer.stop(pid)
     end
   end
 
