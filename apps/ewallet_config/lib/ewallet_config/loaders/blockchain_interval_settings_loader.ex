@@ -34,6 +34,13 @@ defmodule EWalletConfig.BlockchainIntervalSettingsLoader do
     tracker.set_interval(:poll, interval)
   end
 
+  def load(app, :blockchain_transaction_poll_interval) do
+    registry = Application.get_env(app, :transaction_registry)
+    interval = Application.get_env(app, :blockchain_transaction_poll_interval)
+
+    registry.set_listener_interval(interval)
+  end
+
   def load(app, :blockchain_deposit_pooling_interval) do
     tracker = Application.get_env(app, :deposit_wallet_pooling_tracker)
     interval = Application.get_env(app, :blockchain_deposit_pooling_interval)

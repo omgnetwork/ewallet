@@ -23,6 +23,38 @@ defmodule EthBlockchain.BlockchainRegistry do
     GenServer.start_link(__MODULE__, [], name: name)
   end
 
+  #
+  # Client API
+  #
+
+  def lookup(id, pid \\ __MODULE__) do
+    GenServer.call(pid, {:lookup, id})
+  end
+
+  def start_listener(listener, attrs, pid \\ __MODULE__) do
+    GenServer.call(pid, {:start_listener, listener, attrs})
+  end
+
+  def stop_listener(id, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:stop_listener, id})
+  end
+
+  def subscribe(id, subscriber_pid, pid \\ __MODULE__) do
+    GenServer.call(pid, {:subscribe, id, subscriber_pid})
+  end
+
+  def unsubscribe(id, subscriber_pid, pid \\ __MODULE__) do
+    GenServer.call(pid, {:unsubscribe, id, subscriber_pid})
+  end
+
+  def set_listener_interval(interval, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:set_listener_interval, interval})
+  end
+
+  #
+  # GenServer callbacks
+  #
+
   @impl true
   def init(_opts) do
     {:ok, %{}}
@@ -54,6 +86,7 @@ defmodule EthBlockchain.BlockchainRegistry do
     end
   end
 
+  @impl true
   def handle_call({:subscribe, id, subscriber_pid}, _from, registry) do
     case Map.has_key?(registry, id) do
       true ->
@@ -66,6 +99,7 @@ defmodule EthBlockchain.BlockchainRegistry do
     end
   end
 
+  @impl true
   def handle_call({:unsubscribe, id, subscriber_pid}, _from, registry) do
     case Map.has_key?(registry, id) do
       true ->
@@ -95,23 +129,13 @@ defmodule EthBlockchain.BlockchainRegistry do
     end
   end
 
-  def lookup(id, pid \\ __MODULE__) do
-    GenServer.call(pid, {:lookup, id})
-  end
+  @impl true
+  def handle_cast({:set_listener_interval, interval}, registry) do
+    _ =
+      Enum.each(registry, fn {_, %{listener: listener, pid: pid}} ->
+        listener.set_interval(interval, pid)
+      end)
 
-  def start_listener(listener, attrs, pid \\ __MODULE__) do
-    GenServer.call(pid, {:start_listener, listener, attrs})
-  end
-
-  def stop_listener(id, pid \\ __MODULE__) do
-    GenServer.cast(pid, {:stop_listener, id})
-  end
-
-  def subscribe(id, subscriber_pid, pid \\ __MODULE__) do
-    GenServer.call(pid, {:subscribe, id, subscriber_pid})
-  end
-
-  def unsubscribe(id, subscriber_pid, pid \\ __MODULE__) do
-    GenServer.call(pid, {:unsubscribe, id, subscriber_pid})
+    {:noreply, registry}
   end
 end

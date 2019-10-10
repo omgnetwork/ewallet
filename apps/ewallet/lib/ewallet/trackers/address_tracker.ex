@@ -33,7 +33,7 @@ defmodule EWallet.AddressTracker do
   alias ActivityLogger.System
 
   @default_sync_interval 1000
-  @default_poll_interval 5000
+  @default_poll_interval 1000
   @default_state_save_interval 5
 
   #
@@ -169,13 +169,26 @@ defmodule EWallet.AddressTracker do
   #
 
   defp poll(state) do
-    case run(state) do
+    case track_addresses(state) do
       new_state when is_map(new_state) ->
         timer = schedule_next_poll(new_state)
         {:noreply, %{new_state | timer: timer}}
 
-      error ->
-        error
+      {:error, :block_not_found} ->
+        case state.stop_once_synced do
+          true ->
+            {:stop, :normal, state}
+
+          false ->
+            # We've reached the end of the chain, switching to a slower polling interval.
+            new_state = %{state | sync_mode: :poll}
+            timer = schedule_next_poll(new_state)
+            {:noreply, %{state | timer: timer}}
+        end
+
+      {:error, error}  ->
+        _ = Logger.error("An unexpected error occured in the AddressTracker. Terminating...")
+        {:stop, error, state}
     end
   end
 
@@ -201,13 +214,12 @@ defmodule EWallet.AddressTracker do
   # Address tracking
   #
 
-  defp run(
+  defp track_addresses(
          %{
            blk_number: blk_number,
            addresses: addresses,
            contract_addresses: contract_addresses,
-           node_adapter: node_adapter,
-           stop_once_synced: stop_once_synced
+           node_adapter: node_adapter
          } = state
        ) do
     attrs = %{
@@ -217,26 +229,15 @@ defmodule EWallet.AddressTracker do
     }
 
     case BlockchainHelper.call(:get_transactions, attrs, eth_node_adapter: node_adapter) do
-      {:error, :block_not_found} ->
-        case stop_once_synced do
-          false ->
-            # We've reached the end of the chain, switching to a slower polling interval.
-            {:noreply, %{state | sync_mode: :poll}}
-
-          true ->
-            {:stop, :normal, state}
-        end
-
       {:error, _} = error ->
-        Logger.error("No blockchain handler found, terminating...")
-        {:stop, error, state}
+        error
 
       transactions ->
-        do_run(transactions, state)
+        do_track_addresses(transactions, state)
     end
   end
 
-  defp do_run(transactions, state) do
+  defp do_track_addresses(transactions, state) do
     transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
 
     _ =
@@ -269,8 +270,9 @@ defmodule EWallet.AddressTracker do
       false ->
         {:ok, blockchain_state} = BlockchainState.update(blockchain_identifier, new_blk_number)
 
+        # Because the save count and checking happens at the end, it starts at 1.
         state
-        |> Map.put(:blk_syncing_save_count, 0)
+        |> Map.put(:blk_syncing_save_count, 1)
         |> Map.put(:blk_number, blockchain_state.blk_number)
         |> Map.put(:blk_retries, 0)
     end

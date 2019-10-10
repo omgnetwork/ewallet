@@ -1,6 +1,14 @@
 use Mix.Config
 
 config :eth_blockchain,
+  transaction_registry: EthBlockchain.BlockchainRegistry,
+  settings: [
+    :blockchain_chain_id,
+    :blockchain_transaction_poll_interval,
+    :blockchain_default_gas_price
+  ]
+
+config :eth_blockchain,
        EthBlockchain.Adapter,
        eth_node_adapters: [
          {:geth, EthGethAdapter.Worker}
@@ -11,13 +19,6 @@ config :eth_blockchain,
        default_eth_node_adapter: :geth,
        default_cc_node_adapter: :omisego_network,
        default_eth_test_integration_adapter: :geth
-
-config :eth_blockchain,
-  settings: [
-    :blockchain_chain_id,
-    :blockchain_transaction_poll_interval,
-    :blockchain_default_gas_price
-  ]
 
 config :eth_blockchain,
        :gas_limit,
