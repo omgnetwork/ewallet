@@ -18,11 +18,15 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
   """
   require Logger
 
+  @behaviour EWalletConfig.Loader
+
   @trackers [
     EWallet.AddressTracker,
     EWallet.DepositWalletPoolingTracker
   ]
 
+  @impl EWalletConfig.Loader
+  @spec load(Application.app(), EWalletConfig.Setting.key()) :: :ok
   def load(app, _setting, supervisor \\ EWallet.Supervisor, trackers \\ @trackers) do
     _ =
       case Application.get_env(app, :blockchain_enabled) || false do
