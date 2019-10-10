@@ -87,6 +87,11 @@ defmodule EWallet.DepositWalletPoolingTracker do
   # Polling management
   #
 
+  # Skip if interval is 0 or less
+  defp poll(%{pooling_interval: interval} = state) when interval <= 0 do
+    {:noreply, %{state | timer: nil}}
+  end
+
   defp poll(state) do
     _ = Logger.debug("Triggering deposit wallet pooling.")
 
