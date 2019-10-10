@@ -63,7 +63,12 @@ config :ewallet,
     "AWS_BUCKET" => "aws_bucket",
     "AWS_REGION" => "aws_region",
     "AWS_ACCESS_KEY_ID" => "aws_access_key_id",
-    "AWS_SECRET_ACCESS_KEY" => "aws_secret_access_key"
+    "AWS_SECRET_ACCESS_KEY" => "aws_secret_access_key",
+    "JSON_RPC_GETH_NODE_URL" => "blockchain_json_rpc_url",
+    "ROOTCHAIN_CHAIN_ID" => "blockchain_chain_id",
+    "OMISEGO_CONTRACT_ADDRESS" => "omisego_rootchain_contract_address",
+    "OMISEGO_CHILDCHAIN_URL" => "omisego_childchain_url",
+    "OMISEGO_WATCHER_URL" => "omisego_watcher_url"
   }
 
 import_config "#{Mix.env()}.exs"
