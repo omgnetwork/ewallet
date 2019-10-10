@@ -407,8 +407,6 @@ defmodule EWalletDB.Factory do
 
   def transaction_with_blockchain_factory do
     token = insert(:token)
-    from_wallet = insert(:wallet)
-    to_wallet = insert(:wallet)
 
     %Transaction{
       idempotency_token: UUID.generate(),
@@ -416,7 +414,8 @@ defmodule EWalletDB.Factory do
       metadata: %{some: "metadata"},
       from_amount: 100,
       from_token: token,
-      from_wallet: from_wallet,
+      from_wallet: nil,
+      to_wallet: nil,
       to_token: token,
       to_amount: 100,
       from_blockchain_address: Crypto.fake_eth_address(),

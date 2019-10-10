@@ -18,8 +18,8 @@ defmodule EWallet.TransactionGate.ChildchainTest do
 
   alias EWallet.{
     BlockchainHelper,
-    ChildchainTransactionGate,
-    TransactionTracker
+    TransactionTracker,
+    TransactionGate
   }
 
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}

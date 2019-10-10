@@ -277,7 +277,7 @@ defmodule EWalletDB.Token do
     |> Repo.insert_record_with_activity_log()
     |> case do
       {:ok, token} ->
-        {:ok, get(token.id, preload: :blockchain_transaction)}
+        {:ok, get(token.id)}
 
       {:error, changeset} ->
         {:error, changeset}

@@ -79,7 +79,18 @@ defmodule EWalletDB.BlockchainTransaction do
   end
 
   defp rootchain_incoming_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do
-    shared_insert_changeset(blockchain_transaction, attrs)
+    blockchain_transaction
+    |> cast_and_validate_required_for_activity_log(
+      attrs,
+      cast: [
+        :block_number
+      ],
+      required: [
+        # :block_number
+      ]
+    )
+    |> validate_immutable(:block_number)
+    |> merge(shared_insert_changeset(blockchain_transaction, attrs))
   end
 
   defp childchain_insert_changeset(%__MODULE__{} = blockchain_transaction, attrs) do

@@ -90,10 +90,23 @@ defmodule EthBlockchain.DumbAdapter do
     {:reply, {:ok, :failed, receipt}, reg}
   end
 
-  def handle_call({:get_transaction_receipt, tx_hash}, _from, reg) do
+  # Custom tx hash with specific block number required by `EthBlockchain.DumbReceivingAdapter`
+  def handle_call({:get_transaction_receipt, "01"}, _from, reg), do: receipt("01", 0, reg)
+  def handle_call({:get_transaction_receipt, "02"}, _from, reg), do: receipt("02", 0, reg)
+  def handle_call({:get_transaction_receipt, "03"}, _from, reg), do: receipt("03", 0, reg)
+  def handle_call({:get_transaction_receipt, "04"}, _from, reg), do: receipt("04", 0, reg)
+  def handle_call({:get_transaction_receipt, "05"}, _from, reg), do: receipt("05", 0, reg)
+  def handle_call({:get_transaction_receipt, "11"}, _from, reg), do: receipt("11", 1, reg)
+  def handle_call({:get_transaction_receipt, "12"}, _from, reg), do: receipt("12", 1, reg)
+  def handle_call({:get_transaction_receipt, "13"}, _from, reg), do: receipt("13", 1, reg)
+  def handle_call({:get_transaction_receipt, "14"}, _from, reg), do: receipt("14", 1, reg)
+  def handle_call({:get_transaction_receipt, "21"}, _from, reg), do: receipt("21", 2, reg)
+  def handle_call({:get_transaction_receipt, tx_hash}, _from, reg), do: receipt(tx_hash, 2, reg)
+
+  defp receipt(tx_hash, block_number, reg) do
     receipt = %{
       block_hash: "0xaa21ae024ddf50fd7753bf75ea7646bfc505cb96f36ad6af00159f20be93eda1",
-      block_number: 2,
+      block_number: block_number,
       contract_address: nil,
       cumulative_gas_used: 21_000,
       from: "0x47b7dabe049b5daec98048851494c8548066dc77",

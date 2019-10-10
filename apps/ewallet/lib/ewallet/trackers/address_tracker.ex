@@ -253,7 +253,7 @@ defmodule EWallet.AddressTracker do
       hash: blockchain_tx.hash,
       rootchain_identifier: blockchain_identifier,
       childchain_identifier: nil,
-      status: BlockchainTransactionState.submitted(),
+      status: BlockchainTransactionState.pending_confirmations(),
       block_number: blockchain_tx.block_number,
       originator: %System{}
     }

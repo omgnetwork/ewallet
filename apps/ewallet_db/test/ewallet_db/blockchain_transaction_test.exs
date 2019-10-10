@@ -275,6 +275,13 @@ defmodule EWalletDB.BlockchainTransactionTest do
 
     test_insert_prevent_blank(
       BlockchainTransaction,
+      :block_number,
+      &BlockchainTransaction.insert_incoming_rootchain/1,
+      :blockchain_transaction_rootchain
+    )
+
+    test_insert_prevent_blank(
+      BlockchainTransaction,
       :hash,
       &BlockchainTransaction.insert_incoming_rootchain/1,
       :blockchain_transaction_rootchain

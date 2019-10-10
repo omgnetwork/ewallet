@@ -31,7 +31,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
   @blockchain_transaction_confirmed BlockchainTransactionState.confirmed()
   @blockchain_transaction_failed BlockchainTransactionState.failed()
 
-  @default_error_coode :blockchain_transaction_error
+  @default_error_code "blockchain_transaction_error"
   @default_error_description "An error occured when processing this blockchain transaction"
 
   # This is called by the transaction tracker when a blockchain transaction
@@ -68,7 +68,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
       transaction,
       %{
         originator: %System{},
-        error_code: @default_error_coode,
+        error_code: @default_error_code,
         error_description: @default_error_description
       }
     )
@@ -96,7 +96,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
       transaction,
       %{
         originator: %System{},
-        error_code: @default_error_coode,
+        error_code: @default_error_code,
         error_description: @default_error_description
       }
     )
@@ -129,7 +129,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
       transaction,
       %{
         originator: %System{},
-        error_code: @default_error_coode,
+        error_code: @default_error_code,
         error_description: @default_error_description
       }
     )

@@ -21,7 +21,7 @@ defmodule EWallet.TransactionTrackerTest do
 
   describe "start/1" do
     test "starts a new server" do
-      transaction = insert(:blockchain_transaction)
+      transaction = insert(:transaction_with_blockchain)
 
       assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
       assert is_pid(pid)
@@ -31,7 +31,7 @@ defmodule EWallet.TransactionTrackerTest do
 
   describe "handle_cast/2 with :confirmations_count" do
     test "handles confirmations count when lower than minimum" do
-      transaction = insert(:blockchain_transaction)
+      transaction = insert(:transaction_with_blockchain)
       assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 2, 1})
@@ -46,7 +46,7 @@ defmodule EWallet.TransactionTrackerTest do
     end
 
     test "handles confirmations count when higher than minimum" do
-      transaction = insert(:blockchain_transaction)
+      transaction = insert(:transaction_with_blockchain)
       assert {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.blockchain_tx_hash, 12, 1})
@@ -63,7 +63,7 @@ defmodule EWallet.TransactionTrackerTest do
     end
 
     test "logs a message about mismatched hash" do
-      transaction = insert(:blockchain_transaction)
+      transaction = insert(:transaction_with_blockchain)
       {:ok, pid} = TransactionTracker.start(transaction, :from_blockchain_to_ewallet)
 
       assert capture_log(fn ->

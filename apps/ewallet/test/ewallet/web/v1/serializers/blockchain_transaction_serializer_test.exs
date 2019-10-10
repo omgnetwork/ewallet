@@ -19,7 +19,7 @@ defmodule EWallet.Web.V1.BlockchainTransactionSerializerTest do
 
   describe "serialize/1 for single blockchain_transaction" do
     test "serializes into correct V1 blockchain_transaction format" do
-      blockchain_transaction = build(:blockchain_transaction)
+      blockchain_transaction = build(:blockchain_transaction_rootchain)
 
       expected = %{
         object: "blockchain_transaction",
@@ -47,8 +47,8 @@ defmodule EWallet.Web.V1.BlockchainTransactionSerializerTest do
 
   describe "serialize/1 for blockchain_transactions list" do
     test "serialize into list of V1 blockchain_transaction" do
-      blockchain_transaction_1 = build(:blockchain_transaction)
-      blockchain_transaction_2 = build(:blockchain_transaction)
+      blockchain_transaction_1 = build(:blockchain_transaction_rootchain)
+      blockchain_transaction_2 = build(:blockchain_transaction_rootchain)
       blockchain_transactions = [blockchain_transaction_1, blockchain_transaction_2]
 
       expected = [
