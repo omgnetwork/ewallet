@@ -24,10 +24,11 @@ defmodule EWallet.DepositWalletPoolingTrackerTest do
 
     {:ok, pid} = DepositWalletPoolingTracker.start_link(opts)
 
-    {:ok, %{
-      start_opts: opts,
-      pid: pid
-    }}
+    {:ok,
+     %{
+       start_opts: opts,
+       pid: pid
+     }}
   end
 
   describe "start_link/1" do

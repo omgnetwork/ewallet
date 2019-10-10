@@ -187,7 +187,7 @@ defmodule EWallet.AddressTracker do
             {:noreply, %{state | timer: timer}}
         end
 
-      {:error, error}  ->
+      {:error, error} ->
         _ = Logger.error("An unexpected error occured in the AddressTracker. Terminating...")
         {:stop, error, state}
     end
