@@ -18,7 +18,7 @@ defmodule EWallet.DepositWalletPoolingTrackerTest do
 
   setup do
     opts = [
-      name: :"#{__MODULE__}-tracker-test-#{:erlang.unique_integer()}",
+      name: :"#{__MODULE__}-tracker-test-#{System.unique_integer()}",
       blockchain_identifier: "some_blockchain_identifier"
     ]
 

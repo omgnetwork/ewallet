@@ -36,7 +36,7 @@ defmodule EWalletConfig.BlockchainSettingsLoaderTest do
       Supervisor.child_spec({MockTracker, [name: TrackerTwo]}, id: TrackerTwo)
     ]
 
-    supervisor = :"blockchain_settings_test_supervisor_#{:erlang.unique_integer()}"
+    supervisor = :"blockchain_settings_test_supervisor_#{System.unique_integer()}"
     {:ok, _} = Supervisor.start_link(children, name: supervisor, strategy: :one_for_one)
 
     {:ok,
