@@ -42,13 +42,13 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
       # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
       case Supervisor.restart_child(supervisor, tracker) do
         {:ok, :undefined} ->
-          Logger.debug("Error starting #{inspect(tracker)}: The tracker is not supervised.")
+          Logger.debug(fn -> "Error starting #{inspect(tracker)}: The tracker is not supervised." end)
 
         {:error, :running} ->
-          Logger.debug("Error starting #{inspect(tracker)}. Already running.")
+          Logger.debug(fn -> "Error starting #{inspect(tracker)}. Already running." end)
 
         {:error, error} ->
-          Logger.debug("Error starting #{inspect(tracker)}: #{inspect(error)}")
+          Logger.debug(fn -> "Error starting #{inspect(tracker)}: #{inspect(error)}" end)
 
         _ ->
           :ok
@@ -63,10 +63,10 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
       catch
         # Do nothing if the process is already stopped
         :exit, {:noproc, _} ->
-          Logger.debug("Error stopping #{inspect(tracker)}. Already stopped.")
+          Logger.debug(fn -> "Error stopping #{inspect(tracker)}. Already stopped." end)
 
         :exit, error ->
-          Logger.debug("Error stopping #{inspect(tracker)}: #{inspect(error)}")
+          Logger.debug(fn -> "Error stopping #{inspect(tracker)}: #{inspect(error)}" end)
       end
     end)
   end
