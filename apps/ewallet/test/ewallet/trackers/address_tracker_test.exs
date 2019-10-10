@@ -58,7 +58,9 @@ defmodule EWallet.AddressTrackerTest do
         blockchain_identifier: "any_blockchain_identifier",
         contract_addresses: [],
         node_adapter: nil,
-        interval: 50,
+        poll_interval: 0,
+        sync_interval: 50,
+        sync_mode: :sync,
         timer: nil,
         stop_once_synced: false
       }
@@ -94,7 +96,9 @@ defmodule EWallet.AddressTrackerTest do
         contract_addresses: [
           token.blockchain_address
         ],
-        interval: 50,
+        poll_interval: 0,
+        sync_interval: 50,
+        sync_mode: :sync,
         timer: nil,
         stop_once_synced: false
       }
