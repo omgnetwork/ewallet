@@ -54,6 +54,30 @@ defmodule EthBlockchain.TransactionListenerTest do
     end
   end
 
+  describe "set_interval/2" do
+    test "updates the listener's interval" do
+      {:ok, pid} = TransactionListener.start_link(get_attrs())
+
+      interval = :rand.uniform(100_000)
+      res = TransactionListener.set_interval(interval, pid)
+
+      assert res == :ok
+      assert :sys.get_state(pid)[:interval] == interval
+      assert GenServer.stop(pid) == :ok
+    end
+
+    test "resets the timer" do
+      {:ok, pid} = TransactionListener.start_link(get_attrs())
+      timer = :sys.get_state(pid)[:timer]
+
+      interval = :rand.uniform(100_000)
+      :ok = TransactionListener.set_interval(interval, pid)
+
+      refute :sys.get_state(pid)[:timer] == timer
+      assert GenServer.stop(pid) == :ok
+    end
+  end
+
   describe "subscribe/2" do
     test "subscribes a listener" do
       {:ok, pid} = TransactionListener.start_link(get_attrs())
