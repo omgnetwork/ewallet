@@ -30,9 +30,9 @@ defmodule EWallet.DepositWalletPoolingTracker do
   end
 
   def init(opts) do
-    # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
-    # this config from the database, which may return nil. This function then treats the nil
-    # as an existing value, and so get_env/3 would never pick up the local defaults here.
+    # Notice we're not using Application.get_env/3 here, and use `|| false` instead? It's because
+    # we populate this config from database, which may return nil. This function treats the nil
+    # as an existing value, and so get_env/3 would never pick up the passed default here.
     case Application.get_env(:ewallet, :blockchain_enabled) || false do
       true ->
         blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)

@@ -8,6 +8,7 @@ config :ewallet,
   cors_origin: {:system, "CORS_ORIGIN", nil},
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
   cc_node_adapter: {:omisego_network, EthOmiseGOAdapter.Worker},
+  address_tracker: EWallet.AddressTracker,
   settings: [
     :base_url,
     :sender_email,

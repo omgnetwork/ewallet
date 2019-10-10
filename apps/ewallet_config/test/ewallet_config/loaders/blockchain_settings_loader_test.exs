@@ -49,10 +49,10 @@ defmodule EWalletConfig.BlockchainSettingsLoaderTest do
 
   defp set_blockchain_enabled(enabled?, context) do
     :ok = Application.put_env(@app, :blockchain_enabled, enabled?)
-    BlockchainSettingsLoader.load(@app, context.supervisor, context.trackers)
+    BlockchainSettingsLoader.load(@app, :blockchain_enabled, context.supervisor, context.trackers)
   end
 
-  describe "load/1" do
+  describe "load/4" do
     test "stops the running trackers when setting blockchain_enabled:false", context do
       res = set_blockchain_enabled(false, context)
 

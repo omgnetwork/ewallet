@@ -23,8 +23,8 @@ defmodule EWalletConfig.BalanceCachingSettingsLoader do
 
   @job_name :cache_all_wallets
 
-  @spec load(atom()) :: :ok | {:error, :scheduler_config_not_found}
-  def load(app) do
+  @spec load(atom(), atom()) :: :ok | {:error, :scheduler_config_not_found}
+  def load(app, _setting) do
     scheduler = Application.get_env(app, :scheduler)
     frequency = Application.get_env(app, :balance_caching_frequency)
 

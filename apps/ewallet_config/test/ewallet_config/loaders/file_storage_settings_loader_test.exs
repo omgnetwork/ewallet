@@ -37,10 +37,10 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       opts
     )
 
-    FileStorageSettingsLoader.load(:my_app)
+    FileStorageSettingsLoader.load(:my_app, :file_storage_adapter)
   end
 
-  describe "load/1" do
+  describe "load/2" do
     test "load local storage env" do
       init(%{
         "file_storage_adapter" => "local"

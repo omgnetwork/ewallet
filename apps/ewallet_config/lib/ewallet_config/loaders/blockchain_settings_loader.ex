@@ -23,11 +23,12 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
     EWallet.DepositWalletPoolingTracker
   ]
 
-  def load(app, supervisor \\ EWallet.Supervisor, trackers \\ @trackers) do
-    case Application.get_env(app, :blockchain_enabled) || false do
-      true -> start_trackers(trackers, supervisor)
-      false -> stop_trackers(trackers)
-    end
+  def load(app, _setting, supervisor \\ EWallet.Supervisor, trackers \\ @trackers) do
+    _ =
+      case Application.get_env(app, :blockchain_enabled) || false do
+        true -> start_trackers(trackers, supervisor)
+        false -> stop_trackers(trackers)
+      end
 
     :ok
   end

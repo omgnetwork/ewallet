@@ -65,6 +65,11 @@ defmodule EWallet.AddressTracker do
     GenServer.call(pid, {:register_contract_address, contract_address})
   end
 
+  @spec set_interval(:sync | :poll, non_neg_integer(), GenServer.server()) :: :ok
+  def set_interval(sync_mode, interval, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:set_interval, sync_mode, interval})
+  end
+
   #
   # GenServer callbacks
   #
@@ -78,8 +83,11 @@ defmodule EWallet.AddressTracker do
         blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
         state = %{
-          interval:
+          sync_mode: :sync,
+          sync_interval:
             Application.get_env(:ewallet, :blockchain_sync_interval) || @default_sync_interval,
+          poll_interval:
+            Application.get_env(:ewallet, :blockchain_poll_interval) || @default_poll_interval,
           blockchain_identifier: blockchain_identifier,
           timer: nil,
           addresses:
@@ -128,22 +136,70 @@ defmodule EWallet.AddressTracker do
     {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
   end
 
-  # Does not poll if the interval is too low
-  defp poll(%{interval: interval} = state) when interval <= 0 do
-    _ = Logger.info("Address tracking has stopped because the interval is #{interval}.")
-    {:noreply, state}
+  def handle_cast({:set_interval, mode, interval}, state) do
+    state =
+      case mode do
+        :sync -> %{state | sync_interval: interval}
+        :poll -> %{state | poll_interval: interval}
+      end
+
+    case {state.sync_mode, state.timer} do
+      # If the updated interval is for the current sync mode and there's no timer set
+      # (possibly because the interval was set to 0 before), schedule next poll right away.
+      {^mode, nil} ->
+        timer = schedule_next_poll(state)
+        {:noreply, %{state | timer: timer}}
+
+      # If the updated interval is for the current sync mode and there's a timer set,
+      # cancel the current timer and schedule the next poll.
+      {^mode, timer} ->
+        _ = Process.cancel_timer(timer)
+        timer = schedule_next_poll(state)
+        {:noreply, %{state | timer: timer}}
+
+      # If the updated interval is for a different sync mode, do nothing and return the
+      # timer unchanged.
+      _ ->
+        {:noreply, state}
+    end
   end
+
+  #
+  # Polling management
+  #
 
   defp poll(state) do
     case run(state) do
       new_state when is_map(new_state) ->
-        timer = Process.send_after(self(), :poll, new_state[:interval])
+        timer = schedule_next_poll(new_state)
         {:noreply, %{new_state | timer: timer}}
 
       error ->
         error
     end
   end
+
+  defp schedule_next_poll(state) do
+    case get_interval(state) do
+      interval when interval > 0 ->
+        Process.send_after(self(), :poll, interval)
+
+      interval ->
+        _ = Logger.info("Address tracking has paused because the interval is #{interval}.")
+        nil
+    end
+  end
+
+  defp get_interval(state) do
+    case state.sync_mode do
+      :sync -> state.sync_interval
+      :poll -> state.poll_interval
+    end
+  end
+
+  #
+  # Address tracking
+  #
 
   defp run(
          %{
@@ -165,15 +221,7 @@ defmodule EWallet.AddressTracker do
         case stop_once_synced do
           false ->
             # We've reached the end of the chain, switching to a slower polling interval.
-            #
-            # Notice we're not using Application.get_env/3 here for defaults? It's because we
-            # populate this config from the database, which may return nil. This function then
-            # treats the nil as an existing value, and so get_env/3 would never pick up the
-            # local defaults here.
-            poll_interval =
-              Application.get_env(:ewallet, :blockchain_poll_interval) || @default_poll_interval
-
-            {:noreply, %{state | interval: poll_interval}}
+            {:noreply, %{state | sync_mode: :poll}}
 
           true ->
             {:stop, :normal, state}
