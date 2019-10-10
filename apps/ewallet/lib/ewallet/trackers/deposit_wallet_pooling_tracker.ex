@@ -23,11 +23,24 @@ defmodule EWallet.DepositWalletPoolingTracker do
   # Default pooling to 1 hour
   @default_pooling_interval 60 * 60 * 1000
 
+  #
+  # Client APIs
+  #
+
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, opts, name: name)
   end
+
+  @spec set_interval(non_neg_integer(), GenServer.server()) :: :ok
+  def set_interval(interval, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:set_interval, interval})
+  end
+
+  #
+  # GenServer callbacks
+  #
 
   def init(opts) do
     # Notice we're not using Application.get_env/3 here, and use `|| false` instead? It's because
@@ -35,15 +48,11 @@ defmodule EWallet.DepositWalletPoolingTracker do
     # as an existing value, and so get_env/3 would never pick up the passed default here.
     case Application.get_env(:ewallet, :blockchain_enabled) || false do
       true ->
-        blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
-
-        pooling_interval =
-          Application.get_env(:ewallet, :blockchain_deposit_pooling_interval) ||
-            @default_pooling_interval
-
         state = %{
-          blockchain_identifier: blockchain_identifier,
-          pooling_interval: pooling_interval,
+          blockchain_identifier: Keyword.fetch!(opts, :blockchain_identifier),
+          pooling_interval:
+            Application.get_env(:ewallet, :blockchain_deposit_pooling_interval) ||
+              @default_pooling_interval,
           timer: nil
         }
 
@@ -64,28 +73,48 @@ defmodule EWallet.DepositWalletPoolingTracker do
     poll(state)
   end
 
-  # Does not pool if the interval is too low
-  defp poll(%{pooling_interval: interval} = state) when interval <= 0 do
-    _ = Logger.info("Deposit wallet pooling has stopped because the interval is #{interval}.")
-    {:noreply, state}
+  def handle_cast({:set_interval, interval}, state) do
+    state = %{state | pooling_interval: interval}
+
+    # Cancel the existing timer if there's one
+    _ = state.timer && Process.cancel_timer(state.timer)
+
+    timer = schedule_next_poll(state)
+    {:noreply, %{state | timer: timer}}
   end
 
+  #
+  # Polling management
+  #
+
   defp poll(state) do
-    case DepositPoolingGate.move_deposits_to_pooled_funds(state.blockchain_identifier) do
-      {:ok, _} ->
-        timer = Process.send_after(self(), :poll, state.pooling_interval)
-        {:noreply, %{state | timer: timer}}
+    _ = Logger.debug("Triggering deposit wallet pooling.")
 
-      error ->
-        timer = Process.send_after(self(), :poll, state.pooling_interval)
+    _ =
+      case DepositPoolingGate.move_deposits_to_pooled_funds(state.blockchain_identifier) do
+        {:ok, _} ->
+          :noop
 
-        _ =
-          Logger.error(
-            "Errored trying to pool funds from deposit wallets." <>
-              " Retrying in #{state.pooling_interval} ms. Got: #{inspect(error)}."
-          )
+        error ->
+          _ =
+            Logger.error(
+              "Errored trying to pool funds from deposit wallets." <>
+                " Retrying in #{state.pooling_interval} ms. Got: #{inspect(error)}."
+            )
+      end
 
-        {:noreply, %{state | timer: timer}}
+    timer = schedule_next_poll(state)
+    {:noreply, %{state | timer: timer}}
+  end
+
+  defp schedule_next_poll(state) do
+    case state.pooling_interval do
+      interval when interval > 0 ->
+        Process.send_after(self(), :poll, interval)
+
+      interval ->
+        _ = Logger.info("Deposit wallet pooling has paused because the interval is #{interval}.")
+        nil
     end
   end
 end

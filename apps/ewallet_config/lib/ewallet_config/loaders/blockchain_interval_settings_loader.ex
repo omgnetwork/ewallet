@@ -16,18 +16,28 @@ defmodule EWalletConfig.BlockchainIntervalSettingsLoader do
   @moduledoc """
   Perform necessary changes to the system to reflect the changed blockchain interval settings.
   """
+  @behaviour EWalletConfig.Loader
 
-  @spec load(atom(), atom()) :: :ok
-  def load(app, setting) do
-    address_tracker = Application.get_env(app, :address_tracker)
-    interval = Application.get_env(app, setting)
+  @impl EWalletConfig.Loader
+  @spec load(Application.app(), EWalletConfig.Setting.key()) :: :ok
+  def load(app, :blockchain_sync_interval) do
+    tracker = Application.get_env(app, :address_tracker)
+    interval = Application.get_env(app, :blockchain_sync_interval)
 
-    case setting do
-      :blockchain_sync_interval ->
-        address_tracker.set_interval(:sync, interval)
+    tracker.set_interval(:sync, interval)
+  end
 
-      :blockchain_poll_interval ->
-        address_tracker.set_interval(:poll, interval)
-    end
+  def load(app, :blockchain_poll_interval) do
+    tracker = Application.get_env(app, :address_tracker)
+    interval = Application.get_env(app, :blockchain_poll_interval)
+
+    tracker.set_interval(:poll, interval)
+  end
+
+  def load(app, :blockchain_deposit_pooling_interval) do
+    tracker = Application.get_env(app, :deposit_wallet_pooling_tracker)
+    interval = Application.get_env(app, :blockchain_deposit_pooling_interval)
+
+    tracker.set_interval(interval)
   end
 end

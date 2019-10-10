@@ -9,6 +9,7 @@ config :ewallet,
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
   cc_node_adapter: {:omisego_network, EthOmiseGOAdapter.Worker},
   address_tracker: EWallet.AddressTracker,
+  deposit_wallet_pooling_tracker: EWallet.DepositWalletPoolingTracker,
   settings: [
     :base_url,
     :sender_email,

@@ -31,7 +31,8 @@ defmodule EWalletConfig.SettingLoader do
     file_storage_adapter: FileStorageSettingsLoader,
     blockchain_enabled: BlockchainSettingsLoader,
     blockchain_sync_interval: BlockchainIntervalSettingsLoader,
-    blockchain_poll_interval: BlockchainIntervalSettingsLoader
+    blockchain_poll_interval: BlockchainIntervalSettingsLoader,
+    blockchain_deposit_pooling_interval: BlockchainIntervalSettingsLoader,
   }
 
   def load_settings(app, settings) when is_atom(app) and is_list(settings) do
