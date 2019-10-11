@@ -368,7 +368,7 @@ defmodule EWalletDB.Transaction do
     )
   end
 
-  def all_unfinalized_blockchain() do
+  def all_unfinalized_blockchain do
     __MODULE__
     |> join(:inner, [dt], t in assoc(dt, :blockchain_transaction))
     |> where([_, t], t.status in @unfinalized_statuses)
