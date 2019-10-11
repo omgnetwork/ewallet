@@ -17,15 +17,89 @@ defmodule EWallet.TransactionTrackerTest do
   import EWalletDB.Factory
 
   alias EWallet.{BlockchainHelper, TransactionTracker}
-  alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, TransactionState}
+
+  alias EWalletDB.{
+    BlockchainTransaction,
+    BlockchainState,
+    BlockchainWallet,
+    BlockchainTransactionState,
+    TransactionState
+  }
 
   describe "start_all_pending/0" do
-    test "restarts trackers for all pending transaction"
+    test "restarts trackers for all pending transaction" do
+      identifier = BlockchainHelper.rootchain_identifier()
+
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+
+      blockchain_transaction_1 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.submitted())
+
+      blockchain_transaction_2 =
+        insert(:blockchain_transaction_rootchain,
+          status: BlockchainTransactionState.pending_confirmations()
+        )
+
+      blockchain_transaction_3 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      blockchain_transaction_4 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.failed())
+
+      insert(:transaction_with_blockchain,
+        blockchain_transaction: blockchain_transaction_1,
+        from_blockchain_address: hot_wallet.address
+      )
+
+      insert(:transaction_with_blockchain,
+        blockchain_transaction: blockchain_transaction_2,
+        from_blockchain_address: hot_wallet.address
+      )
+
+      insert(:transaction_with_blockchain,
+        blockchain_transaction: blockchain_transaction_3,
+        from_blockchain_address: hot_wallet.address
+      )
+
+      insert(:transaction_with_blockchain,
+        blockchain_transaction: blockchain_transaction_4,
+        from_blockchain_address: hot_wallet.address
+      )
+
+      # Fast forward the blockchain manually to have the transactions confirmed.
+      BlockchainState.update(identifier, 20)
+
+      started_trackers = TransactionTracker.start_all_pending()
+
+      assert length(started_trackers) == 2
+
+      Enum.each(started_trackers, fn {res, pid} ->
+        assert res == :ok
+        assert is_pid(pid)
+        ref = Process.monitor(pid)
+
+        receive do
+          {:DOWN, ^ref, _, ^pid, _} -> :ok
+        end
+
+        refute Process.alive?(pid)
+
+        assert BlockchainTransaction.get_by(uuid: blockchain_transaction_1.uuid).status ==
+                 BlockchainTransactionState.confirmed()
+
+        assert BlockchainTransaction.get_by(uuid: blockchain_transaction_2.uuid).status ==
+                 BlockchainTransactionState.confirmed()
+      end)
+    end
   end
 
   describe "start/1" do
     test "starts a new BlockchainTransactionTracker" do
-      transaction = insert(:blockchain_transaction_rootchain)
+      blockchain_transaction = insert(:blockchain_transaction_rootchain)
+
+      transaction =
+        insert(:transaction_with_blockchain, blockchain_transaction: blockchain_transaction)
+
       assert {:ok, pid} = TransactionTracker.start(transaction)
 
       assert is_pid(pid)

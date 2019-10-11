@@ -131,7 +131,7 @@ defmodule EWallet.TransactionGate.Blockchain do
         |> case do
           {:ok, transaction} ->
             # TODO: handle error?
-            {:ok, _pid} = TransactionTracker.start(blockchain_transaction)
+            {:ok, _pid} = TransactionTracker.start(transaction)
             {:ok, transaction}
 
           error ->
@@ -292,7 +292,7 @@ defmodule EWallet.TransactionGate.Blockchain do
            ),
          {:ok, transaction} <-
            Preloader.preload_one(transaction, :blockchain_transaction, force: true),
-         {:ok, _pid} <- TransactionTracker.start(blockchain_transaction) do
+         {:ok, _pid} <- TransactionTracker.start(transaction) do
       {:ok, transaction}
     end
 

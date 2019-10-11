@@ -49,6 +49,12 @@ defmodule EWalletDB.BlockchainTransactionState do
     @failed
   ]
 
+  # List of statuses that for which the blockchain transaction is not considered finalized.
+  @unfinalized_statuses [
+    @submitted,
+    @pending_confirmations
+  ]
+
   @doc """
   Returns the "submitted" status's string representation.
 
@@ -87,6 +93,11 @@ defmodule EWalletDB.BlockchainTransactionState do
   Returns the list of all possible string representations of blockchain transaction statuses.
   """
   def statuses, do: @statuses
+
+  @doc """
+  Returns the list of all unfinalized statuses.
+  """
+  def unfinalized_statuses, do: @unfinalized_statuses
 
   @doc """
   Returns a map containing all possible transitions.

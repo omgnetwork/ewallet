@@ -29,12 +29,10 @@ defmodule EWallet.TransactionTracker do
   alias EWalletDB.{Transaction}
 
   def start_all_pending do
-    # TODO: Query all pending and start for each
-    # transaction inner join blockchain transaction
-    # blockchain transaction where not confirmed and not failed
+    Enum.map(Transaction.all_unfinalized_blockchain(), &start/1)
   end
 
-  def start(blockchain_transaction) do
+  def start(%{blockchain_transaction: blockchain_transaction}) do
     BlockchainTransactionTracker.start(blockchain_transaction, __MODULE__)
   end
 

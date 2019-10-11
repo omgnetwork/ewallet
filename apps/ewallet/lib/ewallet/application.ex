@@ -46,7 +46,11 @@ defmodule EWallet.Application do
       {EWallet.DepositWalletPoolingTracker, [blockchain_identifier: @rootchain_identifier]}
     ]
 
-    Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
+    start = Supervisor.start_link(children, name: EWallet.Supervisor, strategy: :one_for_one)
+
+    EWallet.TransactionTracker.start_all_pending()
+
+    start
   end
 
   defp set_decimal_context do

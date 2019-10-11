@@ -26,6 +26,7 @@ defmodule EWalletDB.Transaction do
   alias EWalletDB.{
     Account,
     BlockchainTransaction,
+    BlockchainTransactionState,
     ExchangePair,
     Repo,
     Token,
@@ -45,6 +46,8 @@ defmodule EWalletDB.Transaction do
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+
+  @unfinalized_statuses BlockchainTransactionState.unfinalized_statuses()
 
   schema "transaction" do
     external_id(prefix: "txn_")
@@ -363,6 +366,14 @@ defmodule EWalletDB.Transaction do
       t in query,
       where: t.from_account_uuid == ^account.uuid or t.to_account_uuid == ^account.uuid
     )
+  end
+
+  def all_unfinalized_blockchain() do
+    __MODULE__
+    |> join(:inner, [dt], t in assoc(dt, :blockchain_transaction))
+    |> where([_, t], t.status in @unfinalized_statuses)
+    |> Repo.all()
+    |> Repo.preload(:blockchain_transaction)
   end
 
   @doc """

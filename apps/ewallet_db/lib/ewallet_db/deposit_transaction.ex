@@ -38,17 +38,10 @@ defmodule EWalletDB.DepositTransaction do
   def outgoing, do: @outgoing
   def incoming, do: @incoming
 
-  # List of transaction statuses that already affect the blockchain balances,
-  # but we consider them unfinalized and hence should not be spent.
-  # Note that non-blockchain statuses like pending() are not included
-  # since pending transactions do not yet affect the blockchain balance.
-  @unfinalized_statuses [
-    BlockchainTransactionState.submitted(),
-    BlockchainTransactionState.pending_confirmations()
-  ]
-
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
+
+  @unfinalized_statuses BlockchainTransactionState.unfinalized_statuses()
 
   schema "deposit_transaction" do
     external_id(prefix: "dtx_")

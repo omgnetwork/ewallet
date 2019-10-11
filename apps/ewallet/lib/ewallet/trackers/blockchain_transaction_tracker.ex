@@ -65,7 +65,7 @@ defmodule EWallet.BlockchainTransactionTracker do
   end
 
   @doc """
-  Starts the actual TransactionTracker process.
+  Starts the actual BlockchainTransactionTracker process.
   """
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name)
