@@ -39,7 +39,7 @@ defmodule Frontend.Application do
 
     children =
       children ++
-        case Normalize.to_boolean(webpack_watch) do
+        case Normalize.to_boolean!(webpack_watch) do
           true ->
             _ = Logger.info("Enabling webpack watcher.")
 

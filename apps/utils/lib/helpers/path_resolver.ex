@@ -27,7 +27,7 @@ defmodule Utils.Helpers.PathResolver do
   def static_dir(app) do
     serve_local_static = System.get_env("SERVE_LOCAL_STATIC") || false
 
-    case Normalize.to_boolean(serve_local_static) do
+    case Normalize.to_boolean!(serve_local_static) do
       true ->
         Path.expand("../../../#{app}/priv/static", __DIR__)
 

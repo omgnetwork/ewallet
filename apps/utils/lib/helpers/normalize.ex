@@ -17,8 +17,8 @@ defmodule Utils.Helpers.Normalize do
   Module to normalize strings.
   """
   defmodule ToBooleanError do
-    defexception message: "Could not represent the value as boolean."
-    def error_message(value), do: "Could not represent the value (#{inspect(value)}) as boolean."
+    defexception message: "Could not represent the value as a boolean."
+    def error_message(value), do: "Could not represent the value (#{inspect(value)}) as a boolean."
   end
 
   defmodule ToIntegerError do
@@ -48,17 +48,30 @@ defmodule Utils.Helpers.Normalize do
 
   def string_to_boolean(<<>>), do: nil
 
-  def string_to_boolean(value),
-    do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
+  def string_to_boolean(value) do
+    {:error, :normalize_error, ToBooleanError.error_message(value)}
+  end
+
+  def string_to_boolean!(value) do
+    case string_to_boolean(value) do
+      {:error, :normalize_error, message} -> raise(ToBooleanError, message: message)
+      converted -> converted
+    end
+  end
 
   # We need /1 and /2 separated, because if no default is specified, the app
   # should crash, trying to parse nil as a bool/bin/int
   def to_boolean(s) when is_boolean(s), do: s
   def to_boolean(s) when is_binary(s), do: string_to_boolean(s)
   def to_boolean(s) when is_integer(s) and s >= 1, do: true
+  def to_boolean(value), do: {:error, :normalize_error, ToBooleanError.error_message(value)}
 
-  def to_boolean(value),
-    do: raise(ToBooleanError, message: ToBooleanError.error_message(value))
+  def to_boolean!(value) do
+    case to_boolean(value) do
+      {:error, :normalize_error, message} -> raise(ToBooleanError, message: message)
+      converted -> converted
+    end
+  end
 
   # Can be used when having a default value is fine, like DEBUG for seeds
   def to_boolean(nil, default), do: default
@@ -71,7 +84,14 @@ defmodule Utils.Helpers.Normalize do
   def to_integer([_ | _] = s), do: :erlang.list_to_integer(s)
   def to_integer(s) when is_integer(s), do: s
   def to_integer(s) when is_float(s), do: :erlang.round(s)
-  def to_integer(value), do: raise(ToIntegerError, message: ToIntegerError.error_message(value))
+  def to_integer(value), do: {:error, :normalize_error, ToIntegerError.error_message(value)}
+
+  def to_integer!(value) do
+    case to_integer(value) do
+      {:error, :normalize_error, message} -> raise(ToIntegerError, message: message)
+      converted -> converted
+    end
+  end
 
   # Converts a comma-separated string to a list of strings
   def to_strings(s) do
