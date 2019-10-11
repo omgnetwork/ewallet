@@ -19,7 +19,6 @@ defmodule EthGethAdapter.Worker do
     Balance,
     Block,
     Client,
-    GethManager,
     Transaction,
     Token,
     ErrorHandler,
@@ -124,7 +123,10 @@ defmodule EthGethAdapter.Worker do
     {:reply, ErrorHandler.errors(), reg}
   end
 
-  def handle_call({:boot_adapter, datadir}, _from, reg) do
-    {:reply, GethManager.start(datadir), reg}
+  # `EthGethAdapter.GethManager` is only compiled and used in tests.
+  if Application.get_env(:ewallet, :env) == :test do
+    def handle_call({:boot_adapter, datadir}, _from, reg) do
+      {:reply, EthGethAdapter.GethManager.start(datadir), reg}
+    end
   end
 end
