@@ -4,9 +4,11 @@ defmodule EWalletDB.Repo.Migrations.UpdateDepositTransaction do
   def up do
     drop index(:deposit_transaction, [:blockchain_identifier, :blockchain_tx_hash])
 
-
     alter table(:deposit_transaction) do
-      add(:blockchain_transaction_uuid, references(:blockchain_transaction, type: :uuid, column: :uuid))
+      add(
+        :blockchain_transaction_uuid,
+        references(:blockchain_transaction, type: :uuid, column: :uuid)
+        )
 
       remove :blockchain_tx_hash
       remove :blockchain_identifier

@@ -13,6 +13,10 @@
 # limitations under the License.
 
 defmodule EWallet.BlockchainTransactionTrackerBehaviour do
+  @moduledoc """
+  Behaviours required for all tracker module to receive a callback
+  once the blockchain transaction is in a final state.
+  """
   alias EWalletDB.BlockchainTransaction
 
   @callback on_confirmed(BlockchainTransaction.t()) ::

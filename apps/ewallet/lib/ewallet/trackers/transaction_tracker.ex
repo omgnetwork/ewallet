@@ -14,7 +14,8 @@
 
 defmodule EWallet.TransactionTracker do
   @moduledoc """
-
+  This module is used to start and receive callbacks for transactions
+  that have a blockchain transaction.
   """
   @behaviour EWallet.BlockchainTransactionTrackerBehaviour
 
@@ -27,7 +28,7 @@ defmodule EWallet.TransactionTracker do
 
   alias EWalletDB.{Transaction}
 
-  def start_all_pending() do
+  def start_all_pending do
     # TODO: Query all pending and start for each
     # transaction inner join blockchain transaction
     # blockchain transaction where not confirmed and not failed

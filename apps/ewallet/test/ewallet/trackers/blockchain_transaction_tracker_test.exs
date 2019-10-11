@@ -154,7 +154,7 @@ defmodule EWallet.DummyTransactionTracker do
     GenServer.cast(__MODULE__, {:on_confirmed, transaction})
   end
 
-  def get_confirmed_transaction() do
+  def get_confirmed_transaction do
     GenServer.call(__MODULE__, {:get_confirmed_tx})
   end
 end

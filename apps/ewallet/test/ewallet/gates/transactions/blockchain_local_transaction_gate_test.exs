@@ -27,7 +27,7 @@ defmodule EWallet.TransactionGate.BlockchainLocalTest do
     master_account = Account.get_master_account()
     master_wallet = Account.get_primary_wallet(master_account)
     token = insert(:token)
-    MintGate.mint_token(token, %{"amount" => 10000, "originator" => %System{}})
+    MintGate.mint_token(token, %{"amount" => 10_000, "originator" => %System{}})
 
     %{hw_address: address, master_wallet: master_wallet, token: token}
   end

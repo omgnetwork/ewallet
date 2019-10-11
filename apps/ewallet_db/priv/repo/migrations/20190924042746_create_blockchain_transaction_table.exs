@@ -21,7 +21,10 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainTransactionTable do
     create unique_index(:blockchain_transaction, [:hash])
 
     alter table(:transaction) do
-      add(:blockchain_transaction_uuid, references(:blockchain_transaction, type: :uuid, column: :uuid))
+      add(
+        :blockchain_transaction_uuid,
+        references(:blockchain_transaction, type: :uuid, column: :uuid)
+        )
 
       remove :blk_number
       remove :blockchain_metadata
@@ -33,7 +36,10 @@ defmodule EWalletDB.Repo.Migrations.CreateBlockchainTransactionTable do
     create unique_index(:transaction, :blockchain_transaction_uuid)
 
     alter table(:token) do
-      add(:blockchain_transaction_uuid, references(:blockchain_transaction, type: :uuid, column: :uuid))
+      add(
+        :blockchain_transaction_uuid,
+        references(:blockchain_transaction, type: :uuid, column: :uuid)
+        )
 
       remove :tx_hash
       remove :blk_number

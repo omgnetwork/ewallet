@@ -18,6 +18,7 @@ defmodule EWalletDB.TransactionType do
   """
   alias EWalletDB.BlockchainWallet
 
+  # credo:disable-for-next-line Credo.Check.Refactor.CyclomaticComplexity
   def get(transaction) do
     rootchain_identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
     %{address: address} = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
