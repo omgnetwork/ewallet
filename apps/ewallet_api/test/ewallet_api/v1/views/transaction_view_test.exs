@@ -31,8 +31,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
           object: "transaction",
           id: transaction.id,
           idempotency_token: transaction.idempotency_token,
-          blockchain_tx_hash: nil,
-          confirmations_count: nil,
+          blockchain_transaction: nil,
           from_blockchain_address: nil,
           to_blockchain_address: nil,
           from: %{

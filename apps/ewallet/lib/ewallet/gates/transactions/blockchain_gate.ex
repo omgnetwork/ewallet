@@ -189,7 +189,9 @@ defmodule EWallet.TransactionGate.Blockchain do
     end
   end
 
-  defp enough_funds?(%{"childchain_identifier" => _, "from_blockchain_address" => address} = attrs) do
+  defp enough_funds?(
+         %{"childchain_identifier" => _, "from_blockchain_address" => address} = attrs
+       ) do
     :get_childchain_balance
     |> BlockchainHelper.call(%{address: address})
     |> process_balance_response(attrs)
@@ -339,7 +341,6 @@ defmodule EWallet.TransactionGate.Blockchain do
          "rootchain_identifier" => rootchain_identifier,
          "childchain_identifier" => childchain_identifier
        }) do
-
     attrs = %{
       amount: transaction.from_amount,
       currency: transaction.from_token.blockchain_address,

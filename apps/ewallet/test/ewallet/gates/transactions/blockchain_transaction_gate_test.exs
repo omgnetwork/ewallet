@@ -24,7 +24,15 @@ defmodule EWallet.TransactionGate.BlockchainTest do
     BlockchainTransactionTracker
   }
 
-  alias EWalletDB.{Account, BlockchainState, BlockchainTransactionState, BlockchainWallet, Transaction, TransactionState}
+  alias EWalletDB.{
+    Account,
+    BlockchainState,
+    BlockchainTransactionState,
+    BlockchainWallet,
+    Transaction,
+    TransactionState
+  }
+
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
   alias Ecto.UUID

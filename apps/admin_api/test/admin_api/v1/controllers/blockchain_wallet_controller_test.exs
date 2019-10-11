@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
 
   alias Utils.Helpers.{Crypto, DateFormatter}
   alias EWalletDB.{BlockchainWallet, Transaction, Repo}
-  alias EWallet.{BlockchainHelper, TransactionTracker}
+  alias EWallet.{BlockchainHelper, BlockchainTransactionTracker}
   alias Ecto.UUID
 
   describe "/blockchain_wallet.create" do
@@ -65,7 +65,11 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
     test_with_auths "deposit to childchain with the given attributes" do
       identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
-      token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+
+      token =
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       adapter = BlockchainHelper.adapter()
       {:ok, _adapter_pid} = adapter.server().start_link([])
@@ -80,14 +84,14 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       response = request("/blockchain_wallet.deposit_to_childchain", attrs)
 
       assert response["success"]
-      assert response["data"]["blockchain_tx_hash"] != nil
+      assert response["data"]["blockchain_transaction"] != nil
       assert response["data"]["type"] == "deposit"
 
-      transaction = Transaction.get(response["data"]["id"])
-      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      transaction = Transaction.get(response["data"]["id"], preload: :blockchain_transaction)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
 
       {:ok, %{pid: blockchain_listener_pid}} =
-        adapter.lookup_listener(transaction.blockchain_tx_hash)
+        adapter.lookup_listener(transaction.blockchain_transaction.hash)
 
       on_exit(fn ->
         :ok = GenServer.stop(pid)
