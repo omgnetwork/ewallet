@@ -45,7 +45,7 @@ defmodule EWallet.CLI do
   @spec assume_yes?([String.t()]) :: boolean()
   def assume_yes?(args), do: Enum.any?(args, fn a -> a in @yes_params end)
 
-  @spec confirm?(String.t()) :: boolean()
+  @spec confirm?(String.t()) :: boolean() | {:error, :normalize_error, String.t()}
   def confirm?(message) do
     (message <> " [Yn] ")
     |> IO.gets()

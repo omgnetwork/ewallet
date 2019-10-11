@@ -64,7 +64,10 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
           {[{setting_name, value} | to_migrate], unchanged}
 
         {:unchanged, value} ->
-          {to_migrate, [{setting_name, value} | unchanged]}
+          {to_migrate, [{setting_name, value, :unchanged} | unchanged]}
+
+        {:error, :normalize_error, value} ->
+          {to_migrate, [{setting_name, value, :normalize_error} | unchanged]}
 
         nil ->
           {to_migrate, unchanged}
@@ -86,6 +89,7 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
 
         # Determines if the normalized settings value is the same as in database
         case cast_env(value, setting.type) do
+          {:error, :normalize_error, _} -> {:error, :normalize_error, value}
           ^existing_value -> {:unchanged, existing_value}
           casted_value -> {:ok, casted_value}
         end
@@ -108,15 +112,26 @@ defmodule EWallet.ReleaseTasks.ConfigMigration do
     _ = CLI.info("The following settings will be skipped:\n")
 
     _ =
-      Enum.each(unchanged, fn {setting_name, value} ->
-        CLI.info("  - #{setting_name}: \"#{value}\"")
+      Enum.each(unchanged, fn {setting_name, value, reason} ->
+        reason_text =
+          case reason do
+            :unchanged -> "unchanged"
+            :normalize_error -> "type conversion error"
+          end
+
+        CLI.info("  - #{setting_name}: \"#{value}\" (#{reason_text})")
       end)
 
-    confirmed? = CLI.confirm?("\nAre you sure to migrate these settings to the database?")
+    case CLI.confirm?("\nAre you sure to migrate these settings to the database?") do
+      true ->
+        plan
 
-    case confirmed? do
-      true -> plan
-      false -> :aborted
+      false ->
+        :aborted
+
+      {:error, :normalize_error, error_message} ->
+        _ = CLI.error(error_message)
+        :aborted
     end
   end
 

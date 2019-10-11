@@ -27,7 +27,7 @@ defmodule UrlDispatcher.Application do
     serve_endpoints = Application.get_env(:url_dispatcher, :serve_endpoints)
 
     children =
-      case Normalize.to_boolean(serve_endpoints) do
+      case Normalize.to_boolean!(serve_endpoints) do
         true ->
           dispatchers = []
           port = Application.get_env(:url_dispatcher, :port)

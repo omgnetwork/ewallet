@@ -73,6 +73,6 @@ defmodule Status do
   defp is_enabled?() do
     :status
     |> Application.get_env(:metrics)
-    |> Normalize.to_boolean()
+    |> Normalize.to_boolean!()
   end
 end

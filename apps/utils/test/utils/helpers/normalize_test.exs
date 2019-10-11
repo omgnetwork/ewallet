@@ -27,14 +27,54 @@ defmodule Utils.Helpers.NormalizeTest do
       refute Normalize.string_to_boolean("false")
       refute Normalize.string_to_boolean("0")
       refute Normalize.string_to_boolean("no")
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean("nope") end)
+    end
 
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean("yup") end)
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean("yo") end)
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean("yawn") end)
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean(1) end)
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean(true) end)
-      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean(false) end)
+    test "returns an error tuple when given an incompatible value" do
+      assert Normalize.string_to_boolean("nope") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"nope\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yup") ==
+               {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yo") ==
+               {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yawn") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"yawn\") as a boolean."}
+
+      assert Normalize.string_to_boolean(1) ==
+               {:error, :normalize_error, "Could not represent the value (1) as a boolean."}
+
+      assert Normalize.string_to_boolean(true) ==
+               {:error, :normalize_error, "Could not represent the value (true) as a boolean."}
+
+      assert Normalize.string_to_boolean(false) ==
+               {:error, :normalize_error, "Could not represent the value (false) as a boolean."}
+    end
+  end
+
+  describe "string_to_boolean!/1" do
+    test "converts strings to boolean" do
+      assert Normalize.string_to_boolean("yes")
+      assert Normalize.string_to_boolean("Yes")
+      assert Normalize.string_to_boolean("true")
+      assert Normalize.string_to_boolean("True")
+      assert Normalize.string_to_boolean("1")
+      refute Normalize.string_to_boolean("false")
+      refute Normalize.string_to_boolean("0")
+      refute Normalize.string_to_boolean("no")
+    end
+
+    test "raises an error when given an incompatible value" do
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!("nope") end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!("yup") end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!("yo") end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!("yawn") end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!(1) end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!(true) end)
+      assert_raise(ToBooleanError, fn -> Normalize.string_to_boolean!(false) end)
     end
   end
 
@@ -48,10 +88,6 @@ defmodule Utils.Helpers.NormalizeTest do
       refute Normalize.to_boolean("false")
       refute Normalize.to_boolean("0")
       refute Normalize.to_boolean("no")
-      assert_raise(ToBooleanError, fn -> Normalize.to_boolean("nope") end)
-      assert_raise(ToBooleanError, fn -> assert Normalize.to_boolean("yup") end)
-      assert_raise(ToBooleanError, fn -> Normalize.to_boolean("yo") end)
-      assert_raise(ToBooleanError, fn -> Normalize.to_boolean("yawn") end)
     end
 
     test "converts boolean to boolean" do
@@ -64,8 +100,62 @@ defmodule Utils.Helpers.NormalizeTest do
       assert Normalize.to_boolean(2)
       assert Normalize.to_boolean(65_535)
       assert Normalize.to_boolean(99_999)
-      assert_raise(ToBooleanError, fn -> Normalize.to_boolean(0) end)
-      assert_raise(ToBooleanError, fn -> Normalize.to_boolean(-1) end)
+    end
+
+    test "returns an error tuple when given an incompatible value" do
+      assert Normalize.to_boolean("nope") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"nope\") as a boolean."}
+
+      assert Normalize.to_boolean("yup") ==
+               {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
+
+      assert Normalize.to_boolean("yo") ==
+               {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
+
+      assert Normalize.to_boolean("yawn") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"yawn\") as a boolean."}
+
+      assert Normalize.to_boolean(0) ==
+               {:error, :normalize_error, "Could not represent the value (0) as a boolean."}
+
+      assert Normalize.to_boolean(-1) ==
+               {:error, :normalize_error, "Could not represent the value (-1) as a boolean."}
+    end
+  end
+
+  describe "to_boolean!/1" do
+    test "converts strings to boolean" do
+      assert Normalize.to_boolean!("yes")
+      assert Normalize.to_boolean!("Yes")
+      assert Normalize.to_boolean!("true")
+      assert Normalize.to_boolean!("True")
+      assert Normalize.to_boolean!("1")
+      refute Normalize.to_boolean!("false")
+      refute Normalize.to_boolean!("0")
+      refute Normalize.to_boolean!("no")
+    end
+
+    test "converts boolean to boolean" do
+      assert Normalize.to_boolean!(true)
+      refute Normalize.to_boolean!(false)
+    end
+
+    test "converts integer to boolean" do
+      assert Normalize.to_boolean!(1)
+      assert Normalize.to_boolean!(2)
+      assert Normalize.to_boolean!(65_535)
+      assert Normalize.to_boolean!(99_999)
+    end
+
+    test "returns an error tuple when given an incompatible value" do
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!("nope") end)
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!("yup") end)
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!("yo") end)
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!("yawn") end)
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!(0) end)
+      assert_raise(ToBooleanError, fn -> Normalize.to_boolean!(-1) end)
     end
   end
 

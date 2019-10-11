@@ -87,6 +87,10 @@ defmodule EWallet.ReleaseTasks.Config do
         CLI.error("Error: setting `#{key}` to #{inspect(value)} returned #{error_message}")
         :init.stop(1)
 
+      {:error, :normalize_error, error_message} ->
+        CLI.error("Error: setting `#{key}` to #{inspect(value)}. #{error_message}")
+        :init.stop(1)
+
       _ ->
         give_up()
     end
@@ -99,6 +103,7 @@ defmodule EWallet.ReleaseTasks.Config do
 
       %{value: existing, type: type} ->
         case cast_env(value, type) do
+          {:error, _, _} = error -> error
           ^existing -> {:unchanged, existing}
           casted_value -> do_update(key, casted_value)
         end
