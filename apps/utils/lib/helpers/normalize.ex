@@ -18,7 +18,9 @@ defmodule Utils.Helpers.Normalize do
   """
   defmodule ToBooleanError do
     defexception message: "Could not represent the value as a boolean."
-    def error_message(value), do: "Could not represent the value (#{inspect(value)}) as a boolean."
+
+    def error_message(value),
+      do: "Could not represent the value (#{inspect(value)}) as a boolean."
   end
 
   defmodule ToIntegerError do

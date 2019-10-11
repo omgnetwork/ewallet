@@ -30,13 +30,28 @@ defmodule Utils.Helpers.NormalizeTest do
     end
 
     test "returns an error tuple when given an incompatible value" do
-      assert Normalize.string_to_boolean("nope") == {:error, :normalize_error, "Could not represent the value (\"nope\") as a boolean."}
-      assert Normalize.string_to_boolean("yup") == {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
-      assert Normalize.string_to_boolean("yo") == {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
-      assert Normalize.string_to_boolean("yawn") == {:error, :normalize_error, "Could not represent the value (\"yawn\") as a boolean."}
-      assert Normalize.string_to_boolean(1) == {:error, :normalize_error, "Could not represent the value (1) as a boolean."}
-      assert Normalize.string_to_boolean(true) == {:error, :normalize_error, "Could not represent the value (true) as a boolean."}
-      assert Normalize.string_to_boolean(false) == {:error, :normalize_error, "Could not represent the value (false) as a boolean."}
+      assert Normalize.string_to_boolean("nope") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"nope\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yup") ==
+               {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yo") ==
+               {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
+
+      assert Normalize.string_to_boolean("yawn") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"yawn\") as a boolean."}
+
+      assert Normalize.string_to_boolean(1) ==
+               {:error, :normalize_error, "Could not represent the value (1) as a boolean."}
+
+      assert Normalize.string_to_boolean(true) ==
+               {:error, :normalize_error, "Could not represent the value (true) as a boolean."}
+
+      assert Normalize.string_to_boolean(false) ==
+               {:error, :normalize_error, "Could not represent the value (false) as a boolean."}
     end
   end
 
@@ -88,15 +103,27 @@ defmodule Utils.Helpers.NormalizeTest do
     end
 
     test "returns an error tuple when given an incompatible value" do
-      assert Normalize.to_boolean("nope") == {:error, :normalize_error, "Could not represent the value (\"nope\") as a boolean."}
-      assert Normalize.to_boolean("yup") == {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
-      assert Normalize.to_boolean("yo") == {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
-      assert Normalize.to_boolean("yawn") == {:error, :normalize_error, "Could not represent the value (\"yawn\") as a boolean."}
-      assert Normalize.to_boolean(0) == {:error, :normalize_error, "Could not represent the value (0) as a boolean."}
-      assert Normalize.to_boolean(-1) == {:error, :normalize_error, "Could not represent the value (-1) as a boolean."}
+      assert Normalize.to_boolean("nope") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"nope\") as a boolean."}
+
+      assert Normalize.to_boolean("yup") ==
+               {:error, :normalize_error, "Could not represent the value (\"yup\") as a boolean."}
+
+      assert Normalize.to_boolean("yo") ==
+               {:error, :normalize_error, "Could not represent the value (\"yo\") as a boolean."}
+
+      assert Normalize.to_boolean("yawn") ==
+               {:error, :normalize_error,
+                "Could not represent the value (\"yawn\") as a boolean."}
+
+      assert Normalize.to_boolean(0) ==
+               {:error, :normalize_error, "Could not represent the value (0) as a boolean."}
+
+      assert Normalize.to_boolean(-1) ==
+               {:error, :normalize_error, "Could not represent the value (-1) as a boolean."}
     end
   end
-
 
   describe "to_boolean!/1" do
     test "converts strings to boolean" do
