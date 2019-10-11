@@ -23,7 +23,7 @@ defmodule EthBlockchain.Integration.TransactionTest do
   describe "send/3" do
     @tag fixtures: [:funded_hot_wallet, :alice]
     test "send ethereum successfuly", %{funded_hot_wallet: hot_wallet, alice: alice} do
-      {res, tx_hash} =
+      {res, %{tx_hash: tx_hash, gas_price: gas_price, gas_limit: gas_limit}} =
         Transaction.send(%{
           contract_address: "0x0000000000000000000000000000000000000000",
           from: hot_wallet.address,
@@ -33,6 +33,8 @@ defmodule EthBlockchain.Integration.TransactionTest do
 
       assert res == :ok
       assert tx_hash != nil
+      assert gas_price != nil
+      assert gas_limit != nil
 
       {sync_res, tx} = IntegrationHelpers.transact_sync!({res, tx_hash})
 
@@ -50,7 +52,7 @@ defmodule EthBlockchain.Integration.TransactionTest do
       omg_contract: contract_address,
       alice: alice
     } do
-      {res, tx_hash} =
+      {res, %{tx_hash: tx_hash, gas_price: gas_price, gas_limit: gas_limit}} =
         Transaction.send(%{
           contract_address: contract_address,
           from: hot_wallet.address,
@@ -60,6 +62,8 @@ defmodule EthBlockchain.Integration.TransactionTest do
 
       assert res == :ok
       assert tx_hash != nil
+      assert gas_price != nil
+      assert gas_limit != nil
 
       {sync_res, tx} = IntegrationHelpers.transact_sync!({res, tx_hash})
 
@@ -84,7 +88,7 @@ defmodule EthBlockchain.Integration.TransactionTest do
           Contract.get_binary(Contract.locked_contract_uuid()) <>
           ABIEncoder.encode_erc20_attrs(name, symbol, decimals, initial_amount)
 
-      {res, tx_hash, contract_address} =
+      {res, %{tx_hash: tx_hash, contract_address: contract_address}} =
         Transaction.create_contract(%{
           from: hot_wallet.address,
           contract_data: data
