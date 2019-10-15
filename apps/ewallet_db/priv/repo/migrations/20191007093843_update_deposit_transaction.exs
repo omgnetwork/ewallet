@@ -8,7 +8,7 @@ defmodule EWalletDB.Repo.Migrations.UpdateDepositTransaction do
       add(
         :blockchain_transaction_uuid,
         references(:blockchain_transaction, type: :uuid, column: :uuid)
-        )
+      )
 
       remove :blockchain_tx_hash
       remove :blockchain_identifier

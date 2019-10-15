@@ -14,8 +14,10 @@
 
 defmodule EWallet.TransactionGate.BlockchainLocal do
   @moduledoc """
-  Handles the logic for a transaction of value from an account to a user. Delegates the
-  actual transaction to EWallet.LocalTransactionGate once the wallets have been loaded.
+  Handles the logic for transactions that require processing after they have been confimed
+  on the blockchain.
+  Depending on the type of transaction, this module will update the local ledger balances
+  if required and update the state of the transaction.
   """
   alias EWallet.TransactionFormatter
   alias EWalletDB.{BlockchainTransactionState, Transaction, TransactionState, TransactionType}
@@ -32,7 +34,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
   @blockchain_transaction_failed BlockchainTransactionState.failed()
 
   @default_error_code "blockchain_transaction_error"
-  @default_error_description "An error occured when processing this blockchain transaction"
+  @default_error_description "An error occured when processing this blockchain transaction."
 
   # This is called by the transaction tracker when a blockchain transaction
   # reaches the `confirmed` state or by the EWallet.TransactionGate.Blockchain module.
@@ -60,7 +62,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
 
   defp process_with_transaction(
          :from_blockchain_to_ewallet,
-         transaction
+         %{blockchain_transaction: %{status: @blockchain_transaction_failed}} = transaction
        ) do
     TransactionState.transition_to(
       :from_blockchain_to_ewallet,
@@ -88,7 +90,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
 
   defp process_with_transaction(
          :from_ewallet_to_blockchain,
-         transaction
+         %{blockchain_transaction: %{status: @blockchain_transaction_failed}} = transaction
        ) do
     TransactionState.transition_to(
       :from_ewallet_to_blockchain,
@@ -121,7 +123,7 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
 
   defp process_with_transaction(
          :from_blockchain_to_ledger,
-         transaction
+         %{blockchain_transaction: %{status: @blockchain_transaction_failed}} = transaction
        ) do
     TransactionState.transition_to(
       :from_blockchain_to_ledger,

@@ -84,9 +84,6 @@ defmodule EWalletDB.BlockchainTransaction do
       attrs,
       cast: [
         :block_number
-      ],
-      required: [
-        # :block_number
       ]
     )
     |> validate_immutable(:block_number)

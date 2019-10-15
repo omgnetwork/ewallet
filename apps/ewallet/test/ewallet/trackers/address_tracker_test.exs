@@ -377,9 +377,6 @@ defmodule EWallet.AddressTrackerTest do
               {balance[:amount], balance[:token].uuid}
             end)
 
-          # Not working for now, would need to monitor and wait until the transaction
-          # tracker finishes to process the transaction and confirms it
-          # (started in EWallet.TransactionGate.Blockchain.create_from_tracker/2)
           assert Enum.member?(balances, {1_000 + 1_337_000 + 1_000, default_token.uuid})
           assert Enum.member?(balances, {1_000 + 25_000, erc20_token.uuid})
       end

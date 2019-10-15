@@ -124,7 +124,7 @@ defmodule EthGethAdapter.Worker do
   end
 
   # `EthGethAdapter.GethManager` is only compiled and used in tests.
-  if Application.get_env(:ewallet, :env) == :test do
+  if Application.get_env(:eth_geth_adapter, :env) == :test do
     def handle_call({:boot_adapter, datadir}, _from, reg) do
       {:reply, EthGethAdapter.GethManager.start(datadir), reg}
     end
