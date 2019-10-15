@@ -225,7 +225,6 @@ defmodule EthBlockchain.TransactionTest do
     end
 
     test "does not increase the nonce if transaction sending failed", state do
-      IO.inspect(state, label: "test context")
       adapter_opts = Keyword.put(state[:adapter_opts], :eth_node_adapter, :dumb_tx_error)
 
       {:ok, pid} =
