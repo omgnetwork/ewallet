@@ -154,7 +154,6 @@ export const sendExternalPlasmaDeposit = ({
       const { web3 } = window
       const { from, value, gasPrice, gas } = transaction
 
-      // omg-js doesnt support .on callbacks
       externalPlasmaDeposit({
         web3,
         from,
@@ -163,10 +162,7 @@ export const sendExternalPlasmaDeposit = ({
         gasLimit: gas
       })
 
-      dispatch({
-        type: 'WEB3/DEPOSIT/SUCCESS',
-        data: 'toto'
-      })
+      dispatch({ type: 'WEB3/DEPOSIT/ASK_APPROVAL' })
       onDeposit()
     } catch (e) {
       onError(e)

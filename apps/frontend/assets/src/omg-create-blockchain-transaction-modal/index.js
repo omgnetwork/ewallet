@@ -5,6 +5,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import web3Utils from 'web3-utils'
 
+import config from '../omg-plasma/config'
 import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'
 import Modal from '../omg-modal'
@@ -100,7 +101,7 @@ class CreateBlockchainTransaction extends Component {
   setGasPrice = async () => {
     const { estimateGasFromTransaction } = this.props
     if (this.state.toPlasma) {
-      return this.setState({ gasPrice: 500 })
+      return this.setState({ gasPrice: config.defaultPlasmaGas })
     }
 
     if (web3Utils.isAddress(this.state.toAddress)) {
@@ -343,8 +344,8 @@ class CreateBlockchainTransaction extends Component {
             const wallets = [
               ...hotWallets,
               {
-                address: 'OmiseGO Network',
-                name: 'Plasma',
+                address: config.plasmaContractAddress,
+                name: 'OmiseGO Network',
                 type: 'childchain'
               }
             ]
