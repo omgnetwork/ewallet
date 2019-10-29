@@ -383,8 +383,8 @@ defmodule EthBlockchain.Transaction do
   # nonce was already mined.
   # We force the refresh of the nonce generator which will reset the nonce to the current
   # transaction count. This way we avoid having failed transaction until we reach the
-  # correct nonce
-  defp respond({:error, _, [error_message: "nonce too low"]} = error, _meta, from, opts) do
+  # correct nonce.
+  defp respond({:error, _, _} = error, _meta, from, opts) do
     with {:ok, nonce_handler_pid} <-
            NonceRegistry.lookup(from, opts[:eth_node_adapter], opts[:eth_node_adapter_pid]),
          {:ok, _nonce} <- Nonce.force_refresh(nonce_handler_pid) do

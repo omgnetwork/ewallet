@@ -43,6 +43,7 @@ defmodule EthBlockchain.EthBlockchainCase do
         adapters: [
           {:dumb, EthBlockchain.DumbAdapter},
           {:dumb_tx, EthBlockchain.DumbTxAdapter},
+          {:dumb_tx_error, EthBlockchain.DumbTxErrorAdapter},
           {:dumb_cc, EthBlockchain.DumbCCAdapter}
         ]
       )

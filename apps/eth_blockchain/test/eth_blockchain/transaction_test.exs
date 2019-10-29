@@ -15,7 +15,7 @@
 defmodule EthBlockchain.TransactionTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
-  alias EthBlockchain.{GasHelper, Transaction, ABIEncoder}
+  alias EthBlockchain.{GasHelper, Transaction, ABIEncoder, NonceRegistry}
   alias ExthCrypto.Math
   alias Keychain.Wallet
   alias Utils.Helpers.Encoding
@@ -222,6 +222,28 @@ defmodule EthBlockchain.TransactionTest do
       assert trx.value == 0
       assert Encoding.to_hex(trx.to) == state[:addr_2]
       assert trx.data == data
+    end
+
+    test "does not increase the nonce if transaction sending failed", state do
+      adapter_opts = Keyword.put(state[:adapter_opts], :eth_node_adapter, :dumb_tx_error)
+
+      {:ok, pid} =
+        NonceRegistry.lookup(
+          state[:valid_sender],
+          adapter_opts[:eth_node_adapter],
+          adapter_opts[:eth_node_adapter_pid]
+        )
+
+      original_nonce = :sys.get_state(pid).nonce
+
+      {:error, _, _} =
+        Transaction.send(
+          %{from: state[:valid_sender], to: state[:addr_1], amount: 100},
+          adapter_opts
+        )
+
+      # Transaction.send/2 was called, but nonce should not have changed since it failed.
+      assert :sys.get_state(pid).nonce == original_nonce
     end
 
     test "supports sending with a child key", state do
