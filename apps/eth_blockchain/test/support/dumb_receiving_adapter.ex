@@ -55,9 +55,9 @@ defmodule EthBlockchain.DumbReceivingAdapter do
      {:ok,
       %{
         "transactions" => [
-          build_eth_transaction(0, "01", hot_wallet_address, other_address, 1_000),
-          build_eth_transaction(0, "02", hot_wallet_address, other_address, 1_000),
-          build_eth_transaction(0, "03", hot_wallet_address, other_address, 1_000),
+          build_eth_transaction(0, "01", other_address, hot_wallet_address, 1_000),
+          build_eth_transaction(0, "02", other_address, hot_wallet_address, 1_000),
+          build_eth_transaction(0, "03", other_address, hot_wallet_address, 1_000),
           build_eth_transaction(0, "04", other_address, deposit_wallet_address, 1_000),
           build_eth_transaction(0, "05", other_address, Crypto.fake_eth_address(), 1_000)
         ]
@@ -83,8 +83,8 @@ defmodule EthBlockchain.DumbReceivingAdapter do
             1,
             "12",
             erc20_address,
-            hot_wallet_address,
             other_address,
+            hot_wallet_address,
             1_000
           ),
           build_erc20_transaction(

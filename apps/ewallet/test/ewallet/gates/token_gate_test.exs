@@ -39,10 +39,10 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :ok
       assert attrs["blockchain_address"] != nil
+      assert attrs["blockchain_transaction_uuid"] != nil
       assert attrs["blockchain_identifier"] == BlockchainHelper.rootchain_identifier()
       assert attrs["blockchain_status"] == "pending"
       assert attrs["contract_uuid"] == "3681491a-e8d0-4219-a40a-53d9a47fe64a"
-      assert attrs["tx_hash"] != nil
     end
 
     test "successfuly deploy an unlocked erc20 contract with the given attributes" do
@@ -63,10 +63,10 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :ok
       assert attrs["blockchain_address"] != nil
+      assert attrs["blockchain_transaction_uuid"] != nil
       assert attrs["blockchain_identifier"] == BlockchainHelper.rootchain_identifier()
       assert attrs["blockchain_status"] == "pending"
       assert attrs["contract_uuid"] == "9e0340c0-9aa4-4a01-b280-d400bc2dca73"
-      assert attrs["tx_hash"] != nil
     end
 
     test "returns an `invalid_parameter` error if name is missing" do
@@ -191,7 +191,7 @@ defmodule EWallet.TokenGateTest do
 
       assert res == :ok
       # status is confirmed because the dumb adapter returns a positive balance (123)
-      assert status == Token.blockchain_status_confirmed()
+      assert status == Token.Blockchain.status_confirmed()
     end
 
     test "returns an error when the token decimals doesn't match" do
@@ -226,12 +226,12 @@ defmodule EWallet.TokenGateTest do
   describe "get_blockchain_status/1" do
     test "returns a pending status when balance is 0" do
       status = TokenGate.get_blockchain_status(%{hot_wallet_balance: 0})
-      assert status == Token.blockchain_status_pending()
+      assert status == Token.Blockchain.status_pending()
     end
 
     test "returns a confirmed status when balance is > 0" do
       status = TokenGate.get_blockchain_status(%{hot_wallet_balance: 1})
-      assert status == Token.blockchain_status_confirmed()
+      assert status == Token.Blockchain.status_confirmed()
     end
   end
 end

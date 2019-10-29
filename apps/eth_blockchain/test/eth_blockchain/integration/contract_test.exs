@@ -23,7 +23,7 @@ defmodule EthBlockchain.Integration.ContractTest do
   describe "deploy_erc20/3" do
     @tag fixtures: [:funded_hot_wallet]
     test "deploys a locked ERC20 token successfuly", %{funded_hot_wallet: hot_wallet} do
-      {res, tx_hash, contract_address, contract_uuid} =
+      {res, %{tx_hash: tx_hash, contract_address: contract_address, contract_uuid: contract_uuid}} =
         Contract.deploy_erc20(%{
           locked: true,
           from: hot_wallet.address,
@@ -46,7 +46,7 @@ defmodule EthBlockchain.Integration.ContractTest do
 
     @tag fixtures: [:funded_hot_wallet]
     test "deploys an unlocked ERC20 token successfuly", %{funded_hot_wallet: hot_wallet} do
-      {res, tx_hash, contract_address, contract_uuid} =
+      {res, %{tx_hash: tx_hash, contract_address: contract_address, contract_uuid: contract_uuid}} =
         Contract.deploy_erc20(%{
           locked: false,
           from: hot_wallet.address,

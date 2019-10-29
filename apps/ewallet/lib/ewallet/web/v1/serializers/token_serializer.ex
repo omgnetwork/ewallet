@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.Paginator
-  alias EWallet.Web.V1.PaginatorSerializer
+  alias EWallet.Web.V1.{BlockchainTransactionSerializer, PaginatorSerializer}
   alias EWalletDB.Token
   alias Utils.Helpers.DateFormatter
   alias EWalletDB.Uploaders.Avatar
@@ -46,7 +46,8 @@ defmodule EWallet.Web.V1.TokenSerializer do
       blockchain_address: token.blockchain_address,
       blockchain_status: token.blockchain_status,
       blockchain_identifier: token.blockchain_identifier,
-      tx_hash: token.tx_hash,
+      blockchain_transaction:
+        BlockchainTransactionSerializer.serialize(token.blockchain_transaction),
       created_at: DateFormatter.to_iso8601(token.inserted_at),
       updated_at: DateFormatter.to_iso8601(token.updated_at)
     }

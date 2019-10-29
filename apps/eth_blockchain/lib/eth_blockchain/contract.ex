@@ -26,7 +26,7 @@ defmodule EthBlockchain.Contract do
 
   @doc """
   Format and submit an ERC20 contract creation transaction with the given data
-  Returns {:ok, tx_hash, contract_address, contract_uuid} if success,
+  Returns {:ok, response_map} if success,
   {:error, code} || {:error, code, message} otherwise
   """
   def deploy_erc20(attrs, opts \\ [])
@@ -60,8 +60,8 @@ defmodule EthBlockchain.Contract do
     |> respond(contract_uuid)
   end
 
-  defp respond({:ok, _tx_hash, _contract_address} = t, contract_uuid) do
-    Tuple.append(t, contract_uuid)
+  defp respond({:ok, attrs}, contract_uuid) do
+    {:ok, Map.put(attrs, :contract_uuid, contract_uuid)}
   end
 
   defp respond(error, _contract_uuid), do: error

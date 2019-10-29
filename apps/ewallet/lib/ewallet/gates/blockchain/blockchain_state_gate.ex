@@ -17,10 +17,10 @@ defmodule EWallet.BlockchainStateGate do
   Handles the retrieval and formatting of addresses for the blockchain
   """
 
-  alias EWalletDB.{BlockchainState, Transaction}
+  alias EWalletDB.{BlockchainState, BlockchainTransaction}
 
   def get_last_synced_blk_number(blockchain_identifier) do
-    tx_blk_number = Transaction.get_highest_blk_number(blockchain_identifier)
+    tx_blk_number = BlockchainTransaction.get_last_block_number(blockchain_identifier)
     state_blk_number = get_state_blk_number(blockchain_identifier)
 
     get_highest_blk_number(blockchain_identifier, state_blk_number, tx_blk_number)

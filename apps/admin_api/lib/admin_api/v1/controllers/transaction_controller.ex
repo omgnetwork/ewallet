@@ -205,6 +205,10 @@ defmodule AdminAPI.V1.TransactionController do
     handle_error(conn, code, description)
   end
 
+  defp respond_single({:error, %Transaction{error_code: str_code, error_data: error_data}}, conn) do
+    handle_error(conn, String.to_existing_atom(str_code), error_data)
+  end
+
   defp respond_single({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end

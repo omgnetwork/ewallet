@@ -198,9 +198,9 @@ defmodule EWallet.AddressTrackerTest do
       blockchain_identifier = adapter.helper().identifier()
 
       default_token =
-        insert(:token, %{
+        insert(:external_blockchain_token, %{
           blockchain_address: BlockchainHelper.adapter().helper().default_token().address,
-          blockchain_status: Token.blockchain_status_confirmed()
+          blockchain_status: Token.Blockchain.status_confirmed()
         })
 
       {:ok, {_address, _public_key}} = Wallet.generate()
@@ -212,7 +212,7 @@ defmodule EWallet.AddressTrackerTest do
         BlockchainDepositWalletGate.get_or_generate(wallet, %{"originator" => %System{}})
 
       erc20_token =
-        insert(:token,
+        insert(:external_blockchain_token,
           blockchain_address: Crypto.fake_eth_address(),
           blockchain_identifier: blockchain_identifier
         )
@@ -243,13 +243,22 @@ defmodule EWallet.AddressTrackerTest do
                deposit_wallet.address => wallet.address
              }
 
+      # Fast forward the blockchain manually to have the transaction confirmed.
+      EWalletDB.BlockchainState.update(blockchain_identifier, 20)
+
       # Because we're passing stop_once_synced: true, the tracker will
       # stop once it reaches the end of the chain
       ref = Process.monitor(pid)
 
       receive do
         {:DOWN, ^ref, _, _, _} ->
-          transactions = Repo.all(from(Transaction, order_by: :blockchain_tx_hash))
+          transactions =
+            Transaction
+            |> join(:inner, [bt], t in assoc(bt, :blockchain_transaction))
+            |> order_by([_, t], asc: t.hash)
+            |> Repo.all()
+            |> Repo.preload(:blockchain_transaction)
+
           assert length(transactions) == 9
 
           # All transactions are defined in the DumbReceivingAdapter,
@@ -259,12 +268,12 @@ defmodule EWallet.AddressTrackerTest do
           # or
           # build_erc20_transaction(blk_number, tx_hash, erc20_address, from, to, value)
 
-          # build_eth_transaction(0, "01", hot_wallet_address, other_address, 1_000)
+          # build_eth_transaction(0, "01", other_address, hot_wallet_address, 1_000)
           transactions
           |> Enum.at(0)
           |> assert_transaction(
-            hot_wallet.address,
             other_address,
+            hot_wallet.address,
             nil,
             nil,
             0,
@@ -273,12 +282,12 @@ defmodule EWallet.AddressTrackerTest do
             1_000
           )
 
-          # build_eth_transaction(0, "02", hot_wallet_address, other_address, 1_000)
+          # build_eth_transaction(0, "02", other_address, hot_wallet_address, 1_000)
           transactions
           |> Enum.at(1)
           |> assert_transaction(
-            hot_wallet.address,
             other_address,
+            hot_wallet.address,
             nil,
             nil,
             0,
@@ -287,12 +296,12 @@ defmodule EWallet.AddressTrackerTest do
             1_000
           )
 
-          # build_eth_transaction(0, "03", hot_wallet_address, other_address, 1_000)
+          # build_eth_transaction(0, "03", other_address, hot_wallet_address, 1_000)
           transactions
           |> Enum.at(2)
           |> assert_transaction(
-            hot_wallet.address,
             other_address,
+            hot_wallet.address,
             nil,
             nil,
             0,
@@ -317,7 +326,13 @@ defmodule EWallet.AddressTrackerTest do
 
           # build_eth_transaction(0, "04", other_address, Crypto.fake_eth_address(), 1_000)
           # This one is ignored since not relevant
-          assert Transaction.get_by(blockchain_tx_hash: "05") == nil
+
+          assert Transaction
+                 |> join(:inner, [bt], t in assoc(bt, :blockchain_transaction))
+                 |> where([_, t], t.hash == "05")
+                 |> Repo.all() == []
+
+          # assert Transaction.get_by(blockchain_tx_hash: "05") == nil
 
           # build_eth_transaction(1, "11", other_address, deposit_wallet_address, 1_337_000)
           transactions
@@ -338,8 +353,8 @@ defmodule EWallet.AddressTrackerTest do
           transactions
           |> Enum.at(5)
           |> assert_transaction(
-            hot_wallet.address,
             other_address,
+            hot_wallet.address,
             nil,
             nil,
             1,
@@ -365,7 +380,10 @@ defmodule EWallet.AddressTrackerTest do
 
           # build_erc20_transaction(1, "13", erc20_address, other_address, other_address, 1_000)
           # This one is ignored since not relevant
-          assert Transaction.get_by(blockchain_tx_hash: "14") == nil
+          assert Transaction
+                 |> join(:inner, [bt], t in assoc(bt, :blockchain_transaction))
+                 |> where([_, t], t.hash == "14")
+                 |> Repo.all() == []
 
           # build_erc20_transaction(1, "13", erc20_address, other_address,
           #   deposit_wallet_address, 1_000),
@@ -429,14 +447,17 @@ defmodule EWallet.AddressTrackerTest do
          token_uuid,
          amount
        ) do
-    assert transaction.blockchain_tx_hash == tx_hash
+    assert transaction.blockchain_transaction.hash == tx_hash
     assert transaction.status == TransactionState.confirmed()
-    assert transaction.confirmations_count > @minimum_confirmation_counts
+
+    assert transaction.blockchain_transaction.confirmed_at_block_number -
+             transaction.blockchain_transaction.block_number > @minimum_confirmation_counts
+
     assert transaction.from_blockchain_address == from_bc
     assert transaction.to_blockchain_address == to_bc
     assert transaction.from == from
     assert transaction.to == to
-    assert transaction.blk_number == blk_number
+    assert transaction.blockchain_transaction.block_number == blk_number
     assert transaction.from_token_uuid == token_uuid
     assert transaction.to_token_uuid == token_uuid
     assert transaction.from_amount == amount

@@ -131,7 +131,7 @@ defmodule EthBlockchain.ChildchainTest do
 
   describe "send/2" do
     test "successfuly submit a transfer transaction to the childchain", state do
-      {res, tx_hash, tx_index, blk_num} =
+      {res, %{cc_block_number: blk_num, cc_tx_index: tx_index, tx_hash: tx_hash}} =
         Childchain.send(
           %{
             from: state[:valid_sender],

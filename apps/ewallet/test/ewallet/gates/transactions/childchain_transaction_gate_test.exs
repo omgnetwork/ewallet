@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.ChildchainTransactionGateTest do
+defmodule EWallet.TransactionGate.ChildchainTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
 
   alias EWallet.{
     BlockchainHelper,
-    ChildchainTransactionGate,
-    TransactionTracker
+    BlockchainTransactionTracker,
+    TransactionGate
   }
 
   alias EWalletDB.{BlockchainWallet, Transaction, TransactionState}
@@ -34,8 +34,8 @@ defmodule EWallet.ChildchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.rootchain_identifier()
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -45,20 +45,21 @@ defmodule EWallet.ChildchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {:ok, transaction} = ChildchainTransactionGate.deposit(admin, attrs)
+      {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
 
       {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
 
       assert transaction.status == TransactionState.blockchain_submitted()
       assert transaction.type == Transaction.deposit()
-      assert transaction.blockchain_identifier == identifier
+      assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
+      assert transaction.blockchain_transaction.childchain_identifier == nil
       assert transaction.from_blockchain_address == hot_wallet.address
       assert transaction.to_blockchain_address == contract_address
 
-      {:ok, pid} = TransactionTracker.lookup(transaction.uuid)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
 
       {:ok, %{pid: blockchain_listener_pid}} =
-        meta[:adapter].lookup_listener(transaction.blockchain_tx_hash)
+        meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
 
       # to update the transactions after the test is done.
       on_exit(fn ->
@@ -73,8 +74,9 @@ defmodule EWallet.ChildchainTransactionGateTest do
       primary_blockchain_token =
         insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-      identifier = BlockchainHelper.rootchain_identifier()
-      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
@@ -84,7 +86,7 @@ defmodule EWallet.ChildchainTransactionGateTest do
         "originator" => %System{}
       }
 
-      {res, code, error} = ChildchainTransactionGate.deposit(admin, attrs)
+      {res, code, error} = TransactionGate.Childchain.deposit(admin, attrs)
       assert res == :error
       assert code == :invalid_parameter
       assert error == "Invalid parameter provided. `amount` is required."

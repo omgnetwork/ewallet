@@ -22,10 +22,11 @@ defmodule EWallet.Web.V1.TokenOverlay do
 
   def preload_assocs,
     do: [
-      :account
+      :account,
+      :blockchain_transaction
     ]
 
-  def default_preload_assocs, do: []
+  def default_preload_assocs, do: [:blockchain_transaction]
 
   def search_fields,
     do: [

@@ -19,7 +19,7 @@ defmodule EthBlockchain.RootchainTransactionListenerTest do
 
   describe "broadcast_payload/3" do
     test "returns a success broadcast payload for a valid tx", state do
-      assert {:confirmations_count, "valid", 13, 2} ==
+      assert {:confirmations_count, "valid", 2} ==
                RootchainTransactionListener.broadcast_payload(
                  "valid",
                  state[:adapter_opts][:eth_node_adapter],

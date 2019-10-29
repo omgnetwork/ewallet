@@ -57,6 +57,8 @@ defmodule EWallet.Application do
     settings = Application.get_env(:ewallet, :settings)
     _ = Config.register_and_load(:ewallet, settings)
 
+    EWallet.TransactionTracker.start_all_pending()
+
     start_result
   end
 

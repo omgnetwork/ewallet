@@ -32,8 +32,6 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         object: "transaction",
         id: transaction.id,
         idempotency_token: transaction.idempotency_token,
-        blockchain_tx_hash: nil,
-        confirmations_count: nil,
         from_blockchain_address: nil,
         to_blockchain_address: nil,
         from: %{
@@ -75,6 +73,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         error_code: nil,
         error_description: nil,
         type: transaction.type,
+        blockchain_transaction: nil,
         created_at: DateFormatter.to_iso8601(transaction.inserted_at),
         updated_at: DateFormatter.to_iso8601(transaction.updated_at)
       }

@@ -68,6 +68,7 @@ defmodule EthBlockchain.EthBlockchainCase do
         adapters: [
           {:dumb, EthBlockchain.DumbAdapter},
           {:dumb_tx, EthBlockchain.DumbTxAdapter},
+          {:dumb_tx_error, EthBlockchain.DumbTxErrorAdapter},
           {:dumb_cc, EthBlockchain.DumbCCAdapter}
         ]
       )
@@ -91,8 +92,8 @@ defmodule EthBlockchain.EthBlockchainCase do
     }
   end
 
-  def decode_transaction_response(response) do
-    response
+  def decode_transaction_response(%{tx_hash: tx_hash}) do
+    tx_hash
     |> Encoding.from_hex()
     |> ExRLP.decode()
     |> Transaction.deserialize()

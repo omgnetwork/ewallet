@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
   alias EWallet.BlockchainHelper
-  alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
+  alias EWalletDB.{BlockchainTransaction, Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
 
@@ -197,10 +197,27 @@ defmodule AdminAPI.V1.TokenControllerTest do
     end
 
     defp assert_deploy_erc20_logs(logs, originator, target) do
-      assert Enum.count(logs) == 1
+      blockchain_transaction = get_last_inserted(BlockchainTransaction)
+
+      assert Enum.count(logs) == 2
 
       logs
       |> Enum.at(0)
+      |> assert_activity_log(
+        action: "insert",
+        originator: :system,
+        target: blockchain_transaction,
+        changes: %{
+          "gas_limit" => blockchain_transaction.gas_limit,
+          "gas_price" => blockchain_transaction.gas_price,
+          "hash" => blockchain_transaction.hash,
+          "rootchain_identifier" => blockchain_transaction.rootchain_identifier
+        },
+        encrypted_changes: %{}
+      )
+
+      logs
+      |> Enum.at(1)
       |> assert_activity_log(
         action: "insert",
         originator: originator,
@@ -216,8 +233,8 @@ defmodule AdminAPI.V1.TokenControllerTest do
           "blockchain_identifier" => target.blockchain_identifier,
           "blockchain_status" => target.blockchain_status,
           "contract_uuid" => target.contract_uuid,
-          "locked" => target.locked,
-          "tx_hash" => target.tx_hash
+          "blockchain_transaction_uuid" => target.blockchain_transaction_uuid,
+          "locked" => target.locked
         },
         encrypted_changes: %{}
       )
@@ -1150,7 +1167,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["data"]["blockchain_address"] == address
 
-      assert response["data"]["blockchain_status"] == Token.blockchain_status_confirmed()
+      assert response["data"]["blockchain_status"] == Token.Blockchain.status_confirmed()
     end
 
     test_with_auths "fails to update an existing token if blockchain_address is missing" do

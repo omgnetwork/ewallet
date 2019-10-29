@@ -217,20 +217,32 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
-  Test schema's insert/1 with a specific field value is successful.
+  Test schema's insert/1 or func with a specific field value is successful.
   """
-  defmacro test_insert_ok(schema, field, value) when is_atom(field) do
+  defmacro test_insert_ok(schema, field, value, func \\ nil, factory \\ nil)
+           when is_atom(field) do
     quote do
       test "inserts #{unquote(field)} successfully" do
         schema = unquote(schema)
         field = unquote(field)
         value = unquote(value)
 
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
         {res, val} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{field => value})
-          |> schema.insert()
+          |> func.()
 
         assert res == :ok
         assert Map.fetch!(val, field) == value
@@ -239,19 +251,65 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
-  Test schema's insert/1 generates a uuid when given field is blank.
+  Test insert func with a specific field value fails with the given errors.
   """
-  defmacro test_insert_generate_uuid(schema, field) do
+  defmacro test_insert_error(schema, field, value, errors, func \\ nil, factory \\ nil)
+           when is_atom(field) do
+    quote do
+      test "inserts #{unquote(field)} returns an error" do
+        schema = unquote(schema)
+        field = unquote(field)
+        value = unquote(value)
+        errors = unquote(errors)
+
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
+        {res, changeset_error} =
+          factory
+          |> params_for(%{field => value})
+          |> func.()
+
+        assert res == :error
+        assert changeset_error.errors == errors
+      end
+    end
+  end
+
+  @doc """
+  Test schema's insert func generates a uuid when given field is blank.
+  """
+  defmacro test_insert_generate_uuid(schema, field, func \\ nil, factory \\ nil) do
     quote do
       test "generates a UUID for :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
 
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
         {res, record} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{field => nil})
-          |> schema.insert
+          |> func.()
 
         assert res == :ok
         assert String.match?(record.unquote(field), ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
@@ -320,18 +378,29 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
-  Test schema's insert/1 generates timestamps when respective fields are blank.
+  Test schema's insert generates timestamps when respective fields are blank.
   """
-  defmacro test_insert_generate_timestamps(schema) do
+  defmacro test_insert_generate_timestamps(schema, func \\ nil, factory \\ nil) do
     quote do
       test "generates inserted_at and updated_at values" do
         schema = unquote(schema)
 
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
         {res, record} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{inserted_at: nil, updated_at: nil})
-          |> schema.insert
+          |> func.()
 
         assert res == :ok
         assert record.inserted_at != nil
@@ -366,17 +435,29 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's insert/1 prevents insert if given field is blank.
   """
-  defmacro test_insert_prevent_blank(schema, field) when is_atom(field) do
+  defmacro test_insert_prevent_blank(schema, field, func \\ nil, factory \\ nil)
+           when is_atom(field) do
     quote do
       test "prevents creation with blank :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
 
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
         {result, changeset} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{field => ""})
-          |> schema.insert
+          |> func.()
 
         assert result == :error
         assert changeset.errors == [{field, {"can't be blank", [validation: :required]}}]
@@ -459,24 +540,40 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's insert/1 prevents insert if given field value already exists.
   """
-  defmacro test_insert_prevent_duplicate(schema, field, value \\ "same") do
+  defmacro test_insert_prevent_duplicate(
+             schema,
+             field,
+             value \\ "same",
+             func \\ nil,
+             factory \\ nil
+           ) do
     quote do
       test "returns error if same :#{unquote(field)} already exists" do
         schema = unquote(schema)
         field = unquote(field)
         value = unquote(value)
 
+        func =
+          case unquote(func) do
+            nil -> &schema.insert/1
+            func -> func
+          end
+
+        factory =
+          case unquote(factory) do
+            nil -> get_factory(schema)
+            factory -> factory
+          end
+
         {:ok, _record} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{field => value})
-          |> schema.insert
+          |> func.()
 
         {result, changeset} =
-          schema
-          |> get_factory
+          factory
           |> params_for(%{field => value})
-          |> schema.insert
+          |> func.()
 
         assert result == :error
 
