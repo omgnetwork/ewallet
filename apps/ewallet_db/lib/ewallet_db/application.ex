@@ -46,6 +46,7 @@ defmodule EWalletDB.Application do
       EWalletDB.ExchangePair => %{type: "exchange_pair", identifier: :id},
       EWalletDB.Wallet => %{type: "wallet", identifier: :address},
       EWalletDB.BlockchainWallet => %{type: "blockchain_wallet", identifier: :address},
+      EWalletDB.BlockchainTransaction => %{type: "blockchain_transaction", identifier: :hash},
       EWalletDB.BlockchainHDWallet => %{type: "blockchain_hd_wallet", identifier: :uuid},
       EWalletDB.BlockchainDepositWallet => %{
         type: "blockchain_deposit_wallet",

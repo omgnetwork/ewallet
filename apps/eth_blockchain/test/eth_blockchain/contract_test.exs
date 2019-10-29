@@ -35,7 +35,7 @@ defmodule EthBlockchain.ContractTest do
       expected_contract_attributes = ABIEncoder.encode_erc20_attrs("OMGToken", "OMG", 18, 100)
       expected_contract_data = "0x" <> expected_contract_binary <> expected_contract_attributes
 
-      {resp, encoded_trx, contract_address, contract_uuid} =
+      {resp, %{contract_address: contract_address, contract_uuid: contract_uuid} = tx_response} =
         Contract.deploy_erc20(
           %{
             from: state[:valid_sender],
@@ -48,7 +48,7 @@ defmodule EthBlockchain.ContractTest do
           state[:adapter_opts]
         )
 
-      trx = decode_transaction_response(encoded_trx)
+      trx = decode_transaction_response(tx_response)
 
       assert trx.init == Encoding.from_hex(expected_contract_data)
       assert contract_uuid == expected_contract_uuid
@@ -63,7 +63,7 @@ defmodule EthBlockchain.ContractTest do
       expected_contract_attributes = ABIEncoder.encode_erc20_attrs("OMGToken", "OMG", 18, 100)
       expected_contract_data = "0x" <> expected_contract_binary <> expected_contract_attributes
 
-      {resp, encoded_trx, contract_address, contract_uuid} =
+      {resp, %{contract_address: contract_address, contract_uuid: contract_uuid} = tx_response} =
         Contract.deploy_erc20(
           %{
             from: state[:valid_sender],
@@ -76,7 +76,7 @@ defmodule EthBlockchain.ContractTest do
           state[:adapter_opts]
         )
 
-      trx = decode_transaction_response(encoded_trx)
+      trx = decode_transaction_response(tx_response)
 
       assert trx.init == Encoding.from_hex(expected_contract_data)
       assert contract_uuid == expected_contract_uuid

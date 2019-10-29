@@ -25,6 +25,8 @@ defmodule EWalletDB.Transaction do
 
   alias EWalletDB.{
     Account,
+    BlockchainTransaction,
+    BlockchainTransactionState,
     ExchangePair,
     Repo,
     Token,
@@ -45,6 +47,8 @@ defmodule EWalletDB.Transaction do
   @primary_key {:uuid, UUID, autogenerate: true}
   @timestamps_opts [type: :naive_datetime_usec]
 
+  @unfinalized_statuses BlockchainTransactionState.unfinalized_statuses()
+
   schema "transaction" do
     external_id(prefix: "txn_")
 
@@ -55,12 +59,6 @@ defmodule EWalletDB.Transaction do
     field(:status, :string, default: TransactionState.pending())
     # internal / external
     field(:type, :string, default: @internal)
-    field(:blockchain_tx_hash, :string)
-    field(:blockchain_identifier, :string)
-    field(:confirmations_count, :integer)
-    field(:from_blockchain_address, :string)
-    field(:to_blockchain_address, :string)
-    field(:blk_number, :integer)
 
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
@@ -75,8 +73,10 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime_usec)
 
     field(:metadata, :map, default: %{})
-    field(:blockchain_metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+
+    field(:from_blockchain_address, :string)
+    field(:to_blockchain_address, :string)
 
     belongs_to(
       :from_token,
@@ -166,6 +166,14 @@ defmodule EWalletDB.Transaction do
       type: :string
     )
 
+    belongs_to(
+      :blockchain_transaction,
+      BlockchainTransaction,
+      foreign_key: :blockchain_transaction_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
     activity_logging()
   end
@@ -243,13 +251,11 @@ defmodule EWalletDB.Transaction do
     |> cast_and_validate_required_for_activity_log(
       attrs,
       cast: [
-        :blockchain_tx_hash,
         :idempotency_token,
         :status,
         :type,
         :payload,
         :metadata,
-        :blockchain_metadata,
         :encrypted_metadata,
         :from_account_uuid,
         :to_account_uuid,
@@ -265,15 +271,13 @@ defmodule EWalletDB.Transaction do
         :from,
         :from_blockchain_address,
         :to_blockchain_address,
-        :blockchain_identifier,
-        :blk_number,
         :rate,
         :local_ledger_uuid,
         :error_code,
         :error_description,
         :exchange_pair_uuid,
         :calculated_at,
-        :confirmations_count
+        :blockchain_transaction_uuid
       ],
       required: [
         :idempotency_token,
@@ -295,7 +299,8 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:status, TransactionState.statuses())
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
-    |> validate_blockchain()
+    |> validate_blockchain_address(:from_blockchain_address)
+    |> validate_blockchain_address(:to_blockchain_address)
     # Note: We validate before force downcasing
     |> update_change(:from_blockchain_address, &String.downcase/1)
     |> update_change(:to_blockchain_address, &String.downcase/1)
@@ -305,6 +310,7 @@ defmodule EWalletDB.Transaction do
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
     |> assoc_constraint(:exchange_account)
+    |> assoc_constraint(:blockchain_transaction)
   end
 
   def state_changeset(%Transaction{} = transaction, attrs, cast_fields, required_fields) do
@@ -315,22 +321,6 @@ defmodule EWalletDB.Transaction do
       required: required_fields
     )
     |> validate_inclusion(:status, TransactionState.statuses())
-  end
-
-  defp validate_blockchain(changeset) do
-    changeset
-    |> validate_blockchain_address(:from_blockchain_address)
-    |> validate_blockchain_address(:to_blockchain_address)
-    |> validate_blockchain_identifier(:blockchain_identifier)
-  end
-
-  def get_highest_blk_number(blockchain_identifier) do
-    Transaction
-    |> where([t], t.blockchain_identifier == ^blockchain_identifier and not is_nil(t.blk_number))
-    |> order_by([t], desc: t.blk_number)
-    |> select([t], t.blk_number)
-    |> limit(1)
-    |> Repo.one()
   end
 
   @doc """
@@ -376,6 +366,14 @@ defmodule EWalletDB.Transaction do
       t in query,
       where: t.from_account_uuid == ^account.uuid or t.to_account_uuid == ^account.uuid
     )
+  end
+
+  def all_unfinalized_blockchain do
+    __MODULE__
+    |> join(:inner, [dt], t in assoc(dt, :blockchain_transaction))
+    |> where([_, t], t.status in @unfinalized_statuses)
+    |> Repo.all()
+    |> Repo.preload(:blockchain_transaction)
   end
 
   @doc """
@@ -437,7 +435,7 @@ defmodule EWalletDB.Transaction do
       %{
         idempotency_token: idempotency_token
       },
-      preload: [:from_wallet, :to_wallet, :from_token, :to_token]
+      preload: [:from_wallet, :to_wallet, :from_token, :to_token, :blockchain_transaction]
     )
   end
 
@@ -465,7 +463,15 @@ defmodule EWalletDB.Transaction do
       changeset,
       opts,
       Multi.run(Multi.new(), :transaction_1, fn _repo, %{record: transaction} ->
-        case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
+        case get(transaction.id,
+               preload: [
+                 :from_wallet,
+                 :to_wallet,
+                 :from_token,
+                 :to_token,
+                 :blockchain_transaction
+               ]
+             ) do
           nil ->
             {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 

@@ -23,14 +23,13 @@ defmodule EWallet.MintGateTest do
   describe "mint_token/2" do
     test "returns an error when minting a blockchain token" do
       {:ok, omg} =
-        :token
-        |> params_for(
-          symbol: "OMG",
-          blockchain_address: "0x9080682a37961d3c814464e7ada1c7e1b4638a23"
-        )
-        |> Token.insert()
+        :external_blockchain_token
+        |> params_for(symbol: "OMG")
+        |> Token.Blockchain.insert_with_blockchain_address()
 
-      {res, code, message} = MintGate.mint_token(omg, %{"amount" => 100})
+      {res, code, message} =
+        MintGate.mint_token(omg, %{"amount" => 100, "originator" => %System{}})
+
       assert res == :error
       assert code == :invalid_parameter
       assert message == "A blockchain-enabled token cannot be minted."

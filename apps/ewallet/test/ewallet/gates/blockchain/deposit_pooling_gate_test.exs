@@ -16,7 +16,7 @@ defmodule EWallet.DepositPoolingGateTest do
   use EWallet.DBCase, async: false
   import EWalletDB.Factory
   alias EWallet.{BlockchainHelper, DepositPoolingGate}
-  alias EWalletDB.{BlockchainHDWallet, BlockchainWallet, TransactionState}
+  alias EWalletDB.{BlockchainHDWallet, BlockchainWallet}
   alias Utils.Helpers.Crypto
 
   describe "move_deposits_to_pooled_funds/2" do
@@ -126,8 +126,7 @@ defmodule EWallet.DepositPoolingGateTest do
       pooling_txn =
         insert(
           :deposit_transaction,
-          blockchain_identifier: blockchain_identifier,
-          transaction: insert(:transaction, status: TransactionState.pending_confirmations()),
+          blockchain_transaction: insert(:blockchain_transaction_rootchain),
           from_deposit_wallet_address: deposit_wallet.address,
           token: token,
           amount: 100 * token.subunit_to_unit

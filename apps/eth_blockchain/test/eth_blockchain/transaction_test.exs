@@ -34,7 +34,7 @@ defmodule EthBlockchain.TransactionTest do
     test "generates a contract creation transaction", state do
       contract_data = "0x" <> "0123456789abcdef"
 
-      {resp, encoded_trx, contract_address} =
+      {resp, %{contract_address: contract_address} = tx_response} =
         Transaction.create_contract(
           %{from: state[:valid_sender], contract_data: contract_data},
           state[:adapter_opts]
@@ -42,7 +42,7 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      trx = decode_transaction_response(encoded_trx)
+      trx = decode_transaction_response(tx_response)
 
       sender_public_key = recover_public_key(trx)
 

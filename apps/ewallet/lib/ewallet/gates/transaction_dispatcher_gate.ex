@@ -20,11 +20,11 @@ defmodule EWallet.TransactionDispatcherGate do
   alias EWallet.{
     BlockchainHelper,
     LocalTransactionGate,
-    BlockchainTransactionGate
+    TransactionGate
   }
 
   def create(actor, %{"from_address" => from, "to_address" => to} = attrs) do
-    case BlockchainTransactionGate.blockchain_addresses?([from, to]) do
+    case blockchain_addresses?([from, to]) do
       [false, false] ->
         LocalTransactionGate.create(actor, attrs)
 
@@ -35,24 +35,23 @@ defmodule EWallet.TransactionDispatcherGate do
 
   defp create_blockchain_tx(
          actor,
-         %{"blockchain_identifier" => blockchain_identifier} = attrs,
+         %{"rootchain_identifier" => _roootchain_identifier} = attrs,
          address_validation
        ) do
-    case blockchain_identifier in [
-           BlockchainHelper.rootchain_identifier(),
-           BlockchainHelper.childchain_identifier()
-         ] do
-      true ->
-        BlockchainTransactionGate.create(actor, attrs, address_validation)
-
-      false ->
-        {:error, :invalid_parameter,
-         "Invalid parameter provided. `blockchain_identifier` is invalid."}
-    end
+    TransactionGate.Blockchain.create(actor, attrs, address_validation)
   end
 
   defp create_blockchain_tx(actor, attrs, address_validation) do
-    attrs = Map.put(attrs, "blockchain_identifier", BlockchainHelper.rootchain_identifier())
+    attrs = Map.put(attrs, "rootchain_identifier", BlockchainHelper.rootchain_identifier())
     create_blockchain_tx(actor, attrs, address_validation)
+  end
+
+  defp blockchain_addresses?(addresses) do
+    Enum.map(addresses, fn address ->
+      case BlockchainHelper.validate_blockchain_address(address) do
+        :ok -> true
+        _ -> false
+      end
+    end)
   end
 end

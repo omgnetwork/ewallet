@@ -30,6 +30,7 @@ defmodule EWalletDB.Factory do
     BlockchainDepositWalletCachedBalance,
     BlockchainHDWallet,
     BlockchainWallet,
+    BlockchainTransaction,
     BlockchainState,
     PreAuthToken,
     Category,
@@ -192,6 +193,19 @@ defmodule EWalletDB.Factory do
       blockchain_address: nil,
       originator: %System{}
     }
+  end
+
+  def external_blockchain_token_factory do
+    token_factory()
+    |> Map.put(:blockchain_address, Crypto.fake_eth_address())
+    |> Map.put(:blockchain_identifier, "ethereum")
+    |> Map.put(:blockchain_status, Token.Blockchain.status_confirmed())
+  end
+
+  def internal_blockchain_token_factory do
+    external_blockchain_token_factory()
+    |> Map.put(:blockchain_transaction_uuid, insert(:blockchain_transaction_rootchain).uuid)
+    |> Map.put(:contract_uuid, UUID.generate())
   end
 
   def user_factory do
@@ -380,6 +394,8 @@ defmodule EWalletDB.Factory do
       to_wallet: to_wallet,
       to_user_uuid: to_wallet.user_uuid,
       to_account_uuid: to_wallet.account_uuid,
+      from_blockchain_address: nil,
+      to_blockchain_address: nil,
       exchange_account: nil,
       type: "internal",
       error_code: nil,
@@ -389,7 +405,7 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  def blockchain_transaction_factory do
+  def transaction_with_blockchain_factory do
     token = insert(:token)
 
     %Transaction{
@@ -398,17 +414,47 @@ defmodule EWalletDB.Factory do
       metadata: %{some: "metadata"},
       from_amount: 100,
       from_token: token,
-      to_token: token,
-      from_blockchain_address: insert(:blockchain_wallet).address,
-      to_blockchain_address: insert(:blockchain_wallet).address,
       from_wallet: nil,
       to_wallet: nil,
-      local_ledger_uuid: nil,
-      blockchain_tx_hash: sequence("0xabcdefabcdef"),
-      blockchain_identifier: "ethereum",
+      to_token: token,
       to_amount: 100,
-      blk_number: nil,
-      type: "external",
+      from_blockchain_address: Crypto.fake_eth_address(),
+      to_blockchain_address: Crypto.fake_eth_address(),
+      blockchain_transaction: insert(:blockchain_transaction_rootchain),
+      exchange_account: nil,
+      type: "internal",
+      error_code: nil,
+      error_description: nil,
+      error_data: nil,
+      originator: %System{}
+    }
+  end
+
+  def blockchain_transaction_rootchain_factory do
+    %BlockchainTransaction{
+      hash: Crypto.fake_eth_address(),
+      rootchain_identifier: "ethereum",
+      status: "submitted",
+      block_number: nil,
+      confirmed_at_block_number: nil,
+      gas_price: 20_000_000_000,
+      gas_limit: 21_000,
+      error: nil,
+      metadata: %{},
+      originator: %System{}
+    }
+  end
+
+  def blockchain_transaction_childchain_factory do
+    %BlockchainTransaction{
+      hash: Crypto.fake_eth_address(),
+      rootchain_identifier: "ethereum",
+      childchain_identifier: "omisego_network",
+      status: "submitted",
+      block_number: nil,
+      confirmed_at_block_number: nil,
+      error: nil,
+      metadata: %{},
       originator: %System{}
     }
   end
@@ -418,9 +464,7 @@ defmodule EWalletDB.Factory do
       type: DepositTransaction.incoming(),
       token: insert(:token),
       amount: 100,
-      transaction: insert(:transaction),
-      blockchain_tx_hash: sequence("0xabcdefabcdef"),
-      blockchain_identifier: "ethereum",
+      blockchain_transaction: insert(:blockchain_transaction_rootchain),
       from_blockchain_address: Crypto.fake_eth_address(),
       from_deposit_wallet: nil,
       to_blockchain_address: nil,

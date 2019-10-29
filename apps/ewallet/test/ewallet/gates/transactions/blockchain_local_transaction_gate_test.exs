@@ -12,70 +12,252 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EWallet.BlockchainLocalTransactionGateTest do
+defmodule EWallet.TransactionGate.BlockchainLocalTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias ActivityLogger.System
-  alias EWallet.BlockchainLocalTransactionGate
-  alias EWalletDB.TransactionState
+  alias EWallet.{MintGate, TransactionGate}
+  alias EWalletDB.{Account, BlockchainWallet, BlockchainTransactionState, TransactionState}
   alias LocalLedgerDB.Factory, as: LedgerFactory
 
-  describe "process_with_transaction/1" do
-    test "returns the transaction with status:confirmed" do
-      txn_inserted = insert(:blockchain_transaction, to_wallet: insert(:wallet))
+  setup do
+    rootchain_identifier = Application.get_env(:ewallet_db, :rootchain_identifier)
+    %{address: address} = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-      {:ok, txn_blockchain_confirmed} =
-        TransactionState.transition_to(
-          :from_blockchain_to_ledger,
-          TransactionState.blockchain_confirmed(),
-          txn_inserted,
-          %{confirmations_count: 100, originator: %System{}}
+    master_account = Account.get_master_account()
+    master_wallet = Account.get_primary_wallet(master_account)
+    token = insert(:token)
+    MintGate.mint_token(token, %{"amount" => 10_000, "originator" => %System{}})
+
+    %{hw_address: address, master_wallet: master_wallet, token: token}
+  end
+
+  describe "process_with_transaction/1 for transactions `from_ewallet_to_blockchain`" do
+    test "confirms a transaction if the blockchain_transaction is confirmed", state do
+      blockchain_transaction =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      transaction =
+        insert(:transaction_with_blockchain,
+          from_blockchain_address: state.hw_address,
+          blockchain_transaction: blockchain_transaction
         )
 
-      assert txn_blockchain_confirmed.status == TransactionState.blockchain_confirmed()
+      {:ok, transaction} =
+        TransactionState.transition_to(
+          :from_ewallet_to_blockchain,
+          TransactionState.blockchain_submitted(),
+          transaction,
+          %{originator: %System{}}
+        )
 
-      {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+      assert transaction.status == TransactionState.blockchain_submitted()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
 
       assert res == :ok
       assert txn_processed.status == TransactionState.confirmed()
     end
 
-    test "returns the transaction untouched if it's already in local ledger" do
-      ledger_transaction = LedgerFactory.insert(:transaction)
-      transaction = insert(:transaction, local_ledger_uuid: ledger_transaction.uuid)
+    test "returns the transaction untouched if it's already confirmed", state do
+      transaction =
+        insert(:transaction_with_blockchain, from_blockchain_address: state.hw_address)
 
-      {:ok, txn_blockchain_confirmed} =
+      {:ok, transaction} =
         TransactionState.transition_to(
           :from_blockchain_to_ledger,
-          TransactionState.blockchain_confirmed(),
+          TransactionState.confirmed(),
           transaction,
-          %{confirmations_count: 100, originator: %System{}}
+          %{originator: %System{}}
         )
 
-      {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+      assert transaction.status == TransactionState.confirmed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
 
       assert res == :ok
-      assert txn_processed == txn_blockchain_confirmed
+      assert txn_processed == transaction
     end
 
-    test "returns the transaction untouched if an error code exists" do
-      transaction = insert(:transaction, error_code: "some_error")
+    test "returns an error with the transaction untouched if an error code exists", state do
+      transaction =
+        insert(:transaction_with_blockchain, from_blockchain_address: state.hw_address)
 
-      {:ok, txn_blockchain_confirmed} =
+      {:ok, transaction} =
         TransactionState.transition_to(
           :from_blockchain_to_ledger,
-          TransactionState.blockchain_confirmed(),
+          TransactionState.failed(),
           transaction,
-          %{confirmations_count: 100, originator: %System{}}
+          %{error_code: "some_error", originator: %System{}}
         )
 
-      {res, txn_processed} =
-        BlockchainLocalTransactionGate.process_with_transaction(txn_blockchain_confirmed)
+      assert transaction.status == TransactionState.failed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :error
+      assert txn_processed == transaction
+    end
+  end
+
+  describe "process_with_transaction/1 for transactions `from_ledger_to_blockchain`" do
+    test "change the state of a transaction to `confirmed` when transaction is `blockchain_submitted` and blockchain transaction confirmed",
+         state do
+      blockchain_transaction =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      transaction =
+        insert(:transaction_with_blockchain,
+          from_blockchain_address: state.hw_address,
+          from_wallet: state.master_wallet,
+          from_token: state.token,
+          to_token: state.token,
+          local_ledger_uuid: LedgerFactory.insert(:entry).transaction_uuid,
+          blockchain_transaction: blockchain_transaction,
+          status: TransactionState.blockchain_submitted()
+        )
+
+      assert transaction.status == TransactionState.blockchain_submitted()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
 
       assert res == :ok
-      assert txn_processed == txn_blockchain_confirmed
+      assert txn_processed.status == TransactionState.confirmed()
+    end
+
+    test "returns the transaction untouched if it's already confirmed", state do
+      transaction =
+        insert(:transaction_with_blockchain,
+          from_blockchain_address: state.hw_address,
+          from_wallet: state.master_wallet,
+          status: TransactionState.confirmed()
+        )
+
+      assert transaction.status == TransactionState.confirmed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :ok
+      assert txn_processed == transaction
+    end
+
+    test "returns an error with the transaction untouched if an error code exists", state do
+      transaction =
+        insert(:transaction_with_blockchain,
+          from_blockchain_address: state.hw_address,
+          from_wallet: state.master_wallet,
+          status: TransactionState.failed(),
+          error_code: "some_error"
+        )
+
+      assert transaction.status == TransactionState.failed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :error
+      assert txn_processed == transaction
+    end
+  end
+
+  describe "process_with_transaction/1 for transactions `from_blockchain_to_ewallet`" do
+    test "confirms a transaction if the blockchain_transaction is confirmed", state do
+      blockchain_transaction =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      transaction =
+        insert(:transaction_with_blockchain,
+          blockchain_transaction: blockchain_transaction,
+          to_blockchain_address: state.hw_address
+        )
+
+      assert transaction.status == TransactionState.pending()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :ok
+      assert txn_processed.status == TransactionState.confirmed()
+    end
+
+    test "returns the transaction untouched if it's already confirmed", state do
+      transaction =
+        insert(:transaction_with_blockchain,
+          to_blockchain_address: state.hw_address,
+          status: TransactionState.confirmed()
+        )
+
+      assert transaction.status == TransactionState.confirmed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :ok
+      assert txn_processed == transaction
+    end
+
+    test "returns an error with the transaction untouched if an error code exists", state do
+      transaction =
+        insert(:transaction_with_blockchain,
+          to_blockchain_address: state.hw_address,
+          status: TransactionState.failed(),
+          error_code: "some_error"
+        )
+
+      assert transaction.status == TransactionState.failed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :error
+      assert txn_processed == transaction
+    end
+  end
+
+  describe "process_with_transaction/1 for transactions `from_blockchain_to_ledger`" do
+    test "confirms a transaction if the blockchain_transaction is confirmed" do
+      blockchain_transaction =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      transaction =
+        insert(:transaction_with_blockchain,
+          blockchain_transaction: blockchain_transaction,
+          to_wallet: insert(:wallet)
+        )
+
+      assert transaction.status == TransactionState.pending()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :ok
+      assert txn_processed.status == TransactionState.confirmed()
+    end
+
+    test "returns the transaction untouched if it's already confirmed" do
+      transaction =
+        insert(:transaction_with_blockchain,
+          to_wallet: insert(:wallet),
+          status: TransactionState.confirmed()
+        )
+
+      assert transaction.status == TransactionState.confirmed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :ok
+      assert txn_processed == transaction
+    end
+
+    test "returns an error with the transaction untouched if an error code exists" do
+      transaction =
+        insert(:transaction_with_blockchain,
+          to_wallet: insert(:wallet),
+          status: TransactionState.failed(),
+          error_code: "some_error"
+        )
+
+      assert transaction.status == TransactionState.failed()
+
+      {res, txn_processed} = TransactionGate.BlockchainLocal.process_with_transaction(transaction)
+
+      assert res == :error
+      assert txn_processed == transaction
     end
   end
 end

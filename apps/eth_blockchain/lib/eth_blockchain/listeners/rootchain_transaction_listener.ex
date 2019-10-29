@@ -16,7 +16,7 @@ defmodule EthBlockchain.RootchainTransactionListener do
   @moduledoc """
   Handles the transaction receipt logic for rootchain transactions.
   """
-  alias EthBlockchain.{Block, TransactionReceipt}
+  alias EthBlockchain.TransactionReceipt
 
   def broadcast_payload(tx_hash, node_adapter, node_adapter_pid) do
     case TransactionReceipt.get(%{tx_hash: tx_hash},
@@ -24,9 +24,7 @@ defmodule EthBlockchain.RootchainTransactionListener do
            eth_node_adapter_pid: node_adapter_pid
          ) do
       {:ok, :success, %{block_number: block_number, transaction_hash: transaction_hash}} ->
-        {:ok, eth_height} = Block.get_number()
-        confirmations_count = eth_height - block_number + 1
-        {:confirmations_count, transaction_hash, confirmations_count, block_number}
+        {:confirmations_count, transaction_hash, block_number}
 
       {:ok, :failed, _} ->
         {:failed_transaction}

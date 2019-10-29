@@ -15,7 +15,7 @@
 defmodule EWallet.TokenGate do
   @moduledoc false
 
-  alias EWallet.{AddressTracker, BlockchainHelper}
+  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper}
   alias EWalletDB.{BlockchainWallet, Token}
 
   @doc """
@@ -38,21 +38,27 @@ defmodule EWallet.TokenGate do
       when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
              is_binary(name) and is_binary(symbol) do
     decimals = subunit_to_unit |> :math.log10() |> trunc()
-    hot_wallet = BlockchainWallet.get_primary_hot_wallet(BlockchainHelper.rootchain_identifier())
+    rootchain_identifier = BlockchainHelper.rootchain_identifier()
+    hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-    :deploy_erc20
-    |> BlockchainHelper.call(%{
+    %{
       from: hot_wallet.address,
       name: name,
       symbol: symbol,
       decimals: decimals,
       initial_amount: amount,
       locked: locked
-    })
+    }
+    |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier)
     |> case do
-      {:ok, tx_hash, contract_address, contract_uuid} ->
+      {:ok,
+       %{
+         contract_address: contract_address,
+         blockchain_transaction: blockchain_transaction,
+         contract_uuid: contract_uuid
+       }} ->
         _ = AddressTracker.register_contract_address(contract_address)
-        {:ok, put_deploy_data(attrs, tx_hash, contract_address, contract_uuid)}
+        {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
 
       error ->
         error
@@ -64,12 +70,12 @@ defmodule EWallet.TokenGate do
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
 
-  defp put_deploy_data(attrs, tx_hash, contract_address, contract_uuid) do
+  defp put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid) do
     attrs
-    |> Map.put("tx_hash", tx_hash)
+    |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
     |> Map.put("blockchain_address", contract_address)
     |> Map.put("contract_uuid", contract_uuid)
-    |> Map.put("blockchain_status", Token.blockchain_status_pending())
+    |> Map.put("blockchain_status", Token.Blockchain.status_pending())
     |> Map.put("blockchain_identifier", BlockchainHelper.rootchain_identifier())
   end
 
@@ -129,11 +135,11 @@ defmodule EWallet.TokenGate do
   for this token
   """
   def get_blockchain_status(%{hot_wallet_balance: balance}) when balance > 0 do
-    Token.blockchain_status_confirmed()
+    Token.Blockchain.status_confirmed()
   end
 
   def get_blockchain_status(%{hot_wallet_balance: _balance}) do
-    Token.blockchain_status_pending()
+    Token.Blockchain.status_pending()
   end
 
   @doc """

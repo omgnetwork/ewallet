@@ -28,13 +28,12 @@ defmodule EthBlockchain.DumbSubscriber do
   end
 
   def handle_cast(
-        {:confirmations_count, tx_hash, confirmations_count, block_number},
+        {:confirmations_count, tx_hash, block_number},
         %{count: count, subscriber: pid} = state
       ) do
     state =
       state
       |> Map.put(:tx_hash, tx_hash)
-      |> Map.put(:confirmations_count, confirmations_count)
       |> Map.put(:block_number, block_number)
 
     case count > 1 do

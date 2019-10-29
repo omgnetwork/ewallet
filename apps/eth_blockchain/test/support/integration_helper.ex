@@ -103,7 +103,7 @@ defmodule EthBlockchain.IntegrationHelpers do
         decimals: decimals,
         initial_amount: initial_amount
       }) do
-    {:ok, tx_hash, contract_addr, _contract_uuid} =
+    {:ok, %{tx_hash: tx_hash, contract_address: contract_address}} =
       Contract.deploy_erc20(
         %{
           from: from,
@@ -112,11 +112,11 @@ defmodule EthBlockchain.IntegrationHelpers do
           decimals: decimals,
           initial_amount: initial_amount
         },
-        :geth
+        eth_geth_adapter: :geth
       )
 
     {:ok, _tx} = transact_sync!({:ok, tx_hash})
-    {:ok, contract_addr}
+    {:ok, contract_address}
   end
 
   def transact_sync!({:ok, txhash} = _transaction_submission_result) do

@@ -30,6 +30,10 @@ defmodule EWallet.LocalTransactionGate do
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
 
+  @pending TransactionState.pending()
+  @confirmed TransactionState.confirmed()
+  @failed TransactionState.failed()
+
   def create(actor, attrs) do
     with {:ok, _} <- TransactionPolicy.authorize(:create, actor, attrs) do
       create(attrs)
@@ -53,7 +57,7 @@ defmodule EWallet.LocalTransactionGate do
     end
   end
 
-  defp process_with_transaction(%Transaction{status: "pending"} = transaction) do
+  defp process_with_transaction(%Transaction{status: @pending} = transaction) do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: false})
@@ -61,15 +65,11 @@ defmodule EWallet.LocalTransactionGate do
     |> process_with_transaction()
   end
 
-  defp process_with_transaction(%Transaction{status: "local_confirmed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: @confirmed} = transaction) do
     {:ok, transaction}
   end
 
-  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction) do
-    {:ok, transaction}
-  end
-
-  defp process_with_transaction(%Transaction{status: "failed"} = transaction) do
+  defp process_with_transaction(%Transaction{status: @failed} = transaction) do
     {:error, transaction, transaction.error_code,
      transaction.error_description || transaction.error_data}
   end
@@ -120,7 +120,7 @@ defmodule EWallet.LocalTransactionGate do
     transaction
   end
 
-  def update_transaction({:ok, ledger_transaction}, %{status: "pending"} = transaction) do
+  def update_transaction({:ok, ledger_transaction}, %{status: @pending} = transaction) do
     {:ok, transaction} =
       TransactionState.transition_to(
         :from_ledger_to_ledger,

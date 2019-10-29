@@ -25,11 +25,19 @@ defmodule EWallet.AddressTracker do
     BlockchainHelper,
     BlockchainAddressFetcher,
     BlockchainStateGate,
-    BlockchainTransactionGate,
-    DepositPoolingGate
+    DepositPoolingGate,
+    TransactionGate
   }
 
-  alias EWalletDB.{BlockchainState, Token, Transaction, TransactionState}
+  alias EWalletDB.{
+    BlockchainState,
+    BlockchainTransaction,
+    BlockchainTransactionState,
+    Token,
+    Transaction,
+    TransactionState
+  }
+
   alias ActivityLogger.System
 
   # TODO: only starts when blockchain is enabled
@@ -219,16 +227,19 @@ defmodule EWallet.AddressTracker do
     Map.put(state, :blk_retries, retries + 1)
   end
 
-  defp insert_if_new(blockchain_transaction, state) do
-    case Transaction.get_by(%{
-           blockchain_tx_hash: blockchain_transaction.hash,
-           blockchain_identifier: state.blockchain_identifier
+  defp insert_if_new(
+         blockchain_transaction,
+         %{blockchain_identifier: blockchain_identifier} = state
+       ) do
+    case BlockchainTransaction.get_by(%{
+           hash: blockchain_transaction.hash,
+           rootchain_identifier: blockchain_identifier
          }) do
       nil ->
         do_insert(blockchain_transaction, state)
 
       transaction ->
-        {:ok, transaction}
+        {:ok, Transaction.get_by(blockchain_transaction_uuid: transaction.uuid)}
     end
   end
 
@@ -238,19 +249,23 @@ defmodule EWallet.AddressTracker do
        }) do
     token = Token.get_by(%{blockchain_address: blockchain_tx.contract_address})
     # TODO: Notify websockets
-    BlockchainTransactionGate.create_from_tracker(%{
+    blockchain_transaction_attrs = %{
+      hash: blockchain_tx.hash,
+      rootchain_identifier: blockchain_identifier,
+      childchain_identifier: nil,
+      status: BlockchainTransactionState.pending_confirmations(),
+      block_number: blockchain_tx.block_number,
+      originator: %System{}
+    }
+
+    transaction_attrs = %{
       idempotency_token: blockchain_tx.hash,
       from_amount: blockchain_tx.amount,
       to_amount: blockchain_tx.amount,
       status: TransactionState.pending(),
       type: Transaction.external(),
-      blockchain_tx_hash: blockchain_tx.hash,
-      blockchain_identifier: blockchain_identifier,
-      confirmations_count: blockchain_tx.confirmations_count,
-      blk_number: blockchain_tx.block_number,
       payload: %{},
       # %{data: blockchain_tx.data}, # TODO: encode this in a save-able way
-      blockchain_metadata: %{},
       from_token_uuid: token.uuid,
       to_token_uuid: token.uuid,
       to: addresses[blockchain_tx.to],
@@ -263,6 +278,11 @@ defmodule EWallet.AddressTracker do
       to_user: nil,
       # TODO: Change this to a new originator "%Tracker{}"?
       originator: %System{}
-    })
+    }
+
+    TransactionGate.Blockchain.create_from_tracker(
+      blockchain_transaction_attrs,
+      transaction_attrs
+    )
   end
 end

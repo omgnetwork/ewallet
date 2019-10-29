@@ -23,7 +23,7 @@ defmodule EthBlockchain.Integration.TransactionListenerTest do
   describe "run/1" do
     @tag fixtures: [:funded_hot_wallet, :alice]
     test "handles a valid transaction", %{funded_hot_wallet: hot_wallet, alice: alice} do
-      {:ok, tx_hash} =
+      {:ok, %{tx_hash: tx_hash}} =
         Transaction.send(%{
           from: hot_wallet.address,
           to: alice.address,
@@ -35,6 +35,7 @@ defmodule EthBlockchain.Integration.TransactionListenerTest do
           id: tx_hash,
           interval: 100,
           blockchain_adapter_pid: nil,
+          is_childchain_transaction: false,
           node_adapter: nil
         })
 
@@ -49,10 +50,7 @@ defmodule EthBlockchain.Integration.TransactionListenerTest do
       # in a block (the receipt is not nil), it'll send an event containing its state.
       receive do
         state ->
-          assert state[:confirmations_count] == 1
-          receipt = state[:receipt]
-          assert receipt.transaction_hash == tx_hash
-          assert receipt.status == 1
+          assert state[:tx_hash] == tx_hash
       end
 
       assert GenServer.stop(subscriber_pid) == :ok

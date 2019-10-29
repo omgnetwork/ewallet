@@ -17,7 +17,6 @@ defmodule EWalletDB.TokenTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias EWalletDB.{Token, Repo}
-  alias Utils.Helpers.{Crypto, EIP55}
 
   describe "Token factory" do
     test_has_valid_factory(Token)
@@ -56,15 +55,6 @@ defmodule EWalletDB.TokenTest do
         :token |> params_for(subunit_to_unit: 1_000_000_000_000_000_000) |> Token.insert()
 
       assert token.subunit_to_unit == 1_000_000_000_000_000_000
-    end
-
-    test "saves the blockchain address in lower case" do
-      address = Crypto.fake_eth_address()
-      {:ok, eip55_address} = EIP55.encode(address)
-
-      {:ok, token} = :token |> params_for(%{blockchain_address: eip55_address}) |> Token.insert()
-
-      assert token.blockchain_address == String.downcase(address)
     end
 
     test "fails to insert when subunit is equal to 1.0e19" do
@@ -176,128 +166,6 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
-  describe "all_blockchain/2" do
-    test "returns the list of tokens that have a blockchain address for the given blockchain identifier" do
-      insert(:token, blockchain_address: "0x1", blockchain_identifier: "test")
-      insert(:token, blockchain_address: "0x2", blockchain_identifier: "test")
-      insert(:token, blockchain_address: "0x3", blockchain_identifier: "other")
-
-      tokens = Token.all_blockchain("test")
-      assert length(tokens) == 2
-    end
-  end
-
-  describe "query_all_blockchain/1" do
-    test "returns a query of tokens that have a blockchain address for the specified identifier" do
-      assert Enum.empty?(Token.all())
-
-      addr_1 = Crypto.fake_eth_address()
-      addr_2 = Crypto.fake_eth_address()
-      addr_3 = Crypto.fake_eth_address()
-
-      :token
-      |> params_for(%{blockchain_address: addr_1, blockchain_identifier: "ethereum"})
-      |> Token.insert()
-
-      :token
-      |> params_for(%{blockchain_address: addr_2, blockchain_identifier: "ethereum"})
-      |> Token.insert()
-
-      :token
-      |> params_for(%{blockchain_address: addr_3, blockchain_identifier: "abcd"})
-      |> Token.insert()
-
-      :token |> params_for() |> Token.insert()
-
-      token_addresses =
-        Token.query_all_blockchain("ethereum")
-        |> Repo.all()
-        |> Enum.map(fn t -> t.blockchain_address end)
-
-      assert length(token_addresses) == 2
-      assert Enum.member?(token_addresses, addr_1)
-      assert Enum.member?(token_addresses, addr_2)
-      refute Enum.member?(token_addresses, addr_3)
-    end
-  end
-
-  describe "query_all_by_blockchain_addresses/2" do
-    test "returns a query of tokens that have an address matching in the provided list for the specified identifier" do
-      addr_1 = Crypto.fake_eth_address()
-      addr_2 = Crypto.fake_eth_address()
-      addr_3 = Crypto.fake_eth_address()
-      addr_4 = Crypto.fake_eth_address()
-
-      :token
-      |> params_for(%{blockchain_address: addr_1, blockchain_identifier: "ethereum"})
-      |> Token.insert()
-
-      :token
-      |> params_for(%{blockchain_address: addr_2, blockchain_identifier: "ethereum"})
-      |> Token.insert()
-
-      :token
-      |> params_for(%{blockchain_address: addr_3, blockchain_identifier: "ethereum"})
-      |> Token.insert()
-
-      :token
-      |> params_for(%{blockchain_address: addr_4, blockchain_identifier: "abcd"})
-      |> Token.insert()
-
-      :token |> params_for() |> Token.insert()
-
-      token_addresses =
-        [addr_1, addr_2]
-        |> Token.query_all_by_blockchain_addresses("ethereum")
-        |> Repo.all()
-        |> Enum.map(fn t -> t.blockchain_address end)
-
-      assert length(token_addresses) == 2
-
-      assert Enum.member?(token_addresses, addr_1)
-      assert Enum.member?(token_addresses, addr_2)
-      refute Enum.member?(token_addresses, addr_3)
-      refute Enum.member?(token_addresses, addr_4)
-    end
-
-    test "ignore case" do
-      addr_1 = Crypto.fake_eth_address()
-      addr_2 = Crypto.fake_eth_address()
-
-      :token
-      |> params_for(%{
-        blockchain_address: String.downcase(addr_1),
-        blockchain_identifier: "ethereum"
-      })
-      |> Token.insert()
-
-      :token
-      |> params_for(%{
-        blockchain_address: String.downcase(addr_2),
-        blockchain_identifier: "ethereum"
-      })
-      |> Token.insert()
-
-      :token
-      |> params_for(%{
-        blockchain_address: Crypto.fake_eth_address(),
-        blockchain_identifier: "ethereum"
-      })
-      |> Token.insert()
-
-      token_addresses =
-        [String.upcase(addr_1), String.upcase(addr_2)]
-        |> Token.query_all_by_blockchain_addresses("ethereum")
-        |> Repo.all()
-        |> Enum.map(fn t -> t.blockchain_address end)
-
-      assert length(token_addresses) == 2
-
-      assert Enum.member?(token_addresses, addr_1)
-      assert Enum.member?(token_addresses, addr_2)
-    end
-  end
-
   describe "query_all_by_ids/2" do
     test "returns a query of tokens that have an id matching in the provided list" do
       {:ok, tk_1} = :token |> params_for() |> Token.insert()
@@ -346,112 +214,6 @@ defmodule EWalletDB.TokenTest do
         })
 
       assert token.enabled == false
-    end
-  end
-
-  describe "set_blockchain_address/2" do
-    test "set the blockchain address of a token" do
-      {:ok, token} = :token |> params_for() |> Token.insert()
-      assert token.blockchain_address == nil
-      assert token.blockchain_status == nil
-
-      {:ok, token} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
-          originator: %System{}
-        })
-
-      assert token.blockchain_address == "0x0000000000000000000000000000000000000000"
-      assert token.blockchain_status == Token.blockchain_status_pending()
-    end
-
-    test "fails to set an invalid blockchain status" do
-      {:ok, token} = :token |> params_for() |> Token.insert()
-      assert token.blockchain_address == nil
-      assert token.blockchain_status == nil
-
-      {status, changeset} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_status: "invalid status",
-          blockchain_identifier: "ethereum",
-          originator: %System{}
-        })
-
-      assert status == :error
-      refute changeset.valid?
-    end
-
-    test "fails to set an invalid blockchain address" do
-      {:ok, token} = :token |> params_for() |> Token.insert()
-      assert token.blockchain_address == nil
-      assert token.blockchain_status == nil
-
-      {status, changeset} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: "123",
-          blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
-          originator: %System{}
-        })
-
-      assert status == :error
-      refute changeset.valid?
-    end
-
-    test "fails to set an valid blockchain address with an invalid identifier" do
-      {:ok, token} = :token |> params_for() |> Token.insert()
-      assert token.blockchain_address == nil
-      assert token.blockchain_status == nil
-
-      {status, changeset} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: "0x0000000000000000000000000000000000000000",
-          blockchain_status: "invalid status",
-          blockchain_identifier: "invalid",
-          originator: %System{}
-        })
-
-      assert status == :error
-      refute changeset.valid?
-    end
-
-    test "fails to set a blockchain address to a token with an existing blockchain address" do
-      address_1 = Crypto.fake_eth_address()
-      address_2 = Crypto.fake_eth_address()
-      {:ok, token} = :token |> params_for(%{blockchain_address: address_1}) |> Token.insert()
-      assert token.blockchain_address != nil
-
-      {status, changeset} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: address_2,
-          blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
-          originator: %System{}
-        })
-
-      assert status == :error
-      refute changeset.valid?
-    end
-
-    test "saves the blockchain address in lower case" do
-      address = Crypto.fake_eth_address()
-      {:ok, eip55_address} = EIP55.encode(address)
-
-      {:ok, token} = :token |> params_for(%{blockchain_address: nil}) |> Token.insert()
-
-      {:ok, updated_token} =
-        Token.set_blockchain_address(token, %{
-          blockchain_address: eip55_address,
-          blockchain_status: Token.blockchain_status_pending(),
-          blockchain_identifier: "ethereum",
-          originator: %System{}
-        })
-
-      assert eip55_address != String.downcase(address)
-      assert updated_token.blockchain_address == String.downcase(address)
     end
   end
 end

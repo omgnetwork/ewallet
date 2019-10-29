@@ -52,7 +52,7 @@ defmodule EthBlockchain.Childchain do
   end
 
   defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, opts) do
-    with {:ok, _tx_hash} <-
+    with {:ok, _attrs} <-
            Transaction.approve_erc20(
              %{
                from: to,
@@ -62,7 +62,7 @@ defmodule EthBlockchain.Childchain do
              },
              opts
            ),
-         {:ok, _tx_hash} = response <-
+         {:ok, _attrs} = response <-
            Transaction.deposit_erc20(
              %{
                tx_bytes: tx_bytes,
@@ -79,7 +79,7 @@ defmodule EthBlockchain.Childchain do
   Submits a transfer transaction to the plasma chain.
 
   Returns
-  {:ok, transaction_hash, transaction_index, block_number} if success
+  {:ok, %{tx_hash: transaction_hash, cc_block_number: block_number, cc_tx_index: transaction_index}} if success
   {:error, code} || {:error, code, params} if failure
   """
   @spec send(map(), list() | nil) :: {:ok, String.t(), integer(), integer()}
@@ -101,7 +101,8 @@ defmodule EthBlockchain.Childchain do
             transaction_hash: transaction_hash
           }} <-
            AdapterServer.childchain_call({:send, from, to, amount, currency}, opts) do
-      {:ok, transaction_hash, transaction_index, block_number}
+      {:ok,
+       %{tx_hash: transaction_hash, cc_block_number: block_number, cc_tx_index: transaction_index}}
     end
   end
 

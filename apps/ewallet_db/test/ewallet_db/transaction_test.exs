@@ -17,7 +17,7 @@ defmodule EWalletDB.TransactionTest do
   import EWalletDB.Factory
   alias ActivityLogger.System
   alias Ecto.Changeset
-  alias EWalletDB.{Transaction, Repo}
+  alias EWalletDB.{BlockchainTransactionState, Transaction, Repo}
   alias Utils.Helpers.{Crypto, EIP55}
 
   describe "Transaction factory" do
@@ -75,16 +75,6 @@ defmodule EWalletDB.TransactionTest do
     end
   end
 
-  describe "get_highest_blk_number/1" do
-    test "returns the last known block number for the given blockchain identifier" do
-      insert(:transaction, blockchain_identifier: "ethereum", blk_number: 230)
-      insert(:transaction, blockchain_identifier: "ethereum", blk_number: 123)
-
-      blk_number = Transaction.get_highest_blk_number("ethereum")
-      assert blk_number == 230
-    end
-  end
-
   describe "all_for_address/1" do
     test "returns all transactions from or to the given address" do
       wallet_1 = insert(:wallet)
@@ -97,6 +87,44 @@ defmodule EWalletDB.TransactionTest do
 
       transactions = Transaction.all_for_address(wallet_1.address)
       assert transactions |> Repo.all() |> length() == 2
+    end
+  end
+
+  describe "all_unfinalized_blockchain/0" do
+    test "returns all transactions with an unfinalized blockchain_transaction" do
+      blockchain_transaction_1 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.submitted())
+
+      blockchain_transaction_2 =
+        insert(:blockchain_transaction_rootchain,
+          status: BlockchainTransactionState.pending_confirmations()
+        )
+
+      blockchain_transaction_3 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.confirmed())
+
+      blockchain_transaction_4 =
+        insert(:blockchain_transaction_rootchain, status: BlockchainTransactionState.failed())
+
+      transaction_1 =
+        insert(:transaction_with_blockchain, blockchain_transaction: blockchain_transaction_1)
+
+      transaction_2 =
+        insert(:transaction_with_blockchain, blockchain_transaction: blockchain_transaction_2)
+
+      transaction_3 =
+        insert(:transaction_with_blockchain, blockchain_transaction: blockchain_transaction_3)
+
+      transaction_4 =
+        insert(:transaction_with_blockchain, blockchain_transaction: blockchain_transaction_4)
+
+      transaction_uuids = Enum.map(Transaction.all_unfinalized_blockchain(), fn t -> t.uuid end)
+      assert length(transaction_uuids) == 2
+
+      assert Enum.member?(transaction_uuids, transaction_1.uuid)
+      assert Enum.member?(transaction_uuids, transaction_2.uuid)
+      refute Enum.member?(transaction_uuids, transaction_3.uuid)
+      refute Enum.member?(transaction_uuids, transaction_4.uuid)
     end
   end
 
@@ -246,10 +274,11 @@ defmodule EWalletDB.TransactionTest do
       {:ok, eip55_address_2} = EIP55.encode(address_2)
 
       {:ok, inserted_transaction} =
-        :blockchain_transaction
+        :transaction_with_blockchain
         |> params_for(%{
           from_blockchain_address: eip55_address_1,
-          to_blockchain_address: eip55_address_2
+          to_blockchain_address: eip55_address_2,
+          type: Transaction.external()
         })
         |> Transaction.get_or_insert()
 
@@ -282,13 +311,21 @@ defmodule EWalletDB.TransactionTest do
       address_2 = Crypto.fake_eth_address()
 
       {:ok, inserted_transaction_1} =
-        :blockchain_transaction
-        |> params_for(%{from_blockchain_address: String.downcase(address_1)})
+        :transaction_with_blockchain
+        |> params_for(%{
+          from_blockchain_address: String.downcase(address_1),
+          to_blockchain_address: Crypto.fake_eth_address(),
+          type: Transaction.external()
+        })
         |> Transaction.get_or_insert()
 
       {:ok, inserted_transaction_2} =
-        :blockchain_transaction
-        |> params_for(%{to_blockchain_address: String.downcase(address_2)})
+        :transaction_with_blockchain
+        |> params_for(%{
+          from_blockchain_address: Crypto.fake_eth_address(),
+          to_blockchain_address: String.downcase(address_2),
+          type: Transaction.external()
+        })
         |> Transaction.get_or_insert()
 
       transaction_1 = Transaction.get_by(%{from_blockchain_address: String.upcase(address_1)})
@@ -316,7 +353,7 @@ defmodule EWalletDB.TransactionTest do
     test_insert_prevent_blank(Transaction, :idempotency_token)
     test_default_metadata_fields(Transaction, "transaction")
 
-    test "inserts a transaction if it does not existing" do
+    test "inserts a transaction if it does not exist" do
       assert Repo.all(Transaction) == []
 
       {:ok, transaction} =
@@ -327,7 +364,13 @@ defmodule EWalletDB.TransactionTest do
       transactions =
         Transaction
         |> Repo.all()
-        |> Repo.preload([:from_wallet, :to_wallet, :from_token, :to_token])
+        |> Repo.preload([
+          :from_wallet,
+          :to_wallet,
+          :from_token,
+          :to_token,
+          :blockchain_transaction
+        ])
 
       assert transactions == [transaction]
     end
