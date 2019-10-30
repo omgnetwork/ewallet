@@ -29,7 +29,6 @@ defmodule EWallet.TransactionTrackerTest do
   describe "start_all_pending/0" do
     test "restarts trackers for all pending transaction" do
       identifier = BlockchainHelper.rootchain_identifier()
-
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
 
       blockchain_transaction_1 =

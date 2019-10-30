@@ -17,7 +17,7 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
   import EWalletDB.Factory
   import ExUnit.CaptureLog
   alias EWallet.{BlockchainHelper, BlockchainTransactionTracker, DummyTransactionTracker}
-  alias EWalletDB.{BlockchainTransaction, BlockchainTransactionState}
+  alias EWalletDB.{BlockchainState, BlockchainTransaction, BlockchainTransactionState}
 
   setup do
     {:ok, _} = DummyTransactionTracker.start_link()
@@ -64,7 +64,7 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
 
       identifier = BlockchainHelper.rootchain_identifier()
       # Fast forward the blockchain manually to have the desired confirmation count.
-      EWalletDB.BlockchainState.update(identifier, 1)
+      BlockchainState.update(identifier, 1)
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 1})
 
@@ -80,14 +80,16 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
     end
 
     test "handles confirmations count when higher than minimum" do
+      # A transaction with hash "01" gets included at block 0 by `EthBlockchain.DumbAdapter`
       transaction = insert(:blockchain_transaction_rootchain)
       assert {:ok, pid} = BlockchainTransactionTracker.start(transaction, DummyTransactionTracker)
 
-      identifier = BlockchainHelper.rootchain_identifier()
       # Fast forward the blockchain manually to have the desired confirmation count.
-      EWalletDB.BlockchainState.update(identifier, 20)
+      identifier = BlockchainHelper.rootchain_identifier()
+      BlockchainState.update(identifier, 20)
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 1})
+      # Sends a message with a block number low enough to be considered confirmed
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 10})
       ref = Process.monitor(pid)
 
       receive do

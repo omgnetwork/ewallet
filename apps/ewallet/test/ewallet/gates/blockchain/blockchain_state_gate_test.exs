@@ -15,15 +15,20 @@
 defmodule EWallet.BlockchainStateGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
-  alias EWallet.{BlockchainHelper, BlockchainStateGate}
+  alias EWallet.BlockchainStateGate
   alias EWalletDB.BlockchainState
 
-  @identifier BlockchainHelper.rootchain_identifier()
+  @identifier "some_blockchain_identifier"
 
   setup do
     # As test default, the blockchain state's block number is higher than the latest transaction's
-    {:ok, _} = BlockchainState.update(@identifier, 555_555)
-    _ = insert(:blockchain_transaction_rootchain, block_number: 111_111)
+    {:ok, _} = BlockchainState.insert(%{identifier: @identifier, blk_number: 555_555})
+
+    _ =
+      insert(:blockchain_transaction_rootchain,
+        rootchain_identifier: @identifier,
+        block_number: 111_111
+      )
 
     :ok
   end
@@ -36,7 +41,13 @@ defmodule EWallet.BlockchainStateGateTest do
 
     test "returns the latest transaction's block number when it is higher" do
       assert BlockchainStateGate.get_last_synced_blk_number(@identifier) == 555_555
-      _ = insert(:blockchain_transaction_rootchain, block_number: 999_999)
+
+      _ =
+        insert(:blockchain_transaction_rootchain,
+          rootchain_identifier: @identifier,
+          block_number: 999_999
+        )
+
       assert BlockchainStateGate.get_last_synced_blk_number(@identifier) == 999_999
       assert BlockchainState.get(@identifier).blk_number == 999_999
     end

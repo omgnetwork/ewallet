@@ -35,6 +35,7 @@ defmodule EWalletDB.BlockchainState do
     state
     |> cast(attrs, [:identifier, :blk_number])
     |> validate_required([:identifier, :blk_number])
+    |> unique_constraint(:identifier)
   end
 
   def get(id, queryable \\ BlockchainState)

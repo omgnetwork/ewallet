@@ -21,10 +21,14 @@ defmodule EWalletConfig.BalanceCachingSettingsLoader do
   alias Crontab.CronExpression.Parser
   alias Quantum.Job
 
+  @behaviour EWalletConfig.Loader
+
   @job_name :cache_all_wallets
 
-  @spec load(atom()) :: :ok | {:error, :scheduler_config_not_found}
-  def load(app) do
+  @impl EWalletConfig.Loader
+  @spec load(Application.app(), EWalletConfig.Setting.key()) ::
+          :ok | {:error, :scheduler_config_not_found}
+  def load(app, _setting) do
     scheduler = Application.get_env(app, :scheduler)
     frequency = Application.get_env(app, :balance_caching_frequency)
 

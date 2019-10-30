@@ -42,7 +42,6 @@ defmodule EthGethAdapter.Worker do
   @spec start_link() :: GenServer.on_start()
   @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
-    DeferredConfig.populate(:ethereumex)
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 

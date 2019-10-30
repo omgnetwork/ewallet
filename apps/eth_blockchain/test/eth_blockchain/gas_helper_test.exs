@@ -42,7 +42,7 @@ defmodule EthBlockchain.GasHelperTest do
 
     test "returns the default gas price for if not present" do
       gas_price = GasHelper.get_gas_price_or_default(%{})
-      assert gas_price == Application.get_env(:eth_blockchain, :default_gas_price)
+      assert gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
     end
   end
 end

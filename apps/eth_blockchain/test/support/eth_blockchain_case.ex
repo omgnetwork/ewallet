@@ -18,7 +18,8 @@ defmodule EthBlockchain.EthBlockchainCase do
   alias EthBlockchain.{AdapterServer, Transaction}
   alias Ecto.UUID
   alias Ecto.Adapters.SQL.Sandbox
-  alias Keychain.{Repo, Signature}
+  alias EWalletConfig.ConfigTestHelper
+  alias Keychain.Signature
   alias Utils.Helpers.Encoding
 
   using do
@@ -29,6 +30,30 @@ defmodule EthBlockchain.EthBlockchainCase do
   end
 
   setup tags do
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+    :ok = Sandbox.checkout(Keychain.Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(Keychain.Repo, {:shared, self()})
+    end
+
+    config_pid = start_supervised!(EWalletConfig.Config)
+
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      config_pid,
+      EWalletConfig.Repo,
+      [:eth_blockchain],
+      %{
+        "chain_id" => 0,
+        "blockchain_transaction_poll_interval" => 100,
+        "blockchain_default_gas_price" => 20_000_000_000
+      }
+    )
+
     supervisor = String.to_atom("#{UUID.generate()}")
 
     {:ok, _} =
@@ -47,12 +72,6 @@ defmodule EthBlockchain.EthBlockchainCase do
           {:dumb_cc, EthBlockchain.DumbCCAdapter}
         ]
       )
-
-    :ok = Sandbox.checkout(Repo)
-
-    unless tags[:async] do
-      Sandbox.mode(Repo, {:shared, self()})
-    end
 
     %{
       adapter_opts: [
@@ -81,7 +100,7 @@ defmodule EthBlockchain.EthBlockchainCase do
   end
 
   def recover_public_key(trx) do
-    chain_id = Application.get_env(:eth_blockchain, :chain_id)
+    chain_id = Application.get_env(:eth_blockchain, :blockchain_chain_id)
 
     {:ok, pub_key} =
       trx

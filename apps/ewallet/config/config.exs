@@ -8,7 +8,8 @@ config :ewallet,
   cors_origin: {:system, "CORS_ORIGIN", nil},
   eth_node_adapter: {:geth, EthGethAdapter.Worker},
   cc_node_adapter: {:omisego_network, EthOmiseGOAdapter.Worker},
-  deposit_pooling_interval: 60 * 60 * 1_000,
+  address_tracker: EWallet.AddressTracker,
+  deposit_wallet_pooling_tracker: EWallet.DepositWalletPoolingTracker,
   settings: [
     :base_url,
     :sender_email,
@@ -21,7 +22,12 @@ config :ewallet,
     :file_storage_adapter,
     :gcs_bucket,
     :gcs_credentials,
+    :blockchain_enabled,
     :blockchain_confirmations_threshold,
+    :blockchain_state_save_interval,
+    :blockchain_sync_interval,
+    :blockchain_poll_interval,
+    :blockchain_deposit_pooling_interval,
     {EWallet.Mailer,
      [
        {:email_adapter, :adapter},
@@ -57,7 +63,12 @@ config :ewallet,
     "AWS_BUCKET" => "aws_bucket",
     "AWS_REGION" => "aws_region",
     "AWS_ACCESS_KEY_ID" => "aws_access_key_id",
-    "AWS_SECRET_ACCESS_KEY" => "aws_secret_access_key"
+    "AWS_SECRET_ACCESS_KEY" => "aws_secret_access_key",
+    "JSON_RPC_GETH_NODE_URL" => "blockchain_json_rpc_url",
+    "ROOTCHAIN_CHAIN_ID" => "blockchain_chain_id",
+    "OMISEGO_CONTRACT_ADDRESS" => "omisego_rootchain_contract_address",
+    "OMISEGO_CHILDCHAIN_URL" => "omisego_childchain_url",
+    "OMISEGO_WATCHER_URL" => "omisego_watcher_url"
   }
 
 import_config "#{Mix.env()}.exs"

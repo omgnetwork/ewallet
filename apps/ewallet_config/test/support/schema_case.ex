@@ -18,14 +18,20 @@ defmodule EWalletConfig.SchemaCase do
   """
   use ExUnit.CaseTemplate
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletConfig.Repo
 
-  setup do
+  setup tags do
     # Restarts `EWalletConfig.Config` so it does not hang on to a DB connection for too long.
     Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
     Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
 
-    Sandbox.checkout(Repo)
-    Sandbox.checkout(ActivityLogger.Repo)
+    :ok = Sandbox.checkout(ActivityLogger.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(ActivityLogger.Repo, {:shared, self()})
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+    end
+
+    :ok
   end
 end

@@ -11,7 +11,10 @@ config :ewallet_config,
     }
   },
   default_settings: %{
+    #
     # Global Settings
+    #
+
     "master_account" => %{
       key: "master_account",
       value: "",
@@ -27,14 +30,11 @@ config :ewallet_config,
       position: 001,
       description: "The primary hot wallet for this eWallet."
     },
-    "blockchain_confirmations_threshold" => %{
-      key: "blockchain_confirmations_threshold",
-      value: 10,
-      type: "unsigned_integer",
-      position: 002,
-      description:
-        "The number of confirmations to wait for before confirming a blockchain transaction."
-    },
+
+    #
+    # Web settings
+    #
+
     "base_url" => %{
       key: "base_url",
       value: "",
@@ -111,19 +111,131 @@ config :ewallet_config,
         "The issuer for the two-factor authentication, which will be displayed the OTP app."
     },
 
+    #
+    # Blockchain settings
+    #
+
+    "blockchain_enabled" => %{
+      key: "blockchain_enabled",
+      value: false,
+      type: "boolean",
+      position: 200,
+      description: "Enable blockchain integration."
+    },
+    "blockchain_chain_id" => %{
+      key: "blockchain_chain_id",
+      value: 0,
+      type: "unsigned_integer",
+      position: 201,
+      description:
+        "The chain ID of the blockchain network used. Such as 1 for Ethereum mainnet, " <>
+          "3 for Ropsten testnet, 4 for Rinkeby testnet, etc."
+    },
+    "blockchain_json_rpc_url" => %{
+      key: "blockchain_json_rpc_url",
+      value: "http://localhost:8545",
+      type: "string",
+      position: 202,
+      description: "The JSON-RPC url for interacting with the blockchain client."
+    },
+    "blockchain_default_gas_price" => %{
+      key: "blockchain_default_gas_price",
+      value: 1_000_000_000,
+      type: "unsigned_integer",
+      position: 203,
+      description: "The default gas price to use for transaction submission."
+    },
+    "blockchain_confirmations_threshold" => %{
+      key: "blockchain_confirmations_threshold",
+      value: 10,
+      type: "unsigned_integer",
+      position: 204,
+      description:
+        "The number of confirmations to wait for before confirming a blockchain transaction."
+    },
+    "blockchain_state_save_interval" => %{
+      key: "blockchain_state_save_interval",
+      value: 5,
+      type: "unsigned_integer",
+      position: 205,
+      description: "The number of blocks to wait before saving the block number to database."
+    },
+    "blockchain_sync_interval" => %{
+      key: "blockchain_sync_interval",
+      value: 1_000,
+      type: "unsigned_integer",
+      position: 206,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information." <>
+          " This value is used at application startup to catch up with the blockchain's latest" <>
+          " state. After it has caught up, it switches to the polling interval instead."
+    },
+    "blockchain_poll_interval" => %{
+      key: "blockchain_poll_interval",
+      value: 5_000,
+      type: "unsigned_integer",
+      position: 207,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information." <>
+          " This value is used after the application has caught up with the blockchain's" <>
+          " latest state."
+    },
+    "blockchain_transaction_poll_interval" => %{
+      key: "blockchain_transaction_poll_interval",
+      value: 5_000,
+      type: "unsigned_integer",
+      position: 208,
+      description:
+        "The interval (in milliseconds) between each blockchain polling for new information" <>
+          " about a specific transaction."
+    },
+    "blockchain_deposit_pooling_interval" => %{
+      key: "blockchain_deposit_pooling_interval",
+      value: 24 * 60 * 60 * 1_000,
+      type: "unsigned_integer",
+      position: 209,
+      description:
+        "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
+    },
+    "omisego_rootchain_contract_address" => %{
+      key: "omisego_network_contract_address",
+      value: "0x",
+      type: "string",
+      position: 210,
+      description:
+        "The blockchain contract address used by the eWallet to interact with the OmiseGO Network."
+    },
+    "omisego_childchain_url" => %{
+      key: "omisego_childchain_url",
+      value: "http://localhost:9656",
+      type: "string",
+      position: 211,
+      description: "The url used by the eWallet to interact with the OmiseGO Network's node."
+    },
+    "omisego_watcher_url" => %{
+      key: "omisego_watcher_url",
+      value: "http://localhost:7434",
+      type: "string",
+      position: 212,
+      description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
+    },
+
+    #
     # Email Settings
+    #
+
     "sender_email" => %{
       key: "sender_email",
       value: "admin@localhost",
       type: "string",
-      position: 200,
+      position: 300,
       description: "The address from which system emails will be sent."
     },
     "email_adapter" => %{
       key: "email_adapter",
       value: "local",
       type: "string",
-      position: 201,
+      position: 301,
       options: ["smtp", "local", "test"],
       description:
         "When set to local, a local email adapter will be used. Perfect for testing and development."
@@ -132,7 +244,7 @@ config :ewallet_config,
       key: "smtp_host",
       value: nil,
       type: "string",
-      position: 202,
+      position: 302,
       description: "The SMTP host to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -141,7 +253,7 @@ config :ewallet_config,
       key: "smtp_port",
       value: nil,
       type: "string",
-      position: 203,
+      position: 303,
       description: "The SMTP port to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -150,7 +262,7 @@ config :ewallet_config,
       key: "smtp_username",
       value: nil,
       type: "string",
-      position: 204,
+      position: 304,
       description: "The SMTP username to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
@@ -159,18 +271,21 @@ config :ewallet_config,
       key: "smtp_password",
       value: nil,
       type: "string",
-      position: 205,
+      position: 305,
       description: "The SMTP password to use to send emails.",
       parent: "email_adapter",
       parent_value: "smtp"
     },
 
+    #
     # Balance Caching Settings
+    #
+
     "balance_caching_strategy" => %{
       key: "balance_caching_strategy",
       value: "since_beginning",
       type: "string",
-      position: 300,
+      position: 400,
       options: ["since_beginning", "since_last_cached"],
       description:
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
@@ -181,31 +296,32 @@ config :ewallet_config,
       # Every Friday at 5am: 0 5 * * 5
       value: "0 2 * * *",
       type: "string",
-      position: 301,
+      position: 401,
       description:
         "The frequency to compute the balance cache. Expecting a 5-field crontab format. For example, 0 2 * * * for a daily run at 2AM."
     },
-
-    # Balance Caching Reset Frequency
     "balance_caching_reset_frequency" => %{
       key: "balance_caching_reset_frequency",
       value: 10,
       type: "unsigned_integer",
-      position: 301,
+      position: 402,
       parent: "balance_caching_strategy",
       parent_value: "since_last_cached",
       description:
-        "A counter is incremented everytime balances are cached, once reaching the given reset frequency,
-      the balances are re-calculated from the beginning and the counter is reset.
-      Set to 0 to always cache balances based on the previous cached value"
+        "A counter is incremented everytime balances are cached, once reaching the given reset frequency," <>
+          " the balances are re-calculated from the beginning and the counter is reset." <>
+          " Set to 0 to always cache balances based on the previous cached value"
     },
 
-    # File Storage settings
+    #
+    # File storage settings
+    #
+
     "file_storage_adapter" => %{
       key: "file_storage_adapter",
       value: "local",
       type: "string",
-      position: 400,
+      position: 500,
       options: ["local", "gcs", "aws"],
       description: "The type of storage to use for images and files."
     },
@@ -215,7 +331,7 @@ config :ewallet_config,
       key: "gcs_bucket",
       value: nil,
       type: "string",
-      position: 500,
+      position: 510,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The name of the GCS bucket."
@@ -225,7 +341,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 501,
+      position: 511,
       parent: "file_storage_adapter",
       parent_value: "gcs",
       description: "The credentials of the Google Cloud account."
@@ -236,7 +352,7 @@ config :ewallet_config,
       key: "aws_bucket",
       value: nil,
       type: "string",
-      position: 600,
+      position: 520,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The name of the AWS bucket."
@@ -245,7 +361,7 @@ config :ewallet_config,
       key: "aws_region",
       value: nil,
       type: "string",
-      position: 601,
+      position: 521,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "The AWS region where your bucket lives."
@@ -254,7 +370,7 @@ config :ewallet_config,
       key: "aws_access_key_id",
       value: nil,
       type: "string",
-      position: 602,
+      position: 522,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS access key having access to the specified bucket."
@@ -264,7 +380,7 @@ config :ewallet_config,
       value: nil,
       secret: true,
       type: "string",
-      position: 603,
+      position: 523,
       parent: "file_storage_adapter",
       parent_value: "aws",
       description: "An AWS secret having access to the specified bucket."

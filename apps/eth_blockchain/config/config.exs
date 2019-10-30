@@ -1,6 +1,14 @@
 use Mix.Config
 
 config :eth_blockchain,
+  transaction_registry: EthBlockchain.BlockchainRegistry,
+  settings: [
+    :blockchain_chain_id,
+    :blockchain_transaction_poll_interval,
+    :blockchain_default_gas_price
+  ]
+
+config :eth_blockchain,
        EthBlockchain.Adapter,
        eth_node_adapters: [
          {:geth, EthGethAdapter.Worker}
@@ -11,15 +19,6 @@ config :eth_blockchain,
        default_eth_node_adapter: :geth,
        default_cc_node_adapter: :omisego_network,
        default_eth_test_integration_adapter: :geth
-
-config :eth_blockchain,
-  # Custom id used for development/testing only, to be updated for production use
-  # Note that the geth ran by elixir-omg docker-compose is using 1337 as well.
-  chain_id: {:system, "ROOTCHAIN_CHAIN_ID", 1337, {String, :to_integer}},
-  transaction_poll_interval: 5000
-
-config :eth_blockchain,
-  default_gas_price: 20_000_000_000
 
 config :eth_blockchain,
        :gas_limit,

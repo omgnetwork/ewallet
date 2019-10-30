@@ -84,9 +84,16 @@ defmodule EWallet.DBCase do
         "email_adapter" => "test",
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
-        "blockchain_confirmations_threshold" => 4
+        "blockchain_enabled" => true,
+        "blockchain_confirmations_threshold" => 4,
+        "blockchain_state_save_interval" => 5,
+        "blockchain_sync_interval" => 50,
+        "blockchain_poll_interval" => 0,
+        "blockchain_deposit_pooling_interval" => 0
       }
     )
+
+    :ok = BlockchainHelper.ensure_state_exists(BlockchainHelper.rootchain_identifier())
 
     adapter = BlockchainHelper.adapter()
     {:ok, adapter_pid} = adapter.server().start_link([])

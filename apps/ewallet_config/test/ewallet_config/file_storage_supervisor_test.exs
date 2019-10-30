@@ -50,7 +50,7 @@ defmodule EWalletConfig.FileStorageSupervisorTest do
       config
     )
 
-    FileStorageSettingsLoader.load(:my_app)
+    FileStorageSettingsLoader.load(:my_app, :file_storage_adapter)
   end
 
   describe "start_link/0" do

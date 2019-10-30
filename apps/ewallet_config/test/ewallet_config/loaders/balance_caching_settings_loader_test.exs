@@ -45,10 +45,10 @@ defmodule EWalletConfig.BalanceCachingSettingsLoaderTest do
       opts
     )
 
-    BalanceCachingSettingsLoader.load(@mock_app)
+    BalanceCachingSettingsLoader.load(@mock_app, :balance_caching_frequency)
   end
 
-  describe "load/1" do
+  describe "load/2" do
     setup do
       original_freq = Application.get_env(@mock_app, :balance_caching_frequency)
       :ok = Application.put_env(@mock_app, :balance_caching_frequency, original_freq)

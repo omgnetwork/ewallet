@@ -17,11 +17,24 @@ defmodule EWalletConfig.SettingLoader do
   Load the settings from the database into the application envs.
   """
   require Logger
-  alias EWalletConfig.{Setting, BalanceCachingSettingsLoader, FileStorageSettingsLoader}
+
+  alias EWalletConfig.{
+    BalanceCachingSettingsLoader,
+    BlockchainSettingsLoader,
+    BlockchainIntervalSettingsLoader,
+    FileStorageSettingsLoader,
+    Setting
+  }
 
   @settings_to_loaders %{
     balance_caching_frequency: BalanceCachingSettingsLoader,
-    file_storage_adapter: FileStorageSettingsLoader
+    file_storage_adapter: FileStorageSettingsLoader,
+    blockchain_enabled: BlockchainSettingsLoader,
+    blockchain_state_save_interval: BlockchainIntervalSettingsLoader,
+    blockchain_sync_interval: BlockchainIntervalSettingsLoader,
+    blockchain_poll_interval: BlockchainIntervalSettingsLoader,
+    blockchain_transaction_poll_interval: BlockchainIntervalSettingsLoader,
+    blockchain_deposit_pooling_interval: BlockchainIntervalSettingsLoader
   }
 
   def load_settings(app, settings) when is_atom(app) and is_list(settings) do
@@ -36,7 +49,7 @@ defmodule EWalletConfig.SettingLoader do
     # to make sure that loaders get latest values for all dependent settings.
     Enum.each(settings, fn key ->
       case Map.fetch(@settings_to_loaders, key) do
-        {:ok, loader_module} -> loader_module.load(app)
+        {:ok, loader_module} -> loader_module.load(app, key)
         _ -> :noop
       end
     end)

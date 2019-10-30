@@ -16,16 +16,52 @@ defmodule EWallet.DepositWalletPoolingTrackerTest do
   use EWallet.DBCase, async: false
   alias EWallet.DepositWalletPoolingTracker
 
-  describe "start_link/1" do
-    test "starts a deposit wallet tracker" do
-      opts = [
-        name: :test_deposit_wallet_tracker_start_link,
-        blockchain_identifier: "dumb"
-      ]
+  setup do
+    opts = [
+      name: :"#{__MODULE__}-tracker-test-#{System.unique_integer()}",
+      blockchain_identifier: "some_blockchain_identifier"
+    ]
 
-      assert {:ok, pid} = DepositWalletPoolingTracker.start_link(opts)
+    {:ok, pid} = DepositWalletPoolingTracker.start_link(opts)
+
+    {:ok,
+     %{
+       start_opts: opts,
+       pid: pid
+     }}
+  end
+
+  describe "start_link/1" do
+    test "starts a deposit wallet tracker", context do
+      :ok = GenServer.stop(context.pid)
+
+      {res, pid} = DepositWalletPoolingTracker.start_link(context.start_opts)
+
+      assert res == :ok
       assert Process.alive?(pid)
-      assert GenServer.stop(pid) == :ok
+
+      :ok = GenServer.stop(pid)
+    end
+  end
+
+  describe "set_interval/2" do
+    test "sets the polling_interval", context do
+      interval = :rand.uniform(100_000)
+
+      assert DepositWalletPoolingTracker.set_interval(interval, context.pid) == :ok
+      assert :sys.get_state(context.pid)[:pooling_interval] == interval
+
+      :ok = GenServer.stop(context.pid)
+    end
+
+    test "resets the timer", context do
+      timer = :sys.get_state(context.pid)[:timer]
+
+      interval = :rand.uniform(100_000)
+      :ok = DepositWalletPoolingTracker.set_interval(interval, context.pid)
+
+      refute :sys.get_state(context.pid)[:timer] == timer
+      assert GenServer.stop(context.pid) == :ok
     end
   end
 end

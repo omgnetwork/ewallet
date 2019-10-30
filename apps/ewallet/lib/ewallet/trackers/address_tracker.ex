@@ -18,7 +18,7 @@ defmodule EWallet.AddressTracker do
   It will registers itself with the blockchain adapter to receive events about
   a given transactions and act on it
   """
-  use GenServer
+  use GenServer, restart: :transient
   require Logger
 
   alias EWallet.{
@@ -40,43 +40,88 @@ defmodule EWallet.AddressTracker do
 
   alias ActivityLogger.System
 
-  # TODO: only starts when blockchain is enabled
+  @default_sync_interval 1000
+  @default_poll_interval 1000
+  @default_state_save_interval 5
 
-  # TODO: make these numbers admin-configurable
-  @blk_syncing_save_interval 5
-  @blk_syncing_polling_interval 5
-  @syncing_interval 50
-  @polling_interval 500
+  #
+  # GenServer lifecycle
+  #
 
-  @spec start_link(keyword) :: :ignore | {:error, any} | {:ok, pid}
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop(opts, :name, __MODULE__)
     GenServer.start_link(__MODULE__, opts, name: name)
   end
 
+  @spec stop(GenServer.server()) :: :ok
+  def stop(pid \\ __MODULE__) do
+    GenServer.stop(pid, :normal)
+  end
+
+  #
+  # Client APIs
+  #
+
+  @spec register_address(String.t(), String.t(), GenServer.server()) :: :ok
+  def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_address, blockchain_address, internal_address})
+  end
+
+  @spec register_contract_address(String.t(), GenServer.server()) :: :ok
+  def register_contract_address(contract_address, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_contract_address, contract_address})
+  end
+
+  @spec set_interval(:sync | :poll | :state_save, non_neg_integer(), GenServer.server()) :: :ok
+  def set_interval(sync_mode, interval, pid \\ __MODULE__) do
+    GenServer.cast(pid, {:set_interval, sync_mode, interval})
+  end
+
+  #
+  # GenServer callbacks
+  #
+
   def init(opts) do
-    blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
+    # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
+    # this config from the database, which may return nil. This function then treats the nil
+    # as an existing value, and so get_env/3 would never pick up the local defaults here.
+    case Application.get_env(:ewallet, :blockchain_enabled) || false do
+      true ->
+        blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
-    state = %{
-      interval: @syncing_interval,
-      blockchain_identifier: blockchain_identifier,
-      timer: nil,
-      addresses:
-        BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
-      contract_addresses:
-        BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
-      blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
-      blk_retries: 0,
-      blk_syncing_save_count: 0,
-      blk_syncing_save_interval: @blk_syncing_save_interval,
-      node_adapter: opts[:node_adapter],
-      stop_once_synced: opts[:stop_once_synced] || false
-    }
+        state = %{
+          sync_mode: :sync,
+          sync_interval:
+            Application.get_env(:ewallet, :blockchain_sync_interval) || @default_sync_interval,
+          poll_interval:
+            Application.get_env(:ewallet, :blockchain_poll_interval) || @default_poll_interval,
+          blockchain_identifier: blockchain_identifier,
+          timer: nil,
+          addresses:
+            BlockchainAddressFetcher.get_all_trackable_wallet_addresses(blockchain_identifier),
+          contract_addresses:
+            BlockchainAddressFetcher.get_all_trackable_contract_address(blockchain_identifier),
+          blk_number: BlockchainStateGate.get_last_synced_blk_number(blockchain_identifier),
+          blk_retries: 0,
+          blk_syncing_save_count: 0,
+          blockchain_state_save_interval:
+            Application.get_env(:ewallet, :blockchain_state_save_interval) ||
+              @default_state_save_interval,
+          node_adapter: opts[:node_adapter],
+          stop_once_synced: opts[:stop_once_synced] || false
+        }
 
-    {:ok, state, {:continue, :start_polling}}
+        {:ok, state, {:continue, :start_polling}}
+
+      false ->
+        _ = Logger.info("AddressTracker did not start. Blockchain is not enabled.")
+        :ignore
+    end
   end
 
   def handle_continue(:start_polling, state) do
+    _ = Logger.info("AddressTracker started and is now polling.")
     poll(state)
   end
 
@@ -99,32 +144,91 @@ defmodule EWallet.AddressTracker do
     {:reply, :ok, %{state | contract_addresses: [contract_address | state.contract_addresses]}}
   end
 
-  def register_address(blockchain_address, internal_address, pid \\ __MODULE__) do
-    GenServer.call(pid, {:register_address, blockchain_address, internal_address})
-  end
+  def handle_cast({:set_interval, mode, interval}, state) do
+    state =
+      case mode do
+        :sync -> %{state | sync_interval: interval}
+        :poll -> %{state | poll_interval: interval}
+        :state_save -> %{state | blockchain_state_save_interval: interval}
+      end
 
-  def register_contract_address(contract_address, pid \\ __MODULE__) do
-    GenServer.call(pid, {:register_contract_address, contract_address})
-  end
+    case {state.sync_mode, state.timer} do
+      # If the updated interval is for the current sync mode and there's no timer set
+      # (possibly because the interval was set to 0 before), schedule next poll right away.
+      {^mode, nil} ->
+        timer = schedule_next_poll(state)
+        {:noreply, %{state | timer: timer}}
 
-  defp poll(state) do
-    case run(state) do
-      new_state when is_map(new_state) ->
-        timer = Process.send_after(self(), :poll, new_state[:interval])
-        {:noreply, %{new_state | timer: timer}}
+      # If the updated interval is for the current sync mode and there's a timer set,
+      # cancel the current timer and schedule the next poll.
+      {^mode, timer} ->
+        _ = Process.cancel_timer(timer)
+        timer = schedule_next_poll(state)
+        {:noreply, %{state | timer: timer}}
 
-      error ->
-        error
+      # If the updated interval is for a different sync mode, do nothing and return the
+      # timer unchanged.
+      _ ->
+        {:noreply, state}
     end
   end
 
-  defp run(
+  #
+  # Polling management
+  #
+
+  defp poll(state) do
+    case track_addresses(state) do
+      new_state when is_map(new_state) ->
+        timer = schedule_next_poll(new_state)
+        {:noreply, %{new_state | timer: timer}}
+
+      {:error, :block_not_found} ->
+        case state.stop_once_synced do
+          true ->
+            {:stop, :normal, state}
+
+          false ->
+            # We've reached the end of the chain, switching to a slower polling interval.
+            new_state = %{state | sync_mode: :poll}
+            timer = schedule_next_poll(new_state)
+            {:noreply, %{state | timer: timer}}
+        end
+
+      {:error, error} ->
+        _ = Logger.error("An unexpected error occured in the AddressTracker. Terminating...")
+        {:stop, error, state}
+    end
+  end
+
+  defp schedule_next_poll(state) do
+    case get_interval(state) do
+      interval when interval > 0 ->
+        Process.send_after(self(), :poll, interval)
+
+      interval ->
+        _ = Logger.info("Address tracking has paused because the interval is #{interval}.")
+        nil
+    end
+  end
+
+  defp get_interval(state) do
+    case state.sync_mode do
+      :sync -> state.sync_interval
+      :poll -> state.poll_interval
+    end
+  end
+
+  #
+  # Address tracking
+  #
+
+  defp track_addresses(
          %{
            blk_number: blk_number,
            addresses: addresses,
            contract_addresses: contract_addresses,
-           node_adapter: node_adapter,
-           stop_once_synced: stop_once_synced
+           node_adapter: node_adapter
          } = state
        ) do
     attrs = %{
@@ -134,31 +238,15 @@ defmodule EWallet.AddressTracker do
     }
 
     case BlockchainHelper.call(:get_transactions, attrs, eth_node_adapter: node_adapter) do
-      {:error, :block_not_found} ->
-        case stop_once_synced do
-          false ->
-            # We've reached the end of the chain, switching to a slower polling interval
-            # TODO: Make this less spammy
-            # Logger.info("Block #{blk_number} not found, retrying in #{@polling_interval}ms...")
-
-            state
-            |> Map.put(:interval, @polling_interval)
-            |> Map.put(:blk_syncing_save_interval, @blk_syncing_polling_interval)
-
-          true ->
-            {:stop, :normal, state}
-        end
-
       {:error, _} = error ->
-        Logger.error("No blockchain handler found, terminating...")
-        {:stop, error, state}
+        error
 
       transactions ->
-        do_run(transactions, state)
+        do_track_addresses(transactions, state)
     end
   end
 
-  defp do_run(transactions, state) do
+  defp do_track_addresses(transactions, state) do
     transaction_results = Enum.map(transactions, fn t -> insert_if_new(t, state) end)
 
     _ =
@@ -181,7 +269,7 @@ defmodule EWallet.AddressTracker do
   defp next(%{blk_number: blk_number, blockchain_identifier: blockchain_identifier} = state) do
     new_blk_number = blk_number + 1
 
-    case state[:blk_syncing_save_count] < state[:blk_syncing_save_interval] do
+    case state[:blk_syncing_save_count] < state[:blockchain_state_save_interval] do
       true ->
         state
         |> Map.put(:blk_syncing_save_count, state[:blk_syncing_save_count] + 1)
@@ -191,8 +279,9 @@ defmodule EWallet.AddressTracker do
       false ->
         {:ok, blockchain_state} = BlockchainState.update(blockchain_identifier, new_blk_number)
 
+        # Because the save count and checking happens at the end, it starts at 1.
         state
-        |> Map.put(:blk_syncing_save_count, 0)
+        |> Map.put(:blk_syncing_save_count, 1)
         |> Map.put(:blk_number, blockchain_state.blk_number)
         |> Map.put(:blk_retries, 0)
     end

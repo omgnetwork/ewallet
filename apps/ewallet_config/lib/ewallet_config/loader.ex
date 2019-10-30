@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule EthOmiseGOAdapter.Config do
-  @moduledoc false
+defmodule EWalletConfig.Loader do
+  @moduledoc """
+  The required behaviour for a loader to be compatible with `EWalletConfig.SettingLoader`.
+  """
 
-  def get_contract_address do
-    Application.get_env(:eth_omisego_adapter, :omisego_rootchain_contract_address)
-  end
-
-  def get_watcher_url do
-    Application.get_env(:eth_omisego_adapter, :omisego_watcher_url)
-  end
+  @doc """
+  Perform the necessary operations when a specific settings is updated.
+  """
+  @callback load(Application.app(), EWalletConfig.Setting.key()) :: :ok
 end

@@ -58,6 +58,11 @@ defmodule EWalletConfig.Setting do
     :updated_at
   ]
 
+  @typedoc """
+  The key that can be used to identify a setting.
+  """
+  @type key :: atom()
+
   @spec get_setting_mappings() :: [map()]
   def get_setting_mappings, do: Application.get_env(:ewallet_config, :settings_mappings)
 
@@ -85,7 +90,7 @@ defmodule EWalletConfig.Setting do
   @doc """
   Retrieves a setting by its string name.
   """
-  @spec get(String.t()) :: %Setting{}
+  @spec get(String.t() | key()) :: %Setting{}
   def get(key) when is_atom(key) do
     get(Atom.to_string(key))
   end
@@ -102,7 +107,7 @@ defmodule EWalletConfig.Setting do
   @doc """
   Retrieves a setting's value by its string name.
   """
-  @spec get_value(String.t() | atom()) :: any()
+  @spec get_value(String.t() | key()) :: any()
   def get_value(key, default \\ nil)
 
   def get_value(key, default) when is_atom(key) do

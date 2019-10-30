@@ -18,7 +18,11 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   """
   require Logger
 
-  def load(app) do
+  @behaviour EWalletConfig.Loader
+
+  @impl EWalletConfig.Loader
+  @spec load(Application.app(), EWalletConfig.Setting.key()) :: :ok
+  def load(app, _setting) do
     app
     |> Application.get_env(:file_storage_adapter)
     |> load_file_storage(app)
