@@ -93,6 +93,8 @@ defmodule EWallet.DBCase do
       }
     )
 
+    :ok = BlockchainHelper.ensure_state_exists(BlockchainHelper.rootchain_identifier())
+
     adapter = BlockchainHelper.adapter()
     {:ok, adapter_pid} = adapter.server().start_link([])
 

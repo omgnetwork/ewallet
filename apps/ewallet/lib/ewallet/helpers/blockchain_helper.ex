@@ -16,6 +16,7 @@ defmodule EWallet.BlockchainHelper do
   @moduledoc """
   The module for blockchain helpers.
   """
+  alias EWalletDB.BlockchainState
 
   @doc """
   Returns the main rootchain identifier
@@ -29,6 +30,20 @@ defmodule EWallet.BlockchainHelper do
   """
   def childchain_identifier do
     Application.get_env(:ewallet_db, :childchain_identifier)
+  end
+
+  @doc """
+  Inserts the DB blockchain state if not yet exists.
+  """
+  def ensure_state_exists(blockchain_identifier) do
+    case BlockchainState.get(blockchain_identifier) do
+      nil ->
+        {:ok, _state} = BlockchainState.insert(%{identifier: blockchain_identifier})
+        :ok
+
+      _state ->
+        :ok
+    end
   end
 
   @doc """

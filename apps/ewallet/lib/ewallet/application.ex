@@ -32,6 +32,8 @@ defmodule EWallet.Application do
         EWallet.ReleaseTasks.CLIUser => %{type: "cli_user", identifier: nil}
       })
 
+    :ok = BlockchainHelper.ensure_state_exists(@rootchain_identifier)
+
     children = [
       # Quantum scheduler
       {EWallet.Scheduler, []},

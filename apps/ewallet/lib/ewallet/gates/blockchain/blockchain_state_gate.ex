@@ -27,14 +27,7 @@ defmodule EWallet.BlockchainStateGate do
   end
 
   defp get_state_blk_number(blockchain_identifier) do
-    case BlockchainState.get(blockchain_identifier) do
-      nil ->
-        {:ok, state} = BlockchainState.insert(%{identifier: blockchain_identifier})
-        state.blk_number
-
-      state ->
-        state.blk_number
-    end
+    BlockchainState.get(blockchain_identifier).blk_number
   end
 
   defp get_highest_blk_number(_blockchain, state_blk_number, nil), do: state_blk_number

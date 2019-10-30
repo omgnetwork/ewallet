@@ -31,6 +31,12 @@ defmodule EWallet.AddressTrackerTest do
   alias Utils.Helpers.Crypto
 
   @minimum_confirmation_counts 10
+  @blockchain_identifier "a_blockchain_identifier"
+
+  setup do
+    :ok = BlockchainHelper.ensure_state_exists(@blockchain_identifier)
+    :ok
+  end
 
   describe "start_link/1" do
     test "starts a new server" do
@@ -39,7 +45,7 @@ defmodule EWallet.AddressTrackerTest do
       assert {:ok, pid} =
                AddressTracker.start_link(
                  name: :test_address_tracker,
-                 blockchain_identifier: "any_blockchain_identifier"
+                 blockchain_identifier: @blockchain_identifier
                )
 
       assert is_pid(pid)
@@ -55,7 +61,7 @@ defmodule EWallet.AddressTrackerTest do
         blk_retries: 0,
         blk_syncing_save_count: 0,
         blockchain_state_save_interval: 5,
-        blockchain_identifier: "any_blockchain_identifier",
+        blockchain_identifier: @blockchain_identifier,
         contract_addresses: [],
         node_adapter: nil,
         poll_interval: 0,
@@ -65,20 +71,20 @@ defmodule EWallet.AddressTrackerTest do
         stop_once_synced: false
       }
 
-      assert AddressTracker.init(blockchain_identifier: "any_blockchain_identifier") ==
+      assert AddressTracker.init(blockchain_identifier: @blockchain_identifier) ==
                {:ok, expected, {:continue, :start_polling}}
     end
 
     test "inits with addresses" do
       hot_wallet =
-        insert(:blockchain_wallet, type: "hot", blockchain_identifier: "any_blockchain_identifier")
+        insert(:blockchain_wallet, type: "hot", blockchain_identifier: @blockchain_identifier)
 
       deposit_wallet =
-        insert(:blockchain_deposit_wallet, blockchain_identifier: "any_blockchain_identifier")
+        insert(:blockchain_deposit_wallet, blockchain_identifier: @blockchain_identifier)
 
       token =
         insert(:token,
-          blockchain_identifier: "any_blockchain_identifier",
+          blockchain_identifier: @blockchain_identifier,
           blockchain_address: Crypto.fake_eth_address()
         )
 
@@ -91,7 +97,7 @@ defmodule EWallet.AddressTrackerTest do
         blk_retries: 0,
         blk_syncing_save_count: 0,
         blockchain_state_save_interval: 5,
-        blockchain_identifier: "any_blockchain_identifier",
+        blockchain_identifier: @blockchain_identifier,
         node_adapter: :fake_adapter,
         contract_addresses: [
           token.blockchain_address
@@ -104,7 +110,7 @@ defmodule EWallet.AddressTrackerTest do
       }
 
       assert AddressTracker.init(
-               blockchain_identifier: "any_blockchain_identifier",
+               blockchain_identifier: @blockchain_identifier,
                node_adapter: :fake_adapter
              ) ==
                {:ok, expected, {:continue, :start_polling}}
@@ -116,7 +122,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker_register_address,
-          blockchain_identifier: "any_blockchain_identifier"
+          blockchain_identifier: @blockchain_identifier
         )
 
       assert AddressTracker.register_address("blockchain_address", "internal_address", pid) == :ok
@@ -136,7 +142,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker_register_contract_address,
-          blockchain_identifier: "any_blockchain_identifier"
+          blockchain_identifier: @blockchain_identifier
         )
 
       assert AddressTracker.register_contract_address("contract_address", pid) == :ok
@@ -153,7 +159,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker_set_sync_interval,
-          blockchain_identifier: "any_blockchain_identifier"
+          blockchain_identifier: @blockchain_identifier
         )
 
       interval = :rand.uniform(100_000)
@@ -167,7 +173,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker_set_poll_interval,
-          blockchain_identifier: "any_blockchain_identifier"
+          blockchain_identifier: @blockchain_identifier
         )
 
       interval = :rand.uniform(100_000)
@@ -181,7 +187,7 @@ defmodule EWallet.AddressTrackerTest do
       {:ok, pid} =
         AddressTracker.start_link(
           name: :test_address_tracker_set_state_save_interval,
-          blockchain_identifier: "any_blockchain_identifier"
+          blockchain_identifier: @blockchain_identifier
         )
 
       interval = :rand.uniform(100_000)
