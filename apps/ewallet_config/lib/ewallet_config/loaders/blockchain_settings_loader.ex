@@ -42,7 +42,9 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
       # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
       case Supervisor.restart_child(supervisor, tracker) do
         {:ok, :undefined} ->
-          Logger.debug(fn -> "Error starting #{inspect(tracker)}: The tracker is not supervised." end)
+          Logger.debug(fn ->
+            "Error starting #{inspect(tracker)}: The tracker is not supervised."
+          end)
 
         {:error, :running} ->
           Logger.debug(fn -> "Error starting #{inspect(tracker)}. Already running." end)
