@@ -17,7 +17,7 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
   import EWalletDB.Factory
   import ExUnit.CaptureLog
   alias EWallet.{BlockchainHelper, BlockchainTransactionTracker, DummyTransactionTracker}
-  alias EWalletDB.{BlockchainTransaction, BlockchainTransactionState}
+  alias EWalletDB.{BlockchainState, BlockchainTransaction, BlockchainTransactionState}
 
   setup do
     {:ok, _} = DummyTransactionTracker.start_link()
@@ -64,7 +64,7 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
 
       identifier = BlockchainHelper.rootchain_identifier()
       # Fast forward the blockchain manually to have the desired confirmation count.
-      EWalletDB.BlockchainState.update(identifier, 1)
+      BlockchainState.update(identifier, 1)
 
       :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 1})
 
@@ -85,9 +85,9 @@ defmodule EWallet.BlockchainTransactionTrackerTest do
 
       identifier = BlockchainHelper.rootchain_identifier()
       # Fast forward the blockchain manually to have the desired confirmation count.
-      EWalletDB.BlockchainState.update(identifier, 20)
+      BlockchainState.update(identifier, 20)
 
-      :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 1})
+      :ok = GenServer.cast(pid, {:confirmations_count, transaction.hash, 20})
       ref = Process.monitor(pid)
 
       receive do
