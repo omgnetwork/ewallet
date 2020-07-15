@@ -43,6 +43,7 @@ defmodule EWallet.Mixfile do
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
       {:quantum, "~> 2.2.6"},
+      {:tzdata, git: "https://github.com/omgnetwork/tzdata.git", ref: "e4b66957f6c5ab94a9e910133bca6c5fc422f17b", override: true},
       {:timex, "~> 3.0"},
       {:bodyguard, "~> 2.2"},
       {:decimal, "~> 1.0"},
