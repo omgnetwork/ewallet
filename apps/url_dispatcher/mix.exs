@@ -35,6 +35,7 @@ defmodule UrlDispatcher.Mixfile do
   defp deps do
     [
       {:quantum, "~> 2.2.6"},
+      {:tzdata, git: "https://github.com/omgnetwork/tzdata.git", ref: "e4b66957f6c5ab94a9e910133bca6c5fc422f17b", override: true},
       {:timex, "~> 3.0"},
       {:plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
