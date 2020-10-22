@@ -37,7 +37,7 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
-const WalletBlockchain = styled.div`
+const EWalletBlockchain = styled.div`
   display: flex;
   align-items: center;
   i {
@@ -106,12 +106,12 @@ class TokenDetailPage extends Component {
     if (key === 'blockchainStatus') {
       if (rows.txHash) {
         return (
-          <WalletBlockchain>
+          <EWalletBlockchain>
             <span>Blockchain</span>
-            <Tooltip text='This is a blockchain token controlled by the Wallet.'>
+            <Tooltip text='This is a blockchain token controlled by the eWallet.'>
               <Icon name='Wallet' />
             </Tooltip>
-          </WalletBlockchain>
+          </EWalletBlockchain>
         )
       }
 

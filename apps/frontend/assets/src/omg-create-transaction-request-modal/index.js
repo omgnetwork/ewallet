@@ -212,8 +212,8 @@ class CreateTransactionRequest extends Component {
   onSelectWallet = wallet => {
     this.setState({ address: wallet.address, selectedWallet: wallet })
   }
-  onSelectExchangeWallet = exchangWallet => {
-    this.setState({ exchangeAddress: exchangWallet.address })
+  onSelectExchangeWallet = exchangeWallet => {
+    this.setState({ exchangeAddress: exchangeWallet.address })
   }
   onDateTimeChange = date => {
     if (date.format) this.setState({ expirationDate: date })

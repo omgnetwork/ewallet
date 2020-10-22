@@ -158,7 +158,7 @@ class TransactionRequestPanel extends Component {
     )
   }
   renderExchangeInfo = ({ exchange }) => {
-    const exchangWalletAddress = _.get(exchange, 'exchange_wallet_address')
+    const exchangeWalletAddress = _.get(exchange, 'exchange_wallet_address')
     return (
       <TransactionInfoContainer>
         <h5>{'Exchange'}</h5>
@@ -170,11 +170,11 @@ class TransactionRequestPanel extends Component {
           <b>Exchange wallet address : </b>
           <Link
             to={{
-              pathname: `/wallets/${exchangWalletAddress}`,
+              pathname: `/wallets/${exchangeWalletAddress}`,
               search: this.props.location.search
             }}
           >
-            {exchangWalletAddress}
+            {exchangeWalletAddress}
           </Link>
         </InformationItem>
       </TransactionInfoContainer>
