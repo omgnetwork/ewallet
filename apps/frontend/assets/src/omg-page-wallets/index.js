@@ -3,13 +3,14 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import walletRowRenderer from './walletTableRowRenderer'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import CreateWalletModal from '../omg-create-wallet-modal'
+import CreatWalletModal from '../omg-create-wallet-modal'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import { walletColumsKeys } from './constants'
 import AdvancedFilter from '../omg-advanced-filter'
@@ -97,7 +98,7 @@ class WalletPage extends Component {
   onClickTransfer = () => {
     this.setState({ transferModalOpen: true })
   }
-  onClickCreateWallet = () => {
+  onClickCreatWallet = () => {
     this.setState({ createWalletModalOpen: true })
   }
   onRequestCloseTransferModal = () => {
@@ -106,13 +107,13 @@ class WalletPage extends Component {
       createWalletModalOpen: false
     })
   }
-  renderCreateWalletButton = () => {
+  renderCreatWalletButton = () => {
     return (
       <Button
         key='create-wallet'
         styleType='secondary'
         size='small'
-        onClick={this.onClickCreateWallet}
+        onClick={this.onClickCreatWallet}
       >
         <Icon name='Plus' />
         <span>Create Wallet</span>
@@ -143,7 +144,7 @@ class WalletPage extends Component {
             this.props.transferButton && (
               <CreateTransactionButton key='transfer' />
             ),
-            isAccountWalletsPage && accountId && this.renderCreateWalletButton()
+            isAccountWalletsPage && accountId && this.renderCreatWalletButton()
           ]}
         />
 
@@ -167,11 +168,11 @@ class WalletPage extends Component {
             navigation
           />
         </SortableTableContainer>
-        <CreateWalletModal
+        <CreatWalletModal
           isOpen={this.state.createWalletModalOpen}
           onRequestClose={this.onRequestCloseTransferModal}
           accountId={accountId}
-          onCreateWallet={fetch}
+          onCreatWallet={fetch}
         />
       </WalletPageContainer>
     )

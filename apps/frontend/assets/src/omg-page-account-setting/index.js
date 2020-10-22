@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import Modal from '../omg-modal'
 import { Input, Button, Icon, Select } from '../omg-uikit'

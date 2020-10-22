@@ -4,6 +4,7 @@ import { compose } from 'recompose'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Icon } from '../omg-uikit'

@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
+import _ from 'lodash'
 
 import { Id, Icon, Button } from '../omg-uikit'
 import SortableTable from '../omg-table'
@@ -28,15 +29,15 @@ const WalletAddressContainer = styled.div`
 
 const BlockchainWalletsPage = ({ match, history }) => {
   const dispatch = useDispatch()
-  const onClickCreateWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
+  const onClickCreatWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
 
-  const renderCreateWalletButton = () => {
+  const renderCreatWalletButton = () => {
     return (
       <Button
         key='create-wallet-button'
         size='small'
         styleType='secondary'
-        onClick={onClickCreateWallet}
+        onClick={onClickCreatWallet}
       >
         <Icon name='Plus' />
         <span>Create Wallet</span>
@@ -80,7 +81,7 @@ const BlockchainWalletsPage = ({ match, history }) => {
         title='Blockchain Wallets'
         description='These are your blockchain wallets. Click one to view its details.'
         searchBar={false}
-        buttons={[renderCreateWalletButton()]}
+        buttons={[renderCreatWalletButton()]}
       />
       <AllBlockchainWalletsFetcher
         query={{ perPage: Math.floor(window.innerHeight / 65) }}

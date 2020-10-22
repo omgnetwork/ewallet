@@ -59,7 +59,8 @@ export default class Button extends PureComponent {
         type={this.props.type}
       >
         <img
-          src={require('../../../statics/images/GO-DeepBlue-White.gif')}
+          alt="Loading ..."
+          src={require('../../statics/images/GO-DeepBlue-White.gif')}
           className='loading'
         />
         <Content loading={this.props.loading}>{this.props.children}</Content>

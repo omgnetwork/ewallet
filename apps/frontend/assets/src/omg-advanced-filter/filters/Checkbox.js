@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import { Checkbox } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'

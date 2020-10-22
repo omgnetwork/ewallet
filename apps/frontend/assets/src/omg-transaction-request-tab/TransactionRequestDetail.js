@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 import { Link, withRouter } from 'react-router-dom'
+import _ from 'lodash'
 
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
 

@@ -97,6 +97,7 @@ class SocketConnector {
   }
 
   on (event, handler) {
+    /*eslint default-case: "off"*/
     switch (event) {
       case 'connected':
         return (this.handleOnConnected = handler)

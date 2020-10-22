@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
+import _ from 'lodash'
 
 import { Icon, Input, PlainButton } from '../omg-uikit'
 import CategoriesFetcher from '../omg-account-category/categoriesFetcher'

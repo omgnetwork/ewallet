@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import _ from 'lodash'
 
 import TabPanel from './TabPanel'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'

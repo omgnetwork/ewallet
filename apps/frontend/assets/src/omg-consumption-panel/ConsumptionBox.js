@@ -6,6 +6,8 @@ import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
+
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import { Button } from '../omg-uikit'
 import * as consumptionAction from '../omg-consumption/action'

@@ -6,6 +6,7 @@ import moment from 'moment'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import { Button, Icon, Tag, Tooltip, DatePicker, TimePicker } from '../omg-uikit'
 import SortableTable from '../omg-table'

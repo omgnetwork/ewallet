@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { TransitionMotion, spring } from 'react-motion'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import Modal from '../omg-modal'
 import { Icon, Button } from '../omg-uikit'
@@ -86,33 +87,18 @@ const AdvancedFilter = ({
   const [ values, setValues ] = useState({})
   const [ initialValues, setInitialValues ] = useState({})
 
-  useEffect(() => {
-    const search = queryString.parse(location.search)
-    if (search && !_.isEmpty(search)) {
-      const advancedFilter = _.get(search, 'advanced-filter')
-      if (advancedFilter) {
-        const values = JSON.parse(advancedFilter)
-        const filters = FILTER_MAP.filter(i => Object.keys(values).includes(i.key))
-        setFilters(filters)
-        callOnFilter(values)
-        onUpdate(values)
-      }
-    } else {
-      const defaultFilters = FILTER_MAP.filter(i => i.page === page && i.default)
-      setFilters(defaultFilters)
-    }
-  }, [])
+
 
   const onSelectFilter = (newFilter) => {
     setFilters([newFilter, ...filters])
   }
 
-  const onUpdate = (updated) => {
+  const onUpdate = useCallback((updated) => {
     setValues({
       ...values,
       ...updated
     })
-  }
+  }, [values])
 
   const clearKey = (key) => {
     setValues(_.omit(values, [key]))
@@ -124,7 +110,7 @@ const AdvancedFilter = ({
     history.push({ search: queryString.stringify(search) })
   }
 
-  const callOnFilter = (values) => {
+  const callOnFilter = useCallback((values) => {
     onFilter(filterAdapter(values))
     setInitialValues(values)
 
@@ -135,7 +121,7 @@ const AdvancedFilter = ({
       delete search['advanced-filter']
       history.push({ search: queryString.stringify(search) })
     }
-  }
+  }, [history, location.search, onFilter])
 
   const onRemoveFilter = (filterToRemove) => {
     const newFilters = _.filter(filters, i => i.key !== filterToRemove.key)
@@ -167,6 +153,24 @@ const AdvancedFilter = ({
   }
 
   const springConfig = { stiffness: 200, damping: 20 }
+
+  useEffect(() => {
+    const search = queryString.parse(location.search)
+    if (search && !_.isEmpty(search)) {
+      const advancedFilter = _.get(search, 'advanced-filter')
+      if (advancedFilter) {
+        const values = JSON.parse(advancedFilter)
+        const filters = FILTER_MAP.filter(i => Object.keys(values).includes(i.key))
+        setFilters(filters)
+        callOnFilter(values)
+        onUpdate(values)
+      }
+    } else {
+      const defaultFilters = FILTER_MAP.filter(i => i.page === page && i.default)
+      setFilters(defaultFilters)
+    }
+  }, [callOnFilter, location.search, onUpdate, page])
+
   return (
     <>
       {showTags && (

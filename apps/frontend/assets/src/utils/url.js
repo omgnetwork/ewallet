@@ -33,4 +33,4 @@ export function isAbsoluteURL (url) {
     }
   }
   return false
-};
+}

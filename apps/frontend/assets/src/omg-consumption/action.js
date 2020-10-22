@@ -1,5 +1,5 @@
 import * as consumptionService from '../services/consumptionService'
-import { selectGetConsumptionById } from '../omg-consumption/selector'
+import { selectGetConsumptionById } from './selector'
 import {
   createActionCreator,
   createPaginationActionCreator

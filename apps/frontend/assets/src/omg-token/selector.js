@@ -1,4 +1,6 @@
+import _ from 'lodash'
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
+
 export const selectTokens = (state, search) => {
   return _.values(state.tokens)
     .filter(x => {

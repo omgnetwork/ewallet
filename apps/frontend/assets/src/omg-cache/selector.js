@@ -1,3 +1,4 @@
+import _ from 'lodash'
 
 export const selectCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})

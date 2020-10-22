@@ -4,6 +4,7 @@ import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import TokenMintedHistoryFetcher from '../omg-token/tokenMintedHistoryFetcher'
 import Table from '../omg-table'

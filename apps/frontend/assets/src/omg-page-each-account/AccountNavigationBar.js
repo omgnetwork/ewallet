@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { NavLink, withRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import { compose } from 'recompose'
+import _ from 'lodash'
 
 import { Avatar } from '../omg-uikit'
 import AccountProvider from '../omg-account/accountProvider'

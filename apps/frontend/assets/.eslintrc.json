@@ -5,34 +5,38 @@
     }
   },
   "extends": [
-    "standard",
-    "standard-react",
-    "standard-jsx",
+    "eslint:recommended",
     "plugin:react/recommended"
+  ],
+  "plugins": [
+    "import"
   ],
   "parser": "babel-eslint",
   "rules": {
-    "react/jsx-no-bind": 0,
+    "camelcase": "off",
+    "import/first": [ "error", "absolute-first" ],
     "no-return-assign": 0,
+    "quotes": ["error", "single"],
     "react/jsx-closing-bracket-location": 2,
+    "react/jsx-no-bind": 0,
+    "react/no-did-update-set-state": 0,
+    "react/no-unescaped-entities": "warn",
     "react/no-unused-prop-types": 1,
     "react/sort-comp": 1,
-    "quotes": ["error", "single"],
+    "semi": ["error", "never"],
     "space-before-function-paren": ["error", "always"],
-    "camelcase": "off",
-    "react/no-unescaped-entities": "warn",
-    "import/first": [ "error", "absolute-first" ],
-    "react/no-did-update-set-state": 0
+    "no-unused-vars": "off",/* Temporary. Needs to be cleaned up. */
+    "no-prototype-builtins": "off" /* Temporary. Needs to be cleaned up. */
   },
   "env": {
     "jquery": true,
-    "jest": true
+    "jest": true,
+    "browser": true,
+    "node": true,
+    "es6": true
   },
   "globals": {
-    "_":  true,
     "BACKEND_API_URL": true,
-    "BACKEND_WEBSOCKET_URL": true,
-    "CONFIG": true,
-    "WebSocket": true
+    "BACKEND_WEBSOCKET_URL": true
   }
 }

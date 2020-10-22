@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import history from '../routes/history'
 
 export default store => next => action => {

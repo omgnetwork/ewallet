@@ -50,7 +50,7 @@ const BlockchainWalletDetailPage = ({
         perPage: 10
       })
     }
-  }, [walletType])
+  }, [getAllBlockchainWallets, walletType])
 
   useEffect(() => {
     if (pollingState) {
@@ -77,7 +77,7 @@ const BlockchainWalletDetailPage = ({
       const balancePolling = setInterval(pollBalance, 2000)
       return () => clearInterval(balancePolling)
     }
-  }, [pollingState])
+  }, [address, getBlockchainWalletBalance, getTransactionById, pollingState, selectPlasmaDepositByAddress])
 
   const renderTopupButton = () => (
     <CreateBlockchainTransactionButton

@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
@@ -131,10 +132,10 @@ class ConsumeBox extends Component {
 
   state = { amount: '', searchTokenValue: '', selectedToken: {} }
 
-  onChangeWalletInput = e => {
+  onChangWalletInput = e => {
     this.setState({ consumeAddress: e.target.value })
   }
-  onChangeWalletExchange = e => {
+  onChangWalletExchange = e => {
     this.setState({ exchangeAddress: e.target.value })
   }
   onChangeAmount = e => {
@@ -167,7 +168,7 @@ class ConsumeBox extends Component {
   onSelectWalletAddressSelect = item => {
     this.setState({ consumeAddress: item.key })
   }
-  onSelectExchangeWalletAddressSelect = item => {
+  onSelectExchangWalletAddressSelect = item => {
     this.setState({ exchangeAddress: item.key })
   }
   onChangeSearchToken = e => {
@@ -313,7 +314,7 @@ class ConsumeBox extends Component {
                     normalPlaceholder='acc_0x000000000000000'
                     onSelectItem={this.onSelectWalletAddressSelect}
                     value={this.state.consumeAddress}
-                    onChange={this.onChangeWalletInput}
+                    onChange={this.onChangWalletInput}
                     options={data.map(d => {
                       return {
                         key: d.address,
@@ -377,9 +378,9 @@ class ConsumeBox extends Component {
                     <ExchangeSelect
                       disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
                       normalPlaceholder='acc_0x000000000000000'
-                      onSelectItem={this.onSelectExchangeWalletAddressSelect}
+                      onSelectItem={this.onSelectExchangWalletAddressSelect}
                       value={this.state.exchangeAddress}
-                      onChange={this.onChangeWalletExchange}
+                      onChange={this.onChangWalletExchange}
                       options={data.map(d => {
                         return {
                           key: d.address,

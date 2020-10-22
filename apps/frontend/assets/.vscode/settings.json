@@ -1,16 +1,12 @@
 {
-  "prettier.semi": false,
-  "javascript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "typescript.format.insertSpaceAfterConstructor": true,
-  "typescript.format.insertSpaceBeforeFunctionParenthesis": true,
-  "prettier.singleQuote": true,
-  "prettier.trailingComma": "none",
-  "prettier.printWidth": 80,
   "eslint.validate": [
     "javascript",
     "javascriptreact",
-    "typescript"
+    "typescript", 
+    "typescriptreact"
   ],
   "editor.tabSize": 2,
-  "prettier.eslintIntegration": true
+  "editor.codeActionsOnSave": { 
+    "source.fixAll.eslint": true
+   }
 }

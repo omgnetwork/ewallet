@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import ConfigRow from './ConfigRow'
 import AccountsFetcher from '../omg-account/accountsFetcher'
@@ -55,7 +56,7 @@ const Grid = styled.div`
 const GlobalSettings = (props) => {
   useEffect(() => {
     return props.handleCancelClick
-  }, [])
+  }, [props.handleCancelClick])
 
   const renderGlobalSetting = (configurations) => {
     return (
@@ -113,6 +114,7 @@ const GlobalSettings = (props) => {
                     </InputPrefixContainer>
                   ))}
                   <PrefixContainer active={!props.isAddPrefixButtonDisabled()}>
+                    {/* eslint-disable-next-line */}
                     <a onClick={props.onClickAddPrefix}>+ Add Prefix</a>
                   </PrefixContainer>
                 </InputsPrefixContainer>

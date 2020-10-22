@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import web3Utils from 'web3-utils'
+import _ from 'lodash'
 
 import { Button, Icon } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'

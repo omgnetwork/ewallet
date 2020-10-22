@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import TokenTransferStep from './tokenTransferStep'
 
@@ -383,7 +384,7 @@ class ImportToken extends Component {
       <StepStyle>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4 style={{ marginBottom: '20px' }}>Import Blockchain Token</h4>
-        <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
+        <MetaMaskImage src={require('../statics/images/metamask.svg')} />
         <DisclaimerStyle>
           {(window.ethereum || window.web3) && (
             <>

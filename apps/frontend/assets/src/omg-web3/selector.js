@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectMetamaskUsable = state =>
   !!state.metamask.unlocked && !!state.metamask.enabled
 export const selectMetamaskEnabled = state => !!state.metamask.enabled

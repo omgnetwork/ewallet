@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import createReducer from '../reducer/createReducer'
 
 export const exchangePairsReducer = createReducer(

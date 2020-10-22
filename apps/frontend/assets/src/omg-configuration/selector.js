@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectConfigurationById = state => configurationId => {
   return state.configurations[configurationId] || {}
 }

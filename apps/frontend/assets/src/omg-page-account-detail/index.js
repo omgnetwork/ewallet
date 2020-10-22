@@ -4,6 +4,7 @@ import { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
+import _ from 'lodash'
 
 import AccountProvider from '../omg-account/accountProvider'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'

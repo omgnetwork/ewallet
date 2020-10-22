@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { withRouter, Link } from 'react-router-dom'
 import styled from 'styled-components'
@@ -28,12 +28,8 @@ const StyledVerifyEmail = styled.div`
 const VerifyEmail = ({ location: { search }, verifyEmail }) => {
   const { email, token } = queryString.parse(search)
   const [ pageState, setPageState ] = useState('loading')
-
-  useEffect(() => {
-    doVerifyEmail()
-  }, [])
-
-  const doVerifyEmail = async () => {
+  
+  const doVerifyEmail = useCallback(async () => {
     const res = await verifyEmail({ email, token })
     if (res.error) {
       setPageState('error')
@@ -41,7 +37,11 @@ const VerifyEmail = ({ location: { search }, verifyEmail }) => {
     if (res.data) {
       setPageState('success')
     }
-  }
+  }, [email, token, verifyEmail ])
+
+  useEffect(() => {
+    doVerifyEmail()
+  }, [doVerifyEmail])
 
   const wording = {
     error: {

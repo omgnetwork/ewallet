@@ -1,8 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import _ from 'lodash'
+
 import { Input, Button, Icon, AddButton } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
+
 const CreateAddTitle = styled.div`
   margin-top: 35px;
   text-align: left;

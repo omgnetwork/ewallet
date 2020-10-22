@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import clickOutside from '../enhancer/clickOutside'
 import { Icon, Input } from '../omg-uikit'

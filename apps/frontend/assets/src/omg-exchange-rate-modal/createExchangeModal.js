@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import numeral from 'numeral'
 import { BigNumber } from 'bignumber.js'
+import _ from 'lodash'
 
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import { createExchangePair, updateExchangePair } from '../omg-exchange-pair/action'
@@ -224,7 +225,7 @@ class CreateExchangeRateModal extends Component {
         ? await this.props.updateExchangePair({
           ...baseKeys,
           id: this.state.exchangeId,
-          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          defaultExchangWalletAddress: this.state.defaultExchangeAddress,
           allowEndUserExchanges: this.state.allowEndUserExchange
         })
         : await this.props.createExchangePair({
@@ -232,7 +233,7 @@ class CreateExchangeRateModal extends Component {
           name: this.state.name,
           fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
           toTokenId: _.get(this.state, 'toTokenSelected.id'),
-          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
+          defaultExchangWalletAddress: this.state.defaultExchangeAddress,
           allowEndUserExchanges: this.state.allowEndUserExchange
         })
       if (result.data) {

@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
-import Modal from '../omg-modal'
+import Modal from '.'
 import { Icon } from '../omg-uikit'
 
 const FullPageModalContainer = styled.div`

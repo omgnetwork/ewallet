@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { FILTER_MAP } from '../FilterMap'
 
 const filterAdapter = (values) => {

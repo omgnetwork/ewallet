@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import { Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'

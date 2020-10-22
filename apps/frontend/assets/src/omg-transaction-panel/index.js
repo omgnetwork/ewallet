@@ -5,6 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import moment from 'moment'
+import _ from 'lodash'
 
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'
@@ -157,7 +158,7 @@ class TransactionRequestPanel extends Component {
     )
   }
   renderExchangeInfo = ({ exchange }) => {
-    const exchangeWalletAddress = _.get(exchange, 'exchange_wallet_address')
+    const exchangWalletAddress = _.get(exchange, 'exchange_wallet_address')
     return (
       <TransactionInfoContainer>
         <h5>{'Exchange'}</h5>
@@ -169,11 +170,11 @@ class TransactionRequestPanel extends Component {
           <b>Exchange wallet address : </b>
           <Link
             to={{
-              pathname: `/wallets/${exchangeWalletAddress}`,
+              pathname: `/wallets/${exchangWalletAddress}`,
               search: this.props.location.search
             }}
           >
-            {exchangeWalletAddress}
+            {exchangWalletAddress}
           </Link>
         </InformationItem>
       </TransactionInfoContainer>

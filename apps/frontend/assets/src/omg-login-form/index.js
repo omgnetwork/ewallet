@@ -4,6 +4,7 @@ import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import { Input, Button } from '../omg-uikit'
 import { login } from '../omg-session/action'
