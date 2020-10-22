@@ -168,7 +168,7 @@ class ConsumeBox extends Component {
   onSelectWalletAddressSelect = item => {
     this.setState({ consumeAddress: item.key })
   }
-  onSelectExchangWalletAddressSelect = item => {
+  onSelectExchangeWalletAddressSelect = item => {
     this.setState({ exchangeAddress: item.key })
   }
   onChangeSearchToken = e => {
@@ -378,7 +378,7 @@ class ConsumeBox extends Component {
                     <ExchangeSelect
                       disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
                       normalPlaceholder='acc_0x000000000000000'
-                      onSelectItem={this.onSelectExchangWalletAddressSelect}
+                      onSelectItem={this.onSelectExchangeWalletAddressSelect}
                       value={this.state.exchangeAddress}
                       onChange={this.onChangWalletExchange}
                       options={data.map(d => {

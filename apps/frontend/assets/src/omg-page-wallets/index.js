@@ -10,7 +10,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import CreatWalletModal from '../omg-create-wallet-modal'
+import CreateWalletModal from '../omg-create-wallet-modal'
 import CreateTransactionButton from '../omg-transaction/CreateTransactionButton'
 import { walletColumsKeys } from './constants'
 import AdvancedFilter from '../omg-advanced-filter'
@@ -98,7 +98,7 @@ class WalletPage extends Component {
   onClickTransfer = () => {
     this.setState({ transferModalOpen: true })
   }
-  onClickCreatWallet = () => {
+  onClickCreateWallet = () => {
     this.setState({ createWalletModalOpen: true })
   }
   onRequestCloseTransferModal = () => {
@@ -107,13 +107,13 @@ class WalletPage extends Component {
       createWalletModalOpen: false
     })
   }
-  renderCreatWalletButton = () => {
+  renderCreateWalletButton = () => {
     return (
       <Button
         key='create-wallet'
         styleType='secondary'
         size='small'
-        onClick={this.onClickCreatWallet}
+        onClick={this.onClickCreateWallet}
       >
         <Icon name='Plus' />
         <span>Create Wallet</span>
@@ -144,7 +144,7 @@ class WalletPage extends Component {
             this.props.transferButton && (
               <CreateTransactionButton key='transfer' />
             ),
-            isAccountWalletsPage && accountId && this.renderCreatWalletButton()
+            isAccountWalletsPage && accountId && this.renderCreateWalletButton()
           ]}
         />
 
@@ -168,11 +168,11 @@ class WalletPage extends Component {
             navigation
           />
         </SortableTableContainer>
-        <CreatWalletModal
+        <CreateWalletModal
           isOpen={this.state.createWalletModalOpen}
           onRequestClose={this.onRequestCloseTransferModal}
           accountId={accountId}
-          onCreatWallet={fetch}
+          onCreateWallet={fetch}
         />
       </WalletPageContainer>
     )

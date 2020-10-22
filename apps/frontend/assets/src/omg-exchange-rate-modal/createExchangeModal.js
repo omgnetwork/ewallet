@@ -225,7 +225,7 @@ class CreateExchangeRateModal extends Component {
         ? await this.props.updateExchangePair({
           ...baseKeys,
           id: this.state.exchangeId,
-          defaultExchangWalletAddress: this.state.defaultExchangeAddress,
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
           allowEndUserExchanges: this.state.allowEndUserExchange
         })
         : await this.props.createExchangePair({
@@ -233,7 +233,7 @@ class CreateExchangeRateModal extends Component {
           name: this.state.name,
           fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
           toTokenId: _.get(this.state, 'toTokenSelected.id'),
-          defaultExchangWalletAddress: this.state.defaultExchangeAddress,
+          defaultExchangeWalletAddress: this.state.defaultExchangeAddress,
           allowEndUserExchanges: this.state.allowEndUserExchange
         })
       if (result.data) {

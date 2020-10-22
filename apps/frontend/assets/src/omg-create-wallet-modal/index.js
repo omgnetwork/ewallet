@@ -7,7 +7,7 @@ import Modal from '../omg-modal'
 import { Button, Select, Input } from '../omg-uikit'
 import { createWallet } from '../omg-wallet/action'
 
-const CreatWalletModalStyle = styled.div`
+const CreateWalletModalStyle = styled.div`
   padding: 50px;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@ const CreatWalletModalStyle = styled.div`
   }
 `
 
-const CreatWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onCreatWallet }) => {
+const CreateWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onCreateWallet }) => {
   const [ name, setName ] = useState('')
   const [ identifier, setIdentifier ] = useState({
     key: 'secondary',
@@ -45,7 +45,7 @@ const CreatWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onC
       identifier: identifier.value,
       accountId
     })
-    onCreatWallet()
+    onCreateWallet()
     setLoading(false)
     handleClose()
   }
@@ -62,7 +62,7 @@ const CreatWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onC
       onRequestClose={handleClose}
       contentLabel='create-wallet-modal'
     >
-      <CreatWalletModalStyle>
+      <CreateWalletModalStyle>
         <h4>Create Account Wallet</h4>
         <Input
           className='field'
@@ -102,20 +102,20 @@ const CreatWalletModal = ({ createWallet, accountId, isOpen, onRequestClose, onC
             <span>Cancel</span>
           </Button>
         </div>
-      </CreatWalletModalStyle>
+      </CreateWalletModalStyle>
     </Modal>
   )
 }
 
-CreatWalletModal.propTypes = {
+CreateWalletModal.propTypes = {
   isOpen: PropTypes.bool,
   accountId: PropTypes.string,
   onRequestClose: PropTypes.func,
-  onCreatWallet: PropTypes.func,
+  onCreateWallet: PropTypes.func,
   createWallet: PropTypes.func
 }
 
 export default connect(
   null,
   { createWallet }
-)(CreatWalletModal)
+)(CreateWalletModal)

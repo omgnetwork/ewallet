@@ -212,7 +212,7 @@ class CreateTransactionRequest extends Component {
   onSelectWallet = wallet => {
     this.setState({ address: wallet.address, selectedWallet: wallet })
   }
-  onSelectExchangWallet = exchangWallet => {
+  onSelectExchangeWallet = exchangWallet => {
     this.setState({ exchangeAddress: exchangWallet.address })
   }
   onDateTimeChange = date => {
@@ -439,7 +439,7 @@ class CreateTransactionRequest extends Component {
                 <StyledSelect
                   normalPlaceholder='0x00000000'
                   value={this.state.exchangeAddress}
-                  onSelectItem={this.onSelectExchangWallet}
+                  onSelectItem={this.onSelectExchangeWallet}
                   onChange={this.onChange('exchangeAddress')}
                   options={data
                     .filter(w => w.identifier !== 'burn')

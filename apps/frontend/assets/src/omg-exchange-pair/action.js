@@ -1,13 +1,13 @@
 import * as exchangePairService from '../services/exchangePairService'
 
-export const updateExchangePair = ({ id, rate, syncOpposite, defaultExchangWalletAddress,
+export const updateExchangePair = ({ id, rate, syncOpposite, defaultExchangeWalletAddress,
   allowEndUserExchanges }) => async dispatch => {
   try {
     const result = await exchangePairService.updateExchangePair({
       id,
       rate,
       syncOpposite,
-      defaultExchangWalletAddress,
+      defaultExchangeWalletAddress,
       allowEndUserExchanges
     })
     if (result.data.success) {
@@ -39,7 +39,7 @@ export const createExchangePair = ({
   fromTokenId,
   rate,
   syncOpposite,
-  defaultExchangWalletAddress,
+  defaultExchangeWalletAddress,
   allowEndUserExchanges
 }) => async dispatch => {
   try {
@@ -49,7 +49,7 @@ export const createExchangePair = ({
       fromTokenId,
       rate,
       syncOpposite,
-      defaultExchangWalletAddress,
+      defaultExchangeWalletAddress,
       allowEndUserExchanges
     })
     if (result.data.success) {

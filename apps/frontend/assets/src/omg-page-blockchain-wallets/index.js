@@ -29,15 +29,15 @@ const WalletAddressContainer = styled.div`
 
 const BlockchainWalletsPage = ({ match, history }) => {
   const dispatch = useDispatch()
-  const onClickCreatWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
+  const onClickCreateWallet = () => openModal({ id: 'blockchainWalletModal' })(dispatch)
 
-  const renderCreatWalletButton = () => {
+  const renderCreateWalletButton = () => {
     return (
       <Button
         key='create-wallet-button'
         size='small'
         styleType='secondary'
-        onClick={onClickCreatWallet}
+        onClick={onClickCreateWallet}
       >
         <Icon name='Plus' />
         <span>Create Wallet</span>
@@ -81,7 +81,7 @@ const BlockchainWalletsPage = ({ match, history }) => {
         title='Blockchain Wallets'
         description='These are your blockchain wallets. Click one to view its details.'
         searchBar={false}
-        buttons={[renderCreatWalletButton()]}
+        buttons={[renderCreateWalletButton()]}
       />
       <AllBlockchainWalletsFetcher
         query={{ perPage: Math.floor(window.innerHeight / 65) }}
