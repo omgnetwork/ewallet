@@ -209,7 +209,7 @@ defmodule EWalletDB.Wallet do
   def insert(attrs) do
     %Wallet{}
     |> changeset(attrs)
-    |> Repo.insert_record_with_activity_log()
+    |> insert_with_activity_log()
   end
 
   @spec insert_secondary_or_burn(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
@@ -224,12 +224,12 @@ defmodule EWalletDB.Wallet do
   def insert_secondary_or_burn(attrs), do: insert_secondary_or_burn(attrs, nil)
 
   def insert_secondary_or_burn(attrs, "burn") do
-    %Wallet{} |> burn_changeset(attrs) |> Repo.insert_record_with_activity_log()
+    %Wallet{} |> burn_changeset(attrs) |> insert_with_activity_log()
   end
 
   # "secondary" and anything else will go in there.
   def insert_secondary_or_burn(attrs, _) do
-    %Wallet{} |> secondary_changeset(attrs) |> Repo.insert_record_with_activity_log()
+    %Wallet{} |> secondary_changeset(attrs) |> insert_with_activity_log()
   end
 
   defp build_identifier("genesis"), do: @genesis
@@ -267,13 +267,22 @@ defmodule EWalletDB.Wallet do
       identifier: @genesis,
       originator: %System{}
     })
-    |> Repo.insert_record_with_activity_log(opts)
+    |> insert_with_activity_log(opts)
     |> case do
       {:ok, _wallet} ->
         {:ok, get(@genesis_address)}
 
       {:error, changeset} ->
         {:error, changeset}
+    end
+  end
+
+  defp insert_with_activity_log(changeset, opts \\ []) do
+    case Application.get_env(:ewallet_db, :internal_enabled) do
+      false ->
+        {:error, :internal_wallets_disabled}
+      _ ->
+        Repo.insert_record_with_activity_log(changeset, opts)
     end
   end
 

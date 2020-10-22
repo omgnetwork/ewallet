@@ -60,6 +60,7 @@ defmodule EWallet.Application do
     _ = Config.register_and_load(:ewallet, settings)
 
     EWallet.TransactionTracker.start_all_pending()
+    EWallet.DeployedTokenTracker.start_all_pending()
 
     start_result
   end

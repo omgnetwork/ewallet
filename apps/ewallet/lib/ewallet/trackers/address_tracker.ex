@@ -86,7 +86,7 @@ defmodule EWallet.AddressTracker do
     # Notice we're not using Application.get_env/3 here for defaults? It's because we populate
     # this config from the database, which may return nil. This function then treats the nil
     # as an existing value, and so get_env/3 would never pick up the local defaults here.
-    case Application.get_env(:ewallet, :blockchain_enabled) || false do
+    case Application.get_env(:ewallet, :blockchain_enabled, true) do
       true ->
         blockchain_identifier = Keyword.fetch!(opts, :blockchain_identifier)
 
@@ -115,6 +115,7 @@ defmodule EWallet.AddressTracker do
         {:ok, state, {:continue, :start_polling}}
 
       false ->
+
         _ = Logger.info("AddressTracker did not start. Blockchain is not enabled.")
         :ignore
     end

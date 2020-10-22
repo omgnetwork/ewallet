@@ -16,6 +16,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
   alias EWallet.BlockchainHelper
+  alias EWalletConfig.Config
   alias EWalletDB.{BlockchainTransaction, Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
@@ -463,6 +464,37 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
       assert response["data"]["description"] ==
                "Invalid parameter provided. `symbol` can't be blank."
+
+      inserted = Token |> Repo.all() |> Enum.at(0)
+      assert inserted == nil
+    end
+
+    test_with_auths "returns an error when internal tokens are disabled", context do
+      {:ok, _} =
+        Config.update(
+          %{
+            internal_enabled: false,
+            originator: %System{}
+          },
+          context[:config_pid]
+        )
+
+      response =
+        request("/token.create", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          description: "desc",
+          subunit_to_unit: 100,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "token:internal_tokens_disabled"
+
+      assert response["data"]["description"] ==
+               "Internal tokens cannot be created."
 
       inserted = Token |> Repo.all() |> Enum.at(0)
       assert inserted == nil

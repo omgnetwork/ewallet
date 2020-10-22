@@ -26,10 +26,20 @@ defmodule EWallet.TransactionDispatcherGate do
   def create(actor, %{"from_address" => from, "to_address" => to} = attrs) do
     case blockchain_addresses?([from, to]) do
       [false, false] ->
-        LocalTransactionGate.create(actor, attrs)
+        create_local_tx(actor, attrs)
 
       [from, to] ->
         create_blockchain_tx(actor, attrs, {from, to})
+    end
+  end
+
+  defp create_local_tx(actor, attrs) do
+    # Disable this if setting internal_enabled
+    case Application.get_env(:ewallet, :internal_enabled) do
+      true ->
+        LocalTransactionGate.create(actor, attrs)
+      false ->
+        {:error, :internal_transactions_disabled}
     end
   end
 

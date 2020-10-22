@@ -128,6 +128,18 @@ defmodule AdminAPI.V1.ErrorHandler do
     token_already_blockchain_enabled: %{
       code: "token:already_blockchain_enabled",
       description: "This token already has a blockchain address."
+    },
+    internal_tokens_disabled: %{
+      code: "token:internal_tokens_disabled",
+      description: "Internal tokens cannot be created."
+    },
+    internal_transactions_disabled: %{
+      code: "transaction:internal_transactions_disabled",
+      description: "Internal transactions cannot be created."
+    },
+    internal_wallets_disabled: %{
+      code: "wallet:internal_wallets_disabled",
+      description: "Internal wallets cannot be created."
     }
   }
 

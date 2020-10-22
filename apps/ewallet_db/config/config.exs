@@ -23,7 +23,8 @@ config :ewallet_db,
     :master_account,
     :pre_auth_token_lifetime,
     :auth_token_lifetime,
-    :forget_password_request_lifetime
+    :forget_password_request_lifetime,
+    :internal_enabled
   ]
 
 config :ewallet_db, EWalletDB.Repo,

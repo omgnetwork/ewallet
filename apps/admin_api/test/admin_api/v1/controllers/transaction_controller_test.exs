@@ -15,6 +15,7 @@
 defmodule AdminAPI.V1.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.LocalTransactionGate
+  alias EWalletConfig.Config
   alias EWalletDB.{Account, Repo, Token, Transaction, User}
   alias ActivityLogger.System
   alias Utils.Helpers.DateFormatter
@@ -691,6 +692,33 @@ defmodule AdminAPI.V1.TransactionControllerTest do
                "messages" => %{"from" => ["burn_wallet_as_sender_not_allowed"]},
                "object" => "error"
              }
+    end
+
+    test_with_auths "returns an error when internal_enabled is false", context do
+      {:ok, _} =
+        Config.update(
+          %{
+            internal_enabled: false,
+            originator: %System{}
+          },
+          context[:config_pid]
+        )
+
+      response =
+        request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => "abc",
+          "to_address" => "def",
+          "token_id" => 123,
+          "amount" => 1_000_000
+        })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "transaction:internal_transactions_disabled"
+
+      assert response["data"]["description"] ==
+               "Internal transactions cannot be created."
     end
 
     test_with_auths "returns transaction:insufficient_funds when the sending address does not have enough funds" do

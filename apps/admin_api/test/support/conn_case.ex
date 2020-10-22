@@ -218,7 +218,12 @@ defmodule AdminAPI.ConnCase do
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
         "blockchain_enabled" => true,
-        "blockchain_chain_id" => 0
+        "blockchain_chain_id" => 0,
+        "blockchain_confirmations_threshold" => 4,
+        "blockchain_state_save_interval" => 5,
+        "blockchain_sync_interval" => 50,
+        "blockchain_poll_interval" => 0,
+        "blockchain_deposit_pooling_interval" => 0
       }
     )
 

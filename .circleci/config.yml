@@ -11,6 +11,8 @@ executors:
     docker:
       - image: omisegoimages/ewallet-builder:v1.2
       - image: postgres:9.6-alpine
+        environment:
+          POSTGRES_PASSWORD: passw0rd
     working_directory: ~/src
 
   deploy:

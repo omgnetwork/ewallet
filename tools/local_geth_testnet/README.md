@@ -1,6 +1,7 @@
 # Local testnet geth setup for the eWallet
 
 This document will go throught a list of commands to run in order to have a working local geth testnet setup.
+Note that you docker compose file already has geth, this guide is only when you want to run it locally without docker.
 
 At the end you will have the following:
 - A primary address with some ETH and OMG
@@ -63,14 +64,6 @@ Set this address as the default address for geth:
 
 > `eth.defaultAccount = eth.accounts[0]`
 
-Start the miner for a few seconds to get some ether:
-
-> `miner.start(1)`
-
-Then stop it after a few seconds:
-
-> `miner.stop()`
-
 ### Deploy a copy of the OMG ERC20 contract
 
 Next we will deploy a copy the omg contract to our local testnet.
@@ -99,10 +92,6 @@ var omgtoken = omgtokenContract.new(
  })
  ```
 
-Start the miner to commit the transaction:
-
-> `miner.start(1)`
-
 Wait until you see that the contract is deploy, it will show in the console as something like:
 
 ```
@@ -113,21 +102,9 @@ Address:
 ==========================================
 ```
 
-Note the contract address for later and stop the miner:
-
-> `miner.stop()`
-
 Then mint 100 OMG to the main account:
 
 > `omgtoken.mint(eth.accounts[0], web3.toWei(100, "ether"))`
-
-Start the miner again to commit the transaction:
-
-> `miner.start(1)`
-
-Wait until the transaction gets mined then stop the miner.
-
-> `miner.stop()`
 
 You can check your OMG balance with:
 

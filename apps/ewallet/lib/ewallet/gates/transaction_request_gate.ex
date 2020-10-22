@@ -171,6 +171,7 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with true <- wallet.enabled || {:error, :wallet_is_disabled},
+         true <- Application.get_env(:ewallet, :internal_enabled) || {:error, :internal_transactions_disabled},
          tmp_request <- %TransactionRequest{
            user_uuid: wallet.user_uuid,
            account_uuid: wallet.account_uuid,

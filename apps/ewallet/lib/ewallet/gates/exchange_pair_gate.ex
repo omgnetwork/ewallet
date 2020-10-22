@@ -36,7 +36,8 @@ defmodule EWallet.ExchangePairGate do
 
   def insert(attrs) do
     Repo.transaction(fn ->
-      with {:ok, direct} <- insert(:direct, attrs),
+      with true <- Application.get_env(:ewallet, :internal_enabled) || {:error, :internal_exchange_pairs_disabled},
+           {:ok, direct} <- insert(:direct, attrs),
            {:ok, opposite} <- insert(:opposite, attrs),
            pairs <- [direct, opposite],
            pairs <- Enum.reject(pairs, &is_nil/1) do
