@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Verity.DeployedTokenTrackerTest do
-  use Verity.DBCase, async: false
-  import VerityDB.Factory
+defmodule EWallet.DeployedTokenTrackerTest do
+  use EWallet.DBCase, async: false
+  import EWalletDB.Factory
 
-  alias Verity.{BlockchainHelper, DeployedTokenTracker}
+  alias EWallet.{BlockchainHelper, DeployedTokenTracker}
 
-  alias VerityDB.{
+  alias EWalletDB.{
     Token,
     BlockchainState,
     BlockchainTransactionState

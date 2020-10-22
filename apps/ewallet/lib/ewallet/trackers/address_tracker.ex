@@ -115,7 +115,6 @@ defmodule EWallet.AddressTracker do
         {:ok, state, {:continue, :start_polling}}
 
       false ->
-
         _ = Logger.info("AddressTracker did not start. Blockchain is not enabled.")
         :ignore
     end

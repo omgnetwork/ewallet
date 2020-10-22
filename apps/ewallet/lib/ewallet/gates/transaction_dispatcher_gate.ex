@@ -38,6 +38,7 @@ defmodule EWallet.TransactionDispatcherGate do
     case Application.get_env(:ewallet, :internal_enabled) do
       true ->
         LocalTransactionGate.create(actor, attrs)
+
       false ->
         {:error, :internal_transactions_disabled}
     end

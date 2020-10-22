@@ -124,7 +124,8 @@ config :ewallet_config,
 
     "blockchain_enabled" => %{
       key: "blockchain_enabled",
-      value: true, # Enabling it by default for middleware
+      # Enabling it by default for middleware
+      value: true,
       type: "boolean",
       position: 200,
       description: "Enable blockchain integration."

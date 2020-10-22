@@ -281,6 +281,7 @@ defmodule EWalletDB.Wallet do
     case Application.get_env(:ewallet_db, :internal_enabled) do
       false ->
         {:error, :internal_wallets_disabled}
+
       _ ->
         Repo.insert_record_with_activity_log(changeset, opts)
     end

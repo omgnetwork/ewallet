@@ -277,6 +277,7 @@ defmodule EWalletDB.Token do
           get_field(changeset, :blockchain_address)} do
       {false, nil} ->
         {:error, :internal_tokens_disabled}
+
       {_, _} ->
         do_insert_with_changeset(changeset)
     end

@@ -151,8 +151,10 @@ defmodule EWalletDB.Account do
     case Application.get_env(:ewallet_db, :internal_enabled) do
       false ->
         insert_without_internal_wallets(attrs)
+
       _ ->
-        insert_with_internal_wallets(attrs) # default
+        # default
+        insert_with_internal_wallets(attrs)
     end
   end
 

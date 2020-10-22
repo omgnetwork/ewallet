@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-defmodule Verity.DeployedTokenTracker do
+defmodule EWallet.DeployedTokenTracker do
   @moduledoc """
-  This module is used to start and receive callbacks for blockchain transactions corresponding to tokens deployed by Verity.
+  This module is used to start and receive callbacks for blockchain transactions corresponding to tokens deployed by EWallet.
   """
-  @behaviour Verity.BlockchainTransactionTrackerBehaviour
+  @behaviour EWallet.BlockchainTransactionTrackerBehaviour
 
-  alias Verity.{
+  alias EWallet.{
     BlockchainHelper,
     BlockchainTransactionTracker,
     TokenGate
   }
 
-  alias VerityDB.Token
+  alias EWalletDB.Token
 
   def start_all_pending do
     identifier = BlockchainHelper.rootchain_identifier()
@@ -35,7 +35,7 @@ defmodule Verity.DeployedTokenTracker do
     BlockchainTransactionTracker.start(blockchain_transaction, __MODULE__)
   end
 
-  @impl Verity.BlockchainTransactionTrackerBehaviour
+  @impl EWallet.BlockchainTransactionTrackerBehaviour
   def on_confirmed(blockchain_transaction) do
     [blockchain_transaction_uuid: blockchain_transaction.uuid]
     |> Token.get_by(preload: :blockchain_transaction)
