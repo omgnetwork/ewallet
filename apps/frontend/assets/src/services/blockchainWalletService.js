@@ -20,7 +20,7 @@ export function getBlockchainWalletPlasmaBalance ({ address, perPage, page, sort
   return authenticatedRequest({
     path: '/blockchain_wallet.get_balances',
     data: {
-      blockchain_identifier: 'omisego_network',
+      blockchain_identifier: 'omg_network',
       address,
       page,
       per_page: perPage,
