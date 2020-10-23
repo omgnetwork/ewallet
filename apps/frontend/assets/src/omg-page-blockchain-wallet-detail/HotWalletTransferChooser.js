@@ -70,7 +70,7 @@ class HotWalletTransferChooser extends Component {
           })}
         >
           <Icon name='Download' />
-          <span>OMG Network Network Deposit</span>
+          <span>OMG Network Deposit</span>
         </DropdownItem>
       </DropdownBox>
     )
