@@ -102,6 +102,8 @@ defmodule EthBlockchain.EthBlockchainCase do
   def recover_public_key(trx) do
     chain_id = Application.get_env(:eth_blockchain, :blockchain_chain_id)
 
+    IO.inspect(chain_id)
+
     {:ok, pub_key} =
       trx
       |> Transaction.transaction_hash(chain_id)
