@@ -2,12 +2,16 @@
 
 echo "Running postbuild steps ..."
 
-rm -rf ../priv/static
+cd ..
 
-mkdir ../priv/static
+rm -rf priv/static
 
-cp -r build/* ../priv/static
+mkdir -p priv/static
 
-rm -rf build
+cp -r assets/build/* priv/static
+
+rm -rf assets/build
+
+cd assets
 
 echo "Postbuild steps complete."
