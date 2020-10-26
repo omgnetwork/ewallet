@@ -132,10 +132,10 @@ class ConsumeBox extends Component {
 
   state = { amount: '', searchTokenValue: '', selectedToken: {} }
 
-  onChangWalletInput = e => {
+  onChangeWalletInput = e => {
     this.setState({ consumeAddress: e.target.value })
   }
-  onChangWalletExchange = e => {
+  onChangeWalletExchange = e => {
     this.setState({ exchangeAddress: e.target.value })
   }
   onChangeAmount = e => {
@@ -314,7 +314,7 @@ class ConsumeBox extends Component {
                     normalPlaceholder='acc_0x000000000000000'
                     onSelectItem={this.onSelectWalletAddressSelect}
                     value={this.state.consumeAddress}
-                    onChange={this.onChangWalletInput}
+                    onChange={this.onChangeWalletInput}
                     options={data.map(d => {
                       return {
                         key: d.address,
@@ -380,7 +380,7 @@ class ConsumeBox extends Component {
                       normalPlaceholder='acc_0x000000000000000'
                       onSelectItem={this.onSelectExchangeWalletAddressSelect}
                       value={this.state.exchangeAddress}
-                      onChange={this.onChangWalletExchange}
+                      onChange={this.onChangeWalletExchange}
                       options={data.map(d => {
                         return {
                           key: d.address,
