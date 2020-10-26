@@ -67,17 +67,22 @@ defmodule EWallet.Web.BalanceLoaderTest do
 
       assert pagination == paged_wallets.pagination
 
-      assert wallet.balances == [
+      mapped_balances =
+        Enum.map(wallet.balances, fn balance ->
+          %{token: balance.token.uuid, amount: balance.amount}
+        end)
+
+      assert mapped_balances == [
                %{
-                 token: omg,
+                 token: omg.uuid,
                  amount: 100 * omg.subunit_to_unit
                },
                %{
-                 token: btc,
+                 token: btc.uuid,
                  amount: 200 * btc.subunit_to_unit
                },
                %{
-                 token: eth,
+                 token: eth.uuid,
                  amount: 300 * eth.subunit_to_unit
                }
              ]
