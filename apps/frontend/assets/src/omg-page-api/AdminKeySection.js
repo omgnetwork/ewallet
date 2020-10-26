@@ -296,7 +296,7 @@ class ApiKeyPage extends Component {
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map((item, index) => {
             let role
-            if (item.hasOwnProperty('key')) {
+            if (_.has(item, 'key')) {
               role = item.role
               item = item.key
             }

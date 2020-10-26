@@ -25,8 +25,7 @@
     "react/sort-comp": 1,
     "semi": ["error", "never"],
     "space-before-function-paren": ["error", "always"],
-    "no-unused-vars": "off",/* Temporary. Needs to be cleaned up. */
-    "no-prototype-builtins": "off" /* Temporary. Needs to be cleaned up. */
+    "no-unused-vars": "off"/* Temporary. Needs to be cleaned up. */
   },
   "env": {
     "jquery": true,
