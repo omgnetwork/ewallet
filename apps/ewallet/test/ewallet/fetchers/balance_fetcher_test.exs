@@ -62,17 +62,22 @@ defmodule EWallet.BalanceFetcherTest do
       assert status == :ok
       assert wallet.address == context.user_wallet.address
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.btc,
-               amount: 990_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               990_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.omg,
-               amount: 57_000 * context.btc.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               57_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
+      assert Enum.member?(mapped_balances, {context.knc.uuid, 0})
       assert Enum.count(wallet.balances) == 3
     end
 
@@ -97,17 +102,22 @@ defmodule EWallet.BalanceFetcherTest do
       assert status == :ok
       assert wallet.address == context.user_wallet.address
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.btc,
-               amount: 150_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               150_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.omg,
-               amount: 12_000 * context.btc.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               12_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
+      assert Enum.member?(mapped_balances, {context.knc.uuid, 0})
       assert Enum.count(wallet.balances) == 3
     end
 
@@ -141,34 +151,44 @@ defmodule EWallet.BalanceFetcherTest do
 
       assert wallet_1.address == context.user_wallet.address
 
-      assert Enum.member?(wallet_1.balances, %{
-               token: context.btc,
-               amount: 150_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet_1.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               150_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet_1.balances, %{
-               token: context.omg,
-               amount: 12_000 * context.omg.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               12_000 * context.omg.subunit_to_unit
              })
 
-      assert Enum.member?(wallet_1.balances, %{token: context.knc, amount: 0})
+      assert Enum.member?(mapped_balances, {context.knc.uuid, 0})
       assert Enum.count(wallet_1.balances) == 3
 
       assert wallet_2.address == context.master_wallet.address
 
-      assert Enum.member?(wallet_2.balances, %{
-               token: context.btc,
-               amount: 850_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet_2.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               850_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet_2.balances, %{
-               token: context.omg,
-               amount: 988_000 * context.omg.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               988_000 * context.omg.subunit_to_unit
              })
 
-      assert Enum.member?(wallet_2.balances, %{
-               token: context.knc,
-               amount: 1_000_000 * context.knc.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.knc.uuid,
+               1_000_000 * context.knc.subunit_to_unit
              })
 
       assert Enum.count(wallet_2.balances) == 3
@@ -194,17 +214,22 @@ defmodule EWallet.BalanceFetcherTest do
       assert status == :ok
       assert wallet.address == context.user_wallet.address
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.btc,
-               amount: 150_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               150_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.omg,
-               amount: 12_000 * context.btc.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               12_000 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(wallet.balances, %{token: context.knc, amount: 0})
+      assert Enum.member?(mapped_balances, {context.knc.uuid, 0})
       assert Enum.count(wallet.balances) == 3
     end
 
@@ -231,14 +256,19 @@ defmodule EWallet.BalanceFetcherTest do
 
       assert status == :ok
 
-      assert Enum.member?(balances, %{
-               token: context.btc,
-               amount: 100 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.btc.uuid,
+               100 * context.btc.subunit_to_unit
              })
 
-      assert Enum.member?(balances, %{
-               token: context.omg,
-               amount: 200 * context.btc.subunit_to_unit
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               200 * context.btc.subunit_to_unit
              })
 
       assert Enum.count(balances) == 2
@@ -266,9 +296,14 @@ defmodule EWallet.BalanceFetcherTest do
       assert status == :ok
       assert wallet.address == context.user_wallet.address
 
-      assert Enum.member?(wallet.balances, %{
-               token: context.omg,
-               amount: 12_000 * context.btc.subunit_to_unit
+      mapped_balances =
+        Enum.map(wallet.balances, fn balance ->
+          {balance.token.uuid, balance.amount}
+        end)
+
+      assert Enum.member?(mapped_balances, {
+               context.omg.uuid,
+               12_000 * context.btc.subunit_to_unit
              })
 
       assert Enum.count(wallet.balances) == 1
