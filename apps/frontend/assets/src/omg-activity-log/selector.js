@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectActivites = state => {
   return _.values(state.activities) || []
 }

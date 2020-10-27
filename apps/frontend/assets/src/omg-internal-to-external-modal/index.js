@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import web3Utils from 'web3-utils'
+import _ from 'lodash'
 
 import { Button, Icon, SelectInput } from '../omg-uikit'
 import Modal from '../omg-modal'

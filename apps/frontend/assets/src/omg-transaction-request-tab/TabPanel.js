@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 const TabHeadersContainer = styled.div`
   display: flex;

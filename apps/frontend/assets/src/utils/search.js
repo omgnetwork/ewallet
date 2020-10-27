@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export function fuzzySearch (search, match) {
   const searchText = search || ''
   const matchText = match || ''

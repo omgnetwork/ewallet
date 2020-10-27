@@ -1,3 +1,4 @@
+import _ from 'lodash'
 export const loadingStatusReducer = (state = {}, action) => {
   const { type } = action
   const matches = /(.*)\/(REQUEST)\/(DEFAULT|INITIATED|SUCCESS|FAILED)/.exec(type)

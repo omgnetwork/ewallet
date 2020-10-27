@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { FILTER_MAP } from '../FilterMap'
 
 const filterAdapter = (values) => {
@@ -9,7 +10,7 @@ const filterAdapter = (values) => {
 
     if (matchAll) {
       matchAll.forEach(filter => {
-        if (filter.hasOwnProperty('value')) {
+        if (_.has(filter, 'value')) {
           try {
             const cleaned = JSON.parse(JSON.stringify(value))
             const compiledValue = _.template(filter.value)(cleaned)
@@ -29,7 +30,7 @@ const filterAdapter = (values) => {
       if (Array.isArray(value)) {
         value.forEach(i => {
           matchAny.forEach(filter => {
-            i.hasOwnProperty('value')
+            _.has(i,'value')
               ? _matchAny.push({ ...filter, value: i.value })
               : _matchAny.push({ ...filter, value: i })
           })

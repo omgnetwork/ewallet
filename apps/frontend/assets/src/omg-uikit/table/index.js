@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { keyframes } from 'styled-components'
-import { LoadingSkeleton } from '../../omg-uikit'
+import { LoadingSkeleton } from '..'
 import Pagination from './Pagination'
 import Fade from '../../omg-transition/Fade'
 const StyledPagination = styled(Pagination)`
@@ -177,7 +177,7 @@ class Table extends Component {
         </Fade>
         {!dataRows.length && (
           <EmptyStageContainer>
-            <img src={require('../../../statics/images/empty_state.png')} />
+            <img alt="" src={require('../../statics/images/empty_state.png')} />
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
         )}

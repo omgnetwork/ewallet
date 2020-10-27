@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import { Button } from '../omg-uikit'
 import {
@@ -91,7 +92,7 @@ function BlockchainConnect () {
   const selectStep = (
     <SelectStateContainer>
       <div>
-        <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
+        <MetaMaskImage src={require('../statics/images/metamask.svg')} />
         <Button onClick={onClickConnect} disabled={!window.ethereum || !window.web3}>
           Connect metamask
         </Button>

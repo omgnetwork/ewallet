@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import WalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'

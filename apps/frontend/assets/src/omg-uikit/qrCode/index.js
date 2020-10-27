@@ -23,6 +23,7 @@ export default class QR extends Component {
   render () {
     return (
       <img
+        alt=""
         src={this.state.dataUrl}
         style={{ width: this.props.size, height: this.props.size }}
       />

@@ -2,7 +2,7 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectGetActivityById } from './selector'
-import { getActivityLogById } from '../omg-activity-log/action'
+import { getActivityLogById } from './action'
 class ActivityProvider extends Component {
   static propTypes = {
     render: PropTypes.func,

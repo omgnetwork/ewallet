@@ -1,6 +1,8 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import _ from 'lodash'
+
 import Input from '../input'
 import Icon from '../icon'
 import { fuzzySearch } from '../../utils/search'

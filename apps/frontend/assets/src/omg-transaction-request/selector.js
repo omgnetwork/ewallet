@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectTransactionRequests = state => {
   return _.values(state.transactionRequests) || []
 }

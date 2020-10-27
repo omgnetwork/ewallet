@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectExchangePairs = state => {
   return _.values(state.exchangePairs)
 }

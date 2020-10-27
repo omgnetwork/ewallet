@@ -56,8 +56,9 @@ export const downloadExportFileById = file => async dispatch => {
     dispatch({
       type: `EXPORT/DOWNLOAD/${CONSTANT.LOADING_STATUS.INITIATED}`
     })
+    /*eslint default-case: "off"*/
     switch (file.adapter) {
-      case 'local':
+      case 'local':{
         const result = await exportService.downloadExportFileById(file.id)
         if (result.data) {
           createBlobDownloadCsvLink(result.data, file.filename)
@@ -71,6 +72,7 @@ export const downloadExportFileById = file => async dispatch => {
             error: result.data
           })
         }
+      }
       case 'gcs':
         return downloadWithUrl(file.id)
       case 'aws':

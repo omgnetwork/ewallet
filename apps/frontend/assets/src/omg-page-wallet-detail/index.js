@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { withRouter, Link, Route, Switch } from 'react-router-dom'
 import { compose } from 'recompose'
 import moment from 'moment'
+import _ from 'lodash'
 
 import { Tag, Button, Icon } from '../omg-uikit'
 import { enableMetamaskEthereumConnection } from '../omg-web3/action'
@@ -150,6 +151,7 @@ class WalletDetaillPage extends Component {
               </>
             )}
             {!wallet.blockchain_deposit_address && (
+              /* eslint-disable-next-line */
               <a onClick={() => this.props.generateDepositAddress(wallet.address)}>
                 Generate deposit address
               </a>
@@ -226,7 +228,7 @@ class WalletDetaillPage extends Component {
   renderErrorPage (error) {
     return (
       <ErrorPageContainer>
-        <img src={require('../../statics/images/empty_state.png')} />
+        <img alt="" src={require('../statics/images/empty_state.png')} />
         <h2>{error.code}</h2>
         <p>{error.description}</p>
       </ErrorPageContainer>

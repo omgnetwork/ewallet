@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
+
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 
 import { Avatar } from '../omg-uikit'

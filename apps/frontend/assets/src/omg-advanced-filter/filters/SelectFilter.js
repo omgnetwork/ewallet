@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import { Select } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'

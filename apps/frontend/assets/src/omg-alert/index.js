@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 
 import { selectAlerts } from './selector'
-import { clearAlert } from '../omg-alert/action'
+import { clearAlert } from './action'
 import { Icon } from '../omg-uikit'
 
 const AlertContainer = styled.div`

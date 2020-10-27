@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import walletRowRenderer from './walletTableRowRenderer'
 import TopNavigation from '../omg-page-layout/TopNavigation'

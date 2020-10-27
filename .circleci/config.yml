@@ -4,12 +4,12 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:v1.2
+      - image: omisegoimages/ewallet-builder:stable
     working_directory: ~/src
 
   builder_pg:
     docker:
-      - image: omisegoimages/ewallet-builder:v1.2
+      - image: omisegoimages/ewallet-builder:stable
       - image: postgres:9.6-alpine
         environment:
           POSTGRES_PASSWORD: passw0rd
@@ -177,6 +177,16 @@ jobs:
       - run: make check-assets
       - notify_slack_failure
 
+  audit-dependencies:
+    executor: builder
+    steps:
+      - checkout
+      - setup_ewallet_workspace
+      - run: 
+          name: Auditing front-end application (Node) dependencies.
+          command: make audit-deps-assets
+      - notify_slack_failure
+
   dialyze:
     executor: builder
     steps:
@@ -249,11 +259,14 @@ workflows:
       - test:
           requires: [build]
           filters: *all_branches
+      - audit-dependencies:
+          requires: [build]
+          filters: *all_branches
       - dialyze:
           requires: [build]
           filters: *all_branches
       - publish:
-          requires: [lint, test]
+          requires: [audit-dependencies, lint, test]
           filters: *all_branches
 
       # Deploy to staging in case of master branch.

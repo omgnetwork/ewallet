@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import { Switch, Icon, Id } from '../omg-uikit'
 import Table from '../omg-table'
@@ -275,6 +276,7 @@ class ApiKeyPage extends Component {
             <input readOnly value={this.state.secretKey} spellCheck='false' />
             <Copy data={this.state.secretKey} />
           </InputContainer>
+          {/* eslint-disable-next-line */}
           <a onClick={this.onClickDownloadKey}>Download a CSV backup of your keys</a>
         </ConfirmCreateKeyContainer>
       </ConfirmationModal>
@@ -294,7 +296,7 @@ class ApiKeyPage extends Component {
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.map((item, index) => {
             let role
-            if (item.hasOwnProperty('key')) {
+            if (_.has(item, 'key')) {
               role = item.role
               item = item.key
             }

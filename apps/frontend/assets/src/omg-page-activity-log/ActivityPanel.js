@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import moment from 'moment'
+import _ from 'lodash'
 
 import ActivityLogProvider from '../omg-activity-log/ActivityLogProvider'
 import { Icon } from '../omg-uikit'
@@ -101,7 +102,7 @@ class TransactionRequestPanel extends Component {
         return <Link to={`/users/${id}`}>{id}</Link>
       case 'token':
         return <Link to={`/tokens/${id}`}>{id}</Link>
-      case 'transaction':
+      case 'transaction': {
         const query = {
           ...queryString.parse(this.props.location.search),
           'show-transaction-tab': id
@@ -115,6 +116,7 @@ class TransactionRequestPanel extends Component {
             {id}
           </Link>
         )
+      }
       default:
         return id
     }

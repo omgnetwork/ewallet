@@ -12,7 +12,7 @@ import './fonts.css'
 import './globalStyle.css'
 import './icons.css'
 
-Modal.setAppElement('#app')
+Modal.setAppElement('#root')
 class App extends Component {
   static propTypes = {
     store: PropTypes.object.isRequired

@@ -6,6 +6,7 @@ import moment from 'moment'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
 import SortableTable from '../omg-table'

@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import { openModal } from '../omg-modal/action'
 import TopNavigation from '../omg-page-layout/TopNavigation'
@@ -36,7 +37,7 @@ const TokenPageContainer = styled.div`
     white-space: nowrap;
   }
 `
-const EwalletBlockchain = styled.div`
+const EWalletBlockchain = styled.div`
   display: flex;
   align-items: center;
   i {
@@ -105,12 +106,12 @@ class TokenDetailPage extends Component {
     if (key === 'blockchainStatus') {
       if (rows.txHash) {
         return (
-          <EwalletBlockchain>
+          <EWalletBlockchain>
             <span>Blockchain</span>
             <Tooltip text='This is a blockchain token controlled by the eWallet.'>
               <Icon name='Wallet' />
             </Tooltip>
-          </EwalletBlockchain>
+          </EWalletBlockchain>
         )
       }
 

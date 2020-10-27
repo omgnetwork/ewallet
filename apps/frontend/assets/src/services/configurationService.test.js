@@ -1,5 +1,5 @@
 import { updateConfiguration } from './configurationService'
-import * as apiService from '../services/apiService'
+import * as apiService from './apiService'
 jest.mock('./apiService.js')
 describe('configurationService', () => {
   test('it should omit null, undefined, Nan, 0, "" value out before sending', () => {

@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import Modal from '../omg-modal'
 import CreateAccountStage from './CreateAccountStage'

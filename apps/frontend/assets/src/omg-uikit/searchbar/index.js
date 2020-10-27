@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
+import _ from 'lodash'
 
 import Input from '../input'
 import Suffix from './suffix'

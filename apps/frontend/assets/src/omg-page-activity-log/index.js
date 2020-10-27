@@ -4,6 +4,7 @@ import { withRouter, Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import _ from 'lodash'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'
@@ -206,7 +207,7 @@ class ActivityLogPage extends Component {
         return <Link to={`/users/${id}`}>{id}</Link>
       case 'token':
         return <Link to={`/tokens/${id}`}>{id}</Link>
-      case 'transaction':
+      case 'transaction': {
         const transactionQuery = {
           ...queryString.parse(this.props.location.search),
           'show-transaction-tab': id
@@ -220,7 +221,8 @@ class ActivityLogPage extends Component {
             {id}
           </Link>
         )
-      case 'transaction_request':
+      }
+      case 'transaction_request': {
         const transactionRequestQuery = {
           ...queryString.parse(this.props.location.search),
           'show-request-tab': id
@@ -234,7 +236,8 @@ class ActivityLogPage extends Component {
             {id}
           </Link>
         )
-      case 'transaction_consumption':
+      }
+      case 'transaction_consumption': {
         const transactionConsumptionQuery = {
           ...queryString.parse(this.props.location.search),
           'show-consumption-tab': id
@@ -248,6 +251,7 @@ class ActivityLogPage extends Component {
             {id}
           </Link>
         )
+      }
       default:
         return null
     }

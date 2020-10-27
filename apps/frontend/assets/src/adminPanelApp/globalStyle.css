@@ -39,7 +39,7 @@ body {
   bottom: 0;
   overflow: hidden;
 }
-#app {
+#root {
   height: 100%;
 }
 input {
