@@ -15,7 +15,6 @@
 defmodule AdminAPI.V1.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
-  alias EWalletConfig.Config
   alias ActivityLogger.System
 
   describe "/wallet.all" do
@@ -285,35 +284,6 @@ defmodule AdminAPI.V1.WalletControllerTest do
                "code" => "client:invalid_parameter",
                "description" => "Invalid parameter provided. `identifier` has invalid format.",
                "messages" => %{"identifier" => ["format"]},
-               "object" => "error"
-             }
-    end
-
-    test_with_auths "fails to insert a wallet when internal_enabled is false", context do
-      {:ok, _} =
-        Config.update(
-          %{
-            internal_enabled: false,
-            originator: %System{}
-          },
-          context[:config_pid]
-        )
-
-      account = insert(:account)
-
-      response =
-        request("/wallet.create", %{
-          name: "MyWallet",
-          identifier: "secondary",
-          account_id: account.id
-        })
-
-      assert response["success"] == false
-
-      assert response["data"] == %{
-               "code" => "wallet:internal_wallets_disabled",
-               "description" => "Internal wallets cannot be created.",
-               "messages" => nil,
                "object" => "error"
              }
     end
