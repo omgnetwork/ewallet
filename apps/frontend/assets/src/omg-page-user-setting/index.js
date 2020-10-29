@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Input, Button } from '../omg-uikit'
@@ -274,6 +275,7 @@ class UserSettingPage extends Component {
                 />
               </ChangePasswordFormCointainer>
             ) : (
+              /* eslint-disable-next-line */
               <a onClick={this.onClickChangePassword}>Change password</a>
             )}
           </ChangePasswordContainer>

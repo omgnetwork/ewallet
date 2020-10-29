@@ -22,7 +22,7 @@ export default class BootupPage extends Component {
     return (
       <Container>
         <Center>
-          <img src={require('../../../statics/images/omisego_logo_black.png')} />
+          <img src={require('../../statics/images/omisego_logo_black.png')} />
         </Center>
       </Container>
     )

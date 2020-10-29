@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectBlockchainWallets = state => {
   return _.values(state.blockchainWallets) || []
 }

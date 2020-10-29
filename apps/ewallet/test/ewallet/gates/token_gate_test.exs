@@ -41,7 +41,7 @@ defmodule EWallet.TokenGateTest do
       assert attrs["blockchain_address"] != nil
       assert attrs["blockchain_transaction_uuid"] != nil
       assert attrs["blockchain_identifier"] == BlockchainHelper.rootchain_identifier()
-      assert attrs["blockchain_status"] == "pending"
+      assert attrs["blockchain_status"] == Token.Blockchain.status_pending()
       assert attrs["contract_uuid"] == "3681491a-e8d0-4219-a40a-53d9a47fe64a"
     end
 
@@ -232,6 +232,40 @@ defmodule EWallet.TokenGateTest do
     test "returns a confirmed status when balance is > 0" do
       status = TokenGate.get_blockchain_status(%{hot_wallet_balance: 1})
       assert status == Token.Blockchain.status_confirmed()
+    end
+  end
+
+  describe "on_deployed_transaction_confirmed/1" do
+    test "confirms a token if the blockchain_transaction is confirmed" do
+      blochain_transaction =
+        insert(:blockchain_transaction_rootchain, %{status: Token.Blockchain.status_confirmed()})
+
+      token =
+        insert(:internal_blockchain_token, %{
+          blockchain_status: Token.Blockchain.status_pending(),
+          blockchain_transaction_uuid: blochain_transaction.uuid
+        })
+
+      token = Token.get(token.id, preload: :blockchain_transaction)
+
+      assert token.blockchain_status == Token.Blockchain.status_pending()
+
+      {res, t} = TokenGate.on_deployed_transaction_confirmed(token)
+
+      assert res == :ok
+      assert t.blockchain_status == Token.Blockchain.status_confirmed()
+    end
+
+    test "returns the token untouched if it's already confirmed" do
+      token =
+        insert(:internal_blockchain_token, blockchain_status: Token.Blockchain.status_confirmed())
+
+      assert token.blockchain_status == Token.Blockchain.status_confirmed()
+
+      {res, t} = TokenGate.on_deployed_transaction_confirmed(token)
+
+      assert res == :ok
+      assert t == token
     end
   end
 end

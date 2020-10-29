@@ -131,6 +131,7 @@ class ForgetPasswordForm extends Component {
     const { email } = queryString.parse(this.props.location.search)
     return this.state.maybeAppExist || this.isforwardUrlWebProtocol ? (
       <MobileRedirect>
+        {/* eslint-disable-next-line */}
         We are trying to open an app for forward url for you, if this does not work <a onClick={this.onClickShowForm}>Click here</a> to reset password
       </MobileRedirect>
     ) : (

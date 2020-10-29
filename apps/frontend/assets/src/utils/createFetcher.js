@@ -2,6 +2,8 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
+import _ from 'lodash'
+
 import CONSTANT from '../constants'
 export const createCacheKey = (props, entity) =>
   JSON.stringify({ ...props.query, entity })

@@ -67,7 +67,7 @@ defmodule EWalletDB.Token.Blockchain do
     |> merge(blockchain_status_changeset(token, attrs))
   end
 
-  defp blockchain_status_changeset(%Token{} = token, attrs) do
+  def blockchain_status_changeset(%Token{} = token, attrs) do
     token
     |> cast_and_validate_required_for_activity_log(attrs,
       cast: [:blockchain_status],
@@ -89,7 +89,7 @@ defmodule EWalletDB.Token.Blockchain do
   @doc """
   Returns a list of Tokens that have a blockchain address for the specified identifier
   """
-  @spec all_blockchain(Ecto.Queryable.t()) :: [%Token{}]
+  @spec all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
   def all_blockchain(identifier, query \\ Token) do
     identifier
     |> query_all_blockchain(query)
@@ -99,9 +99,24 @@ defmodule EWalletDB.Token.Blockchain do
   @doc """
   Returns a query of Tokens that have a blockchain address for the specified identifier
   """
-  @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
+  @spec query_all_blockchain(String.t(), Ecto.Queryable.t()) :: [Ecto.Queryable.t()]
   def query_all_blockchain(identifier, query \\ Token) do
     where(query, [t], not is_nil(t.blockchain_address) and t.blockchain_identifier == ^identifier)
+  end
+
+  @spec all_unfinalized_blockchain(String.t(), Ecto.Queryable.t()) :: [%Token{}]
+  def all_unfinalized_blockchain(identifier, query \\ Token) do
+    identifier
+    |> query_all_unfinalized_blockchain(query)
+    |> Repo.all()
+    |> Repo.preload(:blockchain_transaction)
+  end
+
+  @spec query_all_unfinalized_blockchain(String.t(), Ecto.Queryable.t()) :: [Ecto.Queryable.t()]
+  def query_all_unfinalized_blockchain(identifier, query \\ Token) do
+    identifier
+    |> query_all_blockchain(query)
+    |> where([t], t.blockchain_status == @status_pending)
   end
 
   @doc """

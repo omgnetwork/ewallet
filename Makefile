@@ -1,7 +1,7 @@
 all: clean build-prod
 
 IMAGE_NAME      ?= "omisego/ewallet:latest"
-IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
+IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:stable"
 IMAGE_BUILD_DIR ?= $(PWD)
 
 ASSETS          ?= cd apps/frontend/assets &&
@@ -50,6 +50,13 @@ clean-test-assets:
 .PHONY: clean clean-ewallet clean-assets clean-test-assets
 
 #
+# Dependencies
+#
+
+audit-deps-assets:
+	$(ASSETS) npm run audit-deps 2>&1
+
+#
 # Linting
 #
 
@@ -64,9 +71,6 @@ check-credo:
 
 check-dialyzer:
 	$(ENV_TEST) mix dialyzer --halt-exit-status 2>&1
-
-check-assets:
-	$(ASSETS) npm run lint 2>&1
 
 check-assets:
 	$(ASSETS) npm run lint 2>&1
@@ -103,7 +107,7 @@ test-ewallet: clean-test-assets build-test
 	$(ENV_TEST) mix do ecto.create, ecto.migrate, test
 
 test-assets: build-assets
-	$(ASSETS) npm run test
+	$(ASSETS) npm run test:ci
 
 .PHONY: test test-ewallet test-assets
 

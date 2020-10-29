@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import moment from 'moment'
+import _ from 'lodash'
 
 import { fuzzySearch } from '../utils/search'
 import SortableTable from '../omg-table'
@@ -219,7 +220,7 @@ const KeyDetailAccountsPageView = withRouter(
           return _.get(rows, 'account.parent_id', '-')
         case 'created_at':
           return moment(data).format()
-        case 'role':
+        case 'role': {
           const options = [
             { key: 'admin', value: 'Admin' },
             { key: 'viewer', value: 'Viewer' }
@@ -233,6 +234,7 @@ const KeyDetailAccountsPageView = withRouter(
               options={options.filter(i => i.key !== data)}
             />
           )
+          }
         default:
           return data
       }

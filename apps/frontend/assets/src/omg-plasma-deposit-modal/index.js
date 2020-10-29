@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import _ from 'lodash'
 
 import { Button, Icon, SelectInput } from '../omg-uikit'
 import Modal from '../omg-modal'
@@ -198,7 +199,7 @@ class PlasmaDeposit extends Component {
       <Form onSubmit={this.onDeposit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerTransferContainer>
-          <h4>OmiseGO Network Deposit</h4>
+          <h4>OMG Network Network Deposit</h4>
           {this.renderFromSection()}
           <ButtonContainer>
             <Button

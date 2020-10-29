@@ -6,6 +6,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import numeral from 'numeral'
 import { BigNumber } from 'bignumber.js'
+import _ from 'lodash'
 
 import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import { createExchangePair, updateExchangePair } from '../omg-exchange-pair/action'

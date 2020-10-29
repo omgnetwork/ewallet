@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import _ from 'lodash'
 
 import { Button, Icon, SelectInput } from '../omg-uikit'
 import Modal from '../omg-modal'

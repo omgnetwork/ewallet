@@ -273,11 +273,22 @@ defmodule EWalletDB.Token do
   Insert a new token given an insert changeset
   """
   def insert_with_changeset(changeset) do
+    case {Application.get_env(:ewallet_db, :internal_enabled),
+          get_field(changeset, :blockchain_address)} do
+      {false, nil} ->
+        {:error, :internal_tokens_disabled}
+
+      {_, _} ->
+        do_insert_with_changeset(changeset)
+    end
+  end
+
+  defp do_insert_with_changeset(changeset) do
     changeset
     |> Repo.insert_record_with_activity_log()
     |> case do
       {:ok, token} ->
-        {:ok, get(token.id)}
+        {:ok, get(token.id, preload: :blockchain_transaction)}
 
       {:error, changeset} ->
         {:error, changeset}

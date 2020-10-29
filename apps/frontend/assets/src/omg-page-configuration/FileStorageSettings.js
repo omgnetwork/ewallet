@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import ConfigRow from './ConfigRow'
 import { LoadingSkeleton } from '../omg-uikit'
@@ -30,7 +31,7 @@ const Grid = styled.div`
 const FileStorageSettings = (props) => {
   useEffect(() => {
     return props.handleCancelClick
-  }, [])
+  }, [props.handleCancelClick])
 
   const renderFileStorageAdpter = (configurations) => {
     return (

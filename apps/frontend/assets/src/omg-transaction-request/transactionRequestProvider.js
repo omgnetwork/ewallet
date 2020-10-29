@@ -1,8 +1,11 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
+import _ from 'lodash'
+
 import { selectGetTransactionRequestById } from './selector'
 import { getTransactionRequestById } from './action'
+
 class TransactionRequestProvider extends Component {
   static propTypes = {
     render: PropTypes.func,

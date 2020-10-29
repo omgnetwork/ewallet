@@ -1,6 +1,6 @@
 import { createFetcher } from '../utils/createFetcher'
 import * as accountActions from '../omg-account/action'
-import { getUsers } from '../omg-users/action'
+import { getUsers } from './action'
 import {
   selectUsersLoadingStatus,
   selectUsersCachedQuery,

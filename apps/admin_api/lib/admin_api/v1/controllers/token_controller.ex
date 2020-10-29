@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.TokenController do
   alias Ecto.Changeset
 
   alias EWallet.{
+    DeployedTokenTracker,
     Helper,
     MintGate,
     TokenGate,
@@ -95,7 +96,8 @@ defmodule AdminAPI.V1.TokenController do
          {:ok, _} <- authorize(:deploy_erc20, conn.assigns, attrs),
          {:ok, attrs} <- TokenGate.deploy_erc20(attrs),
          attrs <- Originator.set_in_attrs(attrs, conn.assigns),
-         {:ok, token} <- Token.Blockchain.insert_with_contract_deployed(attrs) do
+         {:ok, token} <- Token.Blockchain.insert_with_contract_deployed(attrs),
+         {:ok, _pid} <- DeployedTokenTracker.start(token) do
       respond_single(token, conn)
     else
       error ->

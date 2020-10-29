@@ -41,6 +41,35 @@ services:
     ports:
       - "4000:4000"
 
+  geth:
+    image: ethereum/client-go:v1.9.12
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        apk add --update curl
+        geth init ./geth_helper/genesis.json
+        geth account import ./geth_helper/key.priv --password ./geth_helper/fake_password.txt
+        geth account import ./geth_helper/key2.priv --password ./geth_helper/fake_password.txt
+        geth \
+          --unlock "0,1" --password ./geth_helper/fake_password.txt \
+          --etherbase "6de4b3b9c28e9c3e84c2b2d3a875c947a84de68d" \
+          --miner.gasprice "10" \
+          --nodiscover \
+          --maxpeers 0 \
+          --syncmode 'full' \
+          --networkid 1337 \
+          --gasprice '1' \
+          --rpc --rpcapi personal,web3,eth,net --rpcaddr 0.0.0.0 --rpcvhosts=* --rpcport=8545 \
+          --ws --wsaddr 0.0.0.0 --wsorigins='*' \
+          --mine \
+          --allow-insecure-unlock
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    volumes:
+      - ./tools/local_geth_testnet:/geth_helper
+
 networks:
   intnet:
 

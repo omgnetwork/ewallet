@@ -45,7 +45,7 @@ const NotFoundPage = (props) => {
   return (
     <Container>
       <ImgContainer loaded={loaded}>
-        <img src={require('../../statics/images/empty_state.png')} />
+        <img alt="404 Error" src={require('../statics/images/empty_state.png')} />
       </ImgContainer>
 
       <h4>{'Page Not Found'}</h4>

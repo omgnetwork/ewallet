@@ -30,6 +30,13 @@ config :ewallet_config,
       position: 001,
       description: "The primary hot wallet for this eWallet."
     },
+    "internal_enabled" => %{
+      key: "internal_enabled",
+      value: true,
+      type: "boolean",
+      position: 002,
+      description: "Enables internal features such as internal tokens, wallets, and transactions."
+    },
 
     #
     # Web settings

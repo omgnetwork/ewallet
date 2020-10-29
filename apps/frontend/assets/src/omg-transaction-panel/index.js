@@ -5,6 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
 import moment from 'moment'
+import _ from 'lodash'
 
 import TransactionProvider from '../omg-transaction/transactionProvider'
 import { Icon } from '../omg-uikit'

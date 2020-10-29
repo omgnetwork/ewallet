@@ -1,9 +1,12 @@
 import moment from 'moment'
 import styled from 'styled-components'
 import React from 'react'
+import _ from 'lodash'
+
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import { Icon } from '../omg-uikit'
 import Copy from '../omg-copy'
+
 const TransactionIdContainer = styled.div`
   white-space: nowrap;
   span {

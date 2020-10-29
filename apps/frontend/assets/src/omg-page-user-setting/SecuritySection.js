@@ -18,11 +18,11 @@ function SecuritySeciton () {
   const dispatch = useDispatch()
   const onClickEnable2Fa = useCallback(
     () => openModal({ id: 'enable2FaModal' })(dispatch),
-    []
+    [dispatch]
   )
   const onClickDisable2Fa = useCallback(
     () => openModal({ id: 'disable2FaModal' })(dispatch),
-    []
+    [dispatch]
   )
 
   return (

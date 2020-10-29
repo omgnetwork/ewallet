@@ -6,6 +6,7 @@ import { compose } from 'recompose'
 import moment from 'moment'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
+import _ from 'lodash'
 
 import TokensFetcher from '../omg-token/tokensFetcher'
 import TokenProvider from '../omg-token/TokenProvider'

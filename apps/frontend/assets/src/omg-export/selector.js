@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 export const selectExports = state => {
   return _.values(state.exports)
 }

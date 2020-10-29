@@ -1,8 +1,9 @@
+import has from 'lodash/has'
 
 function serialize (obj, parentKey) {
   let queryStr = []
   for (let key in obj) {
-    if (!obj.hasOwnProperty(key)) {
+    if (!has(obj, key)) {
       continue
     }
     let paramKey = parentKey ? `${parentKey}[${key}]` : key
@@ -33,4 +34,4 @@ export function isAbsoluteURL (url) {
     }
   }
   return false
-};
+}

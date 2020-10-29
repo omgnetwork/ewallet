@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 const breadcrumbFactory = (value) => {
   if (Array.isArray(value)) {
     let values = value

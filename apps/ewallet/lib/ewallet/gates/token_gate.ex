@@ -15,8 +15,13 @@
 defmodule EWallet.TokenGate do
   @moduledoc false
 
+  alias ActivityLogger.System
   alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper}
-  alias EWalletDB.{BlockchainWallet, Token}
+  alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, Repo, Token}
+
+  @confirmed Token.Blockchain.status_confirmed()
+  @blockchain_transaction_confirmed BlockchainTransactionState.confirmed()
+  @blockchain_transaction_failed BlockchainTransactionState.failed()
 
   @doc """
   Attempts to deploy an ERC20 token with the specified attributes
@@ -170,18 +175,9 @@ defmodule EWallet.TokenGate do
   end
 
   defp get_optional(contract_address) do
-    with {:ok, name} <-
-           BlockchainHelper.call(:get_field, %{field: "name", contract_address: contract_address}),
-         {:ok, symbol} <-
-           BlockchainHelper.call(:get_field, %{
-             field: "symbol",
-             contract_address: contract_address
-           }),
-         {:ok, decimals} <-
-           BlockchainHelper.call(:get_field, %{
-             field: "decimals",
-             contract_address: contract_address
-           }) do
+    with {:ok, name} <- get_field("name", contract_address),
+         {:ok, symbol} <- get_field("symbol", contract_address),
+         {:ok, decimals} <- get_field("decimals", contract_address) do
       {:ok, %{name: name, symbol: symbol, decimals: decimals}}
     else
       {:error, :field_not_found} -> {:ok, %{}}
@@ -190,17 +186,8 @@ defmodule EWallet.TokenGate do
   end
 
   defp get_mandatory(contract_address) do
-    with {:ok, total_supply} <-
-           BlockchainHelper.call(:get_field, %{
-             field: "totalSupply",
-             contract_address: contract_address
-           }),
-         identifier = BlockchainHelper.rootchain_identifier(),
-         {:ok, %{^contract_address => balance}} <-
-           BlockchainHelper.call(:get_balances, %{
-             address: BlockchainWallet.get_primary_hot_wallet(identifier).address,
-             contract_addresses: [contract_address]
-           }),
+    with {:ok, total_supply} <- get_field("totalSupply", contract_address),
+         {:ok, %{^contract_address => balance}} <- get_balances(contract_address),
          true <- !is_nil(balance) || {:error, :token_not_erc20} do
       {:ok, %{total_supply: total_supply, hot_wallet_balance: balance}}
     else
@@ -208,5 +195,43 @@ defmodule EWallet.TokenGate do
       {:error, :field_not_found} -> {:error, :token_not_erc20}
       error -> error
     end
+  end
+
+  defp get_field(field, contract_address) do
+    BlockchainHelper.call(:get_field, %{
+      field: field,
+      contract_address: contract_address
+    })
+  end
+
+  defp get_balances(contract_address) do
+    identifier = BlockchainHelper.rootchain_identifier()
+
+    BlockchainHelper.call(:get_balances, %{
+      address: BlockchainWallet.get_primary_hot_wallet(identifier).address,
+      contract_addresses: [contract_address]
+    })
+  end
+
+  # This is called by the deployed token tracker when the creating blockchain transaction
+  # reaches the `confirmed` state.
+  def on_deployed_transaction_confirmed(%{blockchain_status: @confirmed} = token),
+    do: {:ok, token}
+
+  def on_deployed_transaction_confirmed(
+        %{blockchain_transaction: %{status: @blockchain_transaction_confirmed}} = token
+      ) do
+    token
+    |> Token.Blockchain.blockchain_status_changeset(%{
+      blockchain_status: @confirmed,
+      originator: %System{}
+    })
+    |> Repo.update_record_with_activity_log()
+  end
+
+  def on_deployed_transaction_confirmed(%{
+        blockchain_transaction: %{status: @blockchain_transaction_failed}
+      }) do
+    # TODO: Handle failure, for now we leave the token in `pending` state forever
   end
 end

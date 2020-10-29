@@ -21,7 +21,7 @@ function BlockchainDeposit () {
   return (
     <BlockchainDepositContainer>
       <div>
-        <MetaMaskImage src={require('../../statics/images/metamask.svg')} />
+        <MetaMaskImage src={require('../statics/images/metamask.svg')} />
         METAMASK
       </div>
       <div>LEDGER</div>

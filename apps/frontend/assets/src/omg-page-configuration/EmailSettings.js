@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useEffect } from 'react'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import { isEmail } from '../utils/validator'
 import ConfigRow from './ConfigRow'
@@ -32,7 +33,7 @@ const Grid = styled.div`
 const EmailSettings = (props) => {
   useEffect(() => {
     return props.handleCancelClick
-  }, [])
+  }, [props.handleCancelClick])
 
   const renderEmailSetting = (configurations) => {
     return (

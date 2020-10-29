@@ -131,6 +131,73 @@ defmodule EWalletDB.Token.BlockchainTest do
     end
   end
 
+  describe "query_all_unfinalized_blockchain/2" do
+    test "returns a query of tokens that have not confirmed on the blockchain" do
+      t_1 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_pending()
+        )
+
+      t_2 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_pending()
+        )
+
+      t_3 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_confirmed()
+        )
+
+      pending_tokens =
+        "ethereum"
+        |> Token.Blockchain.query_all_unfinalized_blockchain()
+        |> Repo.all()
+        |> Enum.map(fn t -> t.id end)
+
+      assert length(pending_tokens) == 2
+
+      assert Enum.member?(pending_tokens, t_1.id)
+      assert Enum.member?(pending_tokens, t_2.id)
+      refute Enum.member?(pending_tokens, t_3.id)
+    end
+  end
+
+  describe "all_unfinalized_blockchain/2" do
+    test "returns a list of tokens that have not confirmed on the blockchain" do
+      t_1 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_pending()
+        )
+
+      t_2 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_pending()
+        )
+
+      t_3 =
+        insert(:internal_blockchain_token,
+          blockchain_identifier: "ethereum",
+          blockchain_status: Token.Blockchain.status_confirmed()
+        )
+
+      pending_tokens =
+        "ethereum"
+        |> Token.Blockchain.all_unfinalized_blockchain()
+        |> Enum.map(fn t -> t.id end)
+
+      assert length(pending_tokens) == 2
+
+      assert Enum.member?(pending_tokens, t_1.id)
+      assert Enum.member?(pending_tokens, t_2.id)
+      refute Enum.member?(pending_tokens, t_3.id)
+    end
+  end
+
   describe "query_all_by_blockchain_addresses/2" do
     test "returns a query of tokens that have an address matching in the provided list for the specified identifier" do
       addr_1 = Crypto.fake_eth_address()

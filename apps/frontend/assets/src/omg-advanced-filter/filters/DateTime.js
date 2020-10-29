@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import moment from 'moment'
+import _ from 'lodash'
 
 import { DatePicker, TimePicker } from '../../omg-uikit'
 import FilterBox from '../components/FilterBox'

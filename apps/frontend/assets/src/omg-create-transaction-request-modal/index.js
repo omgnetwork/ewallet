@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 import DateTime from 'react-datetime'
 import { compose } from 'recompose'
+import _ from 'lodash'
 
 import { Input, Button, Icon, RadioButton, Select } from '../omg-uikit'
 import Accordion from '../omg-uikit/animation/Accordion'

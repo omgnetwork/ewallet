@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
   alias EWallet.BlockchainHelper
-  alias EWalletDB.{BlockchainTransaction, Mint, Repo, Token, Wallet, Transaction}
+  alias EWalletDB.{Mint, Repo, Token, Wallet, Transaction}
   alias ActivityLogger.System
   alias Utils.Helpers.Crypto
 
@@ -148,140 +148,6 @@ defmodule AdminAPI.V1.TokenControllerTest do
                "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
                "total_supply" => 0
              }
-    end
-  end
-
-  describe "/token.deploy_erc20" do
-    test_with_auths "deploys a locked ERC20 token" do
-      response =
-        request("/token.deploy_erc20", %{
-          symbol: "BTC",
-          name: "Bitcoin",
-          amount: 100,
-          locked: true,
-          description: "desc",
-          subunit_to_unit: 100
-        })
-
-      mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert response["data"]["blockchain_address"] != nil
-      assert response["data"]["blockchain_status"] == "pending"
-      assert response["data"]["locked"] == true
-      assert Token.get(response["data"]["id"]) != nil
-      assert mint == nil
-    end
-
-    test_with_auths "deploys an unlocked ERC20 token" do
-      response =
-        request("/token.deploy_erc20", %{
-          symbol: "BTC",
-          name: "Bitcoin",
-          amount: 100,
-          locked: false,
-          description: "desc",
-          subunit_to_unit: 100
-        })
-
-      mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert response["data"]["blockchain_address"] != nil
-      assert response["data"]["blockchain_status"] == "pending"
-      assert response["data"]["locked"] == false
-      assert Token.get(response["data"]["id"]) != nil
-      assert mint == nil
-    end
-
-    defp assert_deploy_erc20_logs(logs, originator, target) do
-      blockchain_transaction = get_last_inserted(BlockchainTransaction)
-
-      assert Enum.count(logs) == 2
-
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: :system,
-        target: blockchain_transaction,
-        changes: %{
-          "gas_limit" => blockchain_transaction.gas_limit,
-          "gas_price" => blockchain_transaction.gas_price,
-          "hash" => blockchain_transaction.hash,
-          "rootchain_identifier" => blockchain_transaction.rootchain_identifier
-        },
-        encrypted_changes: %{}
-      )
-
-      logs
-      |> Enum.at(1)
-      |> assert_activity_log(
-        action: "insert",
-        originator: originator,
-        target: target,
-        changes: %{
-          "name" => target.name,
-          "account_uuid" => target.account.uuid,
-          "description" => target.description,
-          "id" => target.id,
-          "subunit_to_unit" => target.subunit_to_unit,
-          "symbol" => target.symbol,
-          "blockchain_address" => target.blockchain_address,
-          "blockchain_identifier" => target.blockchain_identifier,
-          "blockchain_status" => target.blockchain_status,
-          "contract_uuid" => target.contract_uuid,
-          "blockchain_transaction_uuid" => target.blockchain_transaction_uuid,
-          "locked" => target.locked
-        },
-        encrypted_changes: %{}
-      )
-    end
-
-    test "generates an activity log for an admin request" do
-      timestamp = DateTime.utc_now()
-
-      response =
-        admin_user_request("/token.deploy_erc20", %{
-          symbol: "BTC",
-          name: "Bitcoin",
-          amount: 100,
-          locked: false,
-          description: "desc",
-          subunit_to_unit: 100
-        })
-
-      assert response["success"] == true
-
-      token = response["data"]["id"] |> Token.get() |> Repo.preload(:account)
-
-      timestamp
-      |> get_all_activity_logs_since()
-      |> assert_deploy_erc20_logs(get_test_admin(), token)
-    end
-
-    test "generates an activity log for a provider request" do
-      timestamp = DateTime.utc_now()
-
-      response =
-        provider_request("/token.deploy_erc20", %{
-          symbol: "BTC",
-          name: "Bitcoin",
-          amount: 100,
-          locked: false,
-          description: "desc",
-          subunit_to_unit: 100
-        })
-
-      assert response["success"] == true
-
-      token = response["data"]["id"] |> Token.get() |> Repo.preload(:account)
-
-      timestamp
-      |> get_all_activity_logs_since()
-      |> assert_deploy_erc20_logs(get_test_key(), token)
     end
   end
 

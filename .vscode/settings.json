@@ -1,0 +1,13 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript", 
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": ["apps/frontend/assets"],
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": { 
+    "source.fixAll.eslint": true
+   }
+}

@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import { Button, Checkbox } from '../omg-uikit'
 import { deleteExchangePair } from '../omg-exchange-pair/action'
@@ -34,10 +35,10 @@ const ButtonGroup = styled.div`
 `
 
 const DeleteExchangeModal = ({ toDelete, onRequestClose, deleteExchangePair }) => {
-  if (!toDelete) return null
-
   const [ submitting, setSubmitting ] = useState(false)
   const [ deleteOpp, setDeleteOpp ] = useState(false)
+  
+  if (!toDelete) return null
 
   const toggleDeleteOpp = () => {
     setDeleteOpp(prevBool => !prevBool)

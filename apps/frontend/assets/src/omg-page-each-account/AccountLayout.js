@@ -4,6 +4,7 @@ import { Route, withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import UserDetailPage from '../omg-page-user-detail'
 import AdminDetailPage from '../omg-page-admin-detail'
@@ -47,7 +48,7 @@ function AccountLayout (props) {
       props.visitAccount(accountId)
       props.subscribeToWebsocketByAccountId(accountId)
     }
-  }, [_.get(props, 'account.id')])
+  }, [ accountId, props ])
 
   return (
     <>

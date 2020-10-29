@@ -12,6 +12,8 @@ const resolveType = type => {
         background: '#fef7e5',
         iconColor: '#ffb200'
       }
+    default: 
+      return { }
   }
 }
 

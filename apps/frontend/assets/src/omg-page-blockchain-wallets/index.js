@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
+import _ from 'lodash'
 
 import { Id, Icon, Button } from '../omg-uikit'
 import SortableTable from '../omg-table'

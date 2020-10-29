@@ -148,6 +148,17 @@ defmodule EWalletDB.Account do
   """
   @spec insert(map()) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
+    case Application.get_env(:ewallet_db, :internal_enabled) do
+      false ->
+        insert_without_internal_wallets(attrs)
+
+      _ ->
+        # default
+        insert_with_internal_wallets(attrs)
+    end
+  end
+
+  defp insert_with_internal_wallets(attrs) do
     %Account{}
     |> changeset(attrs)
     |> Repo.insert_record_with_activity_log(
@@ -155,9 +166,22 @@ defmodule EWalletDB.Account do
       Multi.new()
       |> Multi.run(:wallet, fn _repo, %{record: account} ->
         _ = insert_wallet(account, Wallet.primary())
-        insert_wallet(account, Wallet.burn())
+        _ = insert_wallet(account, Wallet.burn())
       end)
     )
+    |> case do
+      {:ok, account} ->
+        {:ok, Repo.preload(account, [:wallets])}
+
+      error ->
+        error
+    end
+  end
+
+  defp insert_without_internal_wallets(attrs) do
+    %Account{}
+    |> changeset(attrs)
+    |> Repo.insert_record_with_activity_log()
     |> case do
       {:ok, account} ->
         {:ok, Repo.preload(account, [:wallets])}

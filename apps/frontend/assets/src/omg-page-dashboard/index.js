@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import moment from 'moment'
 import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 
 import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
@@ -58,7 +59,7 @@ const GetStartedContainer = styled.div`
   padding: 30px;
   border-radius: 4px;
   background-color: #ffffff;
-  background-image: url(${require('../../statics/images/Dashboard_Main.png')});
+  background-image: url(${require('../statics/images/Dashboard_Main.png')});
   background-size: 41vw auto;
   background-repeat: no-repeat;
   background-position: bottom right;

@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
+
 const AvatarCircle = styled.div`
   width: ${props => (props.size ? `${props.size}px` : '30px')};
   height: ${props => (props.size ? `${props.size}px` : '30px')};

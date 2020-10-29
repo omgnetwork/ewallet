@@ -38,24 +38,26 @@ defmodule EWalletConfig.BlockchainSettingsLoader do
   end
 
   defp start_trackers(trackers, supervisor) do
-    Enum.each(trackers, fn tracker ->
-      # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
-      case Supervisor.restart_child(supervisor, tracker) do
-        {:ok, :undefined} ->
-          Logger.debug(fn ->
-            "Error starting #{inspect(tracker)}: The tracker is not supervised."
-          end)
+    Enum.each(trackers, fn tracker -> start_tracker(supervisor, tracker) end)
+  end
 
-        {:error, :running} ->
-          Logger.debug(fn -> "Error starting #{inspect(tracker)}. Already running." end)
+  defp start_tracker(supervisor, tracker) do
+    # `restart_child/2` starts a stopped child, not the same sense as a computer reboot.
+    case Supervisor.restart_child(supervisor, tracker) do
+      {:ok, :undefined} ->
+        Logger.debug(fn ->
+          "Error starting #{inspect(tracker)}: The tracker is not supervised."
+        end)
 
-        {:error, error} ->
-          Logger.debug(fn -> "Error starting #{inspect(tracker)}: #{inspect(error)}" end)
+      {:error, :running} ->
+        Logger.debug(fn -> "Error starting #{inspect(tracker)}. Already running." end)
 
-        _ ->
-          :ok
-      end
-    end)
+      {:error, error} ->
+        Logger.debug(fn -> "Error starting #{inspect(tracker)}: #{inspect(error)}" end)
+
+      _ ->
+        :ok
+    end
   end
 
   defp stop_trackers(trackers) do

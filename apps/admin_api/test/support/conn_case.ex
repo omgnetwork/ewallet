@@ -33,7 +33,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.{MintGate, LocalTransactionGate, BlockchainHelper}
-  alias EWalletConfig.ConfigTestHelper
+  alias EWalletConfig.{Config, ConfigTestHelper}
 
   alias EWalletDB.{
     Account,
@@ -217,12 +217,30 @@ defmodule AdminAPI.ConnCase do
         "sender_email" => "admin@example.com",
         "master_account" => account.id,
         "primary_hot_wallet" => blockchain_wallet.address,
-        "blockchain_enabled" => true,
-        "blockchain_chain_id" => 0
+        "internal_enabled" => true,
+        "blockchain_enabled" => false,
+        "blockchain_chain_id" => 0,
+        "blockchain_confirmations_threshold" => 4,
+        "blockchain_state_save_interval" => 5,
+        "blockchain_sync_interval" => 50,
+        "blockchain_poll_interval" => 0,
+        "blockchain_deposit_pooling_interval" => 0
       }
     )
 
     config_pid
+  end
+
+  def enable_blockchain(context) do
+    {:ok, _} =
+      Config.update(
+        %{
+          internal_enabled: false,
+          blockchain_enabled: true,
+          originator: %System{}
+        },
+        context[:config_pid]
+      )
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do

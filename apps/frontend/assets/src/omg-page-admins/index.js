@@ -4,6 +4,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import styled from 'styled-components'
+import _ from 'lodash'
 
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import SortableTable from '../omg-table'

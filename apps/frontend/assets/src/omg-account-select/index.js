@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import _ from 'lodash'
 import styled from 'styled-components'
+
 import { Avatar } from '../omg-uikit'
 
 const StyledAvatar = styled(Avatar)`

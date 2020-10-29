@@ -1,5 +1,4 @@
 import { render } from 'react-dom'
-
 import React from 'react'
 import moment from 'moment'
 import Web3 from 'web3'
@@ -90,17 +89,8 @@ async function bootAdminPanelApp () {
   if (!LoadedApp) return false
   render(
     <LoadedApp store={store} authenticated={success} />,
-    document.getElementById('app')
+    document.getElementById('root')
   )
-  // HOT RELOADING FOR DEVELOPMENT MODE
-  if (module.hot) {
-    module.hot.accept('./adminPanelApp', () => {
-      render(<LoadedApp />, document.getElementById('app'))
-    })
-    module.hot.accept('./reducer', () => {
-      store.replaceReducer(require('./reducer').default)
-    })
-  }
   console.log('Started Admin panel app.')
   return true
 }
@@ -111,13 +101,7 @@ async function bootClientApp () {
   const App = await import('./clientApp')
   const LoadedApp = App.default
   if (!LoadedApp) return false
-  render(<LoadedApp />, document.getElementById('app'))
-  // HOT RELOADING FOR DEVELOPMENT MODE
-  if (module.hot) {
-    module.hot.accept('./clientApp', () => {
-      render(<LoadedApp />, document.getElementById('app'))
-    })
-  }
+  render(<LoadedApp />, document.getElementById('root'))
   console.log('Started client app.')
   return true
 }
