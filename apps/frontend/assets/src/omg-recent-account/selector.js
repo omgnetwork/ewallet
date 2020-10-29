@@ -1,5 +1,5 @@
 import { selectGetAccountByIdMaybeLoading } from '../omg-account/selector'
-export const selectRecentAccounts = state =>
+export const selectRecentAccounts = () => state =>
   state.recentAccounts
     .filter(maybeExistRecentAccountId =>
       selectGetAccountByIdMaybeLoading(state)(maybeExistRecentAccountId)
