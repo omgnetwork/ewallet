@@ -59,11 +59,13 @@ defmodule EWallet.BlockchainDepositWalletGate do
          {:ok, deposit_wallet} <-
            do_insert(wallet, hd_wallet, wallet_ref, @deposit_ref, originator),
          {:ok, deposit_wallet} <- Preloader.preload_one(deposit_wallet, :wallet) do
-      :ok =
-        AddressTracker.register_address(
-          deposit_wallet.address,
-          deposit_wallet.wallet.address
-        )
+      if Application.get_env(:ewallet, :blockchain_enabled, false) do
+        :ok =
+          AddressTracker.register_address(
+            deposit_wallet.address,
+            deposit_wallet.wallet.address
+          )
+      end
 
       {:ok, deposit_wallet}
     else

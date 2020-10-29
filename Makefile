@@ -1,7 +1,7 @@
 all: clean build-prod
 
 IMAGE_NAME      ?= "omisego/ewallet:latest"
-IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:v1.2"
+IMAGE_BUILDER   ?= "omisegoimages/ewallet-builder:stable"
 IMAGE_BUILD_DIR ?= $(PWD)
 
 ASSETS          ?= cd apps/frontend/assets &&
