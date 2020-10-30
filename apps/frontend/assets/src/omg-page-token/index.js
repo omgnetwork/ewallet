@@ -8,14 +8,15 @@ import queryString from 'query-string'
 import styled from 'styled-components'
 import _ from 'lodash'
 
-import { openModal } from '../omg-modal/action'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import SortableTable from '../omg-table'
-import { Button, Avatar, Icon, Tooltip } from '../omg-uikit'
-import TokensFetcher from '../omg-token/tokensFetcher'
-import CreateTokenChooser from '../omg-token/CreateTokenChooser'
-import { createSearchTokenQuery } from '../omg-token/searchField'
-import { NameColumn } from '../omg-page-account'
+import { openModal } from 'omg-modal/action'
+import TopNavigation from 'omg-page-layout/TopNavigation'
+import SortableTable from 'omg-table'
+import { Button, Avatar, Icon, Tooltip } from 'omg-uikit'
+import TokensFetcher from 'omg-token/tokensFetcher'
+import CreateTokenChooser from 'omg-token/CreateTokenChooser'
+import { createSearchTokenQuery } from 'omg-token/searchField'
+import { NameColumn } from 'omg-page-account'
+import { selectBlockchainEnabled } from 'omg-configuration/selector'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -68,7 +69,8 @@ class TokenDetailPage extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    openModal: PropTypes.func
+    openModal: PropTypes.func,
+    blockchainEnabled: PropTypes.bool
   }
   onClickLoadMore = e => {
     this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
@@ -153,7 +155,7 @@ class TokenDetailPage extends Component {
           divider={this.props.divider}
           title={'Tokens'}
           buttons={[
-            tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
+            !this.props.blockchainEnabled && tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
             this.renderCreateTokenButton(fetch)
           ]}
         />
@@ -192,7 +194,7 @@ class TokenDetailPage extends Component {
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    state => ({ blockchainEnabled: selectBlockchainEnabled()(state)}),
     { openModal }
   )
 )
