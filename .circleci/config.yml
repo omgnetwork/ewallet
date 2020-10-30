@@ -44,11 +44,11 @@ commands:
               exit 0
             fi
 
-            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
-            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
+            GH_URL="https://github.com/omgnetwork/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omgnetwork/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
-            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
-            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
+            MESSAGE="omgnetwork/ewallet branch ${CIRCLE_BRANCH} has failed during ${CIRCLE_JOB}"
+            RICH_MESSAGE="*omgnetwork/ewallet* branch *${CIRCLE_BRANCH}* has failed during ${CIRCLE_JOB}"
 
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
@@ -84,11 +84,11 @@ commands:
               exit 0
             fi
 
-            GH_URL="https://github.com/omisego/ewallet/tree/${CIRCLE_BRANCH}"
-            CIRCLE_URL="https://circleci.com/gh/omisego/ewallet/${CIRCLE_BUILD_NUM}"
+            GH_URL="https://github.com/omgnetwork/ewallet/tree/${CIRCLE_BRANCH}"
+            CIRCLE_URL="https://circleci.com/gh/omgnetwork/ewallet/${CIRCLE_BUILD_NUM}"
             WORKFLOW_URL="https://circleci.com/workflow-run/${CIRCLE_WORKFLOW_ID}"
-            MESSAGE="omisego/ewallet branch ${CIRCLE_BRANCH} has been successfully built"
-            RICH_MESSAGE="*omisego/ewallet* branch *${CIRCLE_BRANCH}* has been successfully built"
+            MESSAGE="omgnetwork/ewallet branch ${CIRCLE_BRANCH} has been successfully built"
+            RICH_MESSAGE="*omgnetwork/ewallet* branch *${CIRCLE_BRANCH}* has been successfully built"
 
             curl -X POST -H 'Content-Type: application/json' --data "{ \
               \"attachments\": [ \
@@ -224,6 +224,14 @@ jobs:
       - run: make test-assets
       - notify_slack_failure
 
+  e2e:
+    executor: metal
+    steps:
+      - checkout
+      - run: sh update-versions.sh -a
+      - run: make docker IMAGE_NAME=$IMAGE_NAME
+      - run: sh .circleci/ci_e2e.sh
+
   publish:
     executor: metal
     steps:
@@ -263,6 +271,9 @@ workflows:
           requires: [build]
           filters: *all_branches
       - dialyze:
+          requires: [build]
+          filters: *all_branches
+      - e2e:
           requires: [build]
           filters: *all_branches
       - publish:
