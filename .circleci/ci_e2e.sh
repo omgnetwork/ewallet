@@ -85,7 +85,8 @@ docker-compose run --rm ewallet config gcs_credentials "$unescaped_gcs_creds" >/
 ## Running E2E
 ##
 
-_merge_base="master"
+# _merge_base="master"
+_merge_base="mederic-p/fix-e2e"
 _branches="$(git ls-remote -h --refs git@github.com:omgnetwork/ewallet 'v*' | awk '{ print $2 }' | sort -r)"
 
 for _branch in "refs/heads/master" $_branches; do
