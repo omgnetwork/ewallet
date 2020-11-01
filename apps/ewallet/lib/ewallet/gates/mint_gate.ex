@@ -81,7 +81,7 @@ defmodule EWallet.MintGate do
     end
   end
 
-  def mint_token(%{blockchain_status: _}, _attrs), do: {:error, :token_not_confirmed}
+  def mint_token(%{blockchain_status: blockchain_status}, _attrs) when not is_nil(blockchain_status), do: {:error, :token_not_confirmed}
 
   def mint_token(token, %{"amount" => amount} = attrs)
       when is_binary(amount) do
