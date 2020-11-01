@@ -117,6 +117,42 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  def mint_erc20_token(
+        %{
+          from: from,
+          contract_address: contract_address,
+          amount: amount
+        },
+        rootchain_id
+      ) do
+    with :ok <- validate_rootchain_identifier(rootchain_id),
+         attrs <- %{
+           from: from,
+           contract_address: contract_address,
+           amount: amount
+         } do
+      :mint_erc20
+      |> BlockchainHelper.call(attrs)
+      |> parse_mint_erc20_response(rootchain_id)
+    end
+  end
+
+  defp parse_mint_erc20_response(
+         {:ok, %{gas_price: _gas_price, gas_limit: _gas_limit, tx_hash: _tx_hash}} = response,
+         rootchain_id
+       ) do
+    # TODO: Put correct originator
+    case create_rootchain_transaction(response, %System{}, rootchain_id) do
+      {:ok, blockchain_transaction} ->
+        {:ok, %{blockchain_transaction: blockchain_transaction}}
+
+      error ->
+        error
+    end
+  end
+
+  defp parse_mint_erc20_response(error, _attrs), do: error
+
   defp parse_deploy_erc20_response(
          {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid}} = response,
          rootchain_id

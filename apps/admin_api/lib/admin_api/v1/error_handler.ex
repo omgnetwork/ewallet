@@ -140,6 +140,14 @@ defmodule AdminAPI.V1.ErrorHandler do
     internal_wallets_disabled: %{
       code: "wallet:internal_wallets_disabled",
       description: "Internal wallets cannot be created."
+    },
+    token_locked: %{
+      code: "token:is_locked",
+      description: "The token is not allowed for minting."
+    },
+    token_not_confirmed: %{
+      code: "token:not_confirmed",
+      description: "The token is not confirmed."
     }
   }
 

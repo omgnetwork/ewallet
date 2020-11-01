@@ -20,7 +20,15 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
   if required and update the state of the transaction.
   """
   alias EWallet.TransactionFormatter
-  alias EWalletDB.{BlockchainTransactionState, Transaction, TransactionState, TransactionType}
+
+  alias EWalletDB.{
+    BlockchainTransactionState,
+    Mint,
+    Transaction,
+    TransactionState,
+    TransactionType
+  }
+
   alias EWalletDB.Helpers.Preloader
   alias ActivityLogger.System
   alias LocalLedger.Transaction, as: LedgerTransaction
@@ -80,12 +88,23 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
          :from_ewallet_to_blockchain,
          %{blockchain_transaction: %{status: @blockchain_transaction_confirmed}} = transaction
        ) do
-    TransactionState.transition_to(
-      :from_ewallet_to_blockchain,
-      TransactionState.confirmed(),
-      transaction,
-      %{originator: %System{}}
-    )
+    {:ok, confirmed_transaction} =
+      TransactionState.transition_to(
+        :from_ewallet_to_blockchain,
+        TransactionState.confirmed(),
+        transaction,
+        %{originator: %System{}}
+      )
+
+    # Check if the transaction is related to mint, if yes - change mint confirmed to true
+    case Mint.get_by(transaction_uuid: confirmed_transaction.uuid) do
+      %Mint{} = mint ->
+        Mint.confirm(mint, confirmed_transaction)
+        {:ok, confirmed_transaction}
+
+      _ ->
+        {:ok, confirmed_transaction}
+    end
   end
 
   defp process_with_transaction(
