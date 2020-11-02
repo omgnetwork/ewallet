@@ -25,7 +25,7 @@ services:
       - "8025:8025"
 
   ewallet:
-    image: omisego/ewallet:latest
+    image: omisego/ewallet:stable
     restart: always
     networks:
       - intnet

@@ -224,14 +224,6 @@ jobs:
       - run: make test-assets
       - notify_slack_failure
 
-  e2e:
-    executor: metal
-    steps:
-      - checkout
-      - run: sh update-versions.sh -a
-      - run: make docker IMAGE_NAME=$IMAGE_NAME
-      - run: sh .circleci/ci_e2e.sh
-
   publish:
     executor: metal
     steps:
@@ -271,9 +263,6 @@ workflows:
           requires: [build]
           filters: *all_branches
       - dialyze:
-          requires: [build]
-          filters: *all_branches
-      - e2e:
           requires: [build]
           filters: *all_branches
       - publish:
