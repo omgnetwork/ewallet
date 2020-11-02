@@ -148,7 +148,11 @@ defmodule AdminAPI.V1.ErrorHandler do
   """
   @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    BlockchainHelper.adapter().error_handler.errors()
+    blockchain_errors = case Application.get_env(:ewallet, :blockchain_enabled, true) do
+      true -> BlockchainHelper.adapter().error_handler.errors()
+      _ -> %{}
+    end
+    blockchain_errors
     |> Map.merge(ErrorHandler.errors())
     |> Map.merge(@errors)
   end
