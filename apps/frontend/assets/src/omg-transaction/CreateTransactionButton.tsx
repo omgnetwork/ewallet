@@ -10,7 +10,7 @@ interface CreateTransactionButtonProps {
 }
 
 function CreateTransactionButton ({ fromAddress }: CreateTransactionButtonProps) {
-  const blockchainEnabled = useSelector(selectBlockchainEnabled())
+  const blockchainEnabled: boolean = useSelector(selectBlockchainEnabled())
   const dispatch = useDispatch()
   const handleClick = () => {
     dispatch(openModal({ id: 'createTransaction', fromAddress: fromAddress }))

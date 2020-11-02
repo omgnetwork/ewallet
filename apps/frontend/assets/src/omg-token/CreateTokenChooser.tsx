@@ -56,7 +56,7 @@ const DropdownItem = ({icon, text, onClick }:DropdownItemProps) => {
 
 
 const CreateTokenChooser: FunctionComponent<CreateTokenChooserProps> = ({onClickButton, open, refetch}:CreateTokenChooserProps) => {
-  const blockchainEnabled = useSelector(selectBlockchainEnabled())
+  const blockchainEnabled: boolean = useSelector(selectBlockchainEnabled())
 
   const dispatch = useDispatch()
   const show = (id) => () => dispatch(openModal({id, refetch}))
