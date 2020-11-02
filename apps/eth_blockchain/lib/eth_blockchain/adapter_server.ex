@@ -158,6 +158,10 @@ defmodule EthBlockchain.AdapterServer do
   """
   @spec handle_call({:call, adapter(), call()}, from(), state()) :: reply({:ok, any()})
   def handle_call({:call, adapter_spec, func_spec}, _from, state) do
+    IO.inspect("CALLING ADAPTER")
+    IO.inspect(adapter_spec)
+    IO.inspect(func_spec)
+    IO.inspect(state)
     case ensure_adapter_started(adapter_spec, state) do
       {:ok, pid} ->
         try do
