@@ -17,7 +17,7 @@ echo_warn() {
 REPOSITORY_URL="$CIRCLE_REPOSITORY_URL"
 
 if [ -z "$REPOSITORY_URL" ]; then
-    REPOSITORY_URL="https://github.com/omisego/ewallet.git"
+    REPOSITORY_URL="https://github.com/omgnetwork/ewallet.git"
 fi
 
 if [ -z "$GCS_BUCKET" ] ||
@@ -86,7 +86,7 @@ docker-compose run --rm ewallet config gcs_credentials "$unescaped_gcs_creds" >/
 ##
 
 _merge_base="master"
-_branches="$(git ls-remote -h --refs git@github.com:omisego/ewallet 'v*' | awk '{ print $2 }' | sort -r)"
+_branches="$(git ls-remote -h --refs git@github.com:omgnetwork/ewallet 'v*' | awk '{ print $2 }' | sort -r)"
 
 for _branch in "refs/heads/master" $_branches; do
     _branch="${_branch#refs/heads/*}"
@@ -98,14 +98,14 @@ done
 
 echo_info "Detected $_merge_base as merge base."
 
-_e2e_repo="https://github.com/omisego/e2e.git"
+_e2e_repo="https://github.com/omgnetwork/e2e.git"
 _e2e_branch="ewallet/$_merge_base"
 
 if [ "$(git ls-remote $_e2e_repo "$_e2e_branch")" = "" ]; then
   _e2e_branch="master"
 fi
 
-git clone --depth 1 -b "$_e2e_branch" https://github.com/omisego/e2e.git ~/e2e
+git clone --depth 1 -b "$_e2e_branch" https://github.com/omgnetwork/e2e.git ~/e2e
 echo_info "Running E2E from $_e2e_branch branch"
 
 docker-compose up -d ewallet
