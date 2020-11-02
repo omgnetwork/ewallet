@@ -60,7 +60,7 @@ defmodule EWallet.MintGate do
         %{"amount" => amount} = attrs
       )
       when is_binary(contract_address) and is_number(amount) do
-    with true <- amount > 0,
+    with {:ok, _} <- validate_amount(amount),
          {:ok, _} <- is_mintable(token),
          rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
          hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),
@@ -84,10 +84,6 @@ defmodule EWallet.MintGate do
       {:ok, _pid} = TransactionTracker.start(transaction)
       {:ok, mint, token}
     else
-      false ->
-        {:error, :invalid_parameter,
-         "Invalid parameter provided. `amount` must be greater than 0."}
-
       error ->
         error
     end
@@ -277,4 +273,10 @@ defmodule EWallet.MintGate do
 
   defp is_mintable(%Token{locked: false}), do: {:ok, "Token is unlocked."}
   defp is_mintable(%Token{locked: true}), do: {:error, :token_locked}
+
+  defp validate_amount(amount) when amount > 0, do: {:ok, "Amount is valid."}
+
+  defp validate_amount(_),
+    do:
+      {:error, :invalid_parameter, "Invalid parameter provided. `amount` must be greater than 0."}
 end

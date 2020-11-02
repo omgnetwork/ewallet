@@ -119,14 +119,19 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: 1_000_000 * token.subunit_to_unit
         })
 
-      mint = Mint |> Repo.all() |> Enum.at(0)
+      assert_mint(:existing_token, token, response)
+    end
 
-      assert response["success"]
-      assert response["data"]["object"] == "mint"
-      assert Mint.get(response["data"]["id"]) != nil
-      assert mint != nil
-      assert mint.amount == 1_000_000 * token.subunit_to_unit
-      assert mint.token_uuid == token.uuid
+    test_with_auths "mints an existing erc20 token" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: 1_000_000 * token.subunit_to_unit
+        })
+
+      assert_mint(:existing_token, token, response)
     end
 
     test_with_auths "mints an existing token with string amount" do
@@ -138,14 +143,19 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: "100000000"
         })
 
-      mint = Mint |> Repo.all() |> Enum.at(0)
+      assert_mint(:existing_token, token, response)
+    end
 
-      assert response["success"]
-      assert response["data"]["object"] == "mint"
-      assert Mint.get(response["data"]["id"]) != nil
-      assert mint != nil
-      assert mint.amount == 1_000_000 * token.subunit_to_unit
-      assert mint.token_uuid == token.uuid
+    test_with_auths "mints an existing erc20 token with string amount" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: "100000000"
+        })
+
+      assert_mint(:existing_token, token, response)
     end
 
     test_with_auths "mints an existing token with a big number" do
@@ -157,17 +167,22 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: 100_000_000_000_000_000_000_000_000_000_000_000 - 1
         })
 
-      mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "mint"
-      assert Mint.get(response["data"]["id"]) != nil
-      assert mint != nil
-      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
-      assert mint.token_uuid == token.uuid
+      assert_mint(:existing_token_with_big_number, token, response)
     end
 
-    test_with_auths "fails to mint with amount = nil" do
+    test_with_auths "mints an existing erc20 token with a big number" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+        })
+
+      assert_mint(:existing_token_with_big_number, token, response)
+    end
+
+    test_with_auths "fails to mint existing token with amount = nil" do
       token = insert(:token)
 
       response =
@@ -176,9 +191,19 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: nil
         })
 
-      refute response["success"]
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided."
+      assert_mint(:fails_existing_token_with_amount_nil, response)
+    end
+
+    test_with_auths "fails to mint existing erc20 token with amount = nil" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: nil
+        })
+
+      assert_mint(:fails_existing_token_with_amount_nil, response)
     end
 
     test_with_auths "fails to mint a non existing token" do
@@ -193,7 +218,7 @@ defmodule AdminAPI.V1.MintControllerTest do
       assert response["data"]["code"] == "unauthorized"
     end
 
-    test_with_auths "fails to mint a disabled token" do
+    test_with_auths "fails to mint a disabled existing token" do
       token = insert(:token, enabled: false)
 
       response =
@@ -202,14 +227,22 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: "100000000"
         })
 
-      mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"] == false
-      assert response["data"]["code"] == "token:disabled"
-      assert mint == nil
+      assert_mint(:fails_disabled_existing_token, response)
     end
 
-    test_with_auths "fails to mint with mint amount sent as string" do
+    test_with_auths "fails to mint a disabled existing erc20 token token" do
+      token = insert(:external_blockchain_token, enabled: false)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: "100000000"
+        })
+
+      assert_mint(:fails_disabled_existing_token, response)
+    end
+
+    test_with_auths "fails to mint existing token with mint amount sent as string" do
       token = insert(:token)
 
       response =
@@ -218,15 +251,22 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: "abc"
         })
 
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. String number is not a valid number: 'abc'."
+      assert_mint(:fails_existing_token_amount_string, response)
     end
 
-    test_with_auths "fails to mint with mint amount == 0" do
+    test_with_auths "fails to mint existing erc20 token with mint amount sent as string" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: "abc"
+        })
+
+      assert_mint(:fails_existing_token_amount_string, response)
+    end
+
+    test_with_auths "fails to mint existing token with mint amount == 0" do
       token = insert(:token)
 
       response =
@@ -235,17 +275,22 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: 0
         })
 
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `amount` must be greater than 0."
-
-      assert response["data"]["messages"] == %{"amount" => ["number"]}
+      assert_mint(:fails_existing_token_amount_zero_or_less, response)
     end
 
-    test_with_auths "fails to mint with mint amount < 0" do
+    test_with_auths "fails to mint existing erc20 token with mint amount == 0" do
+      token = insert(:external_blockchain_token)
+
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: 0
+        })
+
+      assert_mint(:fails_existing_token_amount_zero_or_less, response)
+    end
+
+    test_with_auths "fails to mint existing token with mint amount < 0" do
       token = insert(:token)
 
       response =
@@ -254,114 +299,19 @@ defmodule AdminAPI.V1.MintControllerTest do
           amount: -1
         })
 
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `amount` must be greater than 0."
-
-      assert response["data"]["messages"] == %{"amount" => ["number"]}
+      assert_mint(:fails_existing_token_amount_zero_or_less, response)
     end
 
-    defp assert_mint_logs(logs, originator, mint) do
-      genesis = Wallet.get("gnis000000000000")
+    test_with_auths "fails to mint existing erc20 token with mint amount < 0" do
+      token = insert(:external_blockchain_token)
 
-      transaction =
-        Transaction
-        |> get_last_inserted()
-        |> Repo.preload([:from_token, :to_wallet, :to_account, :to_token])
+      response =
+        request("/token.mint", %{
+          id: token.id,
+          amount: -1
+        })
 
-      assert Enum.count(logs) == 6
-
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: originator,
-        target: mint,
-        changes: %{
-          "account_uuid" => mint.account.uuid,
-          "amount" => mint.amount,
-          "token_uuid" => mint.token.uuid
-        },
-        encrypted_changes: %{}
-      )
-
-      logs
-      |> Enum.at(1)
-      |> assert_activity_log(
-        action: "insert",
-        originator: :system,
-        target: genesis,
-        changes: %{
-          "address" => "gnis000000000000",
-          "identifier" => "genesis",
-          "name" => "genesis"
-        },
-        encrypted_changes: %{}
-      )
-
-      logs
-      |> Enum.at(2)
-      |> assert_activity_log(
-        action: "insert",
-        originator: mint,
-        target: transaction,
-        changes: %{
-          "from" => "gnis000000000000",
-          "from_amount" => 100_000_000,
-          "from_token_uuid" => transaction.from_token.uuid,
-          "idempotency_token" => transaction.idempotency_token,
-          "to" => transaction.to_wallet.address,
-          "to_account_uuid" => transaction.to_account.uuid,
-          "to_amount" => 100_000_000,
-          "to_token_uuid" => transaction.to_token.uuid
-        },
-        encrypted_changes: %{
-          "payload" => %{
-            "amount" => 100_000_000,
-            "description" => nil,
-            "idempotency_token" => transaction.idempotency_token,
-            "token_id" => transaction.to_token.id
-          }
-        }
-      )
-
-      logs
-      |> Enum.at(3)
-      |> assert_activity_log(
-        action: "update",
-        originator: transaction,
-        target: mint,
-        changes: %{
-          "transaction_uuid" => transaction.uuid
-        },
-        encrypted_changes: %{}
-      )
-
-      logs
-      |> Enum.at(4)
-      |> assert_activity_log(
-        action: "update",
-        originator: :system,
-        target: transaction,
-        changes: %{
-          "local_ledger_uuid" => transaction.local_ledger_uuid,
-          "status" => "confirmed"
-        },
-        encrypted_changes: %{}
-      )
-
-      logs
-      |> Enum.at(5)
-      |> assert_activity_log(
-        action: "update",
-        originator: transaction,
-        target: mint,
-        changes: %{"confirmed" => true},
-        encrypted_changes: %{}
-      )
+      assert_mint(:fails_existing_token_amount_zero_or_less, response)
     end
 
     test "generates an activity log for an admin request" do
@@ -402,5 +352,158 @@ defmodule AdminAPI.V1.MintControllerTest do
       |> get_all_activity_logs_since()
       |> assert_mint_logs(get_test_key(), mint)
     end
+  end
+
+  defp assert_mint(:existing_token, token, response) do
+    mint = Mint |> Repo.all() |> Enum.at(0)
+
+    assert response["success"]
+    assert response["data"]["object"] == "mint"
+    assert Mint.get(response["data"]["id"]) != nil
+    assert mint != nil
+    assert mint.amount == 1_000_000 * token.subunit_to_unit
+    assert mint.token_uuid == token.uuid
+  end
+
+  defp assert_mint(:existing_token_with_big_number, token, response) do
+    mint = Mint |> Repo.all() |> Enum.at(0)
+
+    assert response["success"]
+    assert response["data"]["object"] == "mint"
+    assert Mint.get(response["data"]["id"]) != nil
+    assert mint != nil
+    assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+    assert mint.token_uuid == token.uuid
+  end
+
+  defp assert_mint(:fails_existing_token_with_amount_nil, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+    assert response["data"]["description"] == "Invalid parameter provided."
+  end
+
+  defp assert_mint(:fails_existing_token_amount_string, response) do
+    refute response["success"]
+    assert response["data"]["object"] == "error"
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "Invalid parameter provided. String number is not a valid number: 'abc'."
+  end
+
+  defp assert_mint(:fails_existing_token_amount_zero_or_less, response) do
+    refute response["success"]
+    assert response["data"]["object"] == "error"
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "Invalid parameter provided. `amount` must be greater than 0."
+  end
+
+  defp assert_mint(:fails_disabled_existing_token, response) do
+    mint = Mint |> Repo.all() |> Enum.at(0)
+    refute response["success"]
+    assert response["data"]["code"] == "token:disabled"
+    assert mint == nil
+  end
+
+  defp assert_mint_logs(logs, originator, mint) do
+    genesis = Wallet.get("gnis000000000000")
+
+    transaction =
+      Transaction
+      |> get_last_inserted()
+      |> Repo.preload([:from_token, :to_wallet, :to_account, :to_token])
+
+    assert Enum.count(logs) == 6
+
+    logs
+    |> Enum.at(0)
+    |> assert_activity_log(
+      action: "insert",
+      originator: originator,
+      target: mint,
+      changes: %{
+        "account_uuid" => mint.account.uuid,
+        "amount" => mint.amount,
+        "token_uuid" => mint.token.uuid
+      },
+      encrypted_changes: %{}
+    )
+
+    logs
+    |> Enum.at(1)
+    |> assert_activity_log(
+      action: "insert",
+      originator: :system,
+      target: genesis,
+      changes: %{
+        "address" => "gnis000000000000",
+        "identifier" => "genesis",
+        "name" => "genesis"
+      },
+      encrypted_changes: %{}
+    )
+
+    logs
+    |> Enum.at(2)
+    |> assert_activity_log(
+      action: "insert",
+      originator: mint,
+      target: transaction,
+      changes: %{
+        "from" => "gnis000000000000",
+        "from_amount" => 100_000_000,
+        "from_token_uuid" => transaction.from_token.uuid,
+        "idempotency_token" => transaction.idempotency_token,
+        "to" => transaction.to_wallet.address,
+        "to_account_uuid" => transaction.to_account.uuid,
+        "to_amount" => 100_000_000,
+        "to_token_uuid" => transaction.to_token.uuid
+      },
+      encrypted_changes: %{
+        "payload" => %{
+          "amount" => 100_000_000,
+          "description" => nil,
+          "idempotency_token" => transaction.idempotency_token,
+          "token_id" => transaction.to_token.id
+        }
+      }
+    )
+
+    logs
+    |> Enum.at(3)
+    |> assert_activity_log(
+      action: "update",
+      originator: transaction,
+      target: mint,
+      changes: %{
+        "transaction_uuid" => transaction.uuid
+      },
+      encrypted_changes: %{}
+    )
+
+    logs
+    |> Enum.at(4)
+    |> assert_activity_log(
+      action: "update",
+      originator: :system,
+      target: transaction,
+      changes: %{
+        "local_ledger_uuid" => transaction.local_ledger_uuid,
+        "status" => "confirmed"
+      },
+      encrypted_changes: %{}
+    )
+
+    logs
+    |> Enum.at(5)
+    |> assert_activity_log(
+      action: "update",
+      originator: transaction,
+      target: mint,
+      changes: %{"confirmed" => true},
+      encrypted_changes: %{}
+    )
   end
 end
