@@ -10,11 +10,11 @@ import { fuzzySearch } from 'utils/search'
 import { selectRecentAccounts } from 'omg-recent-account/selector'
 import { logout } from 'omg-session/action'
 import { selectBlockchainEnabled } from 'omg-configuration/selector'
-import colors from 'adminPanelApp/theme'
+import theme from 'adminPanelApp/theme'
 
 
 const SideNavigationContainer = styled.div`
-  background-color: ${colors.S200};
+  background-color: ${theme.colors.S200};
   height: 100%;
   overflow: auto;
 `
@@ -23,7 +23,7 @@ const NavigationItem = styled.div<{ active: boolean }>`
   white-space: nowrap;
   text-align: left;
   font-size: 14px;
-  color: ${({active}) => (active ? colors.BL400 : 'inherit')};
+  color: ${({active}) => (active ? theme.colors.BL400 : 'inherit')};
   transition: 0.1s background-color;
   > * {
     overflow: hidden;
@@ -35,17 +35,17 @@ const NavigationItem = styled.div<{ active: boolean }>`
   i {
     margin-right: 15px;
     font-size: 14px;
-    color: ${colors.S500};
+    color: ${theme.colors.S500};
     font-weight: 400;
   }
   :hover {
     cursor: pointer;
-    color: ${colors.BL400};
+    color: ${theme.colors.BL400};
   }
 `
 const RecentAccountItem = styled(NavigationItem)`
   color: ${(props) =>
-    props.active ? colors.BL400 : colors.S500};
+    props.active ? theme.colors.BL400 : theme.colors.S500};
 `
 
 const NavigationItemsContainer = styled.div`
@@ -59,7 +59,7 @@ const MenuName = styled.div`
   padding: 5px 35px;
   margin-top: 30px;
   font-size: 10px;
-  color: ${colors.B100};
+  color: ${theme.colors.B100};
   font-weight: 600;
   letter-spacing: 1px;
 `
@@ -69,7 +69,7 @@ const RecentAccount = styled.div`
 
 const OverviewContainer = styled.div`
   padding-bottom: 30px;
-  border-bottom: 1px solid ${colors.S300};
+  border-bottom: 1px solid ${theme.colors.S300};
 `
 
 interface SideNavigationProps extends RouteComponentProps<{accountId: string}> {
