@@ -62,7 +62,7 @@ const CreateTokenChooser = ({
   externalStyles
 }: CreateTokenChooserProps) => {
   const dispatch = useDispatch()
-  const show = (id) => () => dispatch(openModal({ id, refetch }))
+  const show = id => () => dispatch(openModal({ id, refetch }))
 
   const renderDropdown = () => {
     return (
