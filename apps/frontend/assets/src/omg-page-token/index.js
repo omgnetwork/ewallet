@@ -37,6 +37,9 @@ const TokenPageContainer = styled.div`
   td:nth-child(4) {
     white-space: nowrap;
   }
+  .create-token-chooser {
+    margin-left: 20px;
+  }
 `
 const EWalletBlockchain = styled.div`
   display: flex;
@@ -72,16 +75,14 @@ class TokenDetailPage extends Component {
     openModal: PropTypes.func,
     blockchainEnabled: PropTypes.bool
   }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
+
   renderCreateTokenButton = refetch => {
     return (
       <CreateTokenChooser
-        style={{ marginLeft: '10px' }}
         key='create-token-chooser'
+        externalStyles='create-token-chooser'
         refetch={refetch}
-        {...this.props}
+        blockchainEnabled={this.props.blockchainEnabled}
       />
     )
   }
