@@ -43,6 +43,18 @@ defmodule EWallet.MintGate do
     mint_token(token, attrs)
   end
 
+  def mint_token(token, %{"amount" => amount} = attrs)
+      when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        attrs = Map.put(attrs, "amount", amount)
+        mint_token(token, attrs)
+
+      error ->
+        error
+    end
+  end
+
   def mint_token(
         %{blockchain_address: contract_address, blockchain_status: "confirmed"} = token,
         %{"amount" => amount} = attrs
@@ -81,19 +93,9 @@ defmodule EWallet.MintGate do
     end
   end
 
-  def mint_token(%{blockchain_status: blockchain_status}, _attrs) when not is_nil(blockchain_status), do: {:error, :token_not_confirmed}
-
-  def mint_token(token, %{"amount" => amount} = attrs)
-      when is_binary(amount) do
-    case Helper.string_to_integer(amount) do
-      {:ok, amount} ->
-        attrs = Map.put(attrs, "amount", amount)
-        mint_token(token, attrs)
-
-      error ->
-        error
-    end
-  end
+  def mint_token(%{blockchain_status: blockchain_status}, %{"amount" => amount})
+      when not is_nil(blockchain_status) and is_number(amount),
+      do: {:error, :token_not_confirmed}
 
   def mint_token(token, %{"amount" => amount} = attrs)
       when is_number(amount) do
