@@ -501,6 +501,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     hd_path_generation_max_retried: %{
       code: "wallet:hd_path_generation_max_retried",
       description: "A hierarchical-deterministic key path could not be generated."
+    },
+    invalid_amount: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `amount` must be greater than 0."
+    },
+    invalid_subunit_to_unit: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `subunit_to_unit` must be greater than 0."
     }
   }
 

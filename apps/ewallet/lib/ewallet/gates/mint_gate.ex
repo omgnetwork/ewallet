@@ -60,8 +60,8 @@ defmodule EWallet.MintGate do
         %{"amount" => amount} = attrs
       )
       when is_binary(contract_address) and is_number(amount) do
-    with {:ok, _} <- validate_amount(amount),
-         {:ok, _} <- is_mintable(token),
+    with true <- amount > 0 || {:error, :invalid_amount},
+         true <- !token.locked || {:error, :token_locked},
          rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
          hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),
          {:ok, %{blockchain_transaction: blockchain_transaction}} <-
@@ -270,13 +270,4 @@ defmodule EWallet.MintGate do
          |> Map.put("blockchain_transaction_uuid", blockchain_transaction.uuid)
          |> Map.put("hot_wallet_address", hot_wallet_address)
          |> Map.put("contract_address", contract_address)
-
-  defp is_mintable(%Token{locked: false}), do: {:ok, "Token is unlocked."}
-  defp is_mintable(%Token{locked: true}), do: {:error, :token_locked}
-
-  defp validate_amount(amount) when amount > 0, do: {:ok, "Amount is valid."}
-
-  defp validate_amount(_),
-    do:
-      {:error, :invalid_parameter, "Invalid parameter provided. `amount` must be greater than 0."}
 end
