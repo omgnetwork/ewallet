@@ -5,8 +5,10 @@ export const selectConfigurationById = state => configurationId => {
 }
 
 export const selectBlockchainEnabled = () => state => {
-  return state.configurations.blockchain_enabled?.value || true
-} 
+  return state.configurations.blockchain_enabled?.value !== 'boolean'
+    ? state.configurations.blockchain_enabled?.value
+    : true
+}
 
 export const selectConfigurations = state => {
   return state.configurations || {}
