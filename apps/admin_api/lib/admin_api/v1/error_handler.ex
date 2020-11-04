@@ -143,7 +143,7 @@ defmodule AdminAPI.V1.ErrorHandler do
     },
     token_locked: %{
       code: "token:is_locked",
-      description: "The token is not allowed for minting."
+      description: "Minting is not allowed for this token."
     },
     token_not_confirmed: %{
       code: "token:not_confirmed",
