@@ -88,22 +88,25 @@ defmodule EWallet.TransactionGate.BlockchainLocal do
          :from_ewallet_to_blockchain,
          %{blockchain_transaction: %{status: @blockchain_transaction_confirmed}} = transaction
        ) do
-    {:ok, confirmed_transaction} =
-      TransactionState.transition_to(
-        :from_ewallet_to_blockchain,
-        TransactionState.confirmed(),
-        transaction,
-        %{originator: %System{}}
-      )
+    case TransactionState.transition_to(
+           :from_ewallet_to_blockchain,
+           TransactionState.confirmed(),
+           transaction,
+           %{originator: %System{}}
+         ) do
+      {:ok, confirmed_transaction} ->
+        # If the transaction is related to mint, change mint confirmed to true
+        case Mint.get_by(transaction_uuid: confirmed_transaction.uuid) do
+          %Mint{} = mint ->
+            Mint.confirm(mint, confirmed_transaction)
+            {:ok, confirmed_transaction}
 
-    # Check if the transaction is related to mint, if yes - change mint confirmed to true
-    case Mint.get_by(transaction_uuid: confirmed_transaction.uuid) do
-      %Mint{} = mint ->
-        Mint.confirm(mint, confirmed_transaction)
-        {:ok, confirmed_transaction}
+          _ ->
+            {:ok, confirmed_transaction}
+        end
 
-      _ ->
-        {:ok, confirmed_transaction}
+      error ->
+        error
     end
   end
 
