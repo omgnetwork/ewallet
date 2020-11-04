@@ -102,7 +102,6 @@ class ConfigurationPage extends React.Component {
         baseUrl: config.base_url.value,
         redirectUrlPrefixes: config.redirect_url_prefixes.value,
         enableStandalone: config.enable_standalone.value,
-        enableBlockchain: config.blockchain_enabled.value,
         maxPerPage: config.max_per_page.value,
         minPasswordLength: config.min_password_length.value,
         senderEmail: config.sender_email.value,
@@ -248,11 +247,6 @@ class ConfigurationPage extends React.Component {
       enableStandalone: !oldState.enableStandalone
     }))
   }
-  onChangeEnableBlockchain = e => {
-    this.setState(oldState => ({
-      enableBlockchain: !oldState.enableBlockchain
-    }))
-  }
   onClickSaveConfiguration = async e => {
     try {
       this.setState({ submitStatus: CONSTANT.LOADING_STATUS.PENDING })
@@ -384,7 +378,6 @@ class ConfigurationPage extends React.Component {
     onChangeInput: this.onChangeInput,
     onChangeInputredirectUrlPrefixes: this.onChangeInputredirectUrlPrefixes,
     onChangeEnableStandalone: this.onChangeEnableStandalone,
-    onChangeEnableBlockchain: this.onChangeEnableBlockchain,
     onClickAddPrefix: this.onClickAddPrefix,
     handleCancelClick: this.handleCancelClick
   }
