@@ -64,7 +64,7 @@ const BlockchainSettings = ({
     return (
       <>
         <h4>Blockchain Settings</h4>
-        {!blockchainEnabled ? (
+        {blockchainEnabled ? (
           <Grid>
             <ConfigRow
               disabled={true}
