@@ -34,6 +34,7 @@ const RadioButtonsContainer = styled.div`
 
 class ConfigRow extends Component {
   static propTypes = {
+    disabled: PropTypes.bool,
     description: PropTypes.string,
     value: PropTypes.any,
     options: PropTypes.array,
@@ -53,7 +54,8 @@ class ConfigRow extends Component {
   static defaultProps = {
     type: 'input',
     options: [],
-    border: true
+    border: true,
+    disabled: false
   }
 
   renderInputType () {
@@ -61,6 +63,7 @@ class ConfigRow extends Component {
       <>
         {this.props.type === 'input' && (
           <Input
+            disabled={this.props.disabled}
             suffix={this.props.suffix}
             value={this.props.value}
             normalPlaceholder={this.props.placeholder}
