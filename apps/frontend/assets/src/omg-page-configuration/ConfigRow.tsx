@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Select, Checkbox } from '../omg-uikit'
+
 const ConfigRowContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -32,25 +32,25 @@ const RadioButtonsContainer = styled.div`
   }
 `
 
-class ConfigRow extends Component {
-  static propTypes = {
-    disabled: PropTypes.bool,
-    description: PropTypes.string,
-    value: PropTypes.any,
-    options: PropTypes.array,
-    name: PropTypes.string,
-    type: PropTypes.string,
-    onChange: PropTypes.func,
-    onSelectItem: PropTypes.func,
-    border: PropTypes.bool,
-    placeholder: PropTypes.string,
-    inputType: PropTypes.string,
-    inputValidator: PropTypes.func,
-    inputErrorMessage: PropTypes.string,
-    valueRenderer: PropTypes.func,
-    suffix: PropTypes.string
-  }
+interface ConfigRowProps {
+  border: boolean
+  description: string
+  disabled: boolean
+  inputErrorMessage: string
+  inputType: string
+  inputValidator: (...args: any) => boolean
+  name: string
+  onChange: Function
+  onSelectItem: Function
+  options: []
+  placeholder: string
+  suffix: string
+  type: 'boolean' | 'input' | 'select'
+  value: any
+  valueRenderer: Function
+}
 
+class ConfigRow extends Component<ConfigRowProps> {
   static defaultProps = {
     type: 'input',
     options: [],
@@ -58,10 +58,10 @@ class ConfigRow extends Component {
     disabled: false
   }
 
-  renderInputType () {
-    return (
-      <>
-        {this.props.type === 'input' && (
+  renderInputType (): JSX.Element {
+    switch (this.props.type) {
+      case 'input':
+        return (
           <Input
             disabled={this.props.disabled}
             suffix={this.props.suffix}
@@ -72,8 +72,10 @@ class ConfigRow extends Component {
             validator={this.props.inputValidator}
             errorText={this.props.inputErrorMessage}
           />
-        )}
-        {this.props.type === 'select' && (
+        )
+
+      case 'select':
+        return (
           <Select
             value={this.props.value}
             options={this.props.options}
@@ -84,27 +86,31 @@ class ConfigRow extends Component {
             validator={this.props.inputValidator}
             errorText={this.props.inputErrorMessage}
           />
-        )}
-      </>
-    )
+        )
+      default:
+        return null
+    }
   }
 
   render () {
     return (
-      <ConfigRowContainer border={this.props.border}>
+      <ConfigRowContainer>
         <ConfigCol>{this.props.name}</ConfigCol>
-        {this.props.type === 'boolean' && (
+        {this.props.type === 'boolean' ? (
           <RadioButtonsContainer>
-            <Checkbox checked={this.props.value} onClick={this.props.onChange} />
+            <Checkbox
+              checked={this.props.value}
+              onClick={this.props.onChange}
+            />
             <ConfigCol>{this.props.description}</ConfigCol>
           </RadioButtonsContainer>
-        )}
-
-        {this.props.type !== 'boolean' && (
+        ) : (
           <>
             <ConfigCol>{this.props.description}</ConfigCol>
             <ConfigCol>
-              {this.props.valueRenderer ? this.props.valueRenderer() : this.renderInputType()}
+              {this.props.valueRenderer
+                ? this.props.valueRenderer()
+                : this.renderInputType()}
             </ConfigCol>
           </>
         )}
