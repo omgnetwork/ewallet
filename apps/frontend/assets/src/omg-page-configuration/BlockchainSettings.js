@@ -17,60 +17,118 @@ const Grid = styled.div`
   flex-direction: row;
   flex-wrap: wrap;
 `
-const SubSettingContainer = styled.div`
-  width: 100%;
-  padding: 20px 40px;
-  background-color: ${props => props.theme.colors.BL100};
-  border-radius: 4px;
-  border: 1px solid transparent;
-`
 
-const BlockchainSettings = (props) => {
+const BlockchainSettings = ({
+  blockchainConfirmationsThreshold,
+  blockchainDepositPoolingInterval,
+  blockchainEnabled,
+  blockchainPollInterval,
+  blockchainStateSaveInterval,
+  blockchainSyncInterval,
+  blockchainTransactionPollInterval,
+  configurations,
+  handleCancelClick,
+  onChangeInput
+}) => {
   useEffect(() => {
-    return props.handleCancelClick
-  }, [props.handleCancelClick])
+    return handleCancelClick
+  }, [handleCancelClick])
 
-  const renderBlockchainSetting = (configurations) => {
+  const isPositiveInteger = value => {
+    const numericValue = Number(value)
+    return numericValue > 0 && _.isInteger(numericValue)
+  }
+
+  const getDescription = key => {
+    return _.get(configurations, `${key}.description`)
+  }
+
+  const errorMsg = key => {
+    return `The ${key} should be a positive integer.`
+  }
+
+  const renderBlockchainSetting = configurations => {
     return (
       <>
         <h4>Blockchain Settings</h4>
-        <Grid>
-          <ConfigRow
-            name={'Enable Ethereum Connection'}
-            description={'This feature is not implemented yet'}
-            value={props.enableBlockchain}
-            onChange={props.onChangeEnableBlockchain}
-            type='boolean'
-          />
-          {props.enableBlockchain && (
-            <SubSettingContainer>
-              <ConfigRow
-                name={'Network'}
-                value={props.blockchainNetwork}
-                onSelectItem={props.onSelectBlockchainNetwork}
-                onChange={props.onChangeInput('blockchainNetwork')}
-                type='select'
-                options={configurations.blockchain_network
-                  ? configurations.blockchain_network.options.map(option => ({
-                    key: option,
-                    value: option
-                  }))
-                  : []
-                }
-              />
-            </SubSettingContainer>
-          )}
-        </Grid>
+        {!blockchainEnabled ? (
+          <Grid>
+            <ConfigRow
+              disabled={true}
+              name={'Blockchain JSON-RPC URL'}
+              description={getDescription('blockchain_json_rpc_url')}
+              value={configurations.blockchain_json_rpc_url.value}
+            />
+            <ConfigRow
+              disabled={true}
+              name={'Chain ID'}
+              description={getDescription('blockchain_chain_id')}
+              value={configurations.blockchain_chain_id.value}
+            />
+            <ConfigRow
+              name={'Confirmations Threshold'}
+              description={getDescription('blockchain_confirmations_threshold')}
+              value={blockchainConfirmationsThreshold}
+              onChange={onChangeInput('blockchainConfirmationsThreshold')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('confirmations threshold')}
+            />
+            <ConfigRow
+              name={'Deposit Polling Interval'}
+              description={getDescription(
+                'blockchain_deposit_pooling_interval'
+              )}
+              value={blockchainDepositPoolingInterval}
+              onChange={onChangeInput('blockchainDepositPoolingInterval')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('polling interval')}
+            />
+            <ConfigRow
+              name={'Blockchain Poll Interval'}
+              description={getDescription('blockchain_poll_interval')}
+              value={blockchainPollInterval}
+              onChange={onChangeInput('blockchainPollInterval')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('poll interval')}
+            />
+            <ConfigRow
+              name={'Blockchain State Save Interval'}
+              description={getDescription('blockchain_state_save_interval')}
+              value={blockchainStateSaveInterval}
+              onChange={onChangeInput('blockchainStateSaveInterval')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('state save interval')}
+            />
+            <ConfigRow
+              name={'Blockchain Sync Interval'}
+              description={getDescription('blockchain_sync_interval')}
+              value={blockchainSyncInterval}
+              onChange={onChangeInput('blockchainSyncInterval')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('sync interval')}
+            />
+            <ConfigRow
+              name={'Blockchain Tranaction Poll Interval'}
+              description={getDescription(
+                'blockchain_transaction_poll_interval'
+              )}
+              value={blockchainTransactionPollInterval}
+              onChange={onChangeInput('blockchainTransactionPollInterval')}
+              inputValidator={isPositiveInteger}
+              inputErrorMessage={errorMsg('transaction poll interval')}
+            />
+          </Grid>
+        ) : (
+          <div> Blockchain is not enabled. </div>
+        )}
       </>
     )
   }
 
   return (
     <>
-      {!_.isEmpty(props.configurations) ? (
-        <form>
-          {renderBlockchainSetting(props.configurations)}
-        </form>
+      {!_.isEmpty(configurations) ? (
+        <form>{renderBlockchainSetting(configurations)}</form>
       ) : (
         <LoadingSkeletonContainer>
           <LoadingSkeleton width={'150px'} />
