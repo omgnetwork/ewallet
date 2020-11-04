@@ -32,22 +32,23 @@ const RadioButtonsContainer = styled.div`
   }
 `
 
+
 interface ConfigRowProps {
-  border: boolean
+  border?: boolean
   description: string
-  disabled: boolean
-  inputErrorMessage: string
-  inputType: string
-  inputValidator: (...args: any) => boolean
+  disabled?: boolean
+  inputErrorMessage?: string
+  inputType?: string
+  inputValidator?: (...args: any) => boolean
   name: string
-  onChange: Function
-  onSelectItem: Function
-  options: []
-  placeholder: string
-  suffix: string
-  type: 'boolean' | 'input' | 'select'
+  onChange?: Function
+  onSelectItem?: Function
+  options?: []
+  placeholder?: string
+  suffix?: string
+  type?: 'boolean' | 'input' | 'select'
   value: any
-  valueRenderer: Function
+  valueRenderer?: Function
 }
 
 class ConfigRow extends Component<ConfigRowProps> {

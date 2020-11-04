@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React, { useEffect } from 'react'
+import React, { EffectCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import _ from 'lodash'
 
@@ -18,6 +18,19 @@ const Grid = styled.div`
   flex-wrap: wrap;
 `
 
+interface BlockchainSettingsProps {
+  blockchainEnabled: boolean,
+  handleCancelClick: EffectCallback
+  configurations: Object
+  blockchainConfirmationsThreshold: {value: string, description: string}
+  blockchainDepositPoolingInterval: {value: string, description: string}
+  blockchainPollInterval: {value: string, description: string}
+  blockchainStateSaveInterval: {value: string, description: string}
+  blockchainSyncInterval: {value: string, description: string}
+  blockchainTransactionPollInterval: {value: string, description: string}
+  onChangeInput: Function
+}
+
 const BlockchainSettings = ({
   blockchainConfirmationsThreshold,
   blockchainDepositPoolingInterval,
@@ -29,21 +42,21 @@ const BlockchainSettings = ({
   configurations,
   handleCancelClick,
   onChangeInput
-}) => {
+}: BlockchainSettingsProps) => {
   useEffect(() => {
     return handleCancelClick
   }, [handleCancelClick])
 
-  const isPositiveInteger = value => {
+  const isPositiveInteger = (value: string | number): boolean => {
     const numericValue = Number(value)
     return numericValue > 0 && _.isInteger(numericValue)
   }
 
-  const getDescription = key => {
+  const getDescription = (key: string): string => {
     return _.get(configurations, `${key}.description`)
   }
 
-  const errorMsg = key => {
+  const errorMsg = (key: string): string => {
     return `The ${key} should be a positive integer.`
   }
 
