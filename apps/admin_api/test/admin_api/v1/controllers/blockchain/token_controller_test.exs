@@ -184,11 +184,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: 100
         })
 
-      refute response["success"]
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `amount` must be greater than 0."
+      assert_mint(:fails_with_amount_zero_or_less, response)
     end
 
     test_with_auths "fails to deploys an ERC20 token with subunit_to_unit < 0", context do
@@ -204,11 +200,39 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: -1
         })
 
-      refute response["success"]
-      assert response["data"]["code"] == "client:invalid_parameter"
+      assert_mint(:fails_with_subunit_to_unit_zero_or_less, response)
+    end
 
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `subunit_to_unit` must be greater than 0."
+    test_with_auths "fails to deploys an ERC20 token with amount = 0", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 0,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_mint(:fails_with_amount_zero_or_less, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with subunit_to_unit = 0", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 0
+        })
+
+      assert_mint(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
     test "generates an activity log for an admin request", context do
@@ -264,6 +288,22 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
 
     assert response["data"]["description"] ==
              "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."
+  end
+
+  defp assert_mint(:fails_with_subunit_to_unit_zero_or_less, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "Invalid parameter provided. `subunit_to_unit` must be greater than 0."
+  end
+
+  defp assert_mint(:fails_with_amount_zero_or_less, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "Invalid parameter provided. `amount` must be greater than 0."
   end
 
   defp assert_deploy_erc20_logs(logs, originator, target) do

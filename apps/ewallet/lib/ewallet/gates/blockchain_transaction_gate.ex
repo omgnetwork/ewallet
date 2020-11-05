@@ -24,7 +24,8 @@ defmodule EWallet.BlockchainTransactionGate do
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
   @childchain_identifier BlockchainHelper.childchain_identifier()
 
-  @spec transfer_on_childchain(map(), any, String.t(), String.t()) :: {:error, atom(), String.t()}
+  @spec transfer_on_childchain(map(), map(), String.t(), String.t()) ::
+          {:error, atom(), String.t()}
   def transfer_on_childchain(
         %{
           from: from,
