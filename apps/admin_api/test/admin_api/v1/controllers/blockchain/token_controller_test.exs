@@ -184,7 +184,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: 100
         })
 
-      assert_mint(:fails_with_amount_zero_or_less, response)
+      assert_deploy_erc20(:fails_with_amount_zero_or_less, response)
     end
 
     test_with_auths "fails to deploys an ERC20 token with subunit_to_unit < 0", context do
@@ -200,7 +200,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: -1
         })
 
-      assert_mint(:fails_with_subunit_to_unit_zero_or_less, response)
+      assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
     test_with_auths "fails to deploys an ERC20 token with amount = 0", context do
@@ -216,7 +216,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: 100
         })
 
-      assert_mint(:fails_with_amount_zero_or_less, response)
+      assert_deploy_erc20(:fails_with_amount_zero_or_less, response)
     end
 
     test_with_auths "fails to deploys an ERC20 token with subunit_to_unit = 0", context do
@@ -232,7 +232,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: 0
         })
 
-      assert_mint(:fails_with_subunit_to_unit_zero_or_less, response)
+      assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
     test "generates an activity log for an admin request", context do
@@ -290,7 +290,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
              "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."
   end
 
-  defp assert_mint(:fails_with_subunit_to_unit_zero_or_less, response) do
+  defp assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response) do
     refute response["success"]
     assert response["data"]["code"] == "client:invalid_parameter"
 
@@ -298,7 +298,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
              "Invalid parameter provided. `subunit_to_unit` must be greater than 0."
   end
 
-  defp assert_mint(:fails_with_amount_zero_or_less, response) do
+  defp assert_deploy_erc20(:fails_with_amount_zero_or_less, response) do
     refute response["success"]
     assert response["data"]["code"] == "client:invalid_parameter"
 
