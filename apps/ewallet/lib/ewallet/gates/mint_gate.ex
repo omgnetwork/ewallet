@@ -195,7 +195,7 @@ defmodule EWallet.MintGate do
   @spec insert_with_blockchain_transaction(map()) ::
           {:ok, %Mint{}, %EWalletDB.Transaction{}}
           | {:error, Ecto.Changeset.t()}
-          | {:error, atom(), String.t()}
+          | {:error, atom()}
   def insert_with_blockchain_transaction(
         %{
           "token_id" => token_id,
@@ -206,7 +206,7 @@ defmodule EWallet.MintGate do
           "originator" => originator
         } = attrs
       ) do
-    with {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
+    with %Token{} = token <- Token.get_by(id: token_id) || {:error, :token_not_found},
          %Account{} = account <- Account.get_master_account(),
          multi <-
            Multi.new()

@@ -17,6 +17,8 @@ defmodule AdminAPI.V1.Blockchain.MintControllerTest do
   alias EWalletDB.{Account, Mint, Repo, Transaction}
 
   describe "/token.mint" do
+    @big_number 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+
     test_with_auths "mints an existing ERC20 token", context do
       enable_blockchain(context)
 
@@ -51,7 +53,7 @@ defmodule AdminAPI.V1.Blockchain.MintControllerTest do
       response =
         request("/token.mint", %{
           id: token.id,
-          amount: 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+          amount: @big_number
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
@@ -60,7 +62,7 @@ defmodule AdminAPI.V1.Blockchain.MintControllerTest do
       assert response["data"]["object"] == "mint"
       assert Mint.get(response["data"]["id"]) != nil
       assert mint != nil
-      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+      assert mint.amount == @big_number
       assert mint.token_uuid == token.uuid
     end
 
@@ -77,22 +79,6 @@ defmodule AdminAPI.V1.Blockchain.MintControllerTest do
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
-    end
-
-    test_with_auths "fails to mint a disabled existing ERC20 token", context do
-      enable_blockchain(context)
-      token = insert(:internal_blockchain_token, enabled: false)
-
-      response =
-        request("/token.mint", %{
-          id: token.id,
-          amount: "100000000"
-        })
-
-      mint = Mint |> Repo.all() |> Enum.at(0)
-      refute response["success"]
-      assert response["data"]["code"] == "token:disabled"
-      assert mint == nil
     end
 
     test_with_auths "fails to mint a locked existing ERC20 token", context do

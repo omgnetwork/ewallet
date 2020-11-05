@@ -20,6 +20,8 @@ defmodule EWallet.MintGateTest do
   alias EWalletDB.{BlockchainWallet, Token, TransactionState}
   alias ActivityLogger.System
 
+  @big_number 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+
   describe "insert_with_blockchain_transaction" do
     test "inserts a new mint for an existing erc20 token" do
       {:ok, omg} =
@@ -68,7 +70,7 @@ defmodule EWallet.MintGateTest do
           "blockchain_transaction_uuid" => blockchain_transaction.uuid,
           "contract_address" => omg.blockchain_address,
           "hot_wallet_address" => hot_wallet.address,
-          "amount" => 100_000_000_000_000_000_000_000_000_000_000_000 - 1,
+          "amount" => @big_number,
           "description" => "Minting 10_000 #{omg.symbol}",
           "metadata" => %{},
           "originator" => %System{}
@@ -77,7 +79,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == false
-      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+      assert mint.amount == @big_number
       assert transaction.status == TransactionState.blockchain_submitted()
     end
 
@@ -140,7 +142,7 @@ defmodule EWallet.MintGateTest do
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
           "token_id" => btc.id,
-          "amount" => 100_000_000_000_000_000_000_000_000_000_000_000 - 1,
+          "amount" => @big_number,
           "description" => "Minting 10_000 #{btc.symbol}",
           "metadata" => %{},
           "originator" => %System{}
@@ -149,7 +151,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == true
-      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+      assert mint.amount == @big_number
       assert transaction.status == TransactionState.confirmed()
     end
 
