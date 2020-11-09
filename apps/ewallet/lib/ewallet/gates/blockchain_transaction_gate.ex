@@ -49,8 +49,6 @@ defmodule EWallet.BlockchainTransactionGate do
       :transfer_on_childchain
       |> BlockchainHelper.call(attrs)
       |> create_childchain_transaction(originator, childchain_id, rootchain_id)
-    else
-      error -> error
     end
   end
 
@@ -100,8 +98,6 @@ defmodule EWallet.BlockchainTransactionGate do
       :deposit_to_childchain
       |> BlockchainHelper.call(attrs)
       |> create_rootchain_transaction(originator, rootchain_id)
-    else
-      error -> error
     end
   end
 

@@ -42,8 +42,12 @@ defmodule EWallet.TokenGate do
       )
       when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
              is_binary(name) and is_binary(symbol) do
-    with true <- amount > 0 || {:error, :invalid_amount},
-         true <- subunit_to_unit > 0 || {:error, :invalid_subunit_to_unit},
+    with true <-
+           amount >= 0 ||
+             {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."},
+         true <-
+           subunit_to_unit > 0 ||
+             {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
          decimals <- subunit_to_unit |> :math.log10() |> trunc(),
          rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
          hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),

@@ -202,7 +202,7 @@ defmodule AdminAPI.V1.Blockchain.MintControllerTest do
     assert response["data"]["code"] == "client:invalid_parameter"
 
     assert response["data"]["description"] ==
-             "Invalid parameter provided. `amount` must be greater than 0."
+             "`amount` must be greater than 0."
   end
 
   defp assert_mint_logs(logs, originator, mint) do

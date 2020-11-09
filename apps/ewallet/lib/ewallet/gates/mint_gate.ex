@@ -60,7 +60,7 @@ defmodule EWallet.MintGate do
         %{"amount" => amount} = attrs
       )
       when is_binary(contract_address) and is_number(amount) do
-    with true <- amount > 0 || {:error, :invalid_amount},
+    with true <- amount > 0 || {:error, :invalid_parameter, "`amount` must be greater than 0."},
          true <- !token.locked || {:error, :token_locked},
          rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
          hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),
