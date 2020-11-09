@@ -33,6 +33,8 @@ defmodule EWallet.TransactionDispatcherGate do
     end
   end
 
+  def create(actor, attrs), do: create_local_tx(actor, attrs)
+
   defp create_local_tx(actor, attrs) do
     # Disable this if setting internal_enabled
     case Application.get_env(:ewallet, :internal_enabled) do
