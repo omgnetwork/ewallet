@@ -126,6 +126,8 @@ class ConfigurationPage extends React.Component {
         preAuthTokenLifetime: config.pre_auth_token_lifetime.value,
         authTokenLifetime: config.auth_token_lifetime.value,
         fetched: true,
+        blockchainChainId: config.blockchain_chain_id.value,
+        blockchainJsonRpcUrl: config.blockchain_json_rpc_url.value,
         blockchainEnabled: config.blockchain_enabled.value,
         blockchainConfirmationsThreshold: config.blockchain_confirmations_threshold.value,
         blockchainDepositPoolingInterval: config.blockchain_deposit_pooling_interval.value,
@@ -400,25 +402,15 @@ class ConfigurationPage extends React.Component {
         </ConnectionNotification>
         <Layout>
           <SideMenu>
-            <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink>
             <NavLink to='/configuration/global_settings'>Global Settings</NavLink>
             <NavLink to='/configuration/email_settings'>Email Settings</NavLink>
             <NavLink to='/configuration/cache_settings'>Cache Settings</NavLink>
             <NavLink to='/configuration/file_storage_settings'>File Storage Settings</NavLink>
+            <NavLink to='/configuration/blockchain_settings'>Blockchain Settings</NavLink>
           </SideMenu>
           <Content>
             <Switch>
-              <Route
-                exact
-                path='/configuration/blockchain_settings'
-                render={() => (
-                  <BlockchainSettings
-                    {...this.props}
-                    {...this.state}
-                    {...this.configApi}
-                  />
-                )}
-              />
+           
               <Route
                 exact
                 path='/configuration/global_settings'
@@ -457,6 +449,17 @@ class ConfigurationPage extends React.Component {
                 path='/configuration/file_storage_settings'
                 render={() => (
                   <FileStorageSettings
+                    {...this.props}
+                    {...this.state}
+                    {...this.configApi}
+                  />
+                )}
+              />
+              <Route
+                exact
+                path='/configuration/blockchain_settings'
+                render={() => (
+                  <BlockchainSettings
                     {...this.props}
                     {...this.state}
                     {...this.configApi}
