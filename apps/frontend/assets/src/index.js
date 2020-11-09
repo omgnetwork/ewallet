@@ -81,7 +81,7 @@ async function bootAdminPanelApp () {
   }
 
   // FETCH CONFIGURATION
-  store.dispatch(getConfiguration())
+  await store.dispatch(getConfiguration())
 
 
   // HANDLE WEBSOCKET MESSAGES
