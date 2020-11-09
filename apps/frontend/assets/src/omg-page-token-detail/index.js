@@ -20,7 +20,7 @@ import HistoryTable from 'omg-page-token-detail/HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from 'utils/formatter'
 import { getMintedTokenHistory } from 'omg-token/action'
 import { createCacheKey } from 'utils/createFetcher'
-import { selectBlockchainEnabled } from 'omg-configuration/selector'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -61,7 +61,7 @@ class TokenDetailPage extends Component {
     match: PropTypes.object,
     location: PropTypes.object,
     getMintedTokenHistory: PropTypes.func,
-    blockchainEnabled: PropTypes.bool
+    internalEnabled: PropTypes.bool
   }
   state = {
     mintTokenModalOpen: false,
@@ -116,7 +116,7 @@ class TokenDetailPage extends Component {
       <TokensFetcher
         key='create-exchange-pair-button'
         render={({ data: tokens }) => {
-          if (!this.props.blockchainEnabled && tokens.length > 1) {
+          if (this.props.internalEnabled && tokens.length > 1) {
             return (
               <Button
                 key='rate'
@@ -317,7 +317,7 @@ class TokenDetailPage extends Component {
 const enhance = compose(
   withRouter,
   connect(
-    state => ({ blockchainEnabled: selectBlockchainEnabled()(state)}),
+    state => ({ internalEnabled: selectInternalEnabled()(state)}),
     { getMintedTokenHistory }
   )
 )

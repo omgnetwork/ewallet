@@ -16,7 +16,7 @@ import TokensFetcher from 'omg-token/tokensFetcher'
 import CreateTokenChooser from 'omg-token/CreateTokenChooser'
 import { createSearchTokenQuery } from 'omg-token/searchField'
 import { NameColumn } from 'omg-page-account'
-import { selectBlockchainEnabled } from 'omg-configuration/selector'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -73,7 +73,7 @@ class TokenDetailPage extends Component {
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
     openModal: PropTypes.func,
-    blockchainEnabled: PropTypes.bool
+    internalEnabled: PropTypes.bool
   }
 
   renderCreateTokenButton = refetch => {
@@ -82,7 +82,7 @@ class TokenDetailPage extends Component {
         key='create-token-chooser'
         externalStyles='create-token-chooser'
         refetch={refetch}
-        blockchainEnabled={this.props.blockchainEnabled}
+        internalEnabled={this.props.internalEnabled}
       />
     )
   }
@@ -156,7 +156,7 @@ class TokenDetailPage extends Component {
           divider={this.props.divider}
           title={'Tokens'}
           buttons={[
-            !this.props.blockchainEnabled && tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
+            this.props.internalEnabled && tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
             this.renderCreateTokenButton(fetch)
           ]}
         />
@@ -195,7 +195,7 @@ class TokenDetailPage extends Component {
 const enhance = compose(
   withRouter,
   connect(
-    state => ({ blockchainEnabled: selectBlockchainEnabled()(state)}),
+    state => ({ internalEnabled: selectInternalEnabled()(state)}),
     { openModal }
   )
 )

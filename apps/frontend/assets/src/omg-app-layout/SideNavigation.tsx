@@ -9,7 +9,7 @@ import { Icon } from 'omg-uikit'
 import { fuzzySearch } from 'utils/search'
 import { selectRecentAccounts } from 'omg-recent-account/selector'
 import { logout } from 'omg-session/action'
-import { selectBlockchainEnabled } from 'omg-configuration/selector'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 import theme from 'adminPanelApp/theme'
 
 
@@ -77,7 +77,7 @@ interface SideNavigationProps extends RouteComponentProps<{accountId: string}> {
 }
 
 const SideNavigation = ({ className, history, location, match }: SideNavigationProps) => {
-  const blockchainEnabled: boolean = useSelector(selectBlockchainEnabled())
+  const internalEnabled: boolean = useSelector(selectInternalEnabled())
   const recentAccounts: {[key:string]: any}[] = useSelector(selectRecentAccounts())
   const dispatch = useDispatch()
 
@@ -110,11 +110,11 @@ const SideNavigation = ({ className, history, location, match }: SideNavigationP
   ]
 
   const overviewLinks = [
-    blockchainEnabled? null: {
+    internalEnabled? {
       icon: 'Wallet',
       to: '/wallets',
       text: 'Wallets'
-    },
+    } : null,
     {
       icon: 'Wallet',
       to: '/blockchain_wallets',
@@ -125,16 +125,16 @@ const SideNavigation = ({ className, history, location, match }: SideNavigationP
       to: '/transaction',
       text: 'Transactions'
     },
-    blockchainEnabled? null: {
+    internalEnabled? {
       icon: 'Request',
       to: '/requests',
       text: 'Requests'
-    },
-    blockchainEnabled? null: {
+    } : null,
+    internalEnabled? {
       icon: 'Consumption',
       to: '/consumptions',
       text: 'Consumptions'
-    },
+    } : null,
     {
       icon: 'People',
       to: '/users',

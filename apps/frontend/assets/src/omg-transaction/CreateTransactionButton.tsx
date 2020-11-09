@@ -3,20 +3,20 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import { Button, Icon } from 'omg-uikit'
 import { openModal } from 'omg-modal/action'
-import { selectBlockchainEnabled } from 'omg-configuration/selector'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 interface CreateTransactionButtonProps {
   fromAddress?:string
 }
 
 function CreateTransactionButton ({ fromAddress }: CreateTransactionButtonProps) {
-  const blockchainEnabled: boolean = useSelector(selectBlockchainEnabled())
+  const internalEnabled: boolean = useSelector(selectInternalEnabled())
   const dispatch = useDispatch()
   const handleClick = () => {
     dispatch(openModal({ id: 'createTransaction', fromAddress: fromAddress }))
   }
 
-  return blockchainEnabled? null: (
+  return internalEnabled? (
     <Button
       key='create'
       size='small'
@@ -26,7 +26,7 @@ function CreateTransactionButton ({ fromAddress }: CreateTransactionButtonProps)
       <Icon name='Transaction' />
       <span>Internal Transfer</span>
     </Button>
-  )
+  ) : null
 }
 
 export default CreateTransactionButton
