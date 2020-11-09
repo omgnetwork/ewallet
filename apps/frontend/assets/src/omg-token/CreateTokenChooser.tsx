@@ -32,7 +32,7 @@ const ButtonStyle = styled(Button)`
   }
 `
 interface CreateTokenChooserProps {
-  blockchainEnabled: boolean
+  internalEnabled: boolean
   open: boolean
   onClickButton: Function
   refetch: Function
@@ -55,7 +55,7 @@ const DropdownItem = ({ icon, text, onClick }: DropdownItemProps) => {
 }
 
 const CreateTokenChooser = ({
-  blockchainEnabled,
+  internalEnabled,
   onClickButton,
   open,
   refetch,
@@ -67,13 +67,13 @@ const CreateTokenChooser = ({
   const renderDropdown = () => {
     return (
       <DropdownBox>
-        {blockchainEnabled ? null : (
+        {internalEnabled? (
           <DropdownItem
             icon="Token"
             text="Create Internal Token"
             onClick={show('createTokenModal')}
           />
-        )}
+        ) : null}
         <DropdownItem
           icon="Token"
           text="Create Blockchain Token"

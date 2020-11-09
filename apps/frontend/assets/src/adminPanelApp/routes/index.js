@@ -23,7 +23,7 @@ import UserPage from 'omg-page-users'
 import TokenDetailPage from 'omg-page-token-detail'
 import WalletDetailPage from 'omg-page-wallet-detail'
 import UserDetailPage from 'omg-page-user-detail'
-import ReqestConsumptionPage from 'omg-page-consumption'
+import RequestConsumptionPage from 'omg-page-consumption'
 import TransactionRequestPage from 'omg-page-transaction-request'
 import TransactionExportPage from 'omg-page-transaction-export'
 import ConfigurationPage from 'omg-page-configuration'
@@ -35,11 +35,11 @@ import AccountLayout from 'omg-page-each-account/AccountLayout'
 import VerifyEmail from 'omg-page-verify-email'
 import ModalController from 'omg-modal/ModalController'
 import Alert from 'omg-alert'
-import { selectBlockchainEnabled } from 'omg-configuration/selector'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 // prettier-ignore
 
-const createRoute = ({ blockchainEnabled }) => (
+const createRoute = ({ internalEnabled }) => (
   <Router basename='/admin' history={history}>
     <Switch>
       <Redirect from='/' to={'/accounts'} exact />
@@ -55,7 +55,7 @@ const createRoute = ({ blockchainEnabled }) => (
       <AuthenticatedRoute path='/tokens' exact component={TokenPage} />
       <AuthenticatedRoute path='/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/tokens/:viewTokenId' exact component={TokenDetailPage} />
-      <AuthenticatedRoute path='/wallets' exact component={blockchainEnabled? NotFoundPage : WalletPage} />
+      <AuthenticatedRoute path='/wallets' exact component={internalEnabled? WalletPage : NotFoundPage} />
       <AuthenticatedRoute path='/blockchain_wallets' exact component={BlockchainWalletsPage} />
       <AuthenticatedRoute path='/blockchain_wallets/:address' component={BlockchainWalletDetailPage} />
       <AuthenticatedRoute path='/transaction' exact component={TransactionPage} />
@@ -77,14 +77,14 @@ const createRoute = ({ blockchainEnabled }) => (
       <AuthenticatedRoute path='/users/:userId/:type' exact component={() => <UserDetailPage withBreadCrumb />} />
       <AuthenticatedRoute path='/users/:userId' exact component={() => <UserDetailPage withBreadCrumb />} />
 
-      <AuthenticatedRoute path='/consumptions' exact component={blockchainEnabled? NotFoundPage : ReqestConsumptionPage} />
-      <AuthenticatedRoute path='/requests' exact component={blockchainEnabled? NotFoundPage : TransactionRequestPage} />
+      <AuthenticatedRoute path='/consumptions' exact component={internalEnabled? RequestConsumptionPage : NotFoundPage} />
+      <AuthenticatedRoute path='/requests' exact component={internalEnabled? TransactionRequestPage : NotFoundPage} />
       <AuthenticatedRoute path='/activity' exact component={ActivityLogPage} />
       <AuthenticatedRoute path='/users' exact component={UserPage} />
       <AuthenticatedRoute path='/admins' exact component={AdminsPage} />
       <AuthenticatedRoute path='/admins/:adminId' exact component={AdminDetailPage} />
-      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={blockchainEnabled? NotFoundPage : WalletDetailPage} />
-      <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={blockchainEnabled? NotFoundPage : WalletDetailPage} />
+      <AuthenticatedRoute path='/wallets/:walletAddress' exact component={internalEnabled? WalletDetailPage : NotFoundPage} />
+      <AuthenticatedRoute path='/wallets/:walletAddress/:type' exact component={internalEnabled? WalletDetailPage : NotFoundPage} />
 
       {/* 404 PAGE */}
       <Route component={NotFoundPage} />
@@ -95,7 +95,7 @@ const createRoute = ({ blockchainEnabled }) => (
 )
 
 const mapStateToProps = (state) => ({
-  blockchainEnabled: selectBlockchainEnabled()(state)
+  internalEnabled: selectInternalEnabled()(state)
 })
 
 export default  connect(mapStateToProps, null)(createRoute)
