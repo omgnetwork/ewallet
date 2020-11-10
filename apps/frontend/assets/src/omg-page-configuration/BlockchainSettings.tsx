@@ -3,8 +3,8 @@ import React, { EffectCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import _ from 'lodash'
 
+import { LoadingSkeleton } from 'omg-uikit'
 import ConfigRow from './ConfigRow'
-import { LoadingSkeleton } from '../omg-uikit'
 
 const LoadingSkeletonContainer = styled.div`
   margin-top: 50px;
@@ -35,57 +35,74 @@ const BlockchainSettings = (props: BlockchainSettingsProps) => {
     return numericValue > 0 && _.isInteger(numericValue)
   }
 
-  const errorMsg = (key: string): string => {    
+  const errorMsg = (key: string): string => {
     return `${key} should be a positive integer.`
   }
 
-  const settings = {
+  interface displaySettings {
+    [key: string]: {
+      displayName: string
+      disableUpdate: boolean
+      inputValidator?: (...args: any) => boolean
+      position: number
+    }
+  }
+
+  const settings: displaySettings = {
+    blockchain_json_rpc_url: {
+      displayName: 'Blockchain JSON-RPC URL',
+      disableUpdate: true,
+      position: 0
+    },
     blockchain_chain_id: {
       displayName: 'Blockchain Chain ID',
-      disableUpdate: true
+      disableUpdate: true,
+      position: 1
     },
     blockchain_confirmations_threshold: {
       displayName: 'Blockchain Confirmations Threshold',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
+      inputValidator: isPositiveInteger,
+      position: 2
     },
     blockchain_deposit_pooling_interval: {
       displayName: 'Blockchain Deposit Polling Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
+      inputValidator: isPositiveInteger,
+      position: 3
     },
-    blockchain_json_rpc_url: {
-      displayName: 'Blockchain Deposit Polling Interval',
-      disableUpdate: true
-    },
-    blockchain_poll_interval: {
-      displayName: 'Blockchain Poll Interval',
+    blockchain_transaction_poll_interval: {
+      displayName: 'Blockchain Transaction Poll Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
+      inputValidator: isPositiveInteger,
+      position: 4
     },
     blockchain_state_save_interval: {
       displayName: 'Blockchain State Save Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
+      inputValidator: isPositiveInteger,
+      position: 5
     },
     blockchain_sync_interval: {
       displayName: 'Blockchain Sync Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
+      inputValidator: isPositiveInteger,
+      position: 6
     },
-    blockchain_transaction_poll_interval: {
-      displayName: 'Blockchain Tranaction Poll Interval',
+    blockchain_poll_interval: {
+      displayName: 'Blockchain Poll Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger
-    }
+      inputValidator: isPositiveInteger,
+      position: 7
+    },
   }
 
   const renderBlockchainSettings = () => {
     const sortedConfigurationList = _.sortBy(
       _.values(_.pick(props.configurations, _.keys(settings))),
-      ['position']
-      )
-      
+      config => settings[config.key].position
+    )
+
     return (
       <>
         <h4>Blockchain Settings</h4>
