@@ -8,18 +8,19 @@ import queryString from 'query-string'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-import TokensFetcher from '../omg-token/tokensFetcher'
-import TokenProvider from '../omg-token/TokenProvider'
-import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
-import { Button, Breadcrumb, Id } from '../omg-uikit'
-import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import MintTokenModal from '../omg-mint-token-modal'
-import ExchangeRateModal from '../omg-exchange-rate-modal'
-import HistoryTable from './HistoryTable'
-import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
-import { getMintedTokenHistory } from '../omg-token/action'
-import { createCacheKey } from '../utils/createFetcher'
+import TokensFetcher from 'omg-token/tokensFetcher'
+import TokenProvider from 'omg-token/TokenProvider'
+import ExchangePairsProvider from 'omg-exchange-pair/exchangePairProvider'
+import { Button, Breadcrumb, Id } from 'omg-uikit'
+import Section, { DetailGroup } from 'omg-page-detail-layout/DetailSection'
+import TopBar from 'omg-page-detail-layout/TopBarDetail'
+import MintTokenModal from 'omg-mint-token-modal'
+import ExchangeRateModal from 'omg-exchange-rate-modal'
+import HistoryTable from 'omg-page-token-detail/HistoryTable'
+import { formatReceiveAmountToTotal, formatNumber } from 'utils/formatter'
+import { getMintedTokenHistory } from 'omg-token/action'
+import { createCacheKey } from 'utils/createFetcher'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -59,7 +60,8 @@ class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     location: PropTypes.object,
-    getMintedTokenHistory: PropTypes.func
+    getMintedTokenHistory: PropTypes.func,
+    internalEnabled: PropTypes.bool
   }
   state = {
     mintTokenModalOpen: false,
@@ -114,7 +116,7 @@ class TokenDetailPage extends Component {
       <TokensFetcher
         key='create-exchange-pair-button'
         render={({ data: tokens }) => {
-          if (tokens.length > 1) {
+          if (this.props.internalEnabled && tokens.length > 1) {
             return (
               <Button
                 key='rate'
@@ -315,7 +317,7 @@ class TokenDetailPage extends Component {
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    state => ({ internalEnabled: selectInternalEnabled()(state)}),
     { getMintedTokenHistory }
   )
 )

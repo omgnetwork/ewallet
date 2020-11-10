@@ -8,14 +8,15 @@ import queryString from 'query-string'
 import styled from 'styled-components'
 import _ from 'lodash'
 
-import { openModal } from '../omg-modal/action'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import SortableTable from '../omg-table'
-import { Button, Avatar, Icon, Tooltip } from '../omg-uikit'
-import TokensFetcher from '../omg-token/tokensFetcher'
-import CreateTokenChooser from '../omg-token/CreateTokenChooser'
-import { createSearchTokenQuery } from '../omg-token/searchField'
-import { NameColumn } from '../omg-page-account'
+import { openModal } from 'omg-modal/action'
+import TopNavigation from 'omg-page-layout/TopNavigation'
+import SortableTable from 'omg-table'
+import { Button, Avatar, Icon, Tooltip } from 'omg-uikit'
+import TokensFetcher from 'omg-token/tokensFetcher'
+import CreateTokenChooser from 'omg-token/CreateTokenChooser'
+import { createSearchTokenQuery } from 'omg-token/searchField'
+import { NameColumn } from 'omg-page-account'
+import { selectInternalEnabled } from 'omg-configuration/selector'
 
 const TokenPageContainer = styled.div`
   position: relative;
@@ -35,6 +36,9 @@ const TokenPageContainer = styled.div`
   }
   td:nth-child(4) {
     white-space: nowrap;
+  }
+  .create-token-chooser {
+    margin-left: 20px;
   }
 `
 const EWalletBlockchain = styled.div`
@@ -68,18 +72,17 @@ class TokenDetailPage extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     scrollTopContentContainer: PropTypes.func,
-    openModal: PropTypes.func
+    openModal: PropTypes.func,
+    internalEnabled: PropTypes.bool
   }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
+
   renderCreateTokenButton = refetch => {
     return (
       <CreateTokenChooser
-        style={{ marginLeft: '10px' }}
         key='create-token-chooser'
+        externalStyles='create-token-chooser'
         refetch={refetch}
-        {...this.props}
+        internalEnabled={this.props.internalEnabled}
       />
     )
   }
@@ -153,7 +156,7 @@ class TokenDetailPage extends Component {
           divider={this.props.divider}
           title={'Tokens'}
           buttons={[
-            tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
+            this.props.internalEnabled && tokens.length > 1 ? this.renderCreateExchangePairButton() : null,
             this.renderCreateTokenButton(fetch)
           ]}
         />
@@ -192,7 +195,7 @@ class TokenDetailPage extends Component {
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    state => ({ internalEnabled: selectInternalEnabled()(state)}),
     { openModal }
   )
 )

@@ -11,7 +11,10 @@
   "plugins": [
     "import"
   ],
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "rules": {
     "camelcase": "off",
     "import/first": [ "error", "absolute-first" ],

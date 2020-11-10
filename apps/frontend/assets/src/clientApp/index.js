@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import { ThemeProvider } from 'styled-components'
-import { hot } from 'react-hot-loader/root'
 import 'reset-css'
 
 import theme from '../adminPanelApp/theme'
@@ -25,4 +24,4 @@ class App extends Component {
   }
 }
 
-export default hot(App)
+export default App

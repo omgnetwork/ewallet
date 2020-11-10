@@ -3,18 +3,17 @@ import React from 'react'
 import moment from 'moment'
 import Web3 from 'web3'
 
-import { getCurrentUser } from './services/currentUserService'
-import SocketConnector from './socket/connector'
-import { WEBSOCKET_URL } from './config'
-import { handleWebsocketMessage } from './socket/handleMessage'
-import {
-  getRecentAccountFromLocalStorage,
-  setRecentAccount
-} from './services/sessionService'
-import { getAccountById, deleteAccount } from './omg-account/action'
-import { setMetamaskSettings } from './omg-web3/action'
-import { configureStore } from './store'
-import tokenExpireMiddleware from './adminPanelApp/middlewares/tokenExpireMiddleware'
+import tokenExpireMiddleware from 'adminPanelApp/middlewares/tokenExpireMiddleware'
+
+import { WEBSOCKET_URL } from 'config'
+import { getAccountById, deleteAccount } from 'omg-account/action'
+import { getConfiguration } from 'omg-configuration/action'
+import { setMetamaskSettings } from 'omg-web3/action'
+import { getCurrentUser } from 'services/currentUserService'
+import { getRecentAccountFromLocalStorage,setRecentAccount } from 'services/sessionService'
+import SocketConnector from 'socket/connector'
+import { handleWebsocketMessage } from 'socket/handleMessage'
+import { configureStore } from 'store'
 
 moment.defaultFormat = 'ddd, DD/MM/YYYY HH:mm:ss'
 
@@ -80,6 +79,10 @@ async function bootAdminPanelApp () {
       store.dispatch(setMetamaskSettings(metamaskSettings))
     })
   }
+
+  // FETCH CONFIGURATION
+  await store.dispatch(getConfiguration())
+
 
   // HANDLE WEBSOCKET MESSAGES
   socket.on('message', handleWebsocketMessage(store))
