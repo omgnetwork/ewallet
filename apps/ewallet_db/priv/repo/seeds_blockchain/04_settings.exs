@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.BlockchainSetting do
   alias EWalletDB.Seeder
   alias EWalletConfig.Config
@@ -38,7 +37,6 @@ defmodule EWalletDB.Repo.Seeds.BlockchainSetting do
         originator: %Seeder{}
       })
     writer.success("Setting `internal_enabled` to false")
-
 
     {:ok, [blockchain_chain_id: {:ok, _}]} =
       Config.update(%{
