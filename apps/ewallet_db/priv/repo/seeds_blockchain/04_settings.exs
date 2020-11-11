@@ -38,6 +38,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainSetting do
       })
     writer.success("Setting `internal_enabled` to false")
 
+    # 1337 is the chain_id value used in the docker-compose file.
     {:ok, [blockchain_chain_id: {:ok, _}]} =
       Config.update(%{
         blockchain_chain_id: 1337,
