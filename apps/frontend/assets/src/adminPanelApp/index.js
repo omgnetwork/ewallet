@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
-import { hot } from 'react-hot-loader/root'
 import { ThemeProvider } from 'styled-components'
 import Modal from 'react-modal'
 import PropTypes from 'prop-types'
@@ -33,4 +32,4 @@ class App extends Component {
   }
 }
 
-export default hot(App)
+export default App

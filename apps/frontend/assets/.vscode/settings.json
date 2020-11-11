@@ -8,5 +8,10 @@
   "editor.tabSize": 2,
   "editor.codeActionsOnSave": { 
     "source.fixAll.eslint": true
-   }
+   },
+   "prettier.singleQuote": true,
+   "prettier.trailingComma": "none",
+   "prettier.semi":false,
+   "prettier.arrowParens":"avoid"
+   
 }
