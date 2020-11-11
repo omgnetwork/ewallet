@@ -16,23 +16,102 @@ defmodule EWallet.MintGateTest do
   use EWallet.DBCase, async: true
   import EWalletDB.Factory
   alias Ecto.UUID
-  alias EWallet.MintGate
-  alias EWalletDB.{Token, TransactionState}
+  alias EWallet.{BlockchainHelper, MintGate}
+  alias EWalletDB.{BlockchainWallet, Token, TransactionState}
   alias ActivityLogger.System
 
-  describe "mint_token/2" do
-    test "returns an error when minting a blockchain token" do
+  @big_number 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+
+  describe "insert_with_blockchain_transaction" do
+    test "inserts a new mint for an existing erc20 token" do
       {:ok, omg} =
         :external_blockchain_token
         |> params_for(symbol: "OMG")
         |> Token.Blockchain.insert_with_blockchain_address()
 
-      {res, code, message} =
-        MintGate.mint_token(omg, %{"amount" => 100, "originator" => %System{}})
+      blockchain_transaction = insert(:blockchain_transaction_rootchain)
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      {res, mint, transaction} =
+        MintGate.insert_with_blockchain_transaction(%{
+          "idempotency_token" => UUID.generate(),
+          "token_id" => omg.id,
+          "blockchain_transaction_uuid" => blockchain_transaction.uuid,
+          "contract_address" => omg.blockchain_address,
+          "hot_wallet_address" => hot_wallet.address,
+          "amount" => 10_000 * omg.subunit_to_unit,
+          "description" => "Minting 10_000 #{omg.symbol}",
+          "originator" => %System{}
+        })
+
+      assert res == :ok
+      assert mint != nil
+      assert mint.confirmed == false
+      assert transaction.status == TransactionState.blockchain_submitted()
+    end
+
+    test "inserts a new mint for an existing erc20 token with big number" do
+      {:ok, omg} =
+        :external_blockchain_token
+        |> params_for(symbol: "OMG")
+        |> Token.Blockchain.insert_with_blockchain_address()
+
+      blockchain_transaction = insert(:blockchain_transaction_rootchain)
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      {res, mint, transaction} =
+        MintGate.insert_with_blockchain_transaction(%{
+          "idempotency_token" => UUID.generate(),
+          "token_id" => omg.id,
+          "blockchain_transaction_uuid" => blockchain_transaction.uuid,
+          "contract_address" => omg.blockchain_address,
+          "hot_wallet_address" => hot_wallet.address,
+          "amount" => @big_number,
+          "description" => "Minting 10_000 #{omg.symbol}",
+          "metadata" => %{},
+          "originator" => %System{}
+        })
+
+      assert res == :ok
+      assert mint != nil
+      assert mint.confirmed == false
+      assert mint.amount == @big_number
+      assert transaction.status == TransactionState.blockchain_submitted()
+    end
+
+    test "fails to insert a new mint for an existing erc20 token when the data is invalid" do
+      {:ok, omg} =
+        :external_blockchain_token
+        |> params_for(symbol: "OMG")
+        |> Token.Blockchain.insert_with_blockchain_address()
+
+      blockchain_transaction = insert(:blockchain_transaction_rootchain)
+
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+
+      {res, changeset} =
+        MintGate.insert_with_blockchain_transaction(%{
+          "idempotency_token" => UUID.generate(),
+          "token_id" => omg.id,
+          "blockchain_transaction_uuid" => blockchain_transaction.uuid,
+          "contract_address" => omg.blockchain_address,
+          "hot_wallet_address" => hot_wallet.address,
+          "amount" => nil,
+          "description" => "description",
+          "metadata" => %{},
+          "originator" => %System{}
+        })
 
       assert res == :error
-      assert code == :invalid_parameter
-      assert message == "A blockchain-enabled token cannot be minted."
+
+      assert changeset.errors == [
+               amount: {"can't be blank", [validation: :required]}
+             ]
     end
   end
 
@@ -63,7 +142,7 @@ defmodule EWallet.MintGateTest do
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
           "token_id" => btc.id,
-          "amount" => 100_000_000_000_000_000_000_000_000_000_000_000 - 1,
+          "amount" => @big_number,
           "description" => "Minting 10_000 #{btc.symbol}",
           "metadata" => %{},
           "originator" => %System{}
@@ -72,7 +151,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == true
-      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000 - 1
+      assert mint.amount == @big_number
       assert transaction.status == TransactionState.confirmed()
     end
 

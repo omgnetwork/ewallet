@@ -42,29 +42,33 @@ defmodule EWallet.TokenGate do
       )
       when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
              is_binary(name) and is_binary(symbol) do
-    decimals = subunit_to_unit |> :math.log10() |> trunc()
-    rootchain_identifier = BlockchainHelper.rootchain_identifier()
-    hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
-
-    %{
-      from: hot_wallet.address,
-      name: name,
-      symbol: symbol,
-      decimals: decimals,
-      initial_amount: amount,
-      locked: locked
-    }
-    |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier)
-    |> case do
-      {:ok,
-       %{
-         contract_address: contract_address,
-         blockchain_transaction: blockchain_transaction,
-         contract_uuid: contract_uuid
-       }} ->
-        _ = AddressTracker.register_contract_address(contract_address)
-        {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
-
+    with true <-
+           amount >= 0 ||
+             {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."},
+         true <-
+           subunit_to_unit > 0 ||
+             {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
+         decimals <- subunit_to_unit |> :math.log10() |> trunc(),
+         rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
+         hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),
+         {:ok,
+          %{
+            contract_address: contract_address,
+            blockchain_transaction: blockchain_transaction,
+            contract_uuid: contract_uuid
+          }} <-
+           %{
+             from: hot_wallet.address,
+             name: name,
+             symbol: symbol,
+             decimals: decimals,
+             initial_amount: amount,
+             locked: locked
+           }
+           |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier) do
+      AddressTracker.register_contract_address(contract_address)
+      {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
+    else
       error ->
         error
     end

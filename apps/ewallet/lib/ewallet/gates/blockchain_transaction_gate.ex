@@ -24,6 +24,8 @@ defmodule EWallet.BlockchainTransactionGate do
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
   @childchain_identifier BlockchainHelper.childchain_identifier()
 
+  @spec transfer_on_childchain(map(), map(), String.t(), String.t()) ::
+          {:error, atom(), String.t()}
   def transfer_on_childchain(
         %{
           from: from,
@@ -50,6 +52,8 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  @spec transfer_on_rootchain(map(), map(), String.t()) ::
+          {:ok, map()} | {:error, atom(), String.t()}
   def transfer_on_rootchain(
         %{
           from: _from,
@@ -60,13 +64,19 @@ defmodule EWallet.BlockchainTransactionGate do
         originator,
         rootchain_id
       ) do
-    with :ok <- validate_rootchain_identifier(rootchain_id) do
-      :send
-      |> BlockchainHelper.call(attrs)
-      |> create_rootchain_transaction(originator, rootchain_id)
+    case validate_rootchain_identifier(rootchain_id) do
+      :ok ->
+        :send
+        |> BlockchainHelper.call(attrs)
+        |> create_rootchain_transaction(originator, rootchain_id)
+
+      error ->
+        error
     end
   end
 
+  @spec deposit_to_childchain(map(), map(), String.t(), String.t()) ::
+          {:ok, map()} | {:error, atom(), String.t()}
   def deposit_to_childchain(
         %{
           amount: amount,
@@ -91,6 +101,7 @@ defmodule EWallet.BlockchainTransactionGate do
     end
   end
 
+  @spec deploy_erc20_token(map(), String.t()) :: {:ok, map()} | {:error, atom(), String.t()}
   def deploy_erc20_token(
         %{
           from: from,
@@ -102,20 +113,67 @@ defmodule EWallet.BlockchainTransactionGate do
         },
         rootchain_id
       ) do
-    with :ok <- validate_rootchain_identifier(rootchain_id),
-         attrs <- %{
-           from: from,
-           name: name,
-           symbol: symbol,
-           decimals: decimals,
-           initial_amount: amount,
-           locked: locked
-         } do
-      :deploy_erc20
-      |> BlockchainHelper.call(attrs)
-      |> parse_deploy_erc20_response(rootchain_id)
+    case validate_rootchain_identifier(rootchain_id) do
+      :ok ->
+        attrs = %{
+          from: from,
+          name: name,
+          symbol: symbol,
+          decimals: decimals,
+          initial_amount: amount,
+          locked: locked
+        }
+
+        :deploy_erc20
+        |> BlockchainHelper.call(attrs)
+        |> parse_deploy_erc20_response(rootchain_id)
+
+      error ->
+        error
     end
   end
+
+  @spec mint_erc20_token(map(), String.t()) :: {:ok, map()} | {:error, atom(), String.t()}
+  def mint_erc20_token(
+        %{
+          from: from,
+          contract_address: contract_address,
+          amount: amount
+        },
+        rootchain_id
+      ) do
+    case validate_rootchain_identifier(rootchain_id) do
+      :ok ->
+        attrs = %{
+          from: from,
+          contract_address: contract_address,
+          amount: amount
+        }
+
+        :mint_erc20
+        |> BlockchainHelper.call(attrs)
+        |> parse_mint_erc20_response(rootchain_id)
+
+      error ->
+        error
+    end
+  end
+
+  defp parse_mint_erc20_response(
+         {:ok, %{gas_price: _gas_price, gas_limit: _gas_limit, tx_hash: _tx_hash}} = response,
+         rootchain_id
+       ) do
+    # TODO: Put correct originator
+    case create_rootchain_transaction(response, %System{}, rootchain_id) do
+      {:ok, blockchain_transaction} ->
+        {:ok, %{blockchain_transaction: blockchain_transaction}}
+
+      error ->
+        error
+    end
+  end
+
+  defp parse_mint_erc20_response(error, _attrs), do: error
 
   defp parse_deploy_erc20_response(
          {:ok, %{contract_address: contract_address, contract_uuid: contract_uuid}} = response,

@@ -91,48 +91,136 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert mint == nil
     end
 
-    defp assert_deploy_erc20_logs(logs, originator, target) do
-      blockchain_transaction = get_last_inserted(BlockchainTransaction)
+    test_with_auths "fails to deploys an ERC20 token with symbol = nil", context do
+      enable_blockchain(context)
 
-      assert Enum.count(logs) == 2
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: nil,
+          name: "Bitcoin",
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
 
-      logs
-      |> Enum.at(0)
-      |> assert_activity_log(
-        action: "insert",
-        originator: :system,
-        target: blockchain_transaction,
-        changes: %{
-          "gas_limit" => blockchain_transaction.gas_limit,
-          "gas_price" => blockchain_transaction.gas_price,
-          "hash" => blockchain_transaction.hash,
-          "rootchain_identifier" => blockchain_transaction.rootchain_identifier
-        },
-        encrypted_changes: %{}
-      )
+      assert_deploy_erc20(:fails_with_missing_data, response)
+    end
 
-      logs
-      |> Enum.at(1)
-      |> assert_activity_log(
-        action: "insert",
-        originator: originator,
-        target: target,
-        changes: %{
-          "name" => target.name,
-          "account_uuid" => target.account.uuid,
-          "description" => target.description,
-          "id" => target.id,
-          "subunit_to_unit" => target.subunit_to_unit,
-          "symbol" => target.symbol,
-          "blockchain_address" => target.blockchain_address,
-          "blockchain_identifier" => target.blockchain_identifier,
-          "blockchain_status" => target.blockchain_status,
-          "contract_uuid" => target.contract_uuid,
-          "blockchain_transaction_uuid" => target.blockchain_transaction_uuid,
-          "locked" => target.locked
-        },
-        encrypted_changes: %{}
-      )
+    test_with_auths "fails to deploys an ERC20 token with name = nil", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: nil,
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_with_missing_data, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with amount = nil", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: nil,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_with_missing_data, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with locked = nil", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 1000,
+          locked: nil,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_with_missing_data, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with subunit_to_unit = nil", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: nil
+        })
+
+      assert_deploy_erc20(:fails_with_missing_data, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with amount < 0", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: -1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "`amount` must be greater than or equal to 0."
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with subunit_to_unit < 0", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: -1
+        })
+
+      assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
+    end
+
+    test_with_auths "fails to deploys an ERC20 token with subunit_to_unit = 0", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 1000,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 0
+        })
+
+      assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
     test "generates an activity log for an admin request", context do
@@ -180,5 +268,65 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       |> get_all_activity_logs_since()
       |> assert_deploy_erc20_logs(get_test_key(), token)
     end
+  end
+
+  defp assert_deploy_erc20(:fails_with_missing_data, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."
+  end
+
+  defp assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "`subunit_to_unit` must be greater than 0."
+  end
+
+  defp assert_deploy_erc20_logs(logs, originator, target) do
+    blockchain_transaction = get_last_inserted(BlockchainTransaction)
+
+    assert Enum.count(logs) == 2
+
+    logs
+    |> Enum.at(0)
+    |> assert_activity_log(
+      action: "insert",
+      originator: :system,
+      target: blockchain_transaction,
+      changes: %{
+        "gas_limit" => blockchain_transaction.gas_limit,
+        "gas_price" => blockchain_transaction.gas_price,
+        "hash" => blockchain_transaction.hash,
+        "rootchain_identifier" => blockchain_transaction.rootchain_identifier
+      },
+      encrypted_changes: %{}
+    )
+
+    logs
+    |> Enum.at(1)
+    |> assert_activity_log(
+      action: "insert",
+      originator: originator,
+      target: target,
+      changes: %{
+        "name" => target.name,
+        "account_uuid" => target.account.uuid,
+        "description" => target.description,
+        "id" => target.id,
+        "subunit_to_unit" => target.subunit_to_unit,
+        "symbol" => target.symbol,
+        "blockchain_address" => target.blockchain_address,
+        "blockchain_identifier" => target.blockchain_identifier,
+        "blockchain_status" => target.blockchain_status,
+        "contract_uuid" => target.contract_uuid,
+        "blockchain_transaction_uuid" => target.blockchain_transaction_uuid,
+        "locked" => target.locked
+      },
+      encrypted_changes: %{}
+    )
   end
 end
