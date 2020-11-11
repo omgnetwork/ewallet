@@ -26,9 +26,16 @@ interface BlockchainSettingsProps {
 }
 
 const BlockchainSettings = (props: BlockchainSettingsProps) => {
+  const {
+    blockchainEnabled,
+    handleCancelClick,
+    configurations,
+    onChangeInput
+  } = props
+
   useEffect(() => {
-    return props.handleCancelClick
-  }, [props.handleCancelClick])
+    return handleCancelClick
+  }, [handleCancelClick])
 
   const isPositiveInteger = (value: string | number): boolean => {
     const numericValue = Number(value)
@@ -94,33 +101,35 @@ const BlockchainSettings = (props: BlockchainSettingsProps) => {
       disableUpdate: false,
       inputValidator: isPositiveInteger,
       position: 7
-    },
+    }
   }
 
   const renderBlockchainSettings = () => {
     const sortedConfigurationList = _.sortBy(
-      _.values(_.pick(props.configurations, _.keys(settings))),
+      _.values(_.pick(configurations, _.keys(settings))),
       config => settings[config.key].position
     )
 
     return (
       <>
         <h4>Blockchain Settings</h4>
-        {props.blockchainEnabled ? (
+        {blockchainEnabled ? (
           <Grid>
             {sortedConfigurationList.map((item, index) => {
               const { key, description } = item
+              const { disableUpdate, displayName } = settings[key]
               const camelCaseKey = _.camelCase(item.key)
               return (
                 <ConfigRow
                   key={index}
-                  disabled={settings[key].disableUpdate}
-                  name={settings[key].displayName}
-                  value={props[camelCaseKey]}
+                  type="input"
                   description={description}
-                  onChange={props.onChangeInput(camelCaseKey)}
+                  disabled={disableUpdate}
+                  inputErrorMessage={disableUpdate ? null : errorMsg(key)}
                   inputValidator={settings[key].inputValidator}
-                  inputErrorMessage={errorMsg(key)}
+                  name={displayName}
+                  onChange={disableUpdate ? null : onChangeInput(camelCaseKey)}
+                  value={props[camelCaseKey]}
                 />
               )
             })}
