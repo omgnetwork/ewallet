@@ -112,6 +112,13 @@ test-assets: build-assets
 .PHONY: test test-ewallet test-assets
 
 #
+# Development
+#
+
+develop-frontend: 
+	$(ASSETS) npm run dev
+
+#
 # Docker
 #
 

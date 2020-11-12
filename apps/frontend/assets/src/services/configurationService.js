@@ -30,7 +30,14 @@ export function updateConfiguration ({
   forgetPasswordRequestLifetime,
   masterAccount,
   authTokenLifetime,
-  preAuthTokenLifetime
+  preAuthTokenLifetime, 
+  blockchainConfirmationsThreshold,
+  blockchainDefaultGasPrice,
+  blockchainDepositPoolingInterval,
+  blockchainPollInterval,
+  blockchainStateSaveInterval,
+  blockchainSyncInterval,
+  blockchainTransactionPollInterval
 }) {
   const omittedObject = _.omitBy(
     {
@@ -61,7 +68,13 @@ export function updateConfiguration ({
       forget_password_request_lifetime: Number(forgetPasswordRequestLifetime),
       master_account: masterAccount,
       auth_token_lifetime: Number(authTokenLifetime),
-      pre_auth_token_lifetime: Number(preAuthTokenLifetime)
+      pre_auth_token_lifetime: Number(preAuthTokenLifetime),
+      blockchain_confirmations_threshold: Number(blockchainConfirmationsThreshold),
+      blockchain_deposit_pooling_interval: Number(blockchainDepositPoolingInterval),
+      blockchain_poll_interval: Number(blockchainPollInterval),
+      blockchain_state_save_interval: Number(blockchainStateSaveInterval),
+      blockchain_sync_interval: Number(blockchainSyncInterval),
+      blockchain_transaction_poll_interval: Number(blockchainTransactionPollInterval),
     },
     value => _.isNil(value) || _.isNaN(value) || value === 0
   )
