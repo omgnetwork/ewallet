@@ -42,6 +42,7 @@ defmodule EWallet.Seeder.CLI do
   alias EWallet.EmailValidator
   alias EWallet.Seeder
   alias EWalletDB.Validator
+  alias Utils.Helpers.Normalize
 
   @confirm_message """
   Please verify that the information you've entered are correct.
@@ -135,6 +136,48 @@ defmodule EWallet.Seeder.CLI do
 
   defp process_input({type, name, prompt}), do: process_input({type, name, prompt, nil})
 
+  defp process_input({:boolean, name, prompt, default} = input) do
+    prompt_text = prompt_for(prompt, default)
+
+    val =
+      prompt_text
+      |> IO.gets()
+      |> String.trim()
+
+    case byte_size(val) == 0 do
+      true ->
+        {name, process_default(default)}
+
+      false ->
+        {name, Normalize.to_boolean(val)}
+    end
+  rescue
+    Normalize.ToBooleanError ->
+      IO.puts("#{prompt} is not a invalid, please input a valid boolean.")
+      process_input(input)
+  end
+
+  defp process_input({:integer, name, prompt, default} = input) do
+    prompt_text = prompt_for(prompt, default)
+
+    val =
+      prompt_text
+      |> IO.gets()
+      |> String.trim()
+
+    case byte_size(val) == 0 do
+      true ->
+        {name, process_default(default)}
+
+      false ->
+        {name, String.to_integer(val)}
+    end
+  rescue
+    ArgumentError ->
+      IO.puts("#{prompt} is invalid. Please input a valid integer.")
+      process_input(input)
+  end
+
   defp process_input({:text, name, prompt, default} = input) do
     prompt_text = prompt_for(prompt, default)
 
@@ -208,7 +251,7 @@ defmodule EWallet.Seeder.CLI do
   #
 
   defp prompt_for(l, nil), do: "#{l}: "
-  defp prompt_for(l, d) when is_binary(d), do: "#{l} (#{d}): "
+  defp prompt_for(l, d) when is_binary(d) or is_boolean(d) or is_integer(d), do: "#{l} (#{d}): "
   defp prompt_for(l, {_, _, _}), do: "#{l} (auto-generated): "
   defp prompt_for(l, _), do: prompt_for(l, nil)
 

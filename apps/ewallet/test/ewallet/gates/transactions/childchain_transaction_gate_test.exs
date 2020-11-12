@@ -47,6 +47,7 @@ defmodule EWallet.TransactionGate.ChildchainTest do
 
       {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
 
+      # this doesn't exist anymore with ALD and need to be replaced with call to the vaults
       {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
 
       assert transaction.status == TransactionState.blockchain_submitted()

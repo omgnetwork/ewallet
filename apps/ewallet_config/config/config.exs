@@ -131,7 +131,7 @@ config :ewallet_config,
     },
     "blockchain_chain_id" => %{
       key: "blockchain_chain_id",
-      value: 0,
+      value: 1337,
       type: "unsigned_integer",
       position: 201,
       description:
@@ -204,27 +204,47 @@ config :ewallet_config,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
     },
-    "omisego_rootchain_contract_address" => %{
-      key: "omisego_network_contract_address",
-      value: "0x",
-      type: "string",
-      position: 210,
-      description:
-        "The blockchain contract address used by the eWallet to interact with the OmiseGO Network."
-    },
     "omisego_childchain_url" => %{
       key: "omisego_childchain_url",
       value: "http://localhost:9656",
       type: "string",
-      position: 211,
+      position: 210,
       description: "The url used by the eWallet to interact with the OmiseGO Network's node."
     },
     "omisego_watcher_url" => %{
       key: "omisego_watcher_url",
       value: "http://localhost:7434",
       type: "string",
-      position: 212,
+      position: 211,
       description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
+    },
+    "omisego_plasma_framework_address" => %{
+      key: "omisego_plasma_framework_address",
+      value: "0xa72c9dceeef26c9d103d55c53d411c36f5cdf7ec",
+      type: "string",
+      position: 212,
+      description: "The contract address of the deployed plasma framework."
+    },
+    "omisego_eth_vault_address" => %{
+      key: "omisego_eth_vault_address",
+      value: "0x2c7533f76567241341d1c27f0f239a20b6115714",
+      type: "string",
+      position: 213,
+      description: "The contract address of the deployed ETH vault."
+    },
+    "omisego_erc20_vault_address" => %{
+      key: "omisego_erc20_vault_address",
+      value: "0x2bed2ff4ee93a208edbf4185c7813103d8c4ab7f",
+      type: "string",
+      position: 214,
+      description: "The contract address of the deployed ERC20 vault."
+    },
+    "omisego_payment_exit_game_address" => %{
+      key: "omisego_payment_exit_game_address",
+      value: "0x960ca6b9faa85118ba6badbe0097b1afd8827fac",
+      type: "string",
+      position: 215,
+      description: "The contract address of the deployed payment exit game."
     },
 
     #

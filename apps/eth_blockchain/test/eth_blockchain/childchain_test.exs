@@ -61,6 +61,7 @@ defmodule EthBlockchain.ChildchainTest do
 
       {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
 
+      # TODO: :get_contract_adress does not exit anymore, deposits need to be made to vaults
       {:ok, contract_address} =
         AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
 
@@ -101,6 +102,7 @@ defmodule EthBlockchain.ChildchainTest do
 
       {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
 
+      # TODO: :get_contract_adress does not exit anymore, deposits need to be made to vaults
       {:ok, contract_address} =
         AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
 
