@@ -14,8 +14,12 @@
 
 defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   alias EWalletDB.{BlockchainWallet, Seeder}
-  alias Keychain.Wallet
+  alias Keychain.Key
   alias EWalletConfig.Config
+
+  @test_private_key "d885a307e35738f773d8c9c63c7a3f3977819274638d04aaf934a1e1158513ce"
+  @test_public_key "04e2a0b5ae9f9b8f0c79751cd99dfddc8caa823d808e23af012a9f3ed41c4fc172de8f518d8e6677b0ea8a8bfb2c6e59b02d03a4efc54c1fd00e0d7ef7fa70d0b6"
+  @test_address "0x6de4b3b9c28e9c3e84c2b2d3a875c947a84de68d"
 
   def seed do
     [
@@ -42,11 +46,16 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   end
 
   defp insert_wallet(writer, identifier) do
-    {:ok, {address, public_key}} = Wallet.generate()
+    {:ok, _} =
+      Key.insert(%{
+        wallet_address: @test_address,
+        public_key: @test_public_key,
+        private_key: @test_private_key
+      })
 
     attrs = %{
-      address: address,
-      public_key: public_key,
+      address: @test_address,
+      public_key: @test_public_key,
       name: "Hot Wallet",
       type: BlockchainWallet.type_hot(),
       blockchain_identifier: identifier,
@@ -69,11 +78,11 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
         """)
 
       {:error, changeset} ->
-        writer.error("  Wallet #{address} could not be inserted.")
+        writer.error("  Wallet #{attrs.address} could not be inserted.")
         writer.print_errors(changeset)
 
       _ ->
-        writer.error("  Wallet #{address} could not be inserted.")
+        writer.error("  Wallet #{attrs.address} could not be inserted.")
         writer.error("  Unknown error.")
     end
   end
