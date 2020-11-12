@@ -287,7 +287,6 @@ defmodule EWalletConfig.Setting do
     attrs
     |> cast_value(setting)
     |> cast_options()
-    |> add_position()
   end
 
   defp return_from_change({:ok, stored_setting}) do
