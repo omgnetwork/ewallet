@@ -44,7 +44,6 @@ defmodule EWalletDB.Repo.Seeds.BlockchainSetting do
     |> Map.put(:blockchain_enabled, true)
     |> Map.put(:originator, %Seeder{})
     |> Config.update()
-    |> IO.inspect()
     |> case do
       {:ok, _} ->
         writer.success("successfully updated config")
