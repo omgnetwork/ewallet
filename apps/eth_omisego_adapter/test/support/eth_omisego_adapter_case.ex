@@ -47,8 +47,8 @@ defmodule EthOmiseGOAdapter.EthOmiseGOAdapterCase do
         "omisego_eth_vault_address" => "0x2c7533f76567241341d1c27f0f239a20b6115714",
         "omisego_erc20_vault_address" => "0x2bed2ff4ee93a208edbf4185c7813103d8c4ab7f",
         "omisego_payment_exit_game_address" => "0x960ca6b9faa85118ba6badbe0097b1afd8827fac",
-        "omisego_childchain_url" => "http://localhost:9656",
-        "omisego_watcher_url" => "http://localhost:7534"
+        "omisego_childchain_url" => "http://localhost:8082",
+        "omisego_watcher_url" => "http://localhost:8081"
       }
     )
 
