@@ -91,6 +91,30 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert mint == nil
     end
 
+    test_with_auths "accepts `amount` parameter as string type", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: "100000000000",
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["blockchain_address"] != nil
+      assert response["data"]["blockchain_status"] == "pending"
+      assert response["data"]["locked"] == false
+      assert Token.get(response["data"]["id"]) != nil
+      assert mint == nil
+    end
+
     test_with_auths "fails to deploys an ERC20 token with symbol = nil", context do
       enable_blockchain(context)
 
