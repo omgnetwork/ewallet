@@ -21,7 +21,7 @@ export function createBlockchainToken ({ name, symbol, decimal = 18, amount, loc
       name,
       symbol,
       subunit_to_unit: parseInt(Math.pow(10, decimal)),
-      amount: parseInt(amount),
+      amount: String(amount),
       locked
     }
   })
