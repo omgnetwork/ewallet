@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
-import { Input, Button, Icon, Checkbox } from '../omg-uikit'
-import Modal from '../omg-modal'
-import { createBlockchainToken } from '../omg-token/action'
-import { formatAmount } from '../utils/formatter'
+import { Input, Button, Icon, Checkbox } from 'omg-uikit'
+import Modal from 'omg-modal'
+import { createBlockchainToken } from 'omg-token/action'
+import { formatAmount } from 'utils/formatter'
 
 const Form = styled.form`
   padding: 50px;
