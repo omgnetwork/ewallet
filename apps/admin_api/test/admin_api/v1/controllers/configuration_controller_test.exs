@@ -333,7 +333,7 @@ defmodule AdminAPI.V1.ConfigurationControllerTest do
         action: "update",
         originator: originator,
         target: %StoredSetting{uuid: target.uuid},
-        changes: %{"data" => %{"value" => target.value}, "position" => target.position},
+        changes: %{"data" => %{"value" => target.value}},
         encrypted_changes: %{}
       )
     end
