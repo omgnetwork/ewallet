@@ -101,7 +101,7 @@ const CreateBlockchainToken = ({
       const amount = formatAmount(unitAmount, multiplier)
       const creationOptions = { amount, decimal, locked, name, symbol }
 
-      const result = await  createBlockchainToken(creationOptions)(dispatch)
+      const result = await createBlockchainToken(creationOptions)(dispatch)
       if (result.data) {
         refetch()
         onRequestClose()
@@ -171,7 +171,6 @@ const CreateBlockchainTokenModal = ({
   onRequestClose,
   refetch
 }: CreateBlockchainTokenModalProps) => {
-  
   return (
     <Modal
       isOpen={open}
@@ -187,4 +186,3 @@ const CreateBlockchainTokenModal = ({
 }
 
 export default CreateBlockchainTokenModal
-
