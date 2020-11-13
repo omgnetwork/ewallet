@@ -16,12 +16,32 @@ defmodule EWallet.TokenGate do
   @moduledoc false
 
   alias ActivityLogger.System
-  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper}
+  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper, Helper}
   alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, Repo, Token}
 
   @confirmed Token.Blockchain.status_confirmed()
   @blockchain_transaction_confirmed BlockchainTransactionState.confirmed()
   @blockchain_transaction_failed BlockchainTransactionState.failed()
+
+  defguardp is_integer_or_string(input) when is_integer(input) or is_binary(input)
+
+  # defp validate_and_normalize_attributes(
+  #        %{
+  #          "name" => name,
+  #          "symbol" => symbol,
+  #          "subunit_to_unit" => subunit_to_unit,
+  #          "amount" => amount,
+  #          "locked" => locked
+  #        } = attrs
+  #      ) do
+  #   with true <- is_binary(name),
+  #        true <- is_binary(symbol),
+  #        true <- is_integer(subunit_to_unit),
+  #        true <- is_integer_or_string(amount),
+  #        true <- is_boolean(locked) do
+  #     {:ok, attrs}
+  #   end
+  # end
 
   @doc """
   Attempts to deploy an ERC20 token with the specified attributes
@@ -40,8 +60,10 @@ defmodule EWallet.TokenGate do
           "locked" => locked
         } = attrs
       )
-      when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
+      when is_boolean(locked) and is_integer_or_string(amount) and is_integer(subunit_to_unit) and
              is_binary(name) and is_binary(symbol) do
+    attrs = Map.put(attrs, "amount", normalize_amount(amount))
+
     with true <-
            amount >= 0 ||
              {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."},
@@ -57,15 +79,17 @@ defmodule EWallet.TokenGate do
             blockchain_transaction: blockchain_transaction,
             contract_uuid: contract_uuid
           }} <-
-           %{
-             from: hot_wallet.address,
-             name: name,
-             symbol: symbol,
-             decimals: decimals,
-             initial_amount: amount,
-             locked: locked
-           }
-           |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier) do
+           BlockchainTransactionGate.deploy_erc20_token(
+             %{
+               from: hot_wallet.address,
+               name: name,
+               symbol: symbol,
+               decimals: decimals,
+               initial_amount: normalize_amount(amount),
+               locked: locked
+             },
+             rootchain_identifier
+           ) do
       AddressTracker.register_contract_address(contract_address)
       {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
     else
@@ -77,6 +101,17 @@ defmodule EWallet.TokenGate do
   def deploy_erc20(_) do
     {:error, :invalid_parameter,
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
+  end
+
+  defp normalize_amount(amount) do
+    case is_binary(amount) do
+      true ->
+        {:ok, integer_amount} = Helper.string_to_integer(amount)
+        integer_amount
+
+      false ->
+        amount
+    end
   end
 
   defp put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid) do
