@@ -144,6 +144,19 @@ class TokenDetailPage extends Component {
       </Button>
     )
   }
+
+  renderMintingLockedButton = () => {
+    return (
+      <Button
+        key='mint'
+        size='small'
+        disabled={true}
+      >
+        <span>Minting Locked</span>
+      </Button>
+    )
+  } 
+
   renderTopBar = token => {
     return (
       <>
@@ -159,7 +172,7 @@ class TokenDetailPage extends Component {
           title={token.name}
           buttons={[
             this.renderCreateExchangePairButton(),
-            token.locked ? null : this.renderMintTokenButton()
+            token.locked ? this.renderMintingLockedButton() : this.renderMintTokenButton()
           ]}
         />
       </>
