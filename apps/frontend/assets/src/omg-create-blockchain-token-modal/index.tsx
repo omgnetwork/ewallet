@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ChangeEventHandler, FormEventHandler, useState } from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
@@ -66,20 +66,20 @@ const CreateBlockchainToken = ({
   const [submitting, setSubmitting] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
 
-  const onChangeInputName = e => {
+  const onChangeInputName: ChangeEventHandler<HTMLInputElement> = e => {
     setName(e.target.value)
   }
 
-  const onChangeInputSymbol = e => {
+  const onChangeInputSymbol: ChangeEventHandler<HTMLInputElement> = e => {
     setSymbol(e.target.value)
   }
 
-  const onChangeAmount = e => {
+  const onChangeAmount: ChangeEventHandler<HTMLInputElement> = e => {
     setUnitAmount(e.target.value)
   }
 
-  const onChangeDecimal = e => {
-    setDecimal(e.target.value)
+  const onChangeDecimal: ChangeEventHandler<HTMLInputElement> = e => {
+    setDecimal(e.target.valueAsNumber)
   }
 
   const onToggleLocked = () => {
@@ -90,7 +90,7 @@ const CreateBlockchainToken = ({
     return decimal <= 18 && !!name && !!symbol
   }
 
-  const onSubmit = async e => {
+  const onSubmit: FormEventHandler<HTMLFormElement> = async e => {
     e.preventDefault()
     if (shouldSubmit() === false) return
 
