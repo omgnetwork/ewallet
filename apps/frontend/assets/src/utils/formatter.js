@@ -61,5 +61,5 @@ export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
 }
 
 export const getSubunitToUnit = (decimal) => {
-  return BigNumber(10).exponentiatedBy(decimal).toFixed()
+  return new BigNumber(10).exponentiatedBy(decimal).toFixed()
 }
