@@ -32,8 +32,20 @@ defmodule EthBlockchain.DumbCCAdapter do
      state}
   end
 
-  def handle_call({:get_contract_address}, _from, state) do
-    {:reply, {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"}, state}
+  def handle_call({:get_childchain_framework_address}, _from, state) do
+    {:reply, {:ok, "0xc673e4ffcb8464faff908a6804fe0e635af0ea2f"}, state}
+  end
+
+  def handle_call({:get_childchain_eth_vault_address}, _from, state) do
+    {:reply, {:ok, "0x4e3aeff70f022a6d4cc5947423887e7152826cf7"}, state}
+  end
+
+  def handle_call({:get_childchain_erc20_vault_address}, _from, state) do
+    {:reply, {:ok, "0x135505d9f4ea773dd977de3b2b108f2dae67b63a"}, state}
+  end
+
+  def handle_call({:get_childchain_payment_exit_game_address}, _from, state) do
+    {:reply, {:ok, "0x89afce326e7da55647d22e24336c6a2816c99f6b"}, state}
   end
 
   def handle_call({:get_errors}, _from, state) do

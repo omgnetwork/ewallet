@@ -152,21 +152,22 @@ defmodule EthBlockchain.Transaction do
   end
 
   @doc """
-  Submit a deposit eth transaction to the specified root chain contract
+  Submit a deposit eth transaction
   """
   def deposit_eth(
         %{
           tx_bytes: tx_bytes,
           from: from,
-          amount: amount,
-          root_chain_contract: root_chain_contract
+          amount: amount
         } = attrs,
         opts \\ []
       ) do
-    with {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_eth, opts),
-         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_eth_deposit(tx_bytes) do
+    with {:ok, vault_contract} <-
+           AdapterServer.childchain_call({:get_eth_vault_address}, opts),
+         {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_eth, opts),
+         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_deposit(tx_bytes) do
       %__MODULE__{
-        to: from_hex(root_chain_contract),
+        to: from_hex(vault_contract),
         data: encoded_abi_data,
         value: amount
       }
@@ -176,20 +177,21 @@ defmodule EthBlockchain.Transaction do
   end
 
   @doc """
-  Submit a deposit transaction of an ERC20 token to the specified root chain contract
+  Submit a deposit transaction of an ERC20 token
   """
   def deposit_erc20(
         %{
           tx_bytes: tx_bytes,
-          from: from,
-          root_chain_contract: root_chain_contract
+          from: from
         } = attrs,
         opts \\ []
       ) do
-    with {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_token, opts),
-         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_erc20_deposit(tx_bytes) do
+    with {:ok, vault_contract} <-
+           AdapterServer.childchain_call({:get_erc20_vault_address}, opts),
+         {:ok, meta} <- get_transaction_meta(attrs, :child_chain_deposit_token, opts),
+         {:ok, encoded_abi_data} <- ABIEncoder.child_chain_deposit(tx_bytes) do
       %__MODULE__{
-        to: from_hex(root_chain_contract),
+        to: from_hex(vault_contract),
         data: encoded_abi_data
       }
       |> prepare_and_send(meta, from, opts)
@@ -203,14 +205,15 @@ defmodule EthBlockchain.Transaction do
   def approve_erc20(
         %{
           from: from,
-          to: to,
           amount: amount,
           contract_address: contract_address
         } = attrs,
         opts \\ []
       ) do
-    with {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
-         {:ok, encoded_abi_data} <- ABIEncoder.approve(to, amount) do
+    with {:ok, vault_contract} <-
+           AdapterServer.childchain_call({:get_erc20_vault_address}, opts),
+         {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
+         {:ok, encoded_abi_data} <- ABIEncoder.approve(from_hex(vault_contract), amount) do
       %__MODULE__{
         to: from_hex(contract_address),
         data: encoded_abi_data

@@ -19,7 +19,8 @@ defmodule EthOmiseGOAdapter.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {EthOmiseGOAdapter.Application, []}
     ]
   end
 
@@ -30,9 +31,10 @@ defmodule EthOmiseGOAdapter.MixProject do
       {:keychain, in_umbrella: true},
       {:ewallet_config, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
-      {:ex_rlp, "~> 0.5.2"},
+      {:ex_rlp, "~> 0.5.3"},
       {:jason, "~> 1.1"},
       {:httpoison, "~> 1.4.0"},
+      {:ex_plasma, git: "https://github.com/omgnetwork/ex_plasma.git", ref: "0336be01bea7b4aeb5b7fbd75edcbe4ad0d1c69f"},
       {:plug_cowboy, "~> 1.0", only: [:dev]}
     ]
   end

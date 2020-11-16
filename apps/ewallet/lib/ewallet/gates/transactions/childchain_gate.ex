@@ -17,13 +17,20 @@ defmodule EWallet.TransactionGate.Childchain do
   This is an intermediary module that formats the params so they can be processed by
   the TransactionGate.Blockchain
   """
-  alias EWallet.{TransactionGate, BlockchainHelper}
+  alias EWallet.{TokenFetcher, TransactionGate, BlockchainHelper}
   alias EWalletDB.Transaction
 
+  @eth BlockchainHelper.adapter().helper().default_token().address
+
   def deposit(actor, %{"amount" => amount} = attrs) when is_integer(amount) do
-    attrs = build_transaction_attrs(attrs)
-    validation_tuple = address_validation_tuple(attrs)
-    TransactionGate.Blockchain.create(actor, attrs, validation_tuple)
+    case build_transaction_attrs(attrs) do
+      {:ok, attrs} ->
+        validation_tuple = address_validation_tuple(attrs)
+        TransactionGate.Blockchain.create(actor, attrs, validation_tuple)
+
+      error ->
+        error
+    end
   end
 
   def deposit(_, _) do
@@ -31,15 +38,37 @@ defmodule EWallet.TransactionGate.Childchain do
   end
 
   defp build_transaction_attrs(%{"address" => address} = attrs) do
-    {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
+    case get_vault_address(attrs) do
+      {:ok, contract_address} ->
+        {:ok,
+         attrs
+         |> Map.put("from_address", address)
+         |> Map.put("to_address", contract_address)
+         |> Map.delete("address")
+         |> Map.put("type", Transaction.deposit())
+         |> Map.put("rootchain_identifier", BlockchainHelper.rootchain_identifier())
+         |> Map.put("childchain_identifier", BlockchainHelper.childchain_identifier())}
 
-    attrs
-    |> Map.put("from_address", address)
-    |> Map.put("to_address", contract_address)
-    |> Map.delete("address")
-    |> Map.put("type", Transaction.deposit())
-    |> Map.put("rootchain_identifier", BlockchainHelper.rootchain_identifier())
-    |> Map.put("childchain_identifier", BlockchainHelper.childchain_identifier())
+      error ->
+        error
+    end
+  end
+
+  defp get_vault_address(attrs) do
+    with {:ok, token} <- TokenFetcher.fetch(attrs),
+         :ok <- TransactionGate.Blockchain.validate_blockchain_token(token) do
+      vault_address_for_token(token)
+    else
+      error -> error
+    end
+  end
+
+  defp vault_address_for_token(%{blockchain_address: @eth}) do
+    BlockchainHelper.call(:get_childchain_eth_vault_address)
+  end
+
+  defp vault_address_for_token(_) do
+    BlockchainHelper.call(:get_childchain_erc20_vault_address)
   end
 
   defp address_validation_tuple(attrs) do

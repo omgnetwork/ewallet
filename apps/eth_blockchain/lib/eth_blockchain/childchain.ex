@@ -37,40 +37,21 @@ defmodule EthBlockchain.Childchain do
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier),
-         {:ok, contract_address} <- AdapterServer.childchain_call({:get_contract_address}, opts),
          {:ok, tx_bytes} <-
            AdapterServer.childchain_call({:get_deposit_tx_bytes, to, amount, currency}, opts) do
-      submit_deposit(tx_bytes, to, amount, currency, contract_address, opts)
+      submit_deposit(tx_bytes, to, amount, currency, opts)
     end
   end
 
-  defp submit_deposit(tx_bytes, to, amount, @eth, root_chain_contract, opts) do
-    Transaction.deposit_eth(
-      %{tx_bytes: tx_bytes, from: to, amount: amount, root_chain_contract: root_chain_contract},
-      opts
-    )
+  defp submit_deposit(tx_bytes, to, amount, @eth, opts) do
+    Transaction.deposit_eth(%{tx_bytes: tx_bytes, from: to, amount: amount}, opts)
   end
 
-  defp submit_deposit(tx_bytes, to, amount, erc20, root_chain_contract, opts) do
+  defp submit_deposit(tx_bytes, to, amount, erc20, opts) do
     with {:ok, _attrs} <-
-           Transaction.approve_erc20(
-             %{
-               from: to,
-               to: root_chain_contract,
-               amount: amount,
-               contract_address: erc20
-             },
-             opts
-           ),
+           Transaction.approve_erc20(%{from: to, amount: amount, contract_address: erc20}, opts),
          {:ok, _attrs} = response <-
-           Transaction.deposit_erc20(
-             %{
-               tx_bytes: tx_bytes,
-               from: to,
-               root_chain_contract: root_chain_contract
-             },
-             opts
-           ) do
+           Transaction.deposit_erc20(%{tx_bytes: tx_bytes, from: to}, opts) do
       response
     end
   end

@@ -87,8 +87,8 @@ defmodule EthBlockchain.AdapterServerTest do
           state[:adapter_opts]
         )
 
-      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp1
-      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp2
+      assert {:ok, "0xc673e4ffcb8464faff908a6804fe0e635af0ea2f"} == dumb_resp1
+      assert {:ok, "0xc673e4ffcb8464faff908a6804fe0e635af0ea2f"} == dumb_resp2
     end
 
     test "shutdowns the worker once finished handling tasks", state do

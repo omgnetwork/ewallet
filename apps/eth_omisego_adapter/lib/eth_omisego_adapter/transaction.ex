@@ -19,34 +19,25 @@ defmodule EthOmiseGOAdapter.Transaction do
   import Utils.Helpers.Encoding
 
   alias EthOmiseGOAdapter.HTTPClient
+  alias ExPlasma.Builder
   alias Keychain.Signature
 
   @eth "0x0000000000000000000000000000000000000000"
-  @max_inputs 4
-  @max_outputs 4
-
-  defstruct [:inputs, :outputs]
 
   @doc """
-  Creates a new transaction from a list of inputs and a list of outputs.
-  Adds empty (zeroes) inputs and/or outputs to reach the expected size
-  of `@max_inputs` inputs and `@max_outputs` outputs.
-
-  assumptions:
-  ```
-    length(inputs) <= @max_inputs
-    length(outputs) <= @max_outputs
-  ```
+  Creates an encoded deposit transaction given an address, amount and currency.
   Returns {:ok, tx_bytes}
   """
   @spec get_deposit_tx_bytes(Sting.t(), integer(), String.t()) :: {:ok, String.t()}
   def get_deposit_tx_bytes(address, amount, currency) do
-    tx_bytes =
-      []
-      |> new([{from_hex(address), from_hex(currency), amount}])
-      |> encode()
-
-    {:ok, tx_bytes}
+    ExPlasma.payment_v1()
+    |> Builder.new()
+    |> Builder.add_output(
+      output_guard: from_hex(address),
+      token: from_hex(currency),
+      amount: amount
+    )
+    |> ExPlasma.encode(signed: false)
   end
 
   @doc """
@@ -142,52 +133,6 @@ defmodule EthOmiseGOAdapter.Transaction do
     |> Map.put_new("signatures", signatures)
     |> Jason.encode!()
     |> HTTPClient.post_request("transaction.submit_typed")
-  end
-
-  defp new(inputs, outputs)
-       when length(inputs) <= @max_inputs and length(outputs) <= @max_outputs do
-    inputs =
-      Enum.map(inputs, fn {blknum, txindex, oindex} ->
-        %{blknum: blknum, txindex: txindex, oindex: oindex}
-      end)
-
-    inputs =
-      inputs ++
-        List.duplicate(%{blknum: 0, txindex: 0, oindex: 0}, @max_inputs - Kernel.length(inputs))
-
-    outputs =
-      Enum.map(outputs, fn {owner, currency, amount} ->
-        %{owner: owner, currency: currency, amount: amount}
-      end)
-
-    outputs =
-      outputs ++
-        List.duplicate(
-          %{owner: from_hex(@eth), currency: from_hex(@eth), amount: 0},
-          @max_outputs - Kernel.length(outputs)
-        )
-
-    %__MODULE__{inputs: inputs, outputs: outputs}
-  end
-
-  defp encode(%__MODULE__{} = transaction) do
-    transaction
-    |> get_data_for_rlp()
-    |> ExRLP.encode()
-  end
-
-  defp get_data_for_rlp(%__MODULE__{inputs: inputs, outputs: outputs}) do
-    [
-      # contract expects 4 inputs and outputs
-      Enum.map(inputs, fn %{blknum: blknum, txindex: txindex, oindex: oindex} ->
-        [blknum, txindex, oindex]
-      end) ++
-        List.duplicate([0, 0, 0], 4 - length(inputs)),
-      Enum.map(outputs, fn %{owner: owner, currency: currency, amount: amount} ->
-        [owner, currency, amount]
-      end) ++
-        List.duplicate([from_hex(@eth), from_hex(@eth), 0], 4 - length(outputs))
-    ]
   end
 
   defp respond_submit({:ok, %{"blknum" => blknum, "txindex" => txindex, "txhash" => txhash}}) do
