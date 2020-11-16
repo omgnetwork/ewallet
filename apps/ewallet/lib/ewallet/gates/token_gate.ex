@@ -76,7 +76,7 @@ defmodule EWallet.TokenGate do
        ) do
     with true <- is_binary(name),
          true <- is_binary(symbol),
-         true <- is_integer(subunit_to_unit),
+         true <- is_integer(subunit_to_unit) or is_binary(subunit_to_unit),
          true <- is_integer(amount) or is_binary(amount),
          true <- is_boolean(locked) do
       {:ok, parameters}
@@ -94,24 +94,27 @@ defmodule EWallet.TokenGate do
 
   @spec validate_and_normalize_attributes(map()) ::
           {:ok, map()} | {:error, :invalid_parameter, String.t()}
-  defp validate_and_normalize_attributes(
-         %{
-           "subunit_to_unit" => subunit_to_unit,
-           "amount" => amount
-         } = parameters
-       ) do
+  defp validate_and_normalize_attributes(attrs) do
+    amount = normalize_value(attrs["amount"])
+    subunit_to_unit = normalize_value(attrs["subunit_to_unit"])
+
     with true <-
            subunit_to_unit > 0 ||
              {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
          true <-
-           normalize_amount(amount) > 0 ||
+           amount >= 0 ||
              {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."} do
-      {:ok, Map.put(parameters, "amount", normalize_amount(amount))}
+      normalized_attributes =
+        attrs
+        |> Map.put("amount", amount)
+        |> Map.put("subunit_to_unit", subunit_to_unit)
+
+      {:ok, normalized_attributes}
     end
   end
 
-  @spec normalize_amount(String.t() | integer()) :: integer()
-  defp normalize_amount(amount) do
+  @spec normalize_value(String.t() | integer()) :: integer()
+  defp normalize_value(amount) do
     case is_binary(amount) do
       true ->
         {:ok, integer_amount} = Helper.string_to_integer(amount)
