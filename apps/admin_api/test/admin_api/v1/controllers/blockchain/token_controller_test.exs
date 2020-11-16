@@ -115,6 +115,44 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert mint == nil
     end
 
+    test_with_auths "accepts `subunit_to_unit` parameter as string or integer type", context do
+      enable_blockchain(context)
+
+      subunit_to_unit = 1_000_000_000_000_000_000
+
+      response_1 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 100,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: Integer.to_string(subunit_to_unit)
+        })
+
+      assert response_1["success"]
+      assert response_1["data"]["subunit_to_unit"] == subunit_to_unit
+
+      assert response_1["data"]["id"] |> Token.get() |> Map.get(:subunit_to_unit) ==
+               subunit_to_unit
+
+      response_2 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 100,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: subunit_to_unit
+        })
+
+      assert response_2["success"]
+      assert response_2["data"]["subunit_to_unit"] == subunit_to_unit
+
+      assert response_2["data"]["id"] |> Token.get() |> Map.get(:subunit_to_unit) ==
+               subunit_to_unit
+    end
+
     test_with_auths "fails to deploys an ERC20 token with symbol = nil", context do
       enable_blockchain(context)
 
