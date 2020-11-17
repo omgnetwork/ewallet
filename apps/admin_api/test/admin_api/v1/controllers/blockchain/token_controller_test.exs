@@ -98,7 +98,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
         request("/token.deploy_erc20", %{
           symbol: "BTC",
           name: "Bitcoin",
-          amount: "100000000000",
+          amount: "1000000000000000000",
           locked: false,
           description: "desc",
           subunit_to_unit: 100
