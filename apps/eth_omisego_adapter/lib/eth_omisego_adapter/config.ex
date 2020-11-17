@@ -15,8 +15,20 @@
 defmodule EthOmiseGOAdapter.Config do
   @moduledoc false
 
-  def get_contract_address do
-    Application.get_env(:eth_omisego_adapter, :omisego_rootchain_contract_address)
+  def get_plasma_framework_address do
+    Application.get_env(:eth_omisego_adapter, :omisego_plasma_framework_address)
+  end
+
+  def get_eth_vault_address do
+    Application.get_env(:eth_omisego_adapter, :omisego_eth_vault_address)
+  end
+
+  def get_erc20_vault_address do
+    Application.get_env(:eth_omisego_adapter, :omisego_erc20_vault_address)
+  end
+
+  def get_payment_exit_game_address do
+    Application.get_env(:eth_omisego_adapter, :omisego_payment_exit_game_address)
   end
 
   def get_watcher_url do

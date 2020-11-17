@@ -94,6 +94,7 @@ defmodule AdminAPI.ChannelCase do
       EWalletConfig.Repo,
       [:ewallet_db, :ewallet, :admin_api],
       %{
+        "internal_enabled" => true,
         "base_url" => "http://localhost:4000",
         "email_adapter" => "test",
         "sender_email" => "admin@example.com",

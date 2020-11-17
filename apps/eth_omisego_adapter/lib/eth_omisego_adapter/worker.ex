@@ -67,8 +67,20 @@ defmodule EthOmiseGOAdapter.Worker do
     {:reply, Transaction.get_deposit_tx_bytes(address, amount, currency), state}
   end
 
-  def handle_call({:get_contract_address}, _from, state) do
-    {:reply, {:ok, Config.get_contract_address()}, state}
+  def handle_call({:get_plasma_framework_address}, _from, state) do
+    {:reply, {:ok, Config.get_plasma_framework_address()}, state}
+  end
+
+  def handle_call({:get_eth_vault_address}, _from, state) do
+    {:reply, {:ok, Config.get_eth_vault_address()}, state}
+  end
+
+  def handle_call({:get_erc20_vault_address}, _from, state) do
+    {:reply, {:ok, Config.get_erc20_vault_address()}, state}
+  end
+
+  def handle_call({:get_payment_exit_game_address}, _from, state) do
+    {:reply, {:ok, Config.get_payment_exit_game_address()}, state}
   end
 
   def handle_call({:get_errors}, _from, state) do

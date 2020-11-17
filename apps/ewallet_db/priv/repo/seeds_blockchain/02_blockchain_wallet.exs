@@ -24,7 +24,7 @@ defmodule EWalletDB.Repo.Seeds.BlockchainWallet do
   def seed do
     [
       run_banner: "Seeding primary hot wallet:",
-      argsline: [],
+      argsline: []
     ]
   end
 

@@ -74,16 +74,16 @@ defmodule EthBlockchain.AdapterServerTest do
   end
 
   describe "childchain_call/2" do
-    test "delegates get_contract_address call to the adapter", state do
+    test "delegates get_childchain_framework_address call to the adapter", state do
       dumb_resp1 =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       dumb_resp2 =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
@@ -94,19 +94,19 @@ defmodule EthBlockchain.AdapterServerTest do
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
@@ -117,7 +117,7 @@ defmodule EthBlockchain.AdapterServerTest do
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                AdapterServer.childchain_call(
-                 {:get_contract_address},
+                 {:get_childchain_framework_address},
                  cc_node_adapter: :foobar,
                  cc_node_adapter_pid: state[:adapter_opts][:cc_node_adapter_pid]
                )

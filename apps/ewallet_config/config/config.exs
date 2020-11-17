@@ -131,7 +131,7 @@ config :ewallet_config,
     },
     "blockchain_chain_id" => %{
       key: "blockchain_chain_id",
-      value: 0,
+      value: 1337,
       type: "unsigned_integer",
       position: 201,
       description:
@@ -204,26 +204,18 @@ config :ewallet_config,
       description:
         "The interval (in milliseconds) to check and pool funds from blockchain deposit wallets."
     },
-    "omisego_rootchain_contract_address" => %{
-      key: "omisego_network_contract_address",
-      value: "0x",
-      type: "string",
-      position: 210,
-      description:
-        "The blockchain contract address used by the eWallet to interact with the OmiseGO Network."
-    },
     "omisego_childchain_url" => %{
       key: "omisego_childchain_url",
       value: "http://localhost:9656",
       type: "string",
-      position: 211,
+      position: 210,
       description: "The url used by the eWallet to interact with the OmiseGO Network's node."
     },
     "omisego_watcher_url" => %{
       key: "omisego_watcher_url",
       value: "http://localhost:7434",
       type: "string",
-      position: 212,
+      position: 211,
       description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
     },
     "omisego_plasma_framework_address" => %{
