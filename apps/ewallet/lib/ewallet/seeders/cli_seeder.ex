@@ -153,7 +153,7 @@ defmodule EWallet.Seeder.CLI do
     end
   rescue
     Normalize.ToBooleanError ->
-      IO.puts("#{prompt} is not a invalid, please input a valid boolean.")
+      IO.puts("#{prompt} is invalid, please input a valid boolean.")
       process_input(input)
   end
 
