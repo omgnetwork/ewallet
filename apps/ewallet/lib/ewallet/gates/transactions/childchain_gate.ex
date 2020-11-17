@@ -31,6 +31,7 @@ defmodule EWallet.TransactionGate.Childchain do
   end
 
   defp build_transaction_attrs(%{"address" => address} = attrs) do
+    # this doesn't exist anymore with ALD and need to be replaced with call to the vaults
     {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
 
     attrs

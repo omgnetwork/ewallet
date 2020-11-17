@@ -99,9 +99,6 @@ defmodule Mix.Tasks.Omg.Seed do
 
   defp assume_yes?([]), do: false
 
-  # disable prompt when running blockchain seeds
-  defp assume_yes?(["--blockchain" | _t]), do: true
-
   defp assume_yes?(["-y" | _t]), do: true
 
   defp assume_yes?(["--yes" | _t]), do: true

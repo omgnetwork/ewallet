@@ -37,6 +37,9 @@ defmodule EthBlockchain.Childchain do
         opts \\ []
       ) do
     with :ok <- check_childchain(childchain_identifier),
+         # TODO: this is broken with new config, :get_contract_address does not exist anymore,
+         # need to use the eth or erc20 vaults instead
+         # (:get_childchain_eth_vault_address or :get_childchain_erc20_vault_address)
          {:ok, contract_address} <- AdapterServer.childchain_call({:get_contract_address}, opts),
          {:ok, tx_bytes} <-
            AdapterServer.childchain_call({:get_deposit_tx_bytes, to, amount, currency}, opts) do
