@@ -32,8 +32,9 @@ defmodule EWallet.TokenGate do
 
   def deploy_erc20(params) do
     with {:ok, valid_params} <- validate_parameter_types(params),
-         {:ok, attrs} <- validate_and_normalize_attributes(valid_params) do
-      decimals = attrs["subunit_to_unit"] |> :math.log10() |> trunc()
+         {:ok, attrs} <- normalize_attributes(valid_params),
+         {:ok, valid_attrs} <- validate_attributes(attrs) do
+      decimals = valid_attrs["subunit_to_unit"] |> :math.log10() |> trunc()
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
@@ -41,10 +42,10 @@ defmodule EWallet.TokenGate do
              %{
                decimals: decimals,
                from: hot_wallet.address,
-               initial_amount: attrs["amount"],
-               locked: attrs["locked"],
-               name: attrs["name"],
-               symbol: attrs["symbol"]
+               initial_amount: valid_attrs["amount"],
+               locked: valid_attrs["locked"],
+               name: valid_attrs["name"],
+               symbol: valid_attrs["symbol"]
              },
              rootchain_identifier
            ) do
@@ -55,7 +56,9 @@ defmodule EWallet.TokenGate do
            contract_uuid: contract_uuid
          }} ->
           AddressTracker.register_contract_address(contract_address)
-          {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
+
+          {:ok,
+           put_deploy_data(valid_attrs, blockchain_transaction, contract_address, contract_uuid)}
 
         error ->
           error
@@ -92,24 +95,30 @@ defmodule EWallet.TokenGate do
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
 
-  @spec validate_and_normalize_attributes(map()) ::
-          {:ok, map()} | {:error, :invalid_parameter, String.t()}
-  defp validate_and_normalize_attributes(attrs) do
-    amount = normalize_value(attrs["amount"])
-    subunit_to_unit = normalize_value(attrs["subunit_to_unit"])
+  @spec normalize_attributes(map()) :: {:ok, map()}
+  defp normalize_attributes(attrs) do
+    normalized_attributes =
+      attrs
+      |> Map.put("amount", normalize_value(attrs["amount"]))
+      |> Map.put("subunit_to_unit", normalize_value(attrs["subunit_to_unit"]))
 
+    {:ok, normalized_attributes}
+  end
+
+  @spec validate_attributes(map()) :: {:ok, map()} | {:error, :invalid_parameter, atom()}
+  defp validate_attributes(%{"amount" => 0, "locked" => true}),
+    do:
+      {:error, :invalid_parameter,
+       "`amount` cannot be equal to 0 if token is locked for minting."}
+
+  defp validate_attributes(attrs) do
     with true <-
-           subunit_to_unit > 0 ||
+           attrs["subunit_to_unit"] > 0 ||
              {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
          true <-
-           amount >= 0 ||
+           attrs["amount"] >= 0 ||
              {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."} do
-      normalized_attributes =
-        attrs
-        |> Map.put("amount", amount)
-        |> Map.put("subunit_to_unit", subunit_to_unit)
-
-      {:ok, normalized_attributes}
+      {:ok, attrs}
     end
   end
 

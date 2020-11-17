@@ -285,6 +285,22 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
+    test_with_auths "fails if amount is set to zero while locked is true", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 0,
+          locked: true,
+          description: "desc",
+          subunit_to_unit: 0
+        })
+
+      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response)
+    end
+
     test "generates an activity log for an admin request", context do
       enable_blockchain(context)
       timestamp = DateTime.utc_now()
@@ -346,6 +362,14 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
 
     assert response["data"]["description"] ==
              "`subunit_to_unit` must be greater than 0."
+  end
+
+  defp assert_deploy_erc20(:fails_if_locked_with_amount_zero, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "`amount` cannot be equal to 0 if token is locked for minting."
   end
 
   defp assert_deploy_erc20_logs(logs, originator, target) do
