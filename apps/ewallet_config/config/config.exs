@@ -213,7 +213,7 @@ config :ewallet_config,
     },
     "omisego_watcher_url" => %{
       key: "omisego_watcher_url",
-      value: "http://localhost:7434",
+      value: "http://localhost:7534",
       type: "string",
       position: 211,
       description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
