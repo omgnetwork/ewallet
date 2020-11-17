@@ -86,8 +86,11 @@ const CreateBlockchainToken = ({
     setLocked(!locked)
   }
 
+  const isValidDecimal = (): boolean => {
+    return Number.isInteger(decimal) && decimal <= 18
+  }
   const shouldSubmit = (): boolean => {
-    return decimal <= 18 && !!name && !!symbol
+    return isValidDecimal() && !!name && !!symbol
   }
 
   const onSubmit: FormEventHandler<HTMLFormElement> = async e => {
@@ -135,8 +138,8 @@ const CreateBlockchainToken = ({
         placeholder="Decimal Points"
         value={decimal}
         onChange={onChangeDecimal}
-        error={decimal > 18}
-        errorText={'Decimal point should not exceed 18'}
+        error={!isValidDecimal()}
+        errorText={'Should be an integer less than or equal to 18.'}
         type="number"
         step={'1'}
       />
