@@ -74,39 +74,39 @@ defmodule EthBlockchain.AdapterServerTest do
   end
 
   describe "childchain_call/2" do
-    test "delegates get_contract_address call to the adapter", state do
+    test "delegates get_childchain_framework_address call to the adapter", state do
       dumb_resp1 =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       dumb_resp2 =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
-      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp1
-      assert {:ok, "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571"} == dumb_resp2
+      assert {:ok, "0xa72c9dceeef26c9d103d55c53d411c36f5cdf7ec"} == dumb_resp1
+      assert {:ok, "0xa72c9dceeef26c9d103d55c53d411c36f5cdf7ec"} == dumb_resp2
     end
 
     test "shutdowns the worker once finished handling tasks", state do
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
       {:ok, _} =
         AdapterServer.childchain_call(
-          {:get_contract_address},
+          {:get_childchain_framework_address},
           state[:adapter_opts]
         )
 
@@ -117,7 +117,7 @@ defmodule EthBlockchain.AdapterServerTest do
     test "returns an error if no such adapter is registered", state do
       assert {:error, :no_handler} ==
                AdapterServer.childchain_call(
-                 {:get_contract_address},
+                 {:get_childchain_framework_address},
                  cc_node_adapter: :foobar,
                  cc_node_adapter_pid: state[:adapter_opts][:cc_node_adapter_pid]
                )

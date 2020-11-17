@@ -102,8 +102,20 @@ defmodule EthBlockchain.Adapter do
     Childchain.get_balance(attrs, opts)
   end
 
-  def call({:get_childchain_contract_address, _attrs}, opts) do
-    AdapterServer.childchain_call({:get_contract_address}, opts)
+  def call({:get_childchain_framework_address, _attrs}, opts) do
+    AdapterServer.childchain_call({:get_plasma_framework_address}, opts)
+  end
+
+  def call({:get_childchain_eth_vault_address, _attrs}, opts) do
+    AdapterServer.childchain_call({:get_eth_vault_address}, opts)
+  end
+
+  def call({:get_childchain_erc20_vault_address, _attrs}, opts) do
+    AdapterServer.childchain_call({:get_erc20_vault_address}, opts)
+  end
+
+  def call({:get_childchain_payment_exit_game_address, _attrs}, opts) do
+    AdapterServer.childchain_call({:get_payment_exit_game_address}, opts)
   end
 
   def call({:get_status, _attrs}, opts) do
