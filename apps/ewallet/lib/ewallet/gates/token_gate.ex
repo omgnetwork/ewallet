@@ -123,15 +123,11 @@ defmodule EWallet.TokenGate do
   end
 
   @spec normalize_value(String.t() | integer()) :: integer()
-  defp normalize_value(amount) do
-    case is_binary(amount) do
-      true ->
-        {:ok, integer_amount} = Helper.string_to_integer(amount)
-        integer_amount
+  defp normalize_value(amount) when is_integer(amount), do: amount
 
-      false ->
-        amount
-    end
+  defp normalize_value(amount) when is_binary(amount) do
+    {:ok, integer_amount} = Helper.string_to_integer(amount)
+    integer_amount
   end
 
   defp put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid) do
