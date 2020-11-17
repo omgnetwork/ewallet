@@ -213,7 +213,7 @@ defmodule EthBlockchain.Transaction do
     with {:ok, vault_contract} <-
            AdapterServer.childchain_call({:get_erc20_vault_address}, opts),
          {:ok, meta} <- get_transaction_meta(attrs, :contract_transaction, opts),
-         {:ok, encoded_abi_data} <- ABIEncoder.approve(from_hex(vault_contract), amount) do
+         {:ok, encoded_abi_data} <- ABIEncoder.approve(vault_contract, amount) do
       %__MODULE__{
         to: from_hex(contract_address),
         data: encoded_abi_data
