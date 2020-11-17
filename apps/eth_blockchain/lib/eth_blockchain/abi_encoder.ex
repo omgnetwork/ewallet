@@ -48,10 +48,10 @@ defmodule EthBlockchain.ABIEncoder do
   end
 
   def encode_erc20_attrs(name, symbol, decimals, initial_amount) do
-    [{name, symbol, decimals, initial_amount}]
+    [name, symbol, decimals, initial_amount]
     |> TypeEncoder.encode(%FunctionSelector{
       function: nil,
-      types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
+      types: [:string, :string, {:uint, 8}, {:uint, 256}]
     })
     |> Base.encode16(case: :lower)
   end
