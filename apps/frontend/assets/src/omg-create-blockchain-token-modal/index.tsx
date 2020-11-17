@@ -59,7 +59,7 @@ const CreateBlockchainToken = ({
 
   const [name, setName] = useState<string>('')
   const [symbol, setSymbol] = useState<string>('')
-  const [unitAmount, setUnitAmount] = useState<string>('0')
+  const [unitAmount, setUnitAmount] = useState<string>('')
   const [decimal, setDecimal] = useState<number>(18)
   const [locked, setLocked] = useState<boolean>(true)
 
@@ -98,7 +98,10 @@ const CreateBlockchainToken = ({
       setSubmitting(true)
 
       const multiplier = Math.pow(10, decimal)
-      const amount = formatAmount(unitAmount, multiplier)
+      const amount = formatAmount(
+        unitAmount === '' ? '0' : unitAmount,
+        multiplier
+      )
       const creationOptions = { amount, decimal, locked, name, symbol }
 
       const result = await createBlockchainToken(creationOptions)(dispatch)
@@ -139,7 +142,7 @@ const CreateBlockchainToken = ({
       />
       <Input
         placeholder="Amount (Optional)"
-        value={unitAmount === '0' ? '' : unitAmount}
+        value={unitAmount}
         onChange={onChangeAmount}
         type="amount"
       />
