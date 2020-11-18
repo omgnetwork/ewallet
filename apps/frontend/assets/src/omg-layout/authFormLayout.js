@@ -32,7 +32,7 @@ export const FormContainer = styled.div`
   padding: 20px;
 `
 const OmisegoLogo = styled.img.attrs(props => ({
-  src: require('../statics/images/omisego_logo_black.png')
+  src: require('../statics/images/eWallet_black.png')
 }))`
   width: 100%;
   max-width: 350px;
