@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { Input, Button, Icon, Checkbox } from 'omg-uikit'
 import Modal from 'omg-modal'
 import { createBlockchainToken } from 'omg-token/action'
-import { formatAmount } from 'utils/formatter'
+import { formatAmount, getSubunitToUnit } from 'utils/formatter'
 
 const Form = styled.form`
   padding: 50px;
@@ -60,7 +60,7 @@ const CreateBlockchainToken = ({
   const [name, setName] = useState<string>('')
   const [symbol, setSymbol] = useState<string>('')
   const [unitAmount, setUnitAmount] = useState<string>('')
-  const [decimal, setDecimal] = useState<number>(18)
+  const [decimal, setDecimal] = useState<string>('18')
   const [locked, setLocked] = useState<boolean>(true)
 
   const [submitting, setSubmitting] = useState<boolean>(false)
@@ -79,7 +79,7 @@ const CreateBlockchainToken = ({
   }
 
   const onChangeDecimal: ChangeEventHandler<HTMLInputElement> = e => {
-    setDecimal(e.target.valueAsNumber)
+    setDecimal(e.target.value)
   }
 
   const onToggleLocked = () => {
@@ -87,7 +87,8 @@ const CreateBlockchainToken = ({
   }
 
   const isValidDecimal = (): boolean => {
-    return Number.isInteger(decimal) && decimal <= 18
+    const numericDecimal = Number(decimal)
+    return Number.isInteger(numericDecimal) && numericDecimal <= 18
   }
   const shouldSubmit = (): boolean => {
     return isValidDecimal() && !!name && !!symbol
@@ -100,10 +101,10 @@ const CreateBlockchainToken = ({
     try {
       setSubmitting(true)
 
-      const multiplier = Math.pow(10, decimal)
+      const subunitToUnit = getSubunitToUnit(decimal)
       const amount = formatAmount(
         unitAmount === '' ? '0' : unitAmount,
-        multiplier
+        subunitToUnit
       )
       const creationOptions = { amount, decimal, locked, name, symbol }
 
@@ -140,8 +141,6 @@ const CreateBlockchainToken = ({
         onChange={onChangeDecimal}
         error={!isValidDecimal()}
         errorText={'Should be an integer less than or equal to 18.'}
-        type="number"
-        step={'1'}
       />
       <Input
         placeholder="Amount (Optional)"
