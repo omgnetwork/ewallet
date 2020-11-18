@@ -92,8 +92,8 @@ class BlockchainTokensPage extends Component {
     this.columns = [
       { key: 'name', title: 'TOKEN', sort: true },
       { key: 'balance', title: 'ROOT CHAIN BALANCE', sort: true },
-      { key: 'plasmaBalance', title: 'OMISEGO NETWORK BALANCE', sort: true },
-      { key: 'plasmaPercentage', title: 'OMISEGO NETWORK ALLOCATION', sort: true }
+      { key: 'plasmaBalance', title: 'OMG NETWORK BALANCE', sort: true },
+      { key: 'plasmaPercentage', title: 'OMG NETWORK ALLOCATION', sort: true }
     ]
   }
   state = {
