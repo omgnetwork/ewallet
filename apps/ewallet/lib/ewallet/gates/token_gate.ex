@@ -33,7 +33,7 @@ defmodule EWallet.TokenGate do
     rootchain_identifier = BlockchainHelper.rootchain_identifier()
     hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-    with {:ok, valid_params} <- validate_parameter_types(params),
+    with {:ok, valid_params} <- validate_and_normalize_parameter_types(params),
          {:ok, valid_attrs} <- validate_attributes(valid_params),
          {:ok, normalized_attrs} <- normalize_attributes(valid_attrs, hot_wallet),
          {:ok, response} <-
@@ -50,9 +50,9 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  @spec validate_parameter_types(map()) ::
+  @spec validate_and_normalize_parameter_types(map()) ::
           {:ok, map()} | {:error, :invalid_parameter, String.t()}
-  defp validate_parameter_types(
+  defp validate_and_normalize_parameter_types(
          %{
            "name" => name,
            "symbol" => symbol,
@@ -66,7 +66,10 @@ defmodule EWallet.TokenGate do
          true <- is_integer(subunit_to_unit) or is_binary(subunit_to_unit),
          true <- is_integer(amount) or is_binary(amount),
          true <- is_boolean(locked) do
-      {:ok, parameters}
+      {:ok,
+       parameters
+       |> Map.put("amount", normalize_value(parameters["amount"]))
+       |> Map.put("subunit_to_unit", normalize_value(parameters["subunit_to_unit"]))}
     else
       _ ->
         {:error, :invalid_parameter,
@@ -74,7 +77,7 @@ defmodule EWallet.TokenGate do
     end
   end
 
-  defp validate_parameter_types(_) do
+  defp validate_and_normalize_parameter_types(_) do
     {:error, :invalid_parameter,
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
   end
@@ -101,15 +104,12 @@ defmodule EWallet.TokenGate do
 
   defp validate_attributes(attrs) do
     with true <-
-           normalize_value(attrs["subunit_to_unit"]) > 0 ||
+           attrs["subunit_to_unit"] > 0 ||
              {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
          true <-
-           normalize_value(attrs["amount"]) >= 0 ||
+           attrs["amount"] >= 0 ||
              {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."} do
-      {:ok,
-       attrs
-       |> Map.put("amount", normalize_value(attrs["amount"]))
-       |> Map.put("subunit_to_unit", normalize_value(attrs["subunit_to_unit"]))}
+      {:ok, attrs}
     end
   end
 
