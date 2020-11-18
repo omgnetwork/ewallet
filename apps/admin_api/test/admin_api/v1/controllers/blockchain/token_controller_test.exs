@@ -288,7 +288,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
     test_with_auths "fails if amount is set to zero while locked is true", context do
       enable_blockchain(context)
 
-      response =
+      response_1 =
         request("/token.deploy_erc20", %{
           symbol: "BTC",
           name: "Bitcoin",
@@ -298,7 +298,20 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           subunit_to_unit: 100
         })
 
-      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response)
+      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response_1)
+
+      # Sanity check with string `amount`
+      response_2 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: "0",
+          locked: true,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response_2)
     end
 
     test "generates an activity log for an admin request", context do
