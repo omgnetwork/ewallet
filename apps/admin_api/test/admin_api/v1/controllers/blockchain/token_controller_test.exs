@@ -295,7 +295,7 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
           amount: 0,
           locked: true,
           description: "desc",
-          subunit_to_unit: 0
+          subunit_to_unit: 100
         })
 
       assert_deploy_erc20(:fails_if_locked_with_amount_zero, response)
