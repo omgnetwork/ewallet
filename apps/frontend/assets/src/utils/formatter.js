@@ -59,3 +59,7 @@ export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
   if (amount === null || amount === undefined || amount === '') return null
   return new BigNumber(amount || 0).dividedBy(new BigNumber(subUnitToUnit)).toFormat()
 }
+
+export const getSubunitToUnit = (decimal) => {
+  return new BigNumber(10).exponentiatedBy(decimal).toFixed()
+}

@@ -1,4 +1,4 @@
-import { formatAmount, formatReceiveAmountToTotal, formatNumber, ensureIsNumberOnly } from './formatter'
+import { formatAmount, formatReceiveAmountToTotal, formatNumber, ensureIsNumberOnly, getSubunitToUnit } from './formatter'
 describe('formatter', () => {
   test('[formatNumber] should work with .', () => {
     expect(formatNumber('12312313.')).toEqual('12,312,313.')
@@ -68,5 +68,12 @@ describe('formatter', () => {
     expect(ensureIsNumberOnly('1,000')).toEqual('1000')
     expect(ensureIsNumberOnly('asdasdasd1,000')).toEqual('1000')
     expect(ensureIsNumberOnly('asdasdasd1,000.0000001')).toEqual('1000.0000001')
+  })
+
+  test ('[getSubunitToUnit] correctly returns 10 to the power of the provided decimal as [string]', () => {
+    const decimal = 18
+    const expected = '1' + String('0').repeat(18)
+    const actual = getSubunitToUnit(decimal)
+    expect(actual).toStrictEqual(expected)
   })
 })

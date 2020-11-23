@@ -79,7 +79,7 @@ class TokenDetailPage extends Component {
       exchangeRateToDelete: null
     })
   }
-  onClickMintTopen = e => {
+  onClickMintToken = e => {
     this.setState({ mintTokenModalOpen: true })
   }
   onClickCreateExchangeRate = e => {
@@ -138,12 +138,25 @@ class TokenDetailPage extends Component {
       <Button
         key='mint'
         size='small'
-        onClick={this.onClickMintTopen}
+        onClick={this.onClickMintToken}
       >
         <span>Mint Token</span>
       </Button>
     )
   }
+
+  renderMintingLockedButton = () => {
+    return (
+      <Button
+        key='mint'
+        size='small'
+        disabled={true}
+      >
+        <span>Minting Locked</span>
+      </Button>
+    )
+  } 
+
   renderTopBar = token => {
     return (
       <>
@@ -159,7 +172,7 @@ class TokenDetailPage extends Component {
           title={token.name}
           buttons={[
             this.renderCreateExchangePairButton(),
-            (token.blockchain_address || token.locked) ? null : this.renderMintTokenButton()
+            token.locked ? this.renderMintingLockedButton() : this.renderMintTokenButton()
           ]}
         />
       </>

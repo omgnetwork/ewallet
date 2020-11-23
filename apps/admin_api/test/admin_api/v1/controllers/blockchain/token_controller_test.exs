@@ -91,6 +91,68 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert mint == nil
     end
 
+    test_with_auths "accepts `amount` parameter as string type", context do
+      enable_blockchain(context)
+
+      response =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: "1000000000000000000",
+          locked: false,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["blockchain_address"] != nil
+      assert response["data"]["blockchain_status"] == "pending"
+      assert response["data"]["locked"] == false
+      assert Token.get(response["data"]["id"]) != nil
+      assert mint == nil
+    end
+
+    test_with_auths "accepts `subunit_to_unit` parameter as string or integer type", context do
+      enable_blockchain(context)
+
+      subunit_to_unit = 1_000_000_000_000_000_000
+
+      response_1 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 100,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: Integer.to_string(subunit_to_unit)
+        })
+
+      assert response_1["success"]
+      assert response_1["data"]["subunit_to_unit"] == subunit_to_unit
+
+      assert response_1["data"]["id"] |> Token.get() |> Map.get(:subunit_to_unit) ==
+               subunit_to_unit
+
+      response_2 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 100,
+          locked: false,
+          description: "desc",
+          subunit_to_unit: subunit_to_unit
+        })
+
+      assert response_2["success"]
+      assert response_2["data"]["subunit_to_unit"] == subunit_to_unit
+
+      assert response_2["data"]["id"] |> Token.get() |> Map.get(:subunit_to_unit) ==
+               subunit_to_unit
+    end
+
     test_with_auths "fails to deploys an ERC20 token with symbol = nil", context do
       enable_blockchain(context)
 
@@ -223,6 +285,35 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
       assert_deploy_erc20(:fails_with_subunit_to_unit_zero_or_less, response)
     end
 
+    test_with_auths "fails if amount is set to zero while locked is true", context do
+      enable_blockchain(context)
+
+      response_1 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: 0,
+          locked: true,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response_1)
+
+      # Sanity check with string `amount`
+      response_2 =
+        request("/token.deploy_erc20", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          amount: "0",
+          locked: true,
+          description: "desc",
+          subunit_to_unit: 100
+        })
+
+      assert_deploy_erc20(:fails_if_locked_with_amount_zero, response_2)
+    end
+
     test "generates an activity log for an admin request", context do
       enable_blockchain(context)
       timestamp = DateTime.utc_now()
@@ -284,6 +375,14 @@ defmodule AdminAPI.V1.Blockchain.TokenControllerTest do
 
     assert response["data"]["description"] ==
              "`subunit_to_unit` must be greater than 0."
+  end
+
+  defp assert_deploy_erc20(:fails_if_locked_with_amount_zero, response) do
+    refute response["success"]
+    assert response["data"]["code"] == "client:invalid_parameter"
+
+    assert response["data"]["description"] ==
+             "`amount` cannot be equal to 0 if token is locked for minting."
   end
 
   defp assert_deploy_erc20_logs(logs, originator, target) do

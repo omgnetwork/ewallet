@@ -1,3 +1,4 @@
+import { getSubunitToUnit } from 'utils/formatter'
 import { authenticatedRequest } from './apiService'
 
 export function getAllTokens ({ page, perPage, sort, matchAll, matchAny }) {
@@ -20,8 +21,8 @@ export function createBlockchainToken ({ name, symbol, decimal = 18, amount, loc
     data: {
       name,
       symbol,
-      subunit_to_unit: parseInt(Math.pow(10, decimal)),
-      amount: parseInt(amount),
+      subunit_to_unit: getSubunitToUnit(decimal),
+      amount: String(amount),
       locked
     }
   })

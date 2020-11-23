@@ -16,7 +16,7 @@ defmodule EWallet.TokenGate do
   @moduledoc false
 
   alias ActivityLogger.System
-  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper}
+  alias EWallet.{AddressTracker, BlockchainTransactionGate, BlockchainHelper, Helper}
   alias EWalletDB.{BlockchainWallet, BlockchainTransactionState, Repo, Token}
 
   @confirmed Token.Blockchain.status_confirmed()
@@ -24,59 +24,101 @@ defmodule EWallet.TokenGate do
   @blockchain_transaction_failed BlockchainTransactionState.failed()
 
   @doc """
-  Attempts to deploy an ERC20 token with the specified attributes
-  Returns {:ok, updated_attrs} if a transaction containing the contract code has been successfuly submited
-  where `updated_attrs` is a map containing the initial attrs + `tx_hash`, `blockchain_address`, `contract_uuid`,
-  `blockchain_status` and `blockchain_identifier`.
+  Attemps to deploy an ERC-20 token contract with specified, validated attributes.
+  Returns {:ok, updated_attrs} if a transaction has been successfuly submitted where `updated_attrs` is a map containing
+  the initial attrs + `tx_hash`, `blockchain_address`, `contract_uuid`,`blockchain_status` and `blockchain_identifier`.
   Or {:error, code} || {:error, code, description} otherwise
   """
+  def deploy_erc20(params) do
+    rootchain_identifier = BlockchainHelper.rootchain_identifier()
+    hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-  def deploy_erc20(
-        %{
-          "name" => name,
-          "symbol" => symbol,
-          "subunit_to_unit" => subunit_to_unit,
-          "amount" => amount,
-          "locked" => locked
-        } = attrs
-      )
-      when is_boolean(locked) and is_integer(amount) and is_integer(subunit_to_unit) and
-             is_binary(name) and is_binary(symbol) do
-    with true <-
-           amount >= 0 ||
-             {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."},
-         true <-
-           subunit_to_unit > 0 ||
-             {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
-         decimals <- subunit_to_unit |> :math.log10() |> trunc(),
-         rootchain_identifier <- BlockchainHelper.rootchain_identifier(),
-         hot_wallet <- BlockchainWallet.get_primary_hot_wallet(rootchain_identifier),
-         {:ok,
-          %{
-            contract_address: contract_address,
-            blockchain_transaction: blockchain_transaction,
-            contract_uuid: contract_uuid
-          }} <-
-           %{
-             from: hot_wallet.address,
-             name: name,
-             symbol: symbol,
-             decimals: decimals,
-             initial_amount: amount,
-             locked: locked
-           }
-           |> BlockchainTransactionGate.deploy_erc20_token(rootchain_identifier) do
-      AddressTracker.register_contract_address(contract_address)
-      {:ok, put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid)}
-    else
-      error ->
-        error
+    with {:ok, valid_params} <- validate_and_normalize_parameter_types(params),
+         {:ok, valid_attrs} <- validate_attributes(valid_params),
+         {:ok, normalized_attrs} <- normalize_attributes(valid_attrs, hot_wallet),
+         {:ok, response} <-
+           BlockchainTransactionGate.deploy_erc20_token(normalized_attrs, rootchain_identifier) do
+      AddressTracker.register_contract_address(response.contract_address)
+
+      {:ok,
+       put_deploy_data(
+         valid_attrs,
+         response.blockchain_transaction,
+         response.contract_address,
+         response.contract_uuid
+       )}
     end
   end
 
-  def deploy_erc20(_) do
+  @spec validate_and_normalize_parameter_types(map()) ::
+          {:ok, map()} | {:error, :invalid_parameter, String.t()}
+  defp validate_and_normalize_parameter_types(
+         %{
+           "name" => name,
+           "symbol" => symbol,
+           "subunit_to_unit" => subunit_to_unit,
+           "amount" => amount,
+           "locked" => locked
+         } = parameters
+       ) do
+    with true <- is_binary(name),
+         true <- is_binary(symbol),
+         true <- is_integer(subunit_to_unit) or is_binary(subunit_to_unit),
+         true <- is_integer(amount) or is_binary(amount),
+         true <- is_boolean(locked) do
+      {:ok,
+       parameters
+       |> Map.put("amount", normalize_value(parameters["amount"]))
+       |> Map.put("subunit_to_unit", normalize_value(parameters["subunit_to_unit"]))}
+    else
+      _ ->
+        {:error, :invalid_parameter,
+         "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
+    end
+  end
+
+  defp validate_and_normalize_parameter_types(_) do
     {:error, :invalid_parameter,
      "`name`, `symbol`, `subunit_to_unit`, `locked` and `amount` are required when deploying an ERC20 token."}
+  end
+
+  @spec normalize_attributes(map(), map()) :: {:ok, map()}
+  defp normalize_attributes(attrs, hot_wallet) do
+    normalized_attributes = %{
+      decimals: attrs["subunit_to_unit"] |> :math.log10() |> trunc(),
+      from: hot_wallet.address,
+      initial_amount: attrs["amount"],
+      locked: attrs["locked"],
+      name: attrs["name"],
+      symbol: attrs["symbol"]
+    }
+
+    {:ok, normalized_attributes}
+  end
+
+  @spec validate_attributes(map()) :: {:ok, map()} | {:error, :invalid_parameter, atom()}
+  defp validate_attributes(%{"amount" => 0, "locked" => true}),
+    do:
+      {:error, :invalid_parameter,
+       "`amount` cannot be equal to 0 if token is locked for minting."}
+
+  defp validate_attributes(attrs) do
+    with true <-
+           attrs["subunit_to_unit"] > 0 ||
+             {:error, :invalid_parameter, "`subunit_to_unit` must be greater than 0."},
+         true <-
+           attrs["amount"] >= 0 ||
+             {:error, :invalid_parameter, "`amount` must be greater than or equal to 0."} do
+      {:ok, attrs}
+    end
+  end
+
+  @spec normalize_value(String.t() | integer()) :: integer()
+  defp normalize_value(amount) when is_integer(amount), do: amount
+
+  defp normalize_value(amount) when is_binary(amount) do
+    {:ok, integer_amount} = Helper.string_to_integer(amount)
+    integer_amount
   end
 
   defp put_deploy_data(attrs, blockchain_transaction, contract_address, contract_uuid) do
