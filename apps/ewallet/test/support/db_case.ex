@@ -89,7 +89,8 @@ defmodule EWallet.DBCase do
         "blockchain_state_save_interval" => 5,
         "blockchain_sync_interval" => 50,
         "blockchain_poll_interval" => 0,
-        "blockchain_deposit_pooling_interval" => 0
+        "blockchain_deposit_pooling_interval" => 0,
+        "blockchain_transaction_poll_interval" => 50
       }
     )
 
