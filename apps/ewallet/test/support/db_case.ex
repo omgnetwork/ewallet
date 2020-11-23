@@ -77,7 +77,7 @@ defmodule EWallet.DBCase do
       self(),
       config_pid,
       EWalletConfig.Repo,
-      [:ewallet_db, :ewallet],
+      [:ewallet_db, :ewallet, :eth_blockchain],
       %{
         "enable_standalone" => false,
         "base_url" => "http://localhost:4000",

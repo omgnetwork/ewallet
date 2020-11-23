@@ -39,13 +39,21 @@ defmodule EthOmiseGOAdapter.TransactionTest do
       {:ok, deposit_bytes} = Transaction.get_deposit_tx_bytes(address, amount, currency)
 
       expected_transaction = [
-        [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]],
+        <<1>>,
+        [],
         [
-          [from_hex(address), from_hex(currency), 100],
-          [from_hex(@eth), from_hex(@eth), 0],
-          [from_hex(@eth), from_hex(@eth), 0],
-          [from_hex(@eth), from_hex(@eth), 0]
-        ]
+          [
+            <<1>>,
+            [
+              from_hex(address),
+              from_hex(currency),
+              amount
+            ]
+          ]
+        ],
+        "",
+        <<0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0>>
       ]
 
       assert deposit_bytes == ExRLP.encode(expected_transaction)

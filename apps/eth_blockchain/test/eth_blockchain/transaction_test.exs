@@ -15,7 +15,7 @@
 defmodule EthBlockchain.TransactionTest do
   use EthBlockchain.EthBlockchainCase, async: true
 
-  alias EthBlockchain.{GasHelper, Transaction, ABIEncoder, NonceRegistry}
+  alias EthBlockchain.{AdapterServer, GasHelper, Transaction, ABIEncoder, NonceRegistry}
   alias ExthCrypto.Math
   alias Keychain.Wallet
   alias Utils.Helpers.Encoding
@@ -349,68 +349,70 @@ defmodule EthBlockchain.TransactionTest do
           %{
             tx_bytes: tx_bytes,
             from: state[:valid_sender],
-            amount: amount,
-            root_chain_contract: state[:addr_1]
+            amount: amount
           },
           state[:adapter_opts]
         )
 
       assert resp == :ok
 
-      {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_deposit(tx_bytes)
 
       trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)
+
+      {:ok, expected_vault_address} =
+        AdapterServer.childchain_call({:get_eth_vault_address}, state[:adapter_opts])
 
       assert trx.data == encoded_abi_data
       assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
       assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
       assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
       assert trx.value == amount
-      assert Encoding.to_hex(trx.to) == state[:addr_1]
+      assert Encoding.to_hex(trx.to) == expected_vault_address
     end
   end
 
-  # TODO: fix update this test when fixing deposit
-  # describe "deposit_erc20/2" do
-  #   test "generates a desposit transaction for erc20 currency", state do
-  #     tx_bytes = "0x01"
+  describe "deposit_erc20/2" do
+    test "generates a desposit transaction for erc20 currency", state do
+      tx_bytes = "0x01"
 
-  #     {resp, encoded_trx} =
-  #       Transaction.deposit_erc20(
-  #         %{
-  #           tx_bytes: tx_bytes,
-  #           from: state[:valid_sender],
-  #           root_chain_contract: state[:addr_1]
-  #         },
-  #         state[:adapter_opts]
-  #       )
+      {resp, encoded_trx} =
+        Transaction.deposit_erc20(
+          %{
+            tx_bytes: tx_bytes,
+            from: state[:valid_sender]
+          },
+          state[:adapter_opts]
+        )
 
-  #     assert resp == :ok
+      assert resp == :ok
 
-  #     {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_deposit(tx_bytes)
 
-  #     trx = decode_transaction_response(encoded_trx)
-  #     sender_public_key = recover_public_key(trx)
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
 
-  #     assert trx.data == encoded_abi_data
-  #     assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
-  #     assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
-  #     assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
-  #     assert trx.value == 0
-  #     assert Encoding.to_hex(trx.to) == state[:addr_1]
-  #   end
-  # end
+      {:ok, expected_vault_address} =
+        AdapterServer.childchain_call({:get_erc20_vault_address}, state[:adapter_opts])
+
+      assert trx.data == encoded_abi_data
+      assert Encoding.to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
+      assert trx.value == 0
+      assert Encoding.to_hex(trx.to) == expected_vault_address
+    end
+  end
 
   describe "approve_erc20/2" do
-    test "generates a desposit transaction for erc20 currency", state do
+    test "generates an approve transaction", state do
       amount = 100
 
       {resp, encoded_trx} =
         Transaction.approve_erc20(
           %{
             from: state[:valid_sender],
-            to: state[:addr_1],
             amount: amount,
             contract_address: state[:addr_2]
           },
@@ -419,7 +421,10 @@ defmodule EthBlockchain.TransactionTest do
 
       assert resp == :ok
 
-      {:ok, encoded_abi_data} = ABIEncoder.approve(state[:addr_1], amount)
+      {:ok, vault_contract} =
+        AdapterServer.childchain_call({:get_erc20_vault_address}, state[:adapter_opts])
+
+      {:ok, encoded_abi_data} = ABIEncoder.approve(vault_contract, amount)
 
       trx = decode_transaction_response(encoded_trx)
       sender_public_key = recover_public_key(trx)

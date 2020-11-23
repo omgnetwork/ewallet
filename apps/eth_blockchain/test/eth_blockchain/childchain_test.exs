@@ -34,104 +34,100 @@ defmodule EthBlockchain.ChildchainTest do
     |> Map.put(:adapter_opts, overwritten_opts)
   end
 
-  # TODO: update these test when fixing deposits
+  describe "deposit/2" do
+    test "submits an eth deposit transaction to ethereum", state do
+      address = state[:valid_sender]
+      amount = 100
+      currency = @eth
 
-  # describe "deposit/2" do
-  #   test "submits an eth deposit transaction to ethereum", state do
-  #     address = state[:valid_sender]
-  #     amount = 100
-  #     currency = @eth
+      {res, encoded_trx} =
+        Childchain.deposit(
+          %{
+            to: address,
+            amount: amount,
+            currency: currency,
+            childchain_identifier: :omisego_network
+          },
+          state[:adapter_opts]
+        )
 
-  #     {res, encoded_trx} =
-  #       Childchain.deposit(
-  #         %{
-  #           to: address,
-  #           amount: amount,
-  #           currency: currency,
-  #           childchain_identifier: :omisego_network
-  #         },
-  #         state[:adapter_opts]
-  #       )
+      assert res == :ok
 
-  #     assert res == :ok
+      {:ok, tx_bytes} =
+        AdapterServer.childchain_call(
+          {:get_deposit_tx_bytes, address, amount, currency},
+          state[:adapter_opts]
+        )
 
-  #     {:ok, tx_bytes} =
-  #       AdapterServer.childchain_call(
-  #         {:get_deposit_tx_bytes, address, amount, currency},
-  #         state[:adapter_opts]
-  #       )
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_deposit(tx_bytes)
 
-  #     {:ok, encoded_abi_data} = ABIEncoder.child_chain_eth_deposit(tx_bytes)
+      {:ok, vault_address} =
+        AdapterServer.childchain_call({:get_eth_vault_address}, state[:adapter_opts])
 
-  #     # TODO: :get_contract_adress does not exit anymore, deposits need to be made to vaults
-  #     {:ok, contract_address} =
-  #       AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
 
-  #     trx = decode_transaction_response(encoded_trx)
-  #     sender_public_key = recover_public_key(trx)
+      assert trx.data == encoded_abi_data
+      assert to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
+      assert trx.value == amount
+      assert to_hex(trx.to) == vault_address
+    end
 
-  #     assert trx.data == encoded_abi_data
-  #     assert to_hex(sender_public_key) == "0x" <> state[:public_key]
-  #     assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_eth, %{})
-  #     assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
-  #     assert trx.value == amount
-  #     assert to_hex(trx.to) == contract_address
-  #   end
+    test "submits an erc20 deposit transaction to ethereum", state do
+      address = state[:valid_sender]
+      amount = 100
+      currency = Crypto.fake_eth_address()
 
-  #   test "submits an erc20 deposit transaction to ethereum", state do
-  #     address = state[:valid_sender]
-  #     amount = 100
-  #     currency = Crypto.fake_eth_address()
+      {res, encoded_trx} =
+        Childchain.deposit(
+          %{
+            to: address,
+            amount: amount,
+            currency: currency,
+            childchain_identifier: :omisego_network
+          },
+          state[:adapter_opts]
+        )
 
-  #     {res, encoded_trx} =
-  #       Childchain.deposit(
-  #         %{
-  #           to: address,
-  #           amount: amount,
-  #           currency: currency,
-  #           childchain_identifier: :omisego_network
-  #         },
-  #         state[:adapter_opts]
-  #       )
+      assert res == :ok
 
-  #     assert res == :ok
+      {:ok, tx_bytes} =
+        AdapterServer.childchain_call(
+          {:get_deposit_tx_bytes, address, amount, currency},
+          state[:adapter_opts]
+        )
 
-  #     {:ok, tx_bytes} =
-  #       AdapterServer.childchain_call(
-  #         {:get_deposit_tx_bytes, address, amount, currency},
-  #         state[:adapter_opts]
-  #       )
+      {:ok, encoded_abi_data} = ABIEncoder.child_chain_deposit(tx_bytes)
 
-  #     {:ok, encoded_abi_data} = ABIEncoder.child_chain_erc20_deposit(tx_bytes)
+      {:ok, vault_address} =
+        AdapterServer.childchain_call({:get_erc20_vault_address}, state[:adapter_opts])
 
-  #     # TODO: :get_contract_adress does not exit anymore, deposits need to be made to vaults
-  #     {:ok, contract_address} =
-  #       AdapterServer.childchain_call({:get_contract_address}, state[:adapter_opts])
+      trx = decode_transaction_response(encoded_trx)
+      sender_public_key = recover_public_key(trx)
 
-  #     trx = decode_transaction_response(encoded_trx)
-  #     sender_public_key = recover_public_key(trx)
+      assert trx.data == encoded_abi_data
+      assert to_hex(sender_public_key) == "0x" <> state[:public_key]
+      assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
+      assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
+      assert trx.value == 0
+      assert to_hex(trx.to) == vault_address
+    end
 
-  #     assert trx.data == encoded_abi_data
-  #     assert to_hex(sender_public_key) == "0x" <> state[:public_key]
-  #     assert trx.gas_limit == GasHelper.get_gas_limit_or_default(:child_chain_deposit_token, %{})
-  #     assert trx.gas_price == Application.get_env(:eth_blockchain, :blockchain_default_gas_price)
-  #     assert trx.value == 0
-  #     assert to_hex(trx.to) == contract_address
-  #   end
+    test "returns an error when given an invalid childchain identifier", state do
+      {res, error} =
+        Childchain.deposit(%{
+          to: state[:valid_sender],
+          amount: 100,
+          currency: @eth,
+          childchain_identifier: :invalid
+        })
 
-  #   test "returns an error when given an invalid childchain identifier", state do
-  #     {res, error} =
-  #       Childchain.deposit(%{
-  #         to: state[:valid_sender],
-  #         amount: 100,
-  #         currency: @eth,
-  #         childchain_identifier: :invalid
-  #       })
-
-  #     assert res == :error
-  #     assert error == :childchain_not_supported
-  #   end
-  # end
+      assert res == :error
+      assert error == :childchain_not_supported
+    end
+  end
 
   describe "send/2" do
     test "successfuly submit a transfer transaction to the childchain", state do
