@@ -401,9 +401,9 @@ class ConfigurationPage extends React.Component {
           ]}
           types={false}
         />
-        <ConnectionNotification connected={_.get(this.props.configurations, 'enable_blockchain.value', false)}>
+        <ConnectionNotification connected={_.get(this.props.configurations, 'blockchain_enabled.value', false)}>
           <Icon name='Info' />
-          {`The app is currently ${_.get(this.props.configurations, 'enable_blockchain.value', false) ? '' : ' not'} connected to Ethereum.`}
+          {`The app is currently ${_.get(this.props.configurations, 'blockchain_enabled.value', false) ? '' : ' not'} connected to Ethereum.`}
         </ConnectionNotification>
         <Layout>
           <SideMenu>
