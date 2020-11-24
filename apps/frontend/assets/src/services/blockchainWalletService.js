@@ -5,6 +5,7 @@ export function getBlockchainWalletBalance ({ address, perPage, page, sort, matc
   return authenticatedRequest({
     path: '/blockchain_wallet.get_balances',
     data: {
+      blockchain_identifier: 'ethereum',
       address,
       page,
       per_page: perPage,
@@ -20,7 +21,7 @@ export function getBlockchainWalletPlasmaBalance ({ address, perPage, page, sort
   return authenticatedRequest({
     path: '/blockchain_wallet.get_balances',
     data: {
-      blockchain_identifier: 'omg_network',
+      blockchain_identifier: 'omisego_network',
       address,
       page,
       per_page: perPage,
@@ -68,7 +69,7 @@ export function plasmaDeposit ({ address, amount, tokenId }) {
     path: '/blockchain_wallet.deposit_to_childchain',
     data: {
       address,
-      amount,
+      amount: String(amount),
       token_id: tokenId,
       idempotency_token: uuid()
     }

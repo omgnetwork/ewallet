@@ -111,7 +111,7 @@ class PlasmaDeposit extends Component {
       )
       const result = await this.props.plasmaDeposit({
         address: this.state.fromAddress.trim(),
-        amount: parseInt(fromAmount),
+        amount: fromAmount,
         tokenId: _.get(this.state.fromTokenSelected, 'token.id')
       })
       if (result.data) {
