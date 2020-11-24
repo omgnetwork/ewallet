@@ -31,6 +31,9 @@ RUN apk add --update --no-cache --virtual .ewallet-runtime \
         libressl \
         libressl-dev \
         lksctp-tools
+        
+# ex_keccak
+RUN apk add --no-cache rust=1.44.0-r0 cargo=1.44.0-r0
 
 COPY rootfs /
 

@@ -213,35 +213,35 @@ config :ewallet_config,
     },
     "omisego_watcher_url" => %{
       key: "omisego_watcher_url",
-      value: "http://localhost:7434",
+      value: "http://localhost:7534",
       type: "string",
       position: 211,
       description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
     },
     "omisego_plasma_framework_address" => %{
       key: "omisego_plasma_framework_address",
-      value: "0xa72c9dceeef26c9d103d55c53d411c36f5cdf7ec",
+      value: "0xc673e4ffcb8464faff908a6804fe0e635af0ea2f",
       type: "string",
       position: 212,
       description: "The contract address of the deployed plasma framework."
     },
     "omisego_eth_vault_address" => %{
       key: "omisego_eth_vault_address",
-      value: "0x2c7533f76567241341d1c27f0f239a20b6115714",
+      value: "0x4e3aeff70f022a6d4cc5947423887e7152826cf7",
       type: "string",
       position: 213,
       description: "The contract address of the deployed ETH vault."
     },
     "omisego_erc20_vault_address" => %{
       key: "omisego_erc20_vault_address",
-      value: "0x2bed2ff4ee93a208edbf4185c7813103d8c4ab7f",
+      value: "0x135505d9f4ea773dd977de3b2b108f2dae67b63a",
       type: "string",
       position: 214,
       description: "The contract address of the deployed ERC20 vault."
     },
     "omisego_payment_exit_game_address" => %{
       key: "omisego_payment_exit_game_address",
-      value: "0x960ca6b9faa85118ba6badbe0097b1afd8827fac",
+      value: "0x89afce326e7da55647d22e24336c6a2816c99f6b",
       type: "string",
       position: 215,
       description: "The contract address of the deployed payment exit game."
