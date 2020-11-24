@@ -209,14 +209,14 @@ config :ewallet_config,
       value: "http://localhost:9656",
       type: "string",
       position: 210,
-      description: "The url used by the eWallet to interact with the OmiseGO Network's node."
+      description: "The URL for the OMG Network child chain."
     },
     "omisego_watcher_url" => %{
       key: "omisego_watcher_url",
       value: "http://localhost:7534",
       type: "string",
       position: 211,
-      description: "The url used by the eWallet to interact with the OmiseGO Network's watcher."
+      description: "The URL for the OMG Network information service."
     },
     "omisego_plasma_framework_address" => %{
       key: "omisego_plasma_framework_address",
