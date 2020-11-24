@@ -1,46 +1,45 @@
 import React, { useEffect, useState } from 'react'
-import PropTypes from 'prop-types'
-import { Route, Switch, Redirect } from 'react-router-dom'
-import { connect } from 'react-redux'
+import { Route, Switch, Redirect, RouteComponentProps } from 'react-router-dom'
+import { connect, useSelector } from 'react-redux'
+import _ from 'lodash'
 
 import {
-  selectBlockchainWallets,
-  selectBlockchainWalletBalance,
   selectBlockchainWalletById,
   selectPlasmaDepositByAddress
-} from '../omg-blockchain-wallet/selector'
+} from 'omg-blockchain-wallet/selector'
 import {
   getAllBlockchainWallets,
   getBlockchainWalletBalance
-} from '../omg-blockchain-wallet/action'
-import TopNavigation from '../omg-page-layout/TopNavigation'
-import { getTransactionById } from '../omg-transaction/action'
+} from 'omg-blockchain-wallet/action'
+import TopNavigation from 'omg-page-layout/TopNavigation'
+import { getTransactionById } from 'omg-transaction/action'
 
 import BlockchainActionSelector from './BlockchainActionSelector'
 import BlockchainSettingsPage from './BlockchainSettingsPage'
 import BlockchainTransactionsPage from './BlockchainTransactionsPage'
 import BlockchainTokensPage from './BlockchainTokensPage'
 
+interface BlockchainWalletDetailPageProps extends RouteComponentProps {
+  selectPlasmaDepositByAddress: Function
+  getAllBlockchainWallets: Function
+  getBlockchainWalletBalance: Function
+  getTransactionById: Function
+}
+
 const BlockchainWalletDetailPage = ({
   match,
-  selectBlockchainWalletBalance,
-  selectBlockchainWalletById,
   selectPlasmaDepositByAddress,
   getAllBlockchainWallets,
   getBlockchainWalletBalance,
-  getTransactionById,
-  selectBlockchainWallets,
-  ...rest
-}) => {
-  const { address } = match.params
+  getTransactionById
+}: BlockchainWalletDetailPageProps) => {
+  const address = _.get(match, ['params', 'address'])
 
-  const balance = selectBlockchainWalletBalance(address).reduce(
-    (acc, curr) => acc + curr.amount,
-    0
-  )
-  const walletType = selectBlockchainWalletById(address).type
+  const walletType = useSelector(state =>
+    selectBlockchainWalletById(state)(address)
+  ).type
 
-  const [pollingState, setPollingState] = useState(false)
+  const [pollingState, setPollingState] = useState<boolean>(false)
 
   useEffect(() => {
     if (!walletType) {
@@ -108,7 +107,7 @@ const BlockchainWalletDetailPage = ({
       }
     ]
 
-    if (walletType === 'hot' && balance > 0) {
+    if (walletType === 'hot') {
       return (
         <>
           <BlockchainActionSelector
@@ -158,22 +157,8 @@ const BlockchainWalletDetailPage = ({
   )
 }
 
-BlockchainWalletDetailPage.propTypes = {
-  match: PropTypes.object,
-  selectBlockchainWalletBalance: PropTypes.func,
-  selectBlockchainWalletById: PropTypes.func,
-  selectBlockchainWallets: PropTypes.array,
-  selectPlasmaDepositByAddress: PropTypes.func,
-  getAllBlockchainWallets: PropTypes.func,
-  getBlockchainWalletBalance: PropTypes.func,
-  getTransactionById: PropTypes.func
-}
-
 export default connect(
   state => ({
-    selectBlockchainWalletBalance: selectBlockchainWalletBalance(state),
-    selectBlockchainWalletById: selectBlockchainWalletById(state),
-    selectBlockchainWallets: selectBlockchainWallets(state),
     selectPlasmaDepositByAddress: selectPlasmaDepositByAddress(state)
   }),
   { getAllBlockchainWallets, getBlockchainWalletBalance, getTransactionById }
