@@ -80,11 +80,7 @@ const BlockchainActionSelector = ({
 
   const renderButton = () => {
     return (
-      <ButtonStyle
-        size="small"
-        styleType="primary"
-        onClick={onClickButton}
-      >
+      <ButtonStyle size="small" styleType="primary" onClick={onClickButton}>
         <span>{name}</span>
         {open ? <Icon name="Chevron-Up" /> : <Icon name="Chevron-Down" />}
       </ButtonStyle>
@@ -94,7 +90,10 @@ const BlockchainActionSelector = ({
   return (
     <PopperRenderer
       offset="0px, 5px"
-      modifiers={{ flip: { enabled: false } }}
+      modifiers={{
+        flip: { enabled: false },
+        preventOverflow: { enabled: false }
+      }}
       renderReference={renderButton}
       open={open}
       renderPopper={renderDropdown}
