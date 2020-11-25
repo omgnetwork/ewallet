@@ -13,6 +13,8 @@ import {
 } from 'omg-blockchain-wallet/action'
 import TopNavigation from 'omg-page-layout/TopNavigation'
 import { getTransactionById } from 'omg-transaction/action'
+import { Button } from 'omg-uikit'
+import theme from 'adminPanelApp/theme'
 
 import BlockchainActionSelector from './BlockchainActionSelector'
 import BlockchainSettingsPage from './BlockchainSettingsPage'
@@ -105,6 +107,21 @@ const BlockchainWalletDetailPage = ({
     if (walletType === 'hot') {
       return (
         <>
+          <Button
+            size="small"
+            styleType="secondary"
+            style={{
+              color: theme.colors.B300,
+              borderColor: theme.colors.B300,
+              borderWidth: '0px',
+              borderBottom: `1px solid ${theme.colors.B300}`,
+              borderRadius: '0px',
+              marginRight: '20px'
+            }}
+            disabled
+          >
+            <span>Manage Your Tokens</span>
+          </Button>
           <BlockchainActionSelector
             name="OMG Network"
             fromAddress={address}
