@@ -199,7 +199,7 @@ class PlasmaDeposit extends Component {
       <Form onSubmit={this.onDeposit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerTransferContainer>
-          <h4>OMG Network Network Deposit</h4>
+          <h4>OMG Network Deposit</h4>
           {this.renderFromSection()}
           <ButtonContainer>
             <Button
