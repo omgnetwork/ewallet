@@ -20,6 +20,6 @@ export const selectBlockchainWalletById = state => id => state.blockchainWallets
 
 export const selectBlockchainWalletsLoadingStatus = state => state.loadingStatus.blockchainWallets
 
-export const selectPlasmaDepositByAddress = state => address => {
+export const selectPlasmaDepositByAddress = address => state => {
   return state.plasmaDeposits[address]
 }

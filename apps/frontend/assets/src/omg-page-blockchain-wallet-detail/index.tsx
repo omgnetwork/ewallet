@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Route, Switch, Redirect, RouteComponentProps } from 'react-router-dom'
-import { connect, useSelector } from 'react-redux'
+import { connect, useDispatch, useSelector } from 'react-redux'
 import _ from 'lodash'
 
 import {
@@ -20,19 +20,16 @@ import BlockchainTransactionsPage from './BlockchainTransactionsPage'
 import BlockchainTokensPage from './BlockchainTokensPage'
 
 interface BlockchainWalletDetailPageProps extends RouteComponentProps {
-  selectPlasmaDepositByAddress: Function
   getAllBlockchainWallets: Function
   getBlockchainWalletBalance: Function
-  getTransactionById: Function
 }
 
 const BlockchainWalletDetailPage = ({
   match,
-  selectPlasmaDepositByAddress,
   getAllBlockchainWallets,
-  getBlockchainWalletBalance,
-  getTransactionById
+  getBlockchainWalletBalance
 }: BlockchainWalletDetailPageProps) => {
+  const dispatch = useDispatch()
   const address = _.get(match, ['params', 'address'])
 
   const walletType = useSelector(state =>
@@ -40,6 +37,8 @@ const BlockchainWalletDetailPage = ({
   ).type
 
   const [pollingState, setPollingState] = useState<boolean>(false)
+
+  const latestDeposit = useSelector(selectPlasmaDepositByAddress(address))
 
   useEffect(() => {
     if (!walletType) {
@@ -54,14 +53,10 @@ const BlockchainWalletDetailPage = ({
     if (pollingState) {
       const pollBalance = async () => {
         try {
-          const { id: depositTransactionId } = selectPlasmaDepositByAddress(
-            address
-          )
-          const {
-            data: { status }
-          } = await getTransactionById(depositTransactionId)
+          const { id } = latestDeposit
+          const { data } = await getTransactionById(id)(dispatch)
 
-          if (status === 'confirmed') {
+          if (data.status === 'confirmed') {
             getBlockchainWalletBalance({
               address: address,
               cacheKey: { address: address, entity: 'plasmadeposits' }
@@ -69,7 +64,7 @@ const BlockchainWalletDetailPage = ({
             clearInterval(balancePolling)
             setPollingState(false)
           } else {
-            // keep polling until confirmed
+            _.noop() /* Keep polling until confirmed */
           }
         } catch (e) {
           clearInterval(balancePolling)
@@ -81,10 +76,10 @@ const BlockchainWalletDetailPage = ({
     }
   }, [
     address,
+    dispatch,
     getBlockchainWalletBalance,
-    getTransactionById,
-    pollingState,
-    selectPlasmaDepositByAddress
+    latestDeposit,
+    pollingState
   ])
 
   const renderActionButtons = () => {
@@ -157,9 +152,7 @@ const BlockchainWalletDetailPage = ({
   )
 }
 
-export default connect(
-  state => ({
-    selectPlasmaDepositByAddress: selectPlasmaDepositByAddress(state)
-  }),
-  { getAllBlockchainWallets, getBlockchainWalletBalance, getTransactionById }
-)(BlockchainWalletDetailPage)
+export default connect(null, {
+  getAllBlockchainWallets,
+  getBlockchainWalletBalance
+})(BlockchainWalletDetailPage)
