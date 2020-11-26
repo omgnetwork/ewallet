@@ -247,6 +247,7 @@ jobs:
     executor: metal
     steps:
       - checkout
+      - install_rust
       - run: sh update-versions.sh -a
       - run: make docker IMAGE_NAME=$IMAGE_NAME
       - run: sh .circleci/ci_e2e.sh
