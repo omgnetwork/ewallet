@@ -4,12 +4,12 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:dev-7389d72
     working_directory: ~/src
 
   builder_pg:
     docker:
-      - image: omisegoimages/ewallet-builder:stable
+      - image: omisegoimages/ewallet-builder:dev-7389d72
       - image: postgres:9.6-alpine
         environment:
           POSTGRES_PASSWORD: passw0rd
