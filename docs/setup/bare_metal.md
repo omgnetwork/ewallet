@@ -11,8 +11,11 @@ Before we begin, be sure to have the following applications installed and runnin
 - [Elixir](http://elixir-lang.github.io/install.html): Elixir is used as the primary language for the server components of the eWallet.
 - [Git](https://git-scm.com/): Git is used for downloading and synchronizing codebase with the remote code repository.
 - [NodeJS](https://nodejs.org/) Node.js is used for building front-end code for the Admin Panel.
-
+- [Rust](https://www.rust-lang.org/) Rust is used to build a few dependencies used in the eWallet.
+  
 If you are on MacOS, you may [install the above dependencies via Homebrew](/docs/setup/macos/brew_install_dependencies.md).
+
+If you are using ASDF, you can simply run `asdf install`.
 
 Now that you have the applications installed, proceed with 1.1 through 1.5 to setup the server.
 
