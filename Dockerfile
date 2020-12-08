@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.12
 
 LABEL maintainer="OmiseGO Team <omg@omise.co>"
 LABEL description="Official image for OmiseGO eWallet"

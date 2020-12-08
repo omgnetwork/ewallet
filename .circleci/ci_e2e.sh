@@ -66,6 +66,8 @@ docker-compose up -d postgres mail
 docker-compose run --rm ewallet sh <<EOF >/dev/null 2>&1
 bin/ewallet initdb
 bin/ewallet seed -e
+bin/ewallet config blockchain_enabled false
+bin/ewallet config internal_enabled true
 bin/ewallet config base_url http://ewallet:4000
 bin/ewallet config email_adapter smtp
 bin/ewallet config smtp_host mail
