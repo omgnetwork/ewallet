@@ -4,12 +4,12 @@ version: 2.1
 executors:
   builder:
     docker:
-      - image: omisegoimages/ewallet-builder:dev-7389d72
+      - image: omisegoimages/ewallet-builder:dev-c05611e
     working_directory: ~/src
 
   builder_pg:
     docker:
-      - image: omisegoimages/ewallet-builder:dev-7389d72
+      - image: omisegoimages/ewallet-builder:dev-c05611e
       - image: postgres:9.6-alpine
         environment:
           POSTGRES_PASSWORD: passw0rd
@@ -247,7 +247,6 @@ jobs:
     executor: metal
     steps:
       - checkout
-      - install_rust
       - run: sh update-versions.sh -a
       - run: make docker IMAGE_NAME=$IMAGE_NAME
       - run: sh .circleci/ci_e2e.sh
