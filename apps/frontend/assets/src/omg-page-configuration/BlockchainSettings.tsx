@@ -51,63 +51,74 @@ const BlockchainSettings = (props: BlockchainSettingsProps) => {
       displayName: string
       disableUpdate: boolean
       inputValidator?: (...args: any) => boolean
-      position: number
     }
   }
 
   const settings: displaySettings = {
     blockchain_json_rpc_url: {
       displayName: 'Blockchain JSON-RPC URL',
-      disableUpdate: true,
-      position: 0
+      disableUpdate: true
     },
     blockchain_chain_id: {
       displayName: 'Blockchain Chain ID',
-      disableUpdate: true,
-      position: 1
+      disableUpdate: true
     },
     blockchain_confirmations_threshold: {
       displayName: 'Blockchain Confirmations Threshold',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 2
+      inputValidator: isPositiveInteger
     },
     blockchain_deposit_pooling_interval: {
       displayName: 'Blockchain Deposit Polling Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 3
+      inputValidator: isPositiveInteger
     },
     blockchain_transaction_poll_interval: {
       displayName: 'Blockchain Transaction Poll Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 4
+      inputValidator: isPositiveInteger
     },
     blockchain_state_save_interval: {
       displayName: 'Blockchain State Save Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 5
+      inputValidator: isPositiveInteger
     },
     blockchain_sync_interval: {
       displayName: 'Blockchain Sync Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 6
+      inputValidator: isPositiveInteger
     },
     blockchain_poll_interval: {
       displayName: 'Blockchain Poll Interval',
       disableUpdate: false,
-      inputValidator: isPositiveInteger,
-      position: 7
+      inputValidator: isPositiveInteger
+    },
+    omisego_childchain_url: {
+      disableUpdate: true,
+      displayName: 'OMG Network Child Chain URL'
+    },
+    omisego_erc20_vault_address: {
+      disableUpdate: true,
+      displayName: 'OMG Network ERC20 Vault Address'
+    },
+    omisego_eth_vault_address: {
+      disableUpdate: true,
+      displayName: 'OMG Network ETH Vault Address'
+    },
+    omisego_plasma_framework_address: {
+      disableUpdate: true,
+      displayName: 'OMG Network Plasma Framework Address'
+    },
+    omisego_watcher_url: {
+      disableUpdate: true,
+      displayName: 'OMG Network Information Service URL'
     }
   }
 
   const renderBlockchainSettings = () => {
     const sortedConfigurationList = _.sortBy(
       _.values(_.pick(configurations, _.keys(settings))),
-      config => settings[config.key].position
+      'position'
     )
 
     return (

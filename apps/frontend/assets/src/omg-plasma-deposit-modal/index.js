@@ -111,7 +111,7 @@ class PlasmaDeposit extends Component {
       )
       const result = await this.props.plasmaDeposit({
         address: this.state.fromAddress.trim(),
-        amount: parseInt(fromAmount),
+        amount: fromAmount,
         tokenId: _.get(this.state.fromTokenSelected, 'token.id')
       })
       if (result.data) {
@@ -199,7 +199,7 @@ class PlasmaDeposit extends Component {
       <Form onSubmit={this.onDeposit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerTransferContainer>
-          <h4>OMG Network Network Deposit</h4>
+          <h4>OMG Network Deposit</h4>
           {this.renderFromSection()}
           <ButtonContainer>
             <Button

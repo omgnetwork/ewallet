@@ -135,6 +135,11 @@ class ConfigurationPage extends React.Component {
         blockchainStateSaveInterval: config.blockchain_state_save_interval.value,
         blockchainSyncInterval: config.blockchain_sync_interval.value, 
         blockchainTransactionPollInterval: config.blockchain_transaction_poll_interval.value,
+        omisegoChildchainUrl: config.omisego_childchain_url.value,
+        omisegoErc20VaultAddress: config.omisego_erc20_vault_address.value,
+        omisegoEthVaultAddress: config.omisego_eth_vault_address.value,
+        omisegoPlasmaFrameworkAddress: config.omisego_plasma_framework_address.value,
+        omisegoWatcherUrl: config.omisego_watcher_url.value,
       }
       return {
         originalState: derivedState,
@@ -396,9 +401,9 @@ class ConfigurationPage extends React.Component {
           ]}
           types={false}
         />
-        <ConnectionNotification connected={_.get(this.props.configurations, 'enable_blockchain.value', false)}>
+        <ConnectionNotification connected={_.get(this.props.configurations, 'blockchain_enabled.value', false)}>
           <Icon name='Info' />
-          {`The app is currently ${_.get(this.props.configurations, 'enable_blockchain.value', false) ? '' : ' not'} connected to Ethereum.`}
+          {`The app is currently ${_.get(this.props.configurations, 'blockchain_enabled.value', false) ? '' : ' not'} connected to Ethereum.`}
         </ConnectionNotification>
         <Layout>
           <SideMenu>

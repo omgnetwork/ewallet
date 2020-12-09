@@ -99,6 +99,41 @@ defmodule AdminAPI.V1.BlockchainWalletControllerTest do
       end)
     end
 
+    test_with_auths "accepts string `amount` attribute" do
+      identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(identifier)
+
+      token =
+        insert(:external_blockchain_token,
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
+
+      adapter = BlockchainHelper.adapter()
+      {:ok, _adapter_pid} = adapter.server().start_link([])
+
+      attrs = %{
+        token_id: token.id,
+        amount: Integer.to_string(100),
+        address: hot_wallet.address,
+        idempotency_token: UUID.generate()
+      }
+
+      response = request("/blockchain_wallet.deposit_to_childchain", attrs)
+      assert response["success"]
+      assert response["data"]["from"]["amount"] == 100
+
+      transaction = Transaction.get(response["data"]["id"], preload: :blockchain_transaction)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+
+      {:ok, %{pid: blockchain_listener_pid}} =
+        adapter.lookup_listener(transaction.blockchain_transaction.hash)
+
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
+    end
+
     test_with_auths "fails to deposit with a missing address" do
       token = insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 

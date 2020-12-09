@@ -22,7 +22,8 @@ defmodule EWallet.TransactionGate.Childchain do
 
   @eth BlockchainHelper.adapter().helper().default_token().address
 
-  def deposit(actor, %{"amount" => amount} = attrs) when is_integer(amount) do
+  def deposit(actor, %{"amount" => amount} = attrs)
+      when is_integer(amount) or is_binary(amount) do
     case build_transaction_attrs(attrs) do
       {:ok, attrs} ->
         validation_tuple = address_validation_tuple(attrs)

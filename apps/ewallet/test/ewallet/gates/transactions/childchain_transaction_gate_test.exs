@@ -70,28 +70,47 @@ defmodule EWallet.TransactionGate.ChildchainTest do
       end)
     end
 
-    test "returns an error if the amount is not an integer" do
+    test "accepts a string amount", meta do
       admin = insert(:admin, global_role: "super_admin")
 
       primary_blockchain_token =
-        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+        insert(:token,
+          blockchain_status: "confirmed",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
       rootchain_identifier = BlockchainHelper.rootchain_identifier()
-
       hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
       attrs = %{
         "idempotency_token" => UUID.generate(),
         "address" => hot_wallet.address,
         "token_id" => primary_blockchain_token.id,
-        "amount" => "1",
+        "amount" => Integer.to_string(1),
         "originator" => %System{}
       }
 
-      {res, code, error} = TransactionGate.Childchain.deposit(admin, attrs)
-      assert res == :error
-      assert code == :invalid_parameter
-      assert error == "Invalid parameter provided. `amount` is required."
+      {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
+
+      {:ok, vault_address} = BlockchainHelper.call(:get_childchain_eth_vault_address)
+
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.deposit()
+      assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
+      assert transaction.blockchain_transaction.childchain_identifier == nil
+      assert transaction.from_blockchain_address == hot_wallet.address
+      assert transaction.to_blockchain_address == vault_address
+
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+
+      {:ok, %{pid: blockchain_listener_pid}} =
+        meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
+
+      # to update the transactions after the test is done.
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
     end
   end
 end
