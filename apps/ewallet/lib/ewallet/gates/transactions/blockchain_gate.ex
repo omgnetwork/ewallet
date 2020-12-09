@@ -43,7 +43,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   @deposit_transaction Transaction.deposit()
 
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
-  @token_cofirmed EWalletDB.Token.Blockchain.status_confirmed()
+  @token_confirmed EWalletDB.Token.Blockchain.status_confirmed()
 
   # TODO: Check if blockchain is enabled
   # TODO: Check if blockchain is available
@@ -193,7 +193,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   end
 
   defp do_validate_token(%{blockchain_address: nil}), do: {:error, :token_not_blockchain_enabled}
-  defp do_validate_token(%{blockchain_status: @token_cofirmed}), do: :ok
+  defp do_validate_token(%{blockchain_status: @token_confirmed}), do: :ok
   defp do_validate_token(%{blockchain_status: _}), do: {:error, :token_not_confirmed}
   defp do_validate_token(%{blockchain_identifier: @rootchain_identifier}), do: :ok
   defp do_validate_token(%{blockchain_identifier: _}), do: {:error, :rootchain_not_supported}
