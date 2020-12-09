@@ -43,10 +43,11 @@ defmodule EthOmiseGOAdapter.EthOmiseGOAdapterCase do
       EWalletConfig.Repo,
       [:eth_omisego_adapter],
       %{
-        "omisego_plasma_framework_address" => "0xa72c9dceeef26c9d103d55c53d411c36f5cdf7ec",
-        "omisego_eth_vault_address" => "0x2c7533f76567241341d1c27f0f239a20b6115714",
-        "omisego_erc20_vault_address" => "0x2bed2ff4ee93a208edbf4185c7813103d8c4ab7f",
-        "omisego_payment_exit_game_address" => "0x960ca6b9faa85118ba6badbe0097b1afd8827fac",
+        "omisego_rootchain_contract_address" => "0x316d3e9d574e91fd272fd24fb5cb7dfd4707a571",
+        "omisego_plasma_framework_address" => "0xc673e4ffcb8464faff908a6804fe0e635af0ea2f",
+        "omisego_eth_vault_address" => "0x4e3aeff70f022a6d4cc5947423887e7152826cf7",
+        "omisego_erc20_vault_address" => "0x135505d9f4ea773dd977de3b2b108f2dae67b63a",
+        "omisego_payment_exit_game_address" => "0x89afce326e7da55647d22e24336c6a2816c99f6b",
         "omisego_childchain_url" => "http://localhost:8082",
         "omisego_watcher_url" => "http://localhost:8081"
       }

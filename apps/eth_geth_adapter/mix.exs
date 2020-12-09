@@ -30,7 +30,7 @@ defmodule EthGethAdapter.MixProject do
       {:ewallet_config, in_umbrella: true},
       {:deferred_config, "~> 0.1.0"},
       {:ethereumex, "~> 0.5"},
-      {:ex_abi, "0.2.1"},
+      {:ex_abi, "0.5.1"},
       # Tests
       {:exexec, git: "https://github.com/pthomalla/exexec.git", branch: "add_streams", runtime: true, only: [:test]}
     ]

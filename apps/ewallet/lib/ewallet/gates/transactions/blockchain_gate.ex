@@ -43,6 +43,7 @@ defmodule EWallet.TransactionGate.Blockchain do
   @deposit_transaction Transaction.deposit()
 
   @rootchain_identifier BlockchainHelper.rootchain_identifier()
+  @token_confirmed EWalletDB.Token.Blockchain.status_confirmed()
 
   # TODO: Check if blockchain is enabled
   # TODO: Check if blockchain is available
@@ -155,6 +156,8 @@ defmodule EWallet.TransactionGate.Blockchain do
     {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
   end
 
+  def validate_blockchain_token(token), do: do_validate_token(token)
+
   defp set_blockchain_addresses(attrs, hot_wallet, true) do
     attrs
     |> Map.put("from", attrs["from_address"])
@@ -176,8 +179,8 @@ defmodule EWallet.TransactionGate.Blockchain do
     # TODO: add check for blockchain token status
     with {:ok, %{from_token: from_token}, %{to_token: to_token}} <-
            TokenFetcher.fetch(attrs, %{}, %{}),
-         true <-
-           is_binary(from_token.blockchain_address) || {:error, :token_not_blockchain_enabled},
+         :ok <- validate_blockchain_token(from_token),
+         :ok <- validate_blockchain_token(to_token),
          true <- from_token.uuid == to_token.uuid || {:error, :blockchain_exchange_not_allowed} do
       attrs
       |> Map.put("from_token_uuid", from_token.uuid)
@@ -189,20 +192,30 @@ defmodule EWallet.TransactionGate.Blockchain do
     end
   end
 
-  defp enough_funds?(
-         %{"childchain_identifier" => _, "from_blockchain_address" => address} = attrs
-       ) do
+  defp do_validate_token(%{blockchain_address: nil}), do: {:error, :token_not_blockchain_enabled}
+  defp do_validate_token(%{blockchain_status: @token_confirmed}), do: :ok
+  defp do_validate_token(%{blockchain_status: _}), do: {:error, :token_not_confirmed}
+  defp do_validate_token(%{blockchain_identifier: @rootchain_identifier}), do: :ok
+  defp do_validate_token(%{blockchain_identifier: _}), do: {:error, :rootchain_not_supported}
+
+  defp enough_funds?(%{"type" => @deposit_transaction} = attrs) do
+    check_rootchain_funds(attrs)
+  end
+
+  defp enough_funds?(%{"childchain_identifier" => _} = attrs) do
+    check_childchain_funds(attrs)
+  end
+
+  defp enough_funds?(attrs), do: check_rootchain_funds(attrs)
+
+  defp check_childchain_funds(%{"from_blockchain_address" => address} = attrs) do
     :get_childchain_balance
     |> BlockchainHelper.call(%{address: address})
     |> process_balance_response(attrs)
   end
 
-  defp enough_funds?(
-         %{
-           "rootchain_identifier" => _,
-           "from_blockchain_address" => address,
-           "from_token" => token
-         } = attrs
+  defp check_rootchain_funds(
+         %{"from_blockchain_address" => address, "from_token" => token} = attrs
        ) do
     :get_balances
     |> BlockchainHelper.call(%{

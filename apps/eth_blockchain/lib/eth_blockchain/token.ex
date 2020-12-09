@@ -74,7 +74,7 @@ defmodule EthBlockchain.Token do
   end
 
   defp parse_response({:ok, "0x" <> data}, _field, _opts) do
-    [{str}] = decode_abi(data, [{:tuple, [:string]}])
+    [str] = decode_abi(data, [:string])
     {:ok, str}
   end
 

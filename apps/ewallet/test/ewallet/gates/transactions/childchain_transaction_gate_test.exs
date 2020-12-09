@@ -26,72 +26,72 @@ defmodule EWallet.TransactionGate.ChildchainTest do
   alias Ecto.UUID
   alias ActivityLogger.System
 
-  # TODO: Update this test when fixing deposit
-  # describe "deposit/2" do
-  #   test "formats and forward attributes to the blockchain gate", meta do
-  #     # TODO: switch to using the seeded Ethereum address
-  #     admin = insert(:admin, global_role: "super_admin")
+  describe "deposit/2" do
+    test "formats and forward attributes to the blockchain gate", meta do
+      admin = insert(:admin, global_role: "super_admin")
 
-  #     primary_blockchain_token =
-  #       insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      primary_blockchain_token =
+        insert(:token,
+          blockchain_status: "confirmed",
+          blockchain_address: "0x0000000000000000000000000000000000000000"
+        )
 
-  #     rootchain_identifier = BlockchainHelper.rootchain_identifier()
-  #     hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-  #     attrs = %{
-  #       "idempotency_token" => UUID.generate(),
-  #       "address" => hot_wallet.address,
-  #       "token_id" => primary_blockchain_token.id,
-  #       "amount" => 1,
-  #       "originator" => %System{}
-  #     }
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "address" => hot_wallet.address,
+        "token_id" => primary_blockchain_token.id,
+        "amount" => 1,
+        "originator" => %System{}
+      }
 
-  #     {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
+      {:ok, transaction} = TransactionGate.Childchain.deposit(admin, attrs)
 
-  #     # this doesn't exist anymore with ALD and need to be replaced with call to the vaults
-  #     {:ok, contract_address} = BlockchainHelper.call(:get_childchain_contract_address)
+      {:ok, vault_address} = BlockchainHelper.call(:get_childchain_eth_vault_address)
 
-  #     assert transaction.status == TransactionState.blockchain_submitted()
-  #     assert transaction.type == Transaction.deposit()
-  #     assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
-  #     assert transaction.blockchain_transaction.childchain_identifier == nil
-  #     assert transaction.from_blockchain_address == hot_wallet.address
-  #     assert transaction.to_blockchain_address == contract_address
+      assert transaction.status == TransactionState.blockchain_submitted()
+      assert transaction.type == Transaction.deposit()
+      assert transaction.blockchain_transaction.rootchain_identifier == rootchain_identifier
+      assert transaction.blockchain_transaction.childchain_identifier == nil
+      assert transaction.from_blockchain_address == hot_wallet.address
+      assert transaction.to_blockchain_address == vault_address
 
-  #     {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
+      {:ok, pid} = BlockchainTransactionTracker.lookup(transaction.blockchain_transaction_uuid)
 
-  #     {:ok, %{pid: blockchain_listener_pid}} =
-  #       meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
+      {:ok, %{pid: blockchain_listener_pid}} =
+        meta[:adapter].lookup_listener(transaction.blockchain_transaction.hash)
 
-  #     # to update the transactions after the test is done.
-  #     on_exit(fn ->
-  #       :ok = GenServer.stop(pid)
-  #       :ok = GenServer.stop(blockchain_listener_pid)
-  #     end)
-  #   end
+      # to update the transactions after the test is done.
+      on_exit(fn ->
+        :ok = GenServer.stop(pid)
+        :ok = GenServer.stop(blockchain_listener_pid)
+      end)
+    end
 
-  #   test "returns an error if the amount is not an integer" do
-  #     admin = insert(:admin, global_role: "super_admin")
+    test "returns an error if the amount is not an integer" do
+      admin = insert(:admin, global_role: "super_admin")
 
-  #     primary_blockchain_token =
-  #       insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
+      primary_blockchain_token =
+        insert(:token, blockchain_address: "0x0000000000000000000000000000000000000000")
 
-  #     rootchain_identifier = BlockchainHelper.rootchain_identifier()
+      rootchain_identifier = BlockchainHelper.rootchain_identifier()
 
-  #     hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
+      hot_wallet = BlockchainWallet.get_primary_hot_wallet(rootchain_identifier)
 
-  #     attrs = %{
-  #       "idempotency_token" => UUID.generate(),
-  #       "address" => hot_wallet.address,
-  #       "token_id" => primary_blockchain_token.id,
-  #       "amount" => "1",
-  #       "originator" => %System{}
-  #     }
+      attrs = %{
+        "idempotency_token" => UUID.generate(),
+        "address" => hot_wallet.address,
+        "token_id" => primary_blockchain_token.id,
+        "amount" => "1",
+        "originator" => %System{}
+      }
 
-  #     {res, code, error} = TransactionGate.Childchain.deposit(admin, attrs)
-  #     assert res == :error
-  #     assert code == :invalid_parameter
-  #     assert error == "Invalid parameter provided. `amount` is required."
-  #   end
-  # end
+      {res, code, error} = TransactionGate.Childchain.deposit(admin, attrs)
+      assert res == :error
+      assert code == :invalid_parameter
+      assert error == "Invalid parameter provided. `amount` is required."
+    end
+  end
 end

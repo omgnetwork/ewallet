@@ -145,12 +145,31 @@ commands:
           name: Attach workspace
           at: ~/
 
+  add_rust_to_path:
+    description: "Add path to PATH env var"
+    steps:
+      - run:
+          name: Add rust to PATH env
+          command: echo 'export PATH=~/.cargo/bin/:$PATH' >> $BASH_ENV
+      - run:
+          name: Export flags
+          command: echo 'export RUSTFLAGS="-C target-feature=-crt-static"' >> $BASH_ENV
+
+  install_rust:
+    description: "Install Rust"
+    steps:
+      - run:
+          name: Install Rust
+          command: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+      - add_rust_to_path
+
 
 jobs:
   build:
     executor: builder
     steps:
       - checkout
+      - install_rust
       - run: |
           mkdir -p ~/var
           elixir --version | tee ~/var/elixir-version

@@ -48,20 +48,16 @@ defmodule EthBlockchain.ABIEncoder do
   end
 
   def encode_erc20_attrs(name, symbol, decimals, initial_amount) do
-    [{name, symbol, decimals, initial_amount}]
+    [name, symbol, decimals, initial_amount]
     |> TypeEncoder.encode(%FunctionSelector{
       function: nil,
-      types: [{:tuple, [:string, :string, {:uint, 8}, {:uint, 256}]}]
+      types: [:string, :string, {:uint, 8}, {:uint, 256}]
     })
     |> Base.encode16(case: :lower)
   end
 
-  def child_chain_eth_deposit(tx_bytes) do
+  def child_chain_deposit(tx_bytes) do
     {:ok, ABI.encode("deposit(bytes)", [tx_bytes])}
-  end
-
-  def child_chain_erc20_deposit(tx_bytes) do
-    {:ok, ABI.encode("depositFrom(bytes)", [tx_bytes])}
   end
 
   def mint("0x" <> _ = address, amount) do
